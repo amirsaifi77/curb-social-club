@@ -8,9 +8,9 @@ Three applications (Rails API, React web, Expo mobile) share TypeScript types ge
 
 ## Decision
 
-One private repository `cars-and-coffee` using pnpm workspaces for JavaScript packages and Turborepo for task orchestration and caching. The Rails app lives at `apps/api` as a workspace package with a `package.json` containing only scripts that wrap `bundle`, `rspec`, and `rubocop`, so Turborepo can run and cache it while pnpm installs nothing for it.
+One private repository `curb-social-club` (renamed from `cars-and-coffee` on 2026-09-05, see ADR 0009) using pnpm workspaces for JavaScript packages and Turborepo for task orchestration and caching. The Rails app lives at `apps/api` as a workspace package with a `package.json` containing only scripts that wrap `bundle`, `rspec`, and `rubocop`, so Turborepo can run and cache it while pnpm installs nothing for it.
 
-Workspace packages are scoped `@cac/*`. Shared TypeScript lives in `packages/`. Root `turbo.json` defines `build`, `dev`, `lint`, `test`, `typecheck`, `openapi`, and `generate` tasks; `apps/api/turbo.json` narrows inputs to Ruby files.
+Workspace packages are scoped `@curb/*`. Shared TypeScript lives in `packages/`. Root `turbo.json` defines `build`, `dev`, `lint`, `test`, `typecheck`, `openapi`, and `generate` tasks; `apps/api/turbo.json` narrows inputs to Ruby files.
 
 ## Alternatives
 

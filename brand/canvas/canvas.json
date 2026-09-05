@@ -5,64 +5,87 @@
       "title": "Feed",
       "x": 0,
       "y": 0,
-      "w": 390,
-      "h": 844
+      "w": 402,
+      "h": 874
     },
     {
       "file": "Map.dc.html",
       "title": "Map",
-      "x": 480,
+      "x": 500,
       "y": 0,
-      "w": 390,
-      "h": 844
+      "w": 402,
+      "h": 874
     },
     {
       "file": "List.dc.html",
       "title": "List",
-      "x": 960,
+      "x": 1000,
       "y": 0,
-      "w": 390,
-      "h": 844
+      "w": 402,
+      "h": 874
     },
     {
       "file": "EventDetail.dc.html",
       "title": "Event detail",
-      "x": 1440,
+      "x": 1500,
       "y": 0,
-      "w": 390,
-      "h": 844
+      "w": 402,
+      "h": 874
     },
     {
       "file": "CreateFromLink.dc.html",
       "title": "Create from link",
-      "x": 1920,
+      "x": 2000,
       "y": 0,
-      "w": 840,
-      "h": 844
+      "w": 402,
+      "h": 874
+    },
+    {
+      "file": "ThemeComparison.dc.html",
+      "title": "Theme comparison",
+      "x": 0,
+      "y": 1040,
+      "w": 1848,
+      "h": 1080
     },
     {
       "file": "Landing.dc.html",
       "title": "Web landing",
       "x": 0,
-      "y": 1000,
+      "y": 2280,
       "w": 1440,
-      "h": 1900
+      "h": 2260
+    },
+    {
+      "file": "BrandBoard.dc.html",
+      "title": "Brand board",
+      "x": 0,
+      "y": 4700,
+      "w": 2400,
+      "h": 1760
     }
   ],
   "annotations": [
     {
       "id": "brand-note",
       "x": 0,
-      "y": -170,
-      "w": 420,
-      "text": "Cars and Coffee, iOS 26 Liquid Glass.\\nAmber #E8871E on warm cream #FBF7F1, espresso #2A1A10 ink.\\nGlass is the nav layer; content runs edge-to-edge underneath. Inter stands in for SF Pro. No status bar drawn (the real one renders on top)."
+      "y": -360,
+      "w": 460,
+      "text": "curb, iOS 26 Liquid Glass, Marine Layer (light).\nGlass is the nav layer only: tab bar pill, toolbar buttons, bottom search. Content is flat: surface on bg, 1px hairlines, no shadows, no gradients.\nInstrument Serif for the masthead, section headers and event titles. Geist for everything else (it also stands in for SF Pro in the tab bar). Plate style (uppercase, tracked, tabular) for times and distances.\nNo status bar drawn; the real one renders on top."
     },
     {
-      "id": "create-note",
-      "x": 1920,
-      "y": -110,
+      "id": "accent-note",
+      "x": 1500,
+      "y": -240,
+      "w": 400,
+      "text": "One accent per screen: oxblood goes on I'm going (detail), Post (create), and the today pin (map). Selected tab is ink, not accent, so the accent stays reserved for the action."
+    },
+    {
+      "id": "themes-note",
+      "x": 1900,
+      "y": 1040,
       "w": 380,
-      "text": "Create flow: paste an Evite URL, then review the draft. Each field carries a confidence chip: Sure (green), Check (amber), Guess (red)."
+      "text": "Same Feed, four token sets. Every role name is shared, so a component is written once and themed by tokens. Placeholder photos are flat three-band blocks (sky, lot, asphalt), desaturated and cool."
     }
   ],
   "launch": {

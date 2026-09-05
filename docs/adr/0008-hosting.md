@@ -13,7 +13,7 @@ The brief allows Render or Fly.io for Rails plus Postgres/PostGIS, Vercel for we
 | API and workers | Render | One web service (`bin/thrust bin/rails server`), one background worker (`bin/jobs`), both built from the Rails Dockerfile. Declared in `render.yaml`. Auto deploy from `main` after CI. |
 | Database | Render managed Postgres 16 | `CREATE EXTENSION postgis` is supported. Daily backups. Start on the smallest paid tier; free tier databases expire. |
 | Web | Vercel | React Router v7 preset, preview deploys per PR, production on `main`, edge caching for OG images. |
-| Media | Cloudflare R2 | S3-compatible endpoint for Active Storage via `aws-sdk-s3`. Public bucket behind a custom domain (`media.carsandcoffee.app`) with Cloudflare caching. No egress fees. |
+| Media | Cloudflare R2 | S3-compatible endpoint for Active Storage via `aws-sdk-s3`. Public bucket behind a custom domain (`media.curbsocial.club`, domain unconfirmed) with Cloudflare caching. No egress fees. |
 | DNS and TLS | Cloudflare | Apex and subdomains, proxied for web and media, DNS-only for the Render API host (Render terminates TLS). |
 | Errors | Sentry | Free tier. |
 | Email | Resend | Free tier at launch. |

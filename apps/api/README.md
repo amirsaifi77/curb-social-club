@@ -1,12 +1,21 @@
-# @cac/api
+# @curb/api
 
-Rails 8 API-only backend for Cars and Coffee. Not generated yet. This README is the spec for the `rails new` PR.
+Rails 8 API-only backend for Curb Social Club. Not generated yet. This README is the spec for the `rails new` PR.
+
+## Names
+
+| Thing | Value |
+|---|---|
+| Directory | `apps/api` |
+| Rails app name (`--name`) | `curb_social_club`, so `config/application.rb` defines `module CurbSocialClub` |
+| Databases | `curb_social_club_development`, `curb_social_club_test`, `curb_social_club_production` (Rails defaults from the app name; `docker-compose.yml` and CI create the same names) |
+| Importer user agent | `CurbSocialClubBot/1.0` (see `docs/importer.md`) |
 
 ## Generate
 
 ```sh
 cd apps
-rails new api --api --database=postgresql --skip-test --skip-action-mailbox --skip-action-text --skip-action-cable --skip-jbuilder
+rails new api --name=curb_social_club --api --database=postgresql --skip-test --skip-action-mailbox --skip-action-text --skip-action-cable --skip-jbuilder
 ```
 
 Then add the gems below, switch to `structure.sql` (`config.active_record.schema_format = :sql`), and install rspec.
@@ -53,7 +62,7 @@ apps/api/
   db/
     migrate/
     structure.sql
-    seeds.rb                  # Inland Empire venues and sample recurring meets
+    seeds.rb                  # coastal Orange County and Inland Empire venues, sample recurring meets
   spec/
     requests/api/v1/          # rswag specs, generate OpenAPI
     models/, services/, jobs/, policies/
@@ -70,11 +79,11 @@ apps/api/
 
 | Command | What |
 |---|---|
-| `pnpm --filter @cac/api build` | `bundle install && bin/rails db:prepare` |
-| `pnpm --filter @cac/api dev` | `bin/dev` (Puma + Solid Queue worker) |
-| `pnpm --filter @cac/api test` | rspec |
-| `pnpm --filter @cac/api lint` | rubocop |
-| `pnpm --filter @cac/api openapi` | regenerate `swagger/v1/openapi.yaml` |
+| `pnpm --filter @curb/api build` | `bundle install && bin/rails db:prepare` |
+| `pnpm --filter @curb/api dev` | `bin/dev` (Puma + Solid Queue worker) |
+| `pnpm --filter @curb/api test` | rspec |
+| `pnpm --filter @curb/api lint` | rubocop |
+| `pnpm --filter @curb/api openapi` | regenerate `swagger/v1/openapi.yaml` |
 | `bin/rails c` | console |
 | `bin/rails db:seed` | seed venues and meets |
 

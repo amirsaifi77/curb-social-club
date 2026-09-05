@@ -1,8 +1,8 @@
-# Cars and Coffee Architecture
+# Curb Social Club Architecture
 
 Status: planning draft, 2026-09-05. Owner: Amir. This document is the reference for how the system fits together. Decisions with trade-offs are recorded as ADRs in `docs/adr/` and linked from section 9.
 
-Scope reminder: iOS first, web second, SoCal / Inland Empire launch, solo builder at 10 to 15 hours per week. Every choice below optimizes for a small surface area, boring infrastructure, and Rails doing the heavy lifting.
+Scope reminder: iOS first, web second, coastal Orange County launch with the Inland Empire as the second ring, solo builder at 10 to 15 hours per week. Every choice below optimizes for a small surface area, boring infrastructure, and Rails doing the heavy lifting.
 
 ## Table of contents
 
@@ -84,7 +84,7 @@ flowchart LR
 One repository, pnpm workspaces plus Turborepo. Rails lives inside the workspace as a package that pnpm installs nothing for and Turborepo orchestrates through npm scripts.
 
 ```
-cars-and-coffee/
+curb-social-club/
   .editorconfig
   .github/
     ISSUE_TEMPLATE/
@@ -141,7 +141,7 @@ Turborepo has no Ruby awareness and does not need any. Its unit is a workspace p
 
 ```json
 {
-  "name": "@cac/api",
+  "name": "@curb/api",
   "private": true,
   "scripts": {
     "dev": "bin/dev",
@@ -154,7 +154,7 @@ Turborepo has no Ruby awareness and does not need any. Its unit is a workspace p
 }
 ```
 
-An `apps/api/turbo.json` extends the root config and declares Ruby-specific inputs so cache hashes change only when Ruby files, `Gemfile.lock`, or `db/` change, and it lists `swagger/v1/openapi.yaml` as an output so `packages/types` can depend on `@cac/api#openapi` through `dependsOn`. Test and lint tasks for api are marked `cache: false` in CI until we trust the input globs, because a stale cache hit on rspec is worse than a slow run.
+An `apps/api/turbo.json` extends the root config and declares Ruby-specific inputs so cache hashes change only when Ruby files, `Gemfile.lock`, or `db/` change, and it lists `swagger/v1/openapi.yaml` as an output so `packages/types` can depend on `@curb/api#openapi` through `dependsOn`. Test and lint tasks for api are marked `cache: false` in CI until we trust the input globs, because a stale cache hit on rspec is worse than a slow run.
 
 ### How pnpm ignores it
 
@@ -162,7 +162,7 @@ An `apps/api/turbo.json` extends the root config and declares Ruby-specific inpu
 
 ### Naming
 
-All workspace packages are scoped `@cac/*`. Apps: `@cac/api`, `@cac/web`, `@cac/mobile`. Packages: `@cac/api-client`, `@cac/types`, `@cac/design-tokens`, `@cac/ui`, `@cac/config`.
+All workspace packages are scoped `@curb/*`. Apps: `@curb/api`, `@curb/web`, `@curb/mobile`. Packages: `@curb/api-client`, `@curb/types`, `@curb/design-tokens`, `@curb/ui`, `@curb/config`.
 
 ## 3. Backend (Rails 8 API-only)
 
@@ -440,7 +440,7 @@ Full reference draft in `docs/api.md`. Conventions:
 
 | Convention | Value |
 |---|---|
-| Base | `https://api.carsandcoffee.app/v1` |
+| Base | `https://api.curbsocial.club/v1` (domain unconfirmed) |
 | Auth header | `Authorization: Bearer <session token>`; optional `X-Device-Id: <uuid>` on every request for anonymous personalization |
 | Content | JSON, snake_case keys, ISO 8601 UTC timestamps with a separate `timezone` where display matters |
 | Pagination | Cursor based: `?cursor=&limit=` returns `{ data: [...], meta: { next_cursor, has_more } }` |
@@ -643,7 +643,7 @@ When Next.js would win: heavy image optimization needs, an eventual marketing si
 
 | Route | Loader | SEO |
 |---|---|---|
-| `/` | Nearby upcoming (IP geolocation via Vercel header, fallback to Inland Empire) | Index page |
+| `/` | Nearby upcoming (IP geolocation via Vercel header, fallback to coastal Orange County) | Index page |
 | `/meets` | Search with query params (`near`, `from`, `tags`) | Indexable with canonical |
 | `/meets/:slug` | Event detail, next occurrences, photos | Primary SEO target. `meta` export emits title, description, `og:image`, `og:type=event`, JSON-LD `Event` with `eventSchedule` for recurring meets. |
 | `/meets/:slug/:occurrenceId` | Single date | Canonical points at the event unless the occurrence is overridden |
@@ -657,7 +657,7 @@ When Next.js would win: heavy image optimization needs, an eventual marketing si
 
 ### 4.3 OG cards and share links
 
-Every event has one canonical URL `https://carsandcoffee.app/meets/:slug`. The mobile app shares that URL; universal links (`apple-app-site-association`) open it in the app when installed. The OG image route renders a 1200x630 card (title, date, venue, cover photo, brand mark) and caches it at the edge for 1 hour. iMessage and Instagram unfurl from those tags.
+Every event has one canonical URL `https://curbsocial.club/meets/:slug` (domain unconfirmed). The mobile app shares that URL; universal links (`apple-app-site-association`) open it in the app when installed. The OG image route renders a 1200x630 card (title, date, venue, cover photo, brand mark) and caches it at the edge for 1 hour. iMessage and Instagram unfurl from those tags.
 
 ### 4.4 Maps
 
@@ -674,10 +674,10 @@ Summary only; the mobile workstream owns `docs/mobile-liquid-glass.md` and the d
 | Topic | Decision |
 |---|---|
 | SDK | Expo SDK 57 (current stable as of September 2026; SDK 58 is in canary and is needed for Xcode 27, see [mobile-liquid-glass.md](mobile-liquid-glass.md)), New Architecture on, Expo Router for file-based navigation, development builds (not Expo Go) because of native modules for maps, Apple auth, and glass effects. |
-| Language | TypeScript strict, shared `@cac/config` tsconfig. |
-| Styling | Design tokens from `@cac/design-tokens`; styling library choice (NativeWind vs Unistyles) is the mobile workstream's call, tokens support both. |
+| Language | TypeScript strict, shared `@curb/config` tsconfig. |
+| Styling | Design tokens from `@curb/design-tokens`; styling library choice (NativeWind vs Unistyles) is the mobile workstream's call, tokens support both. |
 | iOS 26 | Liquid Glass via `expo-glass-effect` and native tab bars where the SDK exposes them. Custom glass fallbacks on iOS < 26. |
-| Data | `@cac/api-client` hooks, TanStack Query with persisted cache for offline browse of recently loaded meets. |
+| Data | `@curb/api-client` hooks, TanStack Query with persisted cache for offline browse of recently loaded meets. |
 | Auth | `expo-apple-authentication`, Google sign-in native module, tokens in `expo-secure-store`. |
 | Push | `expo-notifications`, token registered via `POST /devices`. |
 | Location | `expo-location` with "when in use" only. Coarse for browse, precise only for check-in (and only at the moment of check-in). |
@@ -692,13 +692,13 @@ Summary only; the mobile workstream owns `docs/mobile-liquid-glass.md` and the d
 apps/api rswag request specs
   -> bundle exec rake rswag:specs:swaggerize
   -> apps/api/swagger/v1/openapi.yaml           (committed, reviewed in PRs)
-  -> pnpm --filter @cac/types generate
+  -> pnpm --filter @curb/types generate
        openapi-typescript openapi.yaml -o src/generated.d.ts
   -> packages/types exports paths, components, and helper aliases (Event, Occurrence, ...)
   -> packages/api-client uses openapi-fetch for a typed client with zero runtime schema
 ```
 
-Turborepo wires `@cac/types#generate` to depend on `@cac/api#openapi`, and `@cac/api-client#build` to depend on `^build`, so `pnpm turbo build` regenerates types when the spec changes. The generated file is committed so that web and mobile CI do not need Ruby. A CI check runs the generation and fails if the committed file is stale.
+Turborepo wires `@curb/types#generate` to depend on `@curb/api#openapi`, and `@curb/api-client#build` to depend on `^build`, so `pnpm turbo build` regenerates types when the spec changes. The generated file is committed so that web and mobile CI do not need Ruby. A CI check runs the generation and fails if the committed file is stale.
 
 ### 6.2 Design tokens
 
@@ -706,11 +706,11 @@ Turborepo wires `@cac/types#generate` to depend on `@cac/api#openapi`, and `@cac
 
 | Output | Consumer |
 |---|---|
-| `dist/tokens.ts` (typed object) | Mobile (NativeWind theme or Unistyles theme), web components |
-| `dist/tokens.css` (custom properties, light and dark) | Web global stylesheet |
+| `dist/tokens.ts` (typed object, one export per theme and appearance) | Mobile (NativeWind theme or Unistyles theme), web components |
+| `dist/tokens.css` (custom properties per theme and appearance, selected by `data-theme` and `prefers-color-scheme`) | Web global stylesheet |
 | `dist/tailwind.theme.js` | NativeWind and web Tailwind config if used |
 
-Tokens cover color (semantic, not raw), spacing scale, radii, typography (family, size, line height, weight), elevation, and glass material parameters for iOS 26 (blur radius, tint alpha) so the web can echo the look without native glass.
+Tokens cover color (semantic, not raw), spacing scale, radii, typography (family, size, line height, weight), elevation, and glass material parameters for iOS 26 (blur radius, tint alpha) so the web can echo the look without native glass. The semantic color set is defined once and given values six times: three themes (Marine Layer, the default; Harbor; Olive and Ivory) by two appearances (light, dark). Consumers switch theme at runtime through a theme context on mobile and a `data-theme` attribute on web; the appearance follows the system. All fills are flat (no gradient tokens); glass parameters apply only to the system chrome layer.
 
 ### 6.3 Shared UI (`packages/ui`)
 
@@ -718,7 +718,7 @@ Feasible but bounded. Truly shared code is logic and tokens, not pixels: the `su
 
 ### 6.4 Config (`packages/config`)
 
-`eslint` flat config (typescript-eslint, react, react-hooks, import ordering, no default exports outside routes), `prettier` config, and `tsconfig.base.json` (strict, `moduleResolution: bundler`, path alias `@cac/*`). Rails keeps its own `rubocop` config.
+`eslint` flat config (typescript-eslint, react, react-hooks, import ordering, no default exports outside routes), `prettier` config, and `tsconfig.base.json` (strict, `moduleResolution: bundler`, path alias `@curb/*`). Rails keeps its own `rubocop` config.
 
 ## 7. CI/CD
 
@@ -727,8 +727,8 @@ GitHub Actions, one workflow with per-app jobs gated by `paths` filters so a mob
 | Job | Trigger | Steps |
 |---|---|---|
 | `api` | changes under `apps/api/**` | Ruby 3.3 setup with bundler cache, Postgres service `postgis/postgis:16-3.4`, `db:prepare`, `rubocop`, `rspec`, upload `openapi.yaml` artifact, fail if committed spec is stale |
-| `web` | `apps/web/**`, `packages/**` | pnpm install with cache, `turbo lint typecheck test build --filter=@cac/web...` |
-| `mobile` | `apps/mobile/**`, `packages/**` | pnpm install, `turbo lint typecheck test --filter=@cac/mobile...`; no native build on PRs |
+| `web` | `apps/web/**`, `packages/**` | pnpm install with cache, `turbo lint typecheck test build --filter=@curb/web...` |
+| `mobile` | `apps/mobile/**`, `packages/**` | pnpm install, `turbo lint typecheck test --filter=@curb/mobile...`; no native build on PRs |
 | `packages` | `packages/**` | `turbo lint typecheck test build --filter='./packages/*'` |
 | `eas-build` | tag `mobile-v*` | `eas build --platform ios --profile production --non-interactive`, then `eas submit` to TestFlight |
 | `deploy-web` | Vercel Git integration, not Actions | Preview per PR, production on `main` |

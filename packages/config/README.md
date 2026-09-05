@@ -1,4 +1,4 @@
-# @cac/config
+# @curb/config
 
 Shared lint, format, and TypeScript configuration. Not implemented yet.
 
@@ -10,7 +10,7 @@ Shared lint, format, and TypeScript configuration. Not implemented yet.
 | `eslint/react.js` | Adds react, react-hooks, jsx-a11y |
 | `eslint/react-native.js` | Adds react-native and expo rules |
 | `prettier.config.js` | 2 spaces, single quotes, trailing commas, 100 print width |
-| `tsconfig.base.json` | strict, `moduleResolution: bundler`, `verbatimModuleSyntax`, `@cac/*` paths |
+| `tsconfig.base.json` | strict, `moduleResolution: bundler`, `verbatimModuleSyntax`, `@curb/*` paths |
 | `tsconfig.react.json` | base plus `jsx: react-jsx`, DOM lib |
 | `tsconfig.react-native.json` | base plus Expo's tsconfig |
 
@@ -18,13 +18,13 @@ Shared lint, format, and TypeScript configuration. Not implemented yet.
 
 ```js
 // apps/web/eslint.config.js
-import react from "@cac/config/eslint/react";
+import react from "@curb/config/eslint/react";
 export default [...react];
 ```
 
 ```json
 // apps/mobile/tsconfig.json
-{ "extends": "@cac/config/tsconfig.react-native.json" }
+{ "extends": "@curb/config/tsconfig.react-native.json" }
 ```
 
 Ruby keeps its own rubocop config in `apps/api`.

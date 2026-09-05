@@ -7,94 +7,88 @@
 <body>
 <x-dc>
 <helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { margin: 0; font-family: Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif; color: #1F1712; -webkit-font-smoothing: antialiased; font-feature-settings: 'cv11', 'ss01', 'tnum'; }
-    a { color: #2C6BA3; text-decoration: none; } a:hover { color: #1F4F7A; }
     * { box-sizing: border-box; }
-    .glass { background: rgba(255,255,255,0.58); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 8px 32px rgba(42,26,16,0.16), inset 0 1px 0 rgba(255,255,255,0.8); }
-    .glass-dark { background: rgba(30,25,23,0.42); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22); color: #F5EFE8; }
-    .glass-amber { background: rgba(232,135,30,0.82); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255,255,255,0.55); box-shadow: 0 8px 28px rgba(168,89,10,0.35), inset 0 1px 0 rgba(255,255,255,0.6); color: #2A1A10; }
-    .ico { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    body { margin: 0; --bg:#F3F4F4;--surface:#F9FAFA;--raised:#FFFFFF;--border:#D5D9DB;--ink:#23272A;--ink2:#5C6469;--accent:#5E2A2E;--accentInk:#F3F4F4;--link:#3C5A70;--glass:rgba(243,244,244,0.65);--glassHair:rgba(213,217,219,0.35); background: var(--bg); color: var(--ink); font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; font-feature-settings: 'tnum'; }
+    a { color: var(--link); text-decoration: none; } a:hover { color: var(--ink); }
+    .serif { font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif; font-weight: 400; }
+    .plate { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 13px; line-height: 16px; letter-spacing: 0.6px; text-transform: uppercase; font-feature-settings: 'tnum', 'case'; color: var(--ink2); }
+    .label { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 11px; line-height: 14px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink2); }
+    .caption { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: var(--ink2); }
+    .glass { background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.1); backdrop-filter: blur(20px) saturate(1.1); box-shadow: 0 0 0 1px var(--glassHair); }
+    .ico { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
     .ico-sm { width: 18px; height: 18px; }
+    .ico-xs { width: 14px; height: 14px; stroke-width: 1.75; }
     .ico-fill { fill: currentColor; stroke: none; }
-    .photo { position: relative; overflow: hidden; background: linear-gradient(180deg, #F5B865 0%, #E8A052 38%, #8A7E74 62%, #4A403B 100%); }
-    .photo::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 22% 12%, rgba(255,243,223,0.9) 0%, rgba(255,243,223,0) 45%); }
-    .photo.v2 { background: linear-gradient(180deg, #BFDDF5 0%, #F5D9A6 40%, #8A7E74 62%, #3A312C 100%); }
-    .photo.v3 { background: linear-gradient(180deg, #F0A040 0%, #C26A25 40%, #5A3A22 65%, #2A1A10 100%); }
-    .photo.v4 { background: linear-gradient(180deg, #E6F2FB 0%, #FAD9A6 45%, #B3A79D 62%, #4A403B 100%); }
-    .photo .car { position: absolute; left: 50%; bottom: 10%; width: 58%; transform: translateX(-50%); fill: #1F1712; opacity: 0.78; }
-    .scrim { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(20,17,16,0) 0%, rgba(20,17,16,0.72) 100%); }
-    .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
-    .stack > * { flex: none; }
-    .avatar { width: 28px; height: 28px; border-radius: 999px; border: 2px solid #FFFFFF; flex: none; }
-
-    body { background: #FBF7F1; }
-  </style>
+    .chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 500; letter-spacing: 0.2px; white-space: nowrap; box-shadow: 0 0 0 1px var(--border); }
+    .rule { height: 1px; background: var(--border); flex: none; }
+</style>
 </helmet>
-<div style="width:390px;height:844px;position:relative;overflow:hidden;background:#FBF7F1;border-radius:0">
-  <div style="position:absolute;top:0;left:0;right:0;height:130px;z-index:10;background:linear-gradient(180deg,#FBF7F1 70%,rgba(251,247,241,0) 100%)"></div>
-  <div style="position:absolute;top:60px;left:16px;right:16px;z-index:11;display:flex;align-items:center;justify-content:space-between">
-    <div style="display:flex;flex-direction:column;gap:2px">
-      <span style="font-size:13px;font-weight:500;color:#8A7E74">Within 25 mi · this weekend</span>
-      <span style="font-size:28px;font-weight:700;letter-spacing:-0.4px;line-height:34px">14 meets</span>
+<div style="--bg:#F3F4F4;--surface:#F9FAFA;--raised:#FFFFFF;--border:#D5D9DB;--ink:#23272A;--ink2:#5C6469;--accent:#5E2A2E;--accentInk:#F3F4F4;--link:#3C5A70;--glass:rgba(243,244,244,0.65);--glassHair:rgba(213,217,219,0.35);width:402px;height:874px;position:relative;overflow:hidden;background:#F3F4F4;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;color:#23272A">
+  <div style="position:absolute;top:58px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="plate" style="">This weekend &middot; within 25 mi</span>
+      <span class="serif" style="font-size:40px;line-height:44px;letter-spacing:-0.4px;color:#23272A">14 meets</span>
     </div>
-    <div class="glass" style="height:44px;padding:0 6px;border-radius:22px;display:flex;align-items:center;color:#1F1712">
-      <div style="height:34px;padding:0 12px;border-radius:17px;background:#2A1A10;color:#FFFFFF;display:flex;align-items:center;font-size:13px;font-weight:600">Date</div>
-      <div style="height:34px;padding:0 12px;border-radius:17px;display:flex;align-items:center;font-size:13px;font-weight:500;color:#6B5F57">Distance</div>
-    </div>
-  </div>
-  <div class="stack" style="position:absolute;top:142px;left:0;right:0;bottom:0;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:10px">
-    <span style="font-size:13px;font-weight:600;color:#8A7E74;text-transform:uppercase;letter-spacing:0.4px;padding:0 4px">Saturday</span>
-    <div style="display:flex;gap:12px;padding:12px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 12px rgba(42,26,16,0.08)">
-      <div class="photo " style="width:96px;height:96px;border-radius:14px;flex:none"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:600;letter-spacing:-0.1px;line-height:22px">Sunrise Coffee &amp; Cars</span><div class="chip" style="background:#E8871E;color:#2A1A10;height:22px;padding:0 8px;font-size:11px">Today</div></div>
-        <span style="font-size:14px;color:#1F1712;font-weight:500">7:00 to 10:00am</span>
-        <span style="font-size:14px;color:#6B5F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Victoria Gardens · 4.2 mi</span>
-        <div style="margin-top:2px"><div style="display:flex;align-items:center"><div class="avatar" style="width:22px;height:22px;background:#E8871E;"></div><div class="avatar" style="width:22px;height:22px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:22px;height:22px;background:#7C5CC4;margin-left:-8px;"></div><span style="margin-left:8px;font-size:13px;color:#6B5F57;font-weight:500">42 going</span></div></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:12px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 12px rgba(42,26,16,0.08)">
-      <div class="photo v4" style="width:96px;height:96px;border-radius:14px;flex:none"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:600;letter-spacing:-0.1px;line-height:22px">Fontana Foothill Meet</span></div>
-        <span style="font-size:14px;color:#1F1712;font-weight:500">8:00am</span>
-        <span style="font-size:14px;color:#6B5F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Sierra Ave &amp; Foothill · 2.1 mi</span>
-        <div style="margin-top:2px"><div style="display:flex;align-items:center"><div class="avatar" style="width:22px;height:22px;background:#E8871E;"></div><div class="avatar" style="width:22px;height:22px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:22px;height:22px;background:#7C5CC4;margin-left:-8px;"></div><span style="margin-left:8px;font-size:13px;color:#6B5F57;font-weight:500">19 going</span></div></div>
-      </div>
-    </div>
-    <span style="font-size:13px;font-weight:600;color:#8A7E74;text-transform:uppercase;letter-spacing:0.4px;padding:8px 4px 0">Sunday</span>
-    <div style="display:flex;gap:12px;padding:12px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 12px rgba(42,26,16,0.08)">
-      <div class="photo v2" style="width:96px;height:96px;border-radius:14px;flex:none"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:600;letter-spacing:-0.1px;line-height:22px">Inland Empire Euro Meet</span><div class="chip" style="background:#7C5CC4;color:#fff;height:22px;padding:0 8px;font-size:11px">Weekly</div></div>
-        <span style="font-size:14px;color:#1F1712;font-weight:500">8:00am</span>
-        <span style="font-size:14px;color:#6B5F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ontario Mills west lot · 6.8 mi</span>
-        <div style="margin-top:2px"><div style="display:flex;align-items:center"><div class="avatar" style="width:22px;height:22px;background:#E8871E;"></div><div class="avatar" style="width:22px;height:22px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:22px;height:22px;background:#7C5CC4;margin-left:-8px;"></div><span style="margin-left:8px;font-size:13px;color:#6B5F57;font-weight:500">118 going</span></div></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:12px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 12px rgba(42,26,16,0.08)">
-      <div class="photo v3" style="width:96px;height:96px;border-radius:14px;flex:none"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:600;letter-spacing:-0.1px;line-height:22px">Riverside Sunday Roll-In</span></div>
-        <span style="font-size:14px;color:#1F1712;font-weight:500">8:30am</span>
-        <span style="font-size:14px;color:#6B5F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Canyon Crest Towne Centre · 18 mi</span>
-        <div style="margin-top:2px"><div style="display:flex;align-items:center"><div class="avatar" style="width:22px;height:22px;background:#E8871E;"></div><div class="avatar" style="width:22px;height:22px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:22px;height:22px;background:#7C5CC4;margin-left:-8px;"></div><span style="margin-left:8px;font-size:13px;color:#6B5F57;font-weight:500">31 going</span></div></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:12px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 12px rgba(42,26,16,0.08)">
-      <div class="photo v4" style="width:96px;height:96px;border-radius:14px;flex:none"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:600;letter-spacing:-0.1px;line-height:22px">Chino Hills Cars &amp; Cortados</span></div>
-        <span style="font-size:14px;color:#1F1712;font-weight:500">9:00am</span>
-        <span style="font-size:14px;color:#6B5F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">The Shoppes at Chino Hills · 14 mi</span>
-        <div style="margin-top:2px"><div style="display:flex;align-items:center"><div class="avatar" style="width:22px;height:22px;background:#E8871E;"></div><div class="avatar" style="width:22px;height:22px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:22px;height:22px;background:#7C5CC4;margin-left:-8px;"></div><span style="margin-left:8px;font-size:13px;color:#6B5F57;font-weight:500">56 going</span></div></div>
-      </div>
+    <div class="glass" style="height:40px;padding:0 4px;border-radius:20px;display:flex;align-items:center;gap:2px">
+      <div style="height:32px;padding:0 12px;border-radius:16px;background:#23272A;color:#F3F4F4;display:flex;align-items:center;font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:13px;font-weight:600">Date</div>
+      <div style="height:32px;padding:0 12px;border-radius:16px;display:flex;align-items:center;font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:13px;font-weight:500;color:#5C6469">Distance</div>
     </div>
   </div>
-  <div class="glass" style="position:absolute;left:50%;bottom:98px;transform:translateX(-50%);height:40px;padding:0 16px;border-radius:20px;display:flex;align-items:center;gap:6px;color:#1F1712;font-size:14px;font-weight:600;z-index:21"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Map</div>
-  <div style="position:absolute;left:16px;right:16px;bottom:18px;display:flex;align-items:center;gap:10px;z-index:20"><div class="glass" style="flex:1;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:space-around;padding:0 6px;color:#1F1712"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#A8590A"><svg class="ico" viewBox="0 0 24 24" style=""><path class="ico-fill" d="M3 11.5 12 4l9 7.5v8.5a1 1 0 0 1-1 1h-5v-6h-4v6H4a1 1 0 0 1-1-1z"/></svg><span style="font-size:11px;font-weight:600">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span style="font-size:11px;font-weight:500">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span style="font-size:11px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5a6 6 0 0 1 11 0"/></svg><span style="font-size:11px;font-weight:500">Profile</span></div></div><div class="glass-amber" style="width:64px;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M12 5v14M5 12h14"/></svg></div></div>
+  <div style="position:absolute;top:130px;left:20px;right:20px;bottom:0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;padding:22px 0 8px;border-bottom:1px solid #D5D9DB">
+      <span class="serif" style="font-size:22px;line-height:26px;color:#23272A">Saturday</span><span class="plate" style="">Sep 5</span></div>
+    <div style="border-bottom:1px solid #D5D9DB"><div style="display:flex;gap:14px;align-items:center;padding:14px 0">
+      <div style="position:relative;overflow:hidden;background:#CFD4D6;width:96px;height:72px;border-radius:10px;flex:none"><div style="position:absolute;left:0;right:0;top:55%;bottom:0;background:#A9B1B5"></div><div style="position:absolute;left:0;right:0;top:81%;bottom:0;background:#717A7E"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <span style="font-size:16px;line-height:20px;font-weight:500;color:#23272A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Coffee</span>
+        <span class="plate" style="">7:30 AM &middot; 4.2 mi</span>
+        <span class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Air-Cooled &middot; 42 going</span>
+      </div>
+      <svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#2E6B51"><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg>
+    </div></div>
+    <div style="border-bottom:1px solid #D5D9DB"><div style="display:flex;gap:14px;align-items:center;padding:14px 0">
+      <div style="position:relative;overflow:hidden;background:#D3D7D9;width:96px;height:72px;border-radius:10px;flex:none"><div style="position:absolute;left:0;right:0;top:55%;bottom:0;background:#B0B7BA"></div><div style="position:absolute;left:0;right:0;top:81%;bottom:0;background:#7B8488"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <span style="font-size:16px;line-height:20px;font-weight:500;color:#23272A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Mariners Mile early lot</span>
+        <span class="plate" style="">8:00 AM &middot; 2.8 mi</span>
+        <span class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Mariners Mile Garage &middot; 18 going</span>
+      </div>
+      
+    </div></div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;padding:22px 0 8px;border-bottom:1px solid #D5D9DB">
+      <span class="serif" style="font-size:22px;line-height:26px;color:#23272A">Sunday</span><span class="plate" style="">Sep 6</span></div>
+    <div style="border-bottom:1px solid #D5D9DB"><div style="display:flex;gap:14px;align-items:center;padding:14px 0">
+      <div style="position:relative;overflow:hidden;background:#C6CCCF;width:96px;height:72px;border-radius:10px;flex:none"><div style="position:absolute;left:0;right:0;top:55%;bottom:0;background:#9EA7AB"></div><div style="position:absolute;left:0;right:0;top:81%;bottom:0;background:#5F6A6F"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <span style="font-size:16px;line-height:20px;font-weight:500;color:#23272A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Island Sunday</span>
+        <span class="plate" style="">8:00 AM &middot; 6.1 mi</span>
+        <span class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Coffee Cars &middot; 27 going</span>
+      </div>
+      
+    </div></div>
+    <div style="border-bottom:1px solid #D5D9DB"><div style="display:flex;gap:14px;align-items:center;padding:14px 0">
+      <div style="position:relative;overflow:hidden;background:#C6CCCF;width:96px;height:72px;border-radius:10px;flex:none"><div style="position:absolute;left:0;right:0;top:55%;bottom:0;background:#9EA7AB"></div><div style="position:absolute;left:0;right:0;top:81%;bottom:0;background:#5F6A6F"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <span style="font-size:16px;line-height:20px;font-weight:500;color:#23272A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Laguna Canyon wagons</span>
+        <span class="plate" style="">9:00 AM &middot; 11 mi</span>
+        <span class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Canyon Wagon Society &middot; 14 going</span>
+      </div>
+      <svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#5C6469"><path d="m16.5 3.5 3 3-3 3"/><path d="M4.5 11V9.5a3 3 0 0 1 3-3h12"/><path d="m7.5 20.5-3-3 3-3"/><path d="M19.5 13v1.5a3 3 0 0 1-3 3h-12"/></svg>
+    </div></div>
+    <div style="border-bottom:1px solid #D5D9DB"><div style="display:flex;gap:14px;align-items:center;padding:14px 0">
+      <div style="position:relative;overflow:hidden;background:#D3D7D9;width:96px;height:72px;border-radius:10px;flex:none"><div style="position:absolute;left:0;right:0;top:55%;bottom:0;background:#B0B7BA"></div><div style="position:absolute;left:0;right:0;top:81%;bottom:0;background:#7B8488"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <span style="font-size:16px;line-height:20px;font-weight:500;color:#23272A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Huntington Harbour Sunday</span>
+        <span class="plate" style="">8:00 AM &middot; 9.4 mi</span>
+        <span class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Harbour Coffee Club &middot; 33 going</span>
+      </div>
+      <svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#2E6B51"><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg>
+    </div></div>
+  </div>
+  <div class="glass" style="position:absolute;left:50%;bottom:98px;transform:translateX(-50%);height:40px;padding:0 16px 0 14px;border-radius:20px;display:flex;align-items:center;gap:6px;color:#23272A;font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:14px;font-weight:600;z-index:21"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z"/><path d="M9 5v12M15 7v12"/></svg>Map</div>
+  <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;align-items:center;gap:10px;z-index:30"><div class="glass" style="flex:1;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 6px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h4v4H8zM14 9h3M14 12h3M8 16h9"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#23272A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path class="ico-fill" d="M9 5 4 7v12l5-2zM10 5v12l5 2V7zM16 7v12l4-2V5z"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:600">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M7 15.5V11a5 5 0 0 1 10 0v4.5l1.5 1.5H5.5z"/><path d="M10.5 19.5a1.5 1.5 0 0 0 3 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="2.8"/><path d="M6.8 18a5.5 5.5 0 0 1 10.4 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Profile</span></div></div><div class="glass" style="width:60px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;color:#23272A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M12 5.5v13M5.5 12h13"/></svg></div></div>
 </div>
 </x-dc>
 </body>

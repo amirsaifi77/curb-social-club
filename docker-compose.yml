@@ -1,23 +1,25 @@
 # Local development database only. The Rails app runs on the host.
 # Usage: docker compose up -d
+# Names match the Rails app (curb_social_club) so `bin/rails db:prepare` finds
+# the database that database.yml expects by default.
 services:
   db:
     image: postgis/postgis:16-3.4
-    container_name: cac-postgres
+    container_name: curb-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: cac
-      POSTGRES_PASSWORD: cac
-      POSTGRES_DB: cac_development
+      POSTGRES_USER: curb
+      POSTGRES_PASSWORD: curb
+      POSTGRES_DB: curb_social_club_development
     ports:
       - "5432:5432"
     volumes:
-      - cac-pgdata:/var/lib/postgresql/data
+      - curb-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cac -d cac_development"]
+      test: ["CMD-SHELL", "pg_isready -U curb -d curb_social_club_development"]
       interval: 5s
       timeout: 3s
       retries: 10
 
 volumes:
-  cac-pgdata:
+  curb-pgdata:

@@ -1,4 +1,4 @@
-# @cac/ui
+# @curb/ui
 
 Shared logic and headless components for web and mobile. Not implemented yet.
 

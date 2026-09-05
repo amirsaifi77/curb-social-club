@@ -1,327 +1,640 @@
-# Cars and Coffee Brand Guide
+# Curb Social Club Brand Guide
 
-Version 0.1, 2026-09-05. Companion files: `tokens.json`, `assets/`. This guide is written for a solo builder shipping iOS first on the iOS 26 Liquid Glass design language, then a React web app. It favors decisions over options.
+Version 2.0, 2026-09-05. Supersedes the Cars and Coffee amber brand (v0.1). Companion files: `tokens.json`, `logos/`, `icons/`, `brand-sheet.png`, `palette-*.png`, `social-card-1200x630.png`. Written for a solo builder shipping iOS first under iOS 26 Liquid Glass, then web, with everything mirrored in Figma as variable modes.
 
-## 1. Brand essence and positioning
+## 1. Brand essence
 
-**Essence:** the feeling of a Saturday morning parking lot at 7:30am. Low sun, warm coffee, a Miata parked next to a McLaren and nobody minding.
+Quiet coastal classic luxury. A marine-layer morning in Newport Beach: overcast sky, wet asphalt, coffee in a paper cup, forty cars in a lot behind a bakery by eight. Wealthy but not flashy. The people are young to middle-aged owners of classic Porsches and the cars parked next to them are a Volvo wagon and two Miatas, and nobody minds.
 
-**Positioning statement:** Cars and Coffee is the local, welcoming way to find and share car meets near you. It meets people where they already organize (Instagram, Facebook, Evite, group chats) and makes the meet easy to find, easy to join, and easy to share.
+The brand is a tone, not a velvet rope. The product principle still stands: not exclusive, meet people where they are, every meet listed, every car welcome. The aesthetic is coastal classic. The door is open.
 
 | We are | We are not |
 | --- | --- |
-| Local first. Inland Empire, OC, LA, then outward. | A national events marketplace. |
-| Inclusive of every car and every budget. | Exclusive, invite-only, or "supercar only". |
-| Morning light: warm, calm, optimistic. | Neon night-scene, aggressive, tuner-forum energy. |
-| Integrated: link out to the source, import from it. | A walled garden that fights the organizer's existing tools. |
-| Useful without an account. | Sign-up gated. |
+| Understated. One accent per screen, thin rules, room to breathe. | Loud. Gradients, glows, badges, confetti. |
+| Marine layer. Cool greys, fog white, early light. | Sunshine. Saturated sky blue, golden hour filters. |
+| Editorial. Serif headlines, left-aligned hierarchy, captions like a magazine. | App store. Centered hero text, rounded pill everything, emoji in copy. |
+| Specific. Place, time, distance, host, count. | Generic. "Amazing events near you." |
+| Open. Every meet, every car, browsing without an account. | Gatekept. "Members only", "exclusive", "elite". |
 
-Three words to keep every screen honest: **local, warm, open.**
+Three words to keep every screen honest: **quiet, specific, open.**
 
-## 2. Naming
+## 2. Naming system
 
-Working name: **Cars and Coffee**. The phrase is a generic description of a type of event and is used by many independent groups (Cars and Coffee Irvine, Cars & Coffee Del Mar, and others). Some regional operators hold registered marks that include the phrase. Treat the name as descriptive and expect that it cannot be owned. Consequences:
-
-1. The visual identity (mark, palette, tone) has to carry distinctiveness. The name will not.
-2. Do not use "Cars and Coffee" alone as an App Store title. Pair it with a distinctive word, or ship under an alternate name and use "cars and coffee" as the category phrase in the subtitle and keywords.
-3. Check USPTO TESS and the App Store for conflicts before submission.
-
-Alternate name directions (hedge):
-
-| Name | Direction | Why it fits |
+| Form | Written as | Where it appears |
 | --- | --- | --- |
-| **Sunrise Meet** | Morning light, plain English | Says when and what. Domain and handle likely available. |
-| **Lot** | Short, place-based | The parking lot is the venue. "See you at the Lot." Strong for a wordmark, harder for search. |
-| **Cars & Coffee: Meetfinder** | Descriptive plus a distinctive suffix | Keeps category SEO, adds an ownable tail. |
-| **Curb** | One syllable, automotive, casual | Curb appeal, curbside. Easy icon pairing with the mark. |
-| **Idle** | Engine and morning slowness | Warm and clever; risks reading as "lazy" to non-enthusiasts. |
-
-Recommendation: build under "Cars and Coffee" for now, keep the mark name-independent (it never spells out the name), and revisit before the App Store listing.
-
-## 3. Voice and tone
-
-Voice: a friend who knows the local scene. Plain, warm, a little dry. Never hype, never gatekeeping, never "bro". Short sentences. Specific over generic ("Saturday 7 to 10am at the Ontario Mills lot" beats "an amazing event").
+| Legal and formal | Curb Social Club | Legal pages, App Store developer name, invoices, press boilerplate, the small-caps lockup, footers. |
+| Conversational and marketing | Curb Social | Landing page prose, social bios, emails, push notification sender name, the way a person says it. |
+| App and product | curb | App icon, home screen name, wordmark, in-app references, URL scheme (`curb://`), Expo slug, handles (`@curb.social`). Always lowercase, even at the start of a sentence. |
 
 Rules:
 
+1. "curb" is never capitalized in product copy. "Open curb", not "Open Curb". If a sentence cannot start with a lowercase word comfortably, rewrite the sentence.
+2. Never "Curb Social Club" inside the app except on the About and Legal screens.
+3. Never abbreviate to "CSC".
+4. The category term is written **cars and coffee**, lowercase, no ampersand, no capitals: "find cars and coffee meets near you". Capitalize only inside the proper name of a specific real-world event that uses it (South OC Cars and Coffee). The product is never called Cars and Coffee.
+5. Event vocabulary: "meet", "host", "going", "series" (for recurring). Not "event ticket", "attendee", "activation", "RSVP" as a noun.
+
+## 3. Voice and tone
+
+Voice: someone who has been going to the same lot on Saturdays for ten years and will tell you where to park. Calm, specific, slightly dry. Short sentences. Facts before feelings. Never hype, never "bro", never exclamation points. Humor is allowed if it is quiet.
+
 | Do | Don't |
 | --- | --- |
-| Name the place and the time. | "Epic", "exclusive", "elite", "insane". |
-| Welcome every car. "Bring whatever you drive." | Rank cars or people. |
-| Credit the organizer and link to the source. | Pretend the meet is ours. |
-| Use "meet", "host", "going". | "Event ticket", "attendee", "activation". |
-| Sentence case everywhere. | Title Case Buttons. |
+| Name the place, the time, the distance. | "Epic", "insane", "exclusive", "elite", "curated", "premium". |
+| "Bring whatever you drive." | Rank cars or people. |
+| Credit the host and link the source. | Pretend the meet is ours. |
+| Sentence case everywhere, including buttons. | Title Case Buttons, ALL CAPS HEADLINES (the plate style is the one exception). |
+| Numbers as numerals: 42 going, 4.2 mi, 7:30 am. | "Forty-two people are attending." |
+| Say what happened and what to do next. | Apologize at length. |
 
-Example copy:
+### Example copy
+
+**Empty states**
 
 | Context | Copy |
 | --- | --- |
-| Feed empty (no location) | **Nothing nearby yet.** Turn on location or pick a city to see this weekend's meets. |
-| Map empty (zoomed to nowhere) | **No meets here yet.** Zoom out, or add the one you know about. |
-| Following empty | **You're not following anyone yet.** Follow a host and their meets show up here first. |
-| Garage empty | **Your garage is empty.** Add what you drive. Daily beaters welcome. |
-| Past meet with no photos | **No photos yet.** Were you there? Add a few. |
-| Push: new meet nearby | New meet 4 mi away: Saturday Coffee & Cars, Sat 7am, Rancho Cucamonga. |
-| Push: host posted | Inland Empire Sunrise Meets posted a new meet for Sat, Sep 12. |
-| Push: reminder | Tomorrow 7am: Coffee & Cars Fontana. 42 going. Want directions? |
-| Push: photos | 18 new photos from this morning's meet in Riverside. |
-| Primary CTA (event) | I'm going |
-| Secondary CTA (event) | Share meet |
-| Import CTA | Paste a link |
+| Feed, no location | **Nothing nearby yet.** Turn on location or pick a city to see this weekend's meets. |
+| Map, zoomed to nowhere | **No meets here.** Zoom out, or add the one you know about. |
+| Following, empty | **You're not following anyone.** Follow a host and their meets show up here first. |
+| Garage, empty | **Your garage is empty.** Add what you drive. Daily drivers count. |
+| Past meet, no photos | **No photos from this one yet.** Were you there? |
+| Search, no results | **Nothing for "{query}".** Try a city, a host, or a day. |
+
+**Push notifications** (max 90 characters, lead with time or distance, name the host, no emoji)
+
+| Trigger | Copy |
+| --- | --- |
+| New meet nearby | 3.1 mi away: Back Bay Coffee, Sat 7:30 am. Hosted by Back Bay Air-Cooled. |
+| Host posted | Back Bay Air-Cooled posted a meet for Sat, Sep 12. |
+| Reminder | Tomorrow 7:30 am: Back Bay Coffee. 42 going. Directions? |
+| Photos | 18 new photos from this morning at Back Bay. |
+| Series moved | Back Bay Coffee moved to 8 am this Saturday. Marine layer, apparently. |
+
+**Calls to action**
+
+| Slot | Copy |
+| --- | --- |
+| Primary, event | I'm going |
+| Primary, after going | Going |
+| Secondary, event | Share |
+| Tertiary, event | Directions |
+| Create | Add a meet |
+| Import | Paste a link |
 | Import success | Looks right? Fix anything we got wrong, then post. |
 | Import failure | Couldn't read that link. Try a public Evite, Eventbrite, or Meetup link, or fill it in by hand. |
-| Sign-in prompt | Sign in to RSVP, post photos, and follow hosts. Browsing is always free. |
-| Recurring label | Every Saturday, 7 to 10am |
+| Sign-in prompt | Sign in to mark yourself going, post photos, and follow hosts. Browsing is always free. |
+| Follow | Follow |
+| Recurring label | Every Saturday, 7:30 to 10 am |
 
-Push notification rules: max 90 characters, lead with distance or time, name the host, no emoji in the body.
+**Event description** (as a host would write it, and as we would edit it)
+
+> Back Bay Coffee, Saturday. Lot behind the bakery on Bayside, 7:30 to 10. Coffee is inside, parking is wherever there is room. Air-cooled and water-cooled both fine. Wagons welcome. If the marine layer holds, bring a jacket. It usually holds.
+
+**Host welcome** (first-run for a new host)
+
+> Thanks for hosting. Your meet is listed and people nearby can see it now. A few things that help: post the exact lot, not just the street. Say when the coffee runs out. Add a photo from last time, overcast is fine. If the meet moves or cancels, change it here and everyone who is going gets one message, from you, with your name on it.
 
 ## 4. Color
 
-### Why warm amber, not morning sky
+Three themes, each flat, each with a light and a dark scheme. Marine Layer is the default. Every theme shares the same role names so a component is written once and themed by tokens. Flat means: solid fills, 1px rules, no gradients, no glows, no glossy highlights, no shadows heavier than a hairline.
 
-Both directions were considered. **Amber wins** for four reasons:
+Accent rule: one accent per screen. In light schemes the accent is dark and carries light ink; in dark schemes the accent is lifted and carries dark ink. This keeps every accent usable both as a fill and as text.
 
-1. Maps are cool and neutral. Apple Maps, Google Maps, and Mapbox default styles are mostly greys, greens, and blues. An amber accent makes pins, "going" buttons, and glass tints read against any basemap. A sky-blue primary would fight the basemap and every other map app.
-2. Under Liquid Glass, the nav layer is colorless. The glass takes its character from what is beneath it. Warm content (amber, cream, car and coffee photos) refracts as warmth; a blue primary would leave the glass looking like stock iOS.
-3. It carries "coffee" and "morning light" in one hue.
-4. It separates us from car apps that lean black, red, and chrome.
+### Marine Layer (`marine-layer`)
 
-Sky is kept as the **secondary** for the "morning" half of the story, for informational UI, links, and the "upcoming" pin state.
+Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one oxblood accent.
 
-### Primary: Amber
-
-| Token | Hex | Use |
-| --- | --- | --- |
-| amber.100 | #FDF0DC | Tints, selected row backgrounds |
-| amber.200 | #FAD9A6 | Chip fills (light) |
-| amber.300 | #F5B865 | Dark mode accent, dark mode button fill |
-| amber.400 | #F0A040 | Gradient mid stop |
-| amber.500 | #E8871E | **Primary accent.** Button fills, pin "today", tinted glass |
-| amber.600 | #A8590A | Accent as text on light backgrounds |
-| amber.700 | #8F4B07 | Pressed state, text on cream when extra contrast needed |
-| espresso | #2A1A10 | Brand dark. Logo, text on amber buttons, clusters |
-
-Use amber.500 as a **fill with espresso text**, never as a fill with white text (white on amber.500 is 2.65:1 and fails).
-
-### Secondary: Sky
-
-| Token | Hex | Use |
-| --- | --- | --- |
-| sky.200 | #BFDDF5 | Info tint |
-| sky.300 | #8CC3EE | Dark mode link |
-| sky.500 | #4A8FCB | Pin "upcoming", illustrative |
-| sky.600 | #2C6BA3 | Links and info text on light |
-
-### Neutrals
-
-| Role | Light | Dark |
-| --- | --- | --- |
-| Background | cream #FBF7F1 | night.bg #141110 |
-| Surface (cards) | white #FFFFFF | night.surface #1E1917 |
-| Surface secondary | paper #F5EFE8 | night.elevated #2A2320 |
-| Border | sand #E7DED4 | night.border #3A312C |
-| Text | ink #1F1712 | paper #F5EFE8 |
-| Text secondary | mocha #6B5F57 | stone #B3A79D |
-| Text tertiary | taupe #8A7E74 | taupe #8A7E74 |
-
-Neutrals are warm on purpose (a hint of red-yellow in every grey) so photos of cars at dawn sit comfortably and the glass never goes cold.
-
-### Semantic
-
-| Role | Light text | Fill / tint | Dark text |
+| Role | Light | Dark | Use |
 | --- | --- | --- | --- |
-| Success | #1E7A4A | #E3F5EA | #6FD39B |
-| Warning | #8A5A00 | #E0A800 fill, #FFF4D6 tint | #F3C463 |
-| Error | #C1272D | #FDE7E8 | #F58A8E |
-| Info | #2C6BA3 | #E6F2FB | #8CC3EE |
+| bg | #F3F4F4 | #15181A | Page background |
+| surface | #F9FAFA | #1E2225 | Cards, list rows, flat content surface |
+| surfaceRaised | #FFFFFF | #272C30 | Sheets, menus, popovers (raised by tone, not shadow) |
+| border | #D5D9DB | #363C41 | 1px hairline rules and dividers |
+| textPrimary | #23272A | #EDEFF0 | Body, titles, icons |
+| textSecondary | #5C6469 | #A2A9AE | Metadata, captions, placeholders |
+| accent | #5E2A2E | #C98C8E | The one action per screen, selected states, today pin |
+| accentInk | #F3F4F4 | #15181A | Text and icons on accent fills |
+| link | #3C5A70 | #8FB0C6 | Inline links, upcoming pin |
+| success | #2E6B51 | #7FBB9C | Confirmed, live now |
+| warning | #805518 | #D2A868 | Check this, medium confidence |
+| error | #A33A31 | #DE8F86 | Failed, low confidence |
+| pinNow | #2E6B51 | #7FBB9C | Map pin: happening right now |
+| pinToday | #5E2A2E | #C98C8E | Map pin: later today |
+| pinUpcoming | #48677D | #8FB0C6 | Map pin: this week or later |
+| pinRecurring | #5E5B7A | #A9A4C9 | Map pin: weekly or monthly series |
+| pinPast | #7E8588 | #6C7478 | Map pin: ended, photos only |
+| pinCluster | #23272A | #EDEFF0 | Map cluster count badge |
+| pinLabel | #FFFFFF | #15181A | Glyph or count on any pin |
+| glassTint | #F3F4F4A6 | #15181AA6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
+| scrim | #23272A40 | #00000059 | Overlay under text on photos (hex8, alpha) |
 
-Confidence chips on the import preview use these: high = success, medium = warning, low = error, each with a short label ("Sure", "Check", "Guess").
+### Harbor (`harbor`)
+
+Deep navy, bone white, warm sand, an old-brass accent.
+
+| Role | Light | Dark | Use |
+| --- | --- | --- | --- |
+| bg | #F4F0E7 | #0F1A2B | Page background |
+| surface | #FAF7F0 | #172438 | Cards, list rows, flat content surface |
+| surfaceRaised | #FFFDF8 | #203047 | Sheets, menus, popovers (raised by tone, not shadow) |
+| border | #DDD3C1 | #2F3F57 | 1px hairline rules and dividers |
+| textPrimary | #16223A | #F1ECE1 | Body, titles, icons |
+| textSecondary | #5A6272 | #A7AEBC | Metadata, captions, placeholders |
+| accent | #7A5A1E | #CBA55B | The one action per screen, selected states, today pin |
+| accentInk | #F4F0E7 | #0F1A2B | Text and icons on accent fills |
+| link | #2F4E7A | #8FB4E0 | Inline links, upcoming pin |
+| success | #2F6A4E | #7FBB9C | Confirmed, live now |
+| warning | #875416 | #D8AC5E | Check this, medium confidence |
+| error | #A63A30 | #E08E84 | Failed, low confidence |
+| pinNow | #2F6A4E | #7FBB9C | Map pin: happening right now |
+| pinToday | #7A5A1E | #CBA55B | Map pin: later today |
+| pinUpcoming | #2F4E7A | #8FB4E0 | Map pin: this week or later |
+| pinRecurring | #5E5679 | #ABA4CD | Map pin: weekly or monthly series |
+| pinPast | #867F72 | #6B7382 | Map pin: ended, photos only |
+| pinCluster | #16223A | #F1ECE1 | Map cluster count badge |
+| pinLabel | #FFFFFF | #0F1A2B | Glyph or count on any pin |
+| glassTint | #F4F0E7A6 | #0F1A2BA6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
+| scrim | #16223A40 | #00000059 | Overlay under text on photos (hex8, alpha) |
+
+### Olive and Ivory (`olive-ivory`)
+
+Sage-olive, ivory, stone grey, a burnt-sienna accent.
+
+| Role | Light | Dark | Use |
+| --- | --- | --- | --- |
+| bg | #F3F0E5 | #191C15 | Page background |
+| surface | #F9F7EE | #22261D | Cards, list rows, flat content surface |
+| surfaceRaised | #FFFEF7 | #2C3127 | Sheets, menus, popovers (raised by tone, not shadow) |
+| border | #D8D4C6 | #3B4134 | 1px hairline rules and dividers |
+| textPrimary | #22261E | #EFECE1 | Body, titles, icons |
+| textSecondary | #5C6156 | #A8AB9E | Metadata, captions, placeholders |
+| accent | #8A3D1F | #D9946E | The one action per screen, selected states, today pin |
+| accentInk | #F3F0E5 | #191C15 | Text and icons on accent fills |
+| link | #4B5E3E | #A9B98F | Inline links, upcoming pin |
+| success | #356A48 | #84BB99 | Confirmed, live now |
+| warning | #84561A | #D4A961 | Check this, medium confidence |
+| error | #A3382E | #DE8F86 | Failed, low confidence |
+| pinNow | #356A48 | #84BB99 | Map pin: happening right now |
+| pinToday | #8A3D1F | #D9946E | Map pin: later today |
+| pinUpcoming | #4B5E3E | #A9B98F | Map pin: this week or later |
+| pinRecurring | #5F5A78 | #ADA6CC | Map pin: weekly or monthly series |
+| pinPast | #84837A | #6E7268 | Map pin: ended, photos only |
+| pinCluster | #22261E | #EFECE1 | Map cluster count badge |
+| pinLabel | #FFFFFF | #191C15 | Glyph or count on any pin |
+| glassTint | #F3F0E5A6 | #191C15A6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
+| scrim | #22261E40 | #00000059 | Overlay under text on photos (hex8, alpha) |
 
 ### Map pins
 
-| State | Hex | Label color | Meaning |
+Pins are a filled circle with a 2px ring in `surfaceRaised` and a small glyph in `pinLabel`. No teardrops. State is carried by color only, so the six pin colors are chosen to separate in value as well as hue.
+
+| State | Meaning | Glyph |
+| --- | --- | --- |
+| now | Happening right now | `car.fill` |
+| today | Starts later today | `car.fill` |
+| upcoming | This week or later | `car.fill` |
+| recurring | Weekly or monthly series | `repeat` |
+| past | Ended, photos only | `photo` |
+| cluster | Count badge | count in the plate style |
+| selected | Any of the above, 1.2x scale, ring becomes `textPrimary` | |
+
+### Glass tint and scrim
+
+`glassTint` is the tint applied to the Liquid Glass navigation layer (hex8, 65% alpha of the scheme's `bg`). `scrim` is an overlay placed under any text that sits on a photo. Text on glass cannot be pre-verified because the backdrop moves, so the rule is: text on glass uses `textPrimary` with the system vibrancy style, and any glass that carries text over a photo sits on `scrim`.
+
+## 5. Contrast (WCAG 2.1)
+
+Computed from the relative luminance formula by `work/palette.py`. Body text needs 4.5:1, large text and UI components need 3:1. Every text-on-surface pair in every theme and scheme is at or above 5.1:1. Every accent-ink-on-accent pair is at or above 5.5:1. Pin labels are UI components (3:1) and pins against the page background are UI components (3:1); the weakest is `pinPast` at 3.3:1, which was darkened from a first draft that measured 2.9.
+
+#### Marine Layer, light
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #23272A | #F3F4F4 | 13.66 | 4.5 | AA |
+| Text secondary on bg | #5C6469 | #F3F4F4 | 5.47 | 4.5 | AA |
+| Link on bg | #3C5A70 | #F3F4F4 | 6.60 | 4.5 | AA |
+| Accent as text on bg | #5E2A2E | #F3F4F4 | 10.32 | 4.5 | AA |
+| Success text on bg | #2E6B51 | #F3F4F4 | 5.71 | 4.5 | AA |
+| Warning text on bg | #805518 | #F3F4F4 | 5.90 | 4.5 | AA |
+| Error text on bg | #A33A31 | #F3F4F4 | 5.94 | 4.5 | AA |
+| Text primary on surface | #23272A | #F9FAFA | 14.40 | 4.5 | AA |
+| Text secondary on surface | #5C6469 | #F9FAFA | 5.77 | 4.5 | AA |
+| Link on surface | #3C5A70 | #F9FAFA | 6.95 | 4.5 | AA |
+| Accent as text on surface | #5E2A2E | #F9FAFA | 10.88 | 4.5 | AA |
+| Success text on surface | #2E6B51 | #F9FAFA | 6.02 | 4.5 | AA |
+| Warning text on surface | #805518 | #F9FAFA | 6.22 | 4.5 | AA |
+| Error text on surface | #A33A31 | #F9FAFA | 6.26 | 4.5 | AA |
+| Text primary on surfaceRaised | #23272A | #FFFFFF | 15.05 | 4.5 | AA |
+| Text secondary on surfaceRaised | #5C6469 | #FFFFFF | 6.03 | 4.5 | AA |
+| Link on surfaceRaised | #3C5A70 | #FFFFFF | 7.27 | 4.5 | AA |
+| Accent as text on surfaceRaised | #5E2A2E | #FFFFFF | 11.37 | 4.5 | AA |
+| Success text on surfaceRaised | #2E6B51 | #FFFFFF | 6.29 | 4.5 | AA |
+| Warning text on surfaceRaised | #805518 | #FFFFFF | 6.50 | 4.5 | AA |
+| Error text on surfaceRaised | #A33A31 | #FFFFFF | 6.55 | 4.5 | AA |
+| Accent ink on accent (button) | #F3F4F4 | #5E2A2E | 10.32 | 4.5 | AA |
+| Pin label on pinNow | #FFFFFF | #2E6B51 | 6.29 | 3.0 | AA |
+| pinNow against bg (UI component) | #2E6B51 | #F3F4F4 | 5.71 | 3.0 | AA |
+| Pin label on pinToday | #FFFFFF | #5E2A2E | 11.37 | 3.0 | AA |
+| pinToday against bg (UI component) | #5E2A2E | #F3F4F4 | 10.32 | 3.0 | AA |
+| Pin label on pinUpcoming | #FFFFFF | #48677D | 5.98 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #48677D | #F3F4F4 | 5.43 | 3.0 | AA |
+| Pin label on pinRecurring | #FFFFFF | #5E5B7A | 6.45 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #5E5B7A | #F3F4F4 | 5.86 | 3.0 | AA |
+| Pin label on pinPast | #FFFFFF | #7E8588 | 3.75 | 3.0 | AA |
+| pinPast against bg (UI component) | #7E8588 | #F3F4F4 | 3.40 | 3.0 | AA |
+| Pin label on pinCluster | #FFFFFF | #23272A | 15.05 | 3.0 | AA |
+| pinCluster against bg (UI component) | #23272A | #F3F4F4 | 13.66 | 3.0 | AA |
+
+#### Marine Layer, dark
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #EDEFF0 | #15181A | 15.46 | 4.5 | AA |
+| Text secondary on bg | #A2A9AE | #15181A | 7.49 | 4.5 | AA |
+| Link on bg | #8FB0C6 | #15181A | 7.81 | 4.5 | AA |
+| Accent as text on bg | #C98C8E | #15181A | 6.48 | 4.5 | AA |
+| Success text on bg | #7FBB9C | #15181A | 8.06 | 4.5 | AA |
+| Warning text on bg | #D2A868 | #15181A | 8.10 | 4.5 | AA |
+| Error text on bg | #DE8F86 | #15181A | 7.12 | 4.5 | AA |
+| Text primary on surface | #EDEFF0 | #1E2225 | 13.89 | 4.5 | AA |
+| Text secondary on surface | #A2A9AE | #1E2225 | 6.73 | 4.5 | AA |
+| Link on surface | #8FB0C6 | #1E2225 | 7.01 | 4.5 | AA |
+| Accent as text on surface | #C98C8E | #1E2225 | 5.82 | 4.5 | AA |
+| Success text on surface | #7FBB9C | #1E2225 | 7.24 | 4.5 | AA |
+| Warning text on surface | #D2A868 | #1E2225 | 7.28 | 4.5 | AA |
+| Error text on surface | #DE8F86 | #1E2225 | 6.39 | 4.5 | AA |
+| Text primary on surfaceRaised | #EDEFF0 | #272C30 | 12.23 | 4.5 | AA |
+| Text secondary on surfaceRaised | #A2A9AE | #272C30 | 5.92 | 4.5 | AA |
+| Link on surfaceRaised | #8FB0C6 | #272C30 | 6.17 | 4.5 | AA |
+| Accent as text on surfaceRaised | #C98C8E | #272C30 | 5.12 | 4.5 | AA |
+| Success text on surfaceRaised | #7FBB9C | #272C30 | 6.37 | 4.5 | AA |
+| Warning text on surfaceRaised | #D2A868 | #272C30 | 6.41 | 4.5 | AA |
+| Error text on surfaceRaised | #DE8F86 | #272C30 | 5.63 | 4.5 | AA |
+| Accent ink on accent (button) | #15181A | #C98C8E | 6.48 | 4.5 | AA |
+| Pin label on pinNow | #15181A | #7FBB9C | 8.06 | 3.0 | AA |
+| pinNow against bg (UI component) | #7FBB9C | #15181A | 8.06 | 3.0 | AA |
+| Pin label on pinToday | #15181A | #C98C8E | 6.48 | 3.0 | AA |
+| pinToday against bg (UI component) | #C98C8E | #15181A | 6.48 | 3.0 | AA |
+| Pin label on pinUpcoming | #15181A | #8FB0C6 | 7.81 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #8FB0C6 | #15181A | 7.81 | 3.0 | AA |
+| Pin label on pinRecurring | #15181A | #A9A4C9 | 7.51 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #A9A4C9 | #15181A | 7.51 | 3.0 | AA |
+| Pin label on pinPast | #15181A | #6C7478 | 3.74 | 3.0 | AA |
+| pinPast against bg (UI component) | #6C7478 | #15181A | 3.74 | 3.0 | AA |
+| Pin label on pinCluster | #15181A | #EDEFF0 | 15.46 | 3.0 | AA |
+| pinCluster against bg (UI component) | #EDEFF0 | #15181A | 15.46 | 3.0 | AA |
+
+#### Harbor, light
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #16223A | #F4F0E7 | 13.95 | 4.5 | AA |
+| Text secondary on bg | #5A6272 | #F4F0E7 | 5.39 | 4.5 | AA |
+| Link on bg | #2F4E7A | #F4F0E7 | 7.41 | 4.5 | AA |
+| Accent as text on bg | #7A5A1E | #F4F0E7 | 5.58 | 4.5 | AA |
+| Success text on bg | #2F6A4E | #F4F0E7 | 5.61 | 4.5 | AA |
+| Warning text on bg | #875416 | #F4F0E7 | 5.58 | 4.5 | AA |
+| Error text on bg | #A63A30 | #F4F0E7 | 5.65 | 4.5 | AA |
+| Text primary on surface | #16223A | #FAF7F0 | 14.82 | 4.5 | AA |
+| Text secondary on surface | #5A6272 | #FAF7F0 | 5.73 | 4.5 | AA |
+| Link on surface | #2F4E7A | #FAF7F0 | 7.88 | 4.5 | AA |
+| Accent as text on surface | #7A5A1E | #FAF7F0 | 5.93 | 4.5 | AA |
+| Success text on surface | #2F6A4E | #FAF7F0 | 5.96 | 4.5 | AA |
+| Warning text on surface | #875416 | #FAF7F0 | 5.93 | 4.5 | AA |
+| Error text on surface | #A63A30 | #FAF7F0 | 6.00 | 4.5 | AA |
+| Text primary on surfaceRaised | #16223A | #FFFDF8 | 15.60 | 4.5 | AA |
+| Text secondary on surfaceRaised | #5A6272 | #FFFDF8 | 6.03 | 4.5 | AA |
+| Link on surfaceRaised | #2F4E7A | #FFFDF8 | 8.29 | 4.5 | AA |
+| Accent as text on surfaceRaised | #7A5A1E | #FFFDF8 | 6.24 | 4.5 | AA |
+| Success text on surfaceRaised | #2F6A4E | #FFFDF8 | 6.27 | 4.5 | AA |
+| Warning text on surfaceRaised | #875416 | #FFFDF8 | 6.24 | 4.5 | AA |
+| Error text on surfaceRaised | #A63A30 | #FFFDF8 | 6.32 | 4.5 | AA |
+| Accent ink on accent (button) | #F4F0E7 | #7A5A1E | 5.58 | 4.5 | AA |
+| Pin label on pinNow | #FFFFFF | #2F6A4E | 6.38 | 3.0 | AA |
+| pinNow against bg (UI component) | #2F6A4E | #F4F0E7 | 5.61 | 3.0 | AA |
+| Pin label on pinToday | #FFFFFF | #7A5A1E | 6.35 | 3.0 | AA |
+| pinToday against bg (UI component) | #7A5A1E | #F4F0E7 | 5.58 | 3.0 | AA |
+| Pin label on pinUpcoming | #FFFFFF | #2F4E7A | 8.43 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #2F4E7A | #F4F0E7 | 7.41 | 3.0 | AA |
+| Pin label on pinRecurring | #FFFFFF | #5E5679 | 6.81 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #5E5679 | #F4F0E7 | 5.99 | 3.0 | AA |
+| Pin label on pinPast | #FFFFFF | #867F72 | 3.97 | 3.0 | AA |
+| pinPast against bg (UI component) | #867F72 | #F4F0E7 | 3.49 | 3.0 | AA |
+| Pin label on pinCluster | #FFFFFF | #16223A | 15.86 | 3.0 | AA |
+| pinCluster against bg (UI component) | #16223A | #F4F0E7 | 13.95 | 3.0 | AA |
+
+#### Harbor, dark
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #F1ECE1 | #0F1A2B | 14.82 | 4.5 | AA |
+| Text secondary on bg | #A7AEBC | #0F1A2B | 7.83 | 4.5 | AA |
+| Link on bg | #8FB4E0 | #0F1A2B | 8.12 | 4.5 | AA |
+| Accent as text on bg | #CBA55B | #0F1A2B | 7.54 | 4.5 | AA |
+| Success text on bg | #7FBB9C | #0F1A2B | 7.89 | 4.5 | AA |
+| Warning text on bg | #D8AC5E | #0F1A2B | 8.30 | 4.5 | AA |
+| Error text on bg | #E08E84 | #0F1A2B | 6.96 | 4.5 | AA |
+| Text primary on surface | #F1ECE1 | #172438 | 13.24 | 4.5 | AA |
+| Text secondary on surface | #A7AEBC | #172438 | 7.00 | 4.5 | AA |
+| Link on surface | #8FB4E0 | #172438 | 7.26 | 4.5 | AA |
+| Accent as text on surface | #CBA55B | #172438 | 6.74 | 4.5 | AA |
+| Success text on surface | #7FBB9C | #172438 | 7.05 | 4.5 | AA |
+| Warning text on surface | #D8AC5E | #172438 | 7.42 | 4.5 | AA |
+| Error text on surface | #E08E84 | #172438 | 6.22 | 4.5 | AA |
+| Text primary on surfaceRaised | #F1ECE1 | #203047 | 11.32 | 4.5 | AA |
+| Text secondary on surfaceRaised | #A7AEBC | #203047 | 5.98 | 4.5 | AA |
+| Link on surfaceRaised | #8FB4E0 | #203047 | 6.20 | 4.5 | AA |
+| Accent as text on surfaceRaised | #CBA55B | #203047 | 5.76 | 4.5 | AA |
+| Success text on surfaceRaised | #7FBB9C | #203047 | 6.03 | 4.5 | AA |
+| Warning text on surfaceRaised | #D8AC5E | #203047 | 6.34 | 4.5 | AA |
+| Error text on surfaceRaised | #E08E84 | #203047 | 5.31 | 4.5 | AA |
+| Accent ink on accent (button) | #0F1A2B | #CBA55B | 7.54 | 4.5 | AA |
+| Pin label on pinNow | #0F1A2B | #7FBB9C | 7.89 | 3.0 | AA |
+| pinNow against bg (UI component) | #7FBB9C | #0F1A2B | 7.89 | 3.0 | AA |
+| Pin label on pinToday | #0F1A2B | #CBA55B | 7.54 | 3.0 | AA |
+| pinToday against bg (UI component) | #CBA55B | #0F1A2B | 7.54 | 3.0 | AA |
+| Pin label on pinUpcoming | #0F1A2B | #8FB4E0 | 8.12 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #8FB4E0 | #0F1A2B | 8.12 | 3.0 | AA |
+| Pin label on pinRecurring | #0F1A2B | #ABA4CD | 7.42 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #ABA4CD | #0F1A2B | 7.42 | 3.0 | AA |
+| Pin label on pinPast | #0F1A2B | #6B7382 | 3.66 | 3.0 | AA |
+| pinPast against bg (UI component) | #6B7382 | #0F1A2B | 3.66 | 3.0 | AA |
+| Pin label on pinCluster | #0F1A2B | #F1ECE1 | 14.82 | 3.0 | AA |
+| pinCluster against bg (UI component) | #F1ECE1 | #0F1A2B | 14.82 | 3.0 | AA |
+
+#### Olive and Ivory, light
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #22261E | #F3F0E5 | 13.49 | 4.5 | AA |
+| Text secondary on bg | #5C6156 | #F3F0E5 | 5.58 | 4.5 | AA |
+| Link on bg | #4B5E3E | #F3F0E5 | 6.20 | 4.5 | AA |
+| Accent as text on bg | #8A3D1F | #F3F0E5 | 6.65 | 4.5 | AA |
+| Success text on bg | #356A48 | #F3F0E5 | 5.57 | 4.5 | AA |
+| Warning text on bg | #84561A | #F3F0E5 | 5.53 | 4.5 | AA |
+| Error text on bg | #A3382E | #F3F0E5 | 5.82 | 4.5 | AA |
+| Text primary on surface | #22261E | #F9F7EE | 14.35 | 4.5 | AA |
+| Text secondary on surface | #5C6156 | #F9F7EE | 5.93 | 4.5 | AA |
+| Link on surface | #4B5E3E | #F9F7EE | 6.59 | 4.5 | AA |
+| Accent as text on surface | #8A3D1F | #F9F7EE | 7.07 | 4.5 | AA |
+| Success text on surface | #356A48 | #F9F7EE | 5.92 | 4.5 | AA |
+| Warning text on surface | #84561A | #F9F7EE | 5.88 | 4.5 | AA |
+| Error text on surface | #A3382E | #F9F7EE | 6.19 | 4.5 | AA |
+| Text primary on surfaceRaised | #22261E | #FFFEF7 | 15.23 | 4.5 | AA |
+| Text secondary on surfaceRaised | #5C6156 | #FFFEF7 | 6.30 | 4.5 | AA |
+| Link on surfaceRaised | #4B5E3E | #FFFEF7 | 6.99 | 4.5 | AA |
+| Accent as text on surfaceRaised | #8A3D1F | #FFFEF7 | 7.50 | 4.5 | AA |
+| Success text on surfaceRaised | #356A48 | #FFFEF7 | 6.28 | 4.5 | AA |
+| Warning text on surfaceRaised | #84561A | #FFFEF7 | 6.24 | 4.5 | AA |
+| Error text on surfaceRaised | #A3382E | #FFFEF7 | 6.57 | 4.5 | AA |
+| Accent ink on accent (button) | #F3F0E5 | #8A3D1F | 6.65 | 4.5 | AA |
+| Pin label on pinNow | #FFFFFF | #356A48 | 6.35 | 3.0 | AA |
+| pinNow against bg (UI component) | #356A48 | #F3F0E5 | 5.57 | 3.0 | AA |
+| Pin label on pinToday | #FFFFFF | #8A3D1F | 7.59 | 3.0 | AA |
+| pinToday against bg (UI component) | #8A3D1F | #F3F0E5 | 6.65 | 3.0 | AA |
+| Pin label on pinUpcoming | #FFFFFF | #4B5E3E | 7.07 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #4B5E3E | #F3F0E5 | 6.20 | 3.0 | AA |
+| Pin label on pinRecurring | #FFFFFF | #5F5A78 | 6.52 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #5F5A78 | #F3F0E5 | 5.72 | 3.0 | AA |
+| Pin label on pinPast | #FFFFFF | #84837A | 3.81 | 3.0 | AA |
+| pinPast against bg (UI component) | #84837A | #F3F0E5 | 3.34 | 3.0 | AA |
+| Pin label on pinCluster | #FFFFFF | #22261E | 15.40 | 3.0 | AA |
+| pinCluster against bg (UI component) | #22261E | #F3F0E5 | 13.49 | 3.0 | AA |
+
+#### Olive and Ivory, dark
+
+| Pair | Foreground | Background | Ratio | Needs | Result |
+| --- | --- | --- | --- | --- | --- |
+| Text primary on bg | #EFECE1 | #191C15 | 14.57 | 4.5 | AA |
+| Text secondary on bg | #A8AB9E | #191C15 | 7.37 | 4.5 | AA |
+| Link on bg | #A9B98F | #191C15 | 8.23 | 4.5 | AA |
+| Accent as text on bg | #D9946E | #191C15 | 6.90 | 4.5 | AA |
+| Success text on bg | #84BB99 | #191C15 | 7.84 | 4.5 | AA |
+| Warning text on bg | #D4A961 | #191C15 | 7.92 | 4.5 | AA |
+| Error text on bg | #DE8F86 | #191C15 | 6.88 | 4.5 | AA |
+| Text primary on surface | #EFECE1 | #22261D | 13.03 | 4.5 | AA |
+| Text secondary on surface | #A8AB9E | #22261D | 6.59 | 4.5 | AA |
+| Link on surface | #A9B98F | #22261D | 7.35 | 4.5 | AA |
+| Accent as text on surface | #D9946E | #22261D | 6.17 | 4.5 | AA |
+| Success text on surface | #84BB99 | #22261D | 7.01 | 4.5 | AA |
+| Warning text on surface | #D4A961 | #22261D | 7.08 | 4.5 | AA |
+| Error text on surface | #DE8F86 | #22261D | 6.15 | 4.5 | AA |
+| Text primary on surfaceRaised | #EFECE1 | #2C3127 | 11.27 | 4.5 | AA |
+| Text secondary on surfaceRaised | #A8AB9E | #2C3127 | 5.70 | 4.5 | AA |
+| Link on surfaceRaised | #A9B98F | #2C3127 | 6.36 | 4.5 | AA |
+| Accent as text on surfaceRaised | #D9946E | #2C3127 | 5.34 | 4.5 | AA |
+| Success text on surfaceRaised | #84BB99 | #2C3127 | 6.06 | 4.5 | AA |
+| Warning text on surfaceRaised | #D4A961 | #2C3127 | 6.12 | 4.5 | AA |
+| Error text on surfaceRaised | #DE8F86 | #2C3127 | 5.32 | 4.5 | AA |
+| Accent ink on accent (button) | #191C15 | #D9946E | 6.90 | 4.5 | AA |
+| Pin label on pinNow | #191C15 | #84BB99 | 7.84 | 3.0 | AA |
+| pinNow against bg (UI component) | #84BB99 | #191C15 | 7.84 | 3.0 | AA |
+| Pin label on pinToday | #191C15 | #D9946E | 6.90 | 3.0 | AA |
+| pinToday against bg (UI component) | #D9946E | #191C15 | 6.90 | 3.0 | AA |
+| Pin label on pinUpcoming | #191C15 | #A9B98F | 8.23 | 3.0 | AA |
+| pinUpcoming against bg (UI component) | #A9B98F | #191C15 | 8.23 | 3.0 | AA |
+| Pin label on pinRecurring | #191C15 | #ADA6CC | 7.47 | 3.0 | AA |
+| pinRecurring against bg (UI component) | #ADA6CC | #191C15 | 7.47 | 3.0 | AA |
+| Pin label on pinPast | #191C15 | #6E7268 | 3.50 | 3.0 | AA |
+| pinPast against bg (UI component) | #6E7268 | #191C15 | 3.50 | 3.0 | AA |
+| Pin label on pinCluster | #191C15 | #EFECE1 | 14.57 | 3.0 | AA |
+| pinCluster against bg (UI component) | #EFECE1 | #191C15 | 14.57 | 3.0 | AA |
+
+## 6. Typography
+
+| Role | Family | Fallback | Source |
 | --- | --- | --- | --- |
-| Now | #1E7A4A | white | Meet is happening right now |
-| Today | #E8871E | espresso | Starts later today |
-| Upcoming | #4A8FCB | white | This week or later |
-| Recurring | #7C5CC4 | white | Weekly or monthly series |
-| Past | #B3A79D | white | Ended, photos only |
-| Cluster | #2A1A10 | white | Count badge |
-| Selected | any of above, 2px white ring, 1.2x scale | | |
+| Display | Instrument Serif (Regular, Italic) | Fraunces, Georgia | Google Fonts, github.com/Instrument/instrument-serif (OFL) |
+| UI and body | Geist (Regular, Medium, SemiBold, Variable) | Inter, system sans | npm `geist`, github.com/vercel/geist-font (OFL) |
+| System chrome (iOS) | SF Pro | | Provided by iOS. Tab bar, toolbars, alerts, sheets, context menus under Liquid Glass are never overridden. |
+| Mono | Geist Mono | SF Mono, Menlo | Debug, plate numbers if Geist tabular figures are unavailable |
 
-Pins are teardrop-free: a filled circle with a 2px white ring and a small SF Symbol inside (`car.fill` for one-off, `repeat` for recurring). Simple shapes survive glass blur and clustering.
+Font feature settings: Geist UI text uses `tnum` for anything with numbers in columns and `case` for uppercase plate labels. Instrument Serif uses `liga`. Do not use Instrument Serif Italic in the app except in pull quotes on a host page; it is reserved for marketing.
 
-### Contrast check (WCAG 2.1)
+### Type scale
 
-Computed with the relative luminance formula. AA normal text requires 4.5:1, AA large text or UI components 3:1.
+Sizes in points on iOS and px on web. Line heights are absolute. Tracking is in points (iOS `kerning`) or the em equivalent on web.
 
-| Pair | Foreground | Background | Ratio | Result |
-| --- | --- | --- | --- | --- |
-| Ink on cream (body, light) | #1F1712 | #FBF7F1 | 16.54 | AA |
-| Ink on white (card, light) | #1F1712 | #FFFFFF | 17.65 | AA |
-| Secondary text on cream | #6B5F57 | #FBF7F1 | 5.79 | AA |
-| Secondary text on white | #6B5F57 | #FFFFFF | 6.18 | AA |
-| Amber 600 text on cream | #A8590A | #FBF7F1 | 4.80 | AA |
-| Amber 600 text on white | #A8590A | #FFFFFF | 5.12 | AA |
-| Amber 700 text on white | #8F4B07 | #FFFFFF | 6.61 | AA |
-| Espresso on amber 500 (button) | #2A1A10 | #E8871E | 6.31 | AA |
-| White on amber 500 | #FFFFFF | #E8871E | 2.65 | fail, do not use |
-| White on espresso | #FFFFFF | #2A1A10 | 16.75 | AA |
-| Sky 600 link on white | #2C6BA3 | #FFFFFF | 5.62 | AA |
-| Sky 600 link on cream | #2C6BA3 | #FBF7F1 | 5.26 | AA |
-| Paper on night bg (dark) | #F5EFE8 | #141110 | 16.46 | AA |
-| Paper on night surface | #F5EFE8 | #1E1917 | 15.24 | AA |
-| Stone on night bg | #B3A79D | #141110 | 7.99 | AA |
-| Stone on night surface | #B3A79D | #1E1917 | 7.40 | AA |
-| Amber 300 on night bg | #F5B865 | #141110 | 10.67 | AA |
-| Espresso on amber 300 (dark button) | #2A1A10 | #F5B865 | 9.51 | AA |
-| Sky 300 on night bg | #8CC3EE | #141110 | 9.98 | AA |
-| Success text on white | #1E7A4A | #FFFFFF | 5.33 | AA |
-| Warning text on white | #8A5A00 | #FFFFFF | 5.93 | AA |
-| Error text on white | #C1272D | #FFFFFF | 5.84 | AA |
-| Success on night bg | #6FD39B | #141110 | 10.26 | AA |
-| Warning on night bg | #F3C463 | #141110 | 11.53 | AA |
-| Error on night bg | #F58A8E | #141110 | 7.97 | AA |
-| White on pin Now | #FFFFFF | #1E7A4A | 5.33 | AA |
-| Espresso on pin Today | #2A1A10 | #E8871E | 6.31 | AA |
-| White on pin Upcoming | #FFFFFF | #4A8FCB | 3.45 | AA for UI components (3:1); pin glyphs are icons, not text |
-| White on pin Recurring | #FFFFFF | #7C5CC4 | 5.02 | AA |
+| Style | Family, weight | Size / line | Tracking | iOS text style | Where |
+| --- | --- | --- | --- | --- | --- |
+| Display | Instrument Serif 400 | 40 / 44 | -0.4 | largeTitle (custom font, scales with Dynamic Type) | Feed masthead ("This weekend"), onboarding, empty state headline |
+| Title | Instrument Serif 400 | 28 / 32 | -0.2 | title | Event name on detail, host name on host page |
+| Headline | Instrument Serif 400 | 22 / 26 | 0 | title2 | Card titles, section headers |
+| Subhead | Geist 500 | 15 / 20 | 0 | subheadline | Buttons, list row titles, tab labels (SF on iOS tab bar) |
+| Body | Geist 400 | 16 / 24 | 0 | body | Descriptions, comments, host welcome |
+| Caption | Geist 500 | 12 / 16 | +0.2 | caption | Metadata rows, chips, timestamps |
+| Plate | Geist 500, `tnum` `case`, uppercase | 13 / 16 | +0.6 | footnote | Times, distances, dates, counts: SAT 7:30 AM, 4.2 MI, 42 GOING |
+| Label | Geist 500, uppercase | 11 / 14 | +0.8 | caption2 | Eyebrows, "SOCIAL CLUB" in lockups, section labels |
 
-Text on glass cannot be pre-verified because the backdrop changes. Rule: text on glass uses ink or paper with the system vibrancy style, and any glass surface that carries text sits over a scrim (`rgba(0,0,0,0.25)` on photos) when the content behind it is a photo.
+The plate style is named after a license plate: uppercase, tabular, tracked, always in `textSecondary` unless it is the primary fact on the screen (the time on an event detail). It is the only uppercase text in the product.
 
-## 5. Typography
+### Where the serif appears
 
-iOS uses **SF Pro** through the system text styles. Liquid Glass, the tab bar, and toolbars expect SF and Dynamic Type; do not ship a custom UI font on iOS. Optional: SF Pro Rounded for the large title on the Feed and for the "I'm going" button, to warm it up.
+| Serif, yes | Serif, no |
+| --- | --- |
+| Wordmark and lockups | Buttons and any tappable label |
+| Feed masthead and section headers | Tab bar, toolbars, navigation titles in the compact state (SF Pro) |
+| Event titles on cards and detail | Metadata, captions, chips, times, distances |
+| Host names on host pages | Body text and descriptions |
+| Onboarding headlines and empty-state headlines | Form fields, placeholders, errors |
+| Marketing display copy | Anything under 20pt |
 
-Web uses **Inter** (Google Fonts, weights 400, 500, 600, 700) with `font-feature-settings: "cv11", "ss01"` for the single-storey a and open digits, which brings it closer to SF. Fallback stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`.
+One serif headline per screen, then everything else in Geist. When the large title collapses into the glass toolbar on scroll, the compact title is SF Pro, not the serif.
 
-| Style | Size / line | Weight | iOS text style | Where |
-| --- | --- | --- | --- | --- |
-| Large title | 34 / 41 | 700 | largeTitle | Feed header ("This weekend") |
-| Title 1 | 28 / 34 | 700 | title | Event name on detail |
-| Title 2 | 22 / 28 | 700 | title2 | Section headers |
-| Title 3 | 20 / 25 | 600 | title3 | Card titles |
-| Headline | 17 / 22 | 600 | headline | Buttons, list titles |
-| Body | 17 / 22 | 400 | body | Descriptions |
-| Callout | 16 / 21 | 400 | callout | Card metadata |
-| Subheadline | 15 / 20 | 400 | subheadline | Secondary rows |
-| Footnote | 13 / 18 | 400 | footnote | Timestamps, source link |
-| Caption 1 | 12 / 16 | 500 | caption | Chips, pin labels |
-| Caption 2 | 11 / 13 | 500 | caption2 | Tab labels |
+## 7. Layout under Liquid Glass
 
-Tracking: tighten titles slightly (-0.3 to -0.4pt at 28 to 34pt), leave body at 0. Numbers in dates and distances use tabular figures.
+Glass is the navigation layer. Content is flat. Everything in this section follows from that.
 
-## 6. Iconography
+| Principle | In practice |
+| --- | --- |
+| Glass is the nav layer only | Tab bar, top toolbar, bottom search on Map, and sheet chrome are system glass. Nothing in the content area is glass, frosted, or translucent. |
+| Content is flat | Cards are `surface` on `bg` separated by 1px `border` rules or by 16pt of whitespace, not both. Sheets and menus use `surfaceRaised`. Elevation is expressed by tone, never by shadow. |
+| Hairline rules | 1px in `border`. Horizontal rules span the content width, not the screen width. Section headers sit on a rule, not above a colored bar. |
+| No shadows heavier than a hairline | Allowed: `0 0 0 1px border`. Not allowed: drop shadows, blur, inner glow, gradient borders. |
+| Photography desaturated and cool | Photos ship through the photo treatment (section 11): -20 saturation, slight cool shift, lifted blacks. Cards are photo first at 4:3, with `scrim` under the title. |
+| Generous whitespace | Page gutter 20pt. Vertical rhythm on a 4pt grid: 8 between related rows, 16 between groups, 32 between sections, 48 above a section header. When in doubt, add space and remove a rule. |
+| Left-aligned editorial hierarchy | Everything left-aligned to the gutter, including empty states and onboarding. Centered text only inside pins, tab labels, and the app icon. Headline, then plate, then body: the order a magazine caption reads. |
+| Content edge to edge | Photos, map, and lists extend under the tab bar and toolbar. Bottom content inset 88pt (tab bar) or 156pt (Map with bottom search). |
+| One accent per screen | The accent goes on the single action that matters (I'm going, Post, Paste a link) and on the today pin. Everything else is ink, grey, and glass. |
+| Corners small | Content radius 10 to 14pt. Only system glass containers use large radii. Buttons 8pt. Pills are for chips only. |
+| Motion is system motion | Tab morphs, sheet detents, and toolbar collapse are the system's. Custom motion is limited to a matched-geometry photo on card-to-detail (0.4s spring) and a crossfade everywhere else. Reduce Motion makes everything a crossfade. |
 
-SF Symbols on iOS, rendered in the glass tab bar with the system's hierarchical rendering. On web, use Lucide with 1.5px stroke as the stand-in, matched to SF Symbols' optical weight.
+Web mirrors this: `backdrop-filter: blur(20px) saturate(1.1)` on the header only, `glassTint` behind it, hairlines everywhere else, `pageMax` 1120px, `readingMax` 640px.
+
+## 8. Iconography
+
+SF Symbols on iOS, rendered at the **thin** weight for content icons and at the system's default weight inside the glass tab bar (the tab bar sets its own weight). On web, Lucide at 1.25px stroke as the stand-in, matched to SF thin. Icons are monochrome in `textPrimary` or `textSecondary`; the accent color never fills an icon except the going checkmark.
 
 | Slot | Symbol | Notes |
 | --- | --- | --- |
-| Tab: Feed | `house.fill` / `house` | Selected / unselected |
-| Tab: Map | `map.fill` / `map` | |
-| Tab: Create | `plus` | Trailing tinted-glass accessory button beside the tab pill |
-| Tab: Activity | `bell.fill` / `bell` | Badge for unread |
-| Tab: Profile | `person.crop.circle.fill` / `person.crop.circle` | |
+| Tab: Feed | `newspaper` / `newspaper.fill` | Unselected / selected |
+| Tab: Map | `map` / `map.fill` | |
+| Tab: Activity | `bell` / `bell.fill` | Badge for unread, badge in accent |
+| Tab: Profile | `person.crop.circle` / `person.crop.circle.fill` | |
+| Create | `plus` | Trailing glass accessory button beside the tab pill |
 | Search | `magnifyingglass` | Bottom search on Map |
-| Filters | `line.3.horizontal.decrease.circle` | |
+| Filters | `line.3.horizontal.decrease` | |
 | Date | `calendar` | |
 | Time | `clock` | |
 | Location | `mappin.and.ellipse` | |
-| Directions | `arrow.triangle.turn.up.right.diamond.fill` | |
+| Directions | `arrow.triangle.turn.up.right.diamond` | |
 | Distance | `location` | |
 | Host | `person.crop.circle.badge.checkmark` | |
-| Going | `checkmark.circle.fill` | RSVP confirmed |
+| Going | `checkmark.circle.fill` | Only icon that may take the accent |
 | Not going | `circle` | |
-| Recurring | `repeat` | |
+| Recurring | `repeat` | Also the recurring pin glyph |
 | Share | `square.and.arrow.up` | |
 | Photos | `photo.on.rectangle` | |
-| Camera / check-in | `camera.fill` | |
+| Camera, check-in | `camera` | |
 | Comment | `bubble.left` | |
-| Source link | `link` | Opens Evite, Instagram, etc. |
-| Import | `link.badge.plus` | Paste-a-link entry |
-| Garage | `car.fill` | |
-| Follow | `plus.circle` / `checkmark.circle` | |
-| Vehicle theme | `car.2.fill` | Filter chip |
-| Confidence high | `checkmark.seal.fill` | Import preview |
-| Confidence medium | `questionmark.circle.fill` | |
-| Confidence low | `exclamationmark.triangle.fill` | |
-| List view toggle | `list.bullet` | |
-| Map view toggle | `map` | |
+| Source link | `link` | Opens the host's original post |
+| Import | `link.badge.plus` | |
+| Garage | `car` | The one place a car symbol appears |
+| Follow / following | `plus.circle` / `checkmark.circle` | |
+| Confidence high / medium / low | `checkmark.seal` / `questionmark.circle` / `exclamationmark.triangle` | Import preview, tinted success / warning / error |
+| List / map toggle | `list.bullet` / `map` | |
 | Sign in with Apple | `apple.logo` | |
+| Theme picker | `circle.lefthalf.filled` | Settings |
 
-## 7. Logo
+## 9. Logo system
 
-Concept: **cup on wheels.** A coffee cup body reads as a car cabin; two wheels sit under it; two wisps of steam rise from it. The cup's front-left corner is squared like a hood while the rear is rounded like a fender, so the silhouette scans as "vehicle" before "mug". It never spells the name, so it survives a rename.
+Two directions, both drawn from real outlines. Wordmarks are Instrument Serif converted to paths and edited; monograms are geometry on a 64-unit grid. All files are clean SVG with a viewBox and no font dependencies, in `logos/`. Each mark ships in three color variants: ink (`#23272A`, file has no suffix), light (`#EDEFF0`, `-light`), and accent (oxblood `#5E2A2E`, `-accent`).
 
-Properties: single color, works at 16px (favicon) and 1024px (icon), no gradients required, geometric strokes at a constant 4-unit weight on a 64-unit grid.
+### Wordmarks (lowercase curb)
 
-Files:
-
-| File | Use |
-| --- | --- |
-| `assets/logo-mark.svg` | Espresso mark on transparent. Light backgrounds. |
-| `assets/logo-mark-dark.svg` | Paper mark on transparent. Dark backgrounds. |
-| `assets/logo-horizontal.svg` | Mark plus "Cars & Coffee" wordmark, SF Pro / Inter, ampersand in amber. Text is live, not outlined; outline before print. |
-| `assets/app-icon-background.svg` | Icon Composer background layer |
-| `assets/app-icon-foreground.svg` | Icon Composer foreground layer |
-| `assets/app-icon-1024.png` | Flattened App Store icon |
-| `assets/social-card-1200x630.png` | Open Graph and iMessage link preview |
-
-Clear space: half the mark's height on all sides. Minimum size: 20px mark, 120px horizontal. Do not add a gradient to the mark, rotate it, or put it inside a circle badge (the icon already does that job).
-
-## 8. Layout and motion under Liquid Glass
-
-Glass is the navigation layer. Content is the world underneath it. Everything in this section follows from that.
-
-**Structure**
-
-| Principle | What it means in practice |
-| --- | --- |
-| Content edge-to-edge | Photos, map, and lists extend under the tab bar and toolbar. Add `contentInset` at the bottom equal to `tabBarInset` (88pt) or `bottomSearchInset` (156pt) on the Map. |
-| Floating tab bar | Native iOS 26 tab bar: a floating glass pill inset 16pt from the bottom with four tabs (Feed, Map, Activity, Profile), plus Create as the trailing tinted-glass accessory button beside the pill. It shrinks on scroll; do not fight that. |
-| Bottom search on Map | A glass search field sits above the tab bar (bottom search), because thumbs live at the bottom and the map's top is for the compass and locate button. Tapping expands it into a sheet with filters. |
-| Glass toolbar | Top toolbar is glass with SF Symbol buttons only, no solid background. Large titles scroll into the glass. |
-| Photo-forward cards | Feed and list cards are 4:3 photo first, with a scrim gradient at the bottom and title over the photo. Metadata (time, distance, host, going count) sits below on the surface color. Corner radius 20. |
-| Sheets | Event detail on Map opens as a medium detent sheet (glass), full detent for the whole event. |
-| One accent per screen | Amber goes on the one action that matters (I'm going, Post, Paste a link). Everything else is ink and glass. |
-| Warm ground | Backgrounds are cream and night, not pure white or black, so glass refracts warmth even over empty areas. |
-
-**Motion**
-
-| Interaction | Behavior |
-| --- | --- |
-| Tab switch | System glass morph; no custom transition. |
-| Card to detail | Matched geometry on the cover photo, 0.4s spring (response 0.4, damping 0.8). |
-| Map pin select | Pin scales to 1.2x with a white ring, sheet rises to medium detent, both on the same spring. |
-| Bottom search focus | Search field morphs into the sheet header (glass morph), keyboard rises together. |
-| RSVP | Button fills amber with a short haptic (`.success`), going-count avatar stack animates in one avatar. |
-| Import parsing | Skeleton draft with shimmer, fields populate in reading order as the parser returns, confidence chips fade in last. |
-| Pull to refresh | System. |
-| Reduce Motion | All custom springs fall back to crossfades. |
-
-## 9. App icon for iOS 26
-
-iOS 26 icons are layered and rendered by the system in light, dark, clear, and tinted appearances. Build the icon in **Icon Composer** from two layers, and keep it simple: glass looks best with one bold shape and one flat ground.
-
-| Layer | File | Content | Composer settings |
-| --- | --- | --- | --- |
-| Background | `app-icon-background.svg` | Amber morning-light gradient (amber.300 to amber.600) with a soft highlight at top left | No blur, no specular. Provide a flat amber.500 fill as the "tinted" fallback. |
-| Foreground | `app-icon-foreground.svg` | The mark in espresso, centered, 800pt on the 1024 canvas | Glass on, specular on, shadow "neutral", translucency low (0.1 to 0.2). |
-
-Guidance:
-
-1. No text in the icon. No rounded-rect background inside the layer; iOS applies the squircle.
-2. Keep the mark inside the 88% safe zone (we use 78%) so the glass edge highlight does not clip the wheels.
-3. For the dark appearance, Icon Composer darkens the background automatically; check that espresso still separates from it. If not, set the foreground to paper (#F5EFE8) for dark only.
-4. Test the "clear" appearance: the mark must read as a silhouette with no color at all. This is why the mark is single-color.
-5. Export the flattened 1024 PNG (`app-icon-1024.png`) for App Store Connect and for Expo's `app.json` `icon` field until Expo supports `.icon` bundles directly.
-
-## 10. Open questions for Amir
-
-| Decision | Recommendation | Why it matters |
+| File | Detail | Use |
 | --- | --- | --- |
-| Amber primary vs sky primary | Amber | Locks pins, buttons, and icon. Changing later touches every asset. |
-| Ship name | Keep "Cars and Coffee" through TestFlight, decide before App Store submission | Trademark exposure and search. |
-| SF Pro Rounded for large titles | Yes, feed and buttons only | Small warmth gain, zero cost. |
-| Pin taxonomy (now, today, upcoming, recurring) | Yes | Drives filter UI and legend. |
-| Photo aspect | 4:3 cards, 16:9 detail hero | Most phone car photos are 4:3. |
+| `wordmark-01-chamfer.svg` | The flag serif at the top of the b is replaced with a 45 degree chamfer, the profile of a curb edge. Top of the stem squared. **Primary.** | Everything: app, web header, social, print. |
+| `wordmark-02-horizon.svg` | Unaltered letters on a hairline horizon rule the width of the word. | Marketing where the mark sits alone on a page; the rule doubles as a layout rule. |
+| `wordmark-03-italic.svg` | Instrument Serif Italic, tracked -6. | Editorial and print only (a magazine ad, a sticker). Never in the app. |
+| `wordmark-04-tight.svg` | Roman letters tracked -34 so the word reads as one block. | Small sizes under 24px tall where the primary's chamfer would drop below 1px. |
+
+### Lockups
+
+| File | Content | Use |
+| --- | --- | --- |
+| `lockup-horizontal-01.svg` | CURB SOCIAL CLUB in Instrument Serif small caps (capitals at 76%, tracked +90) | Legal, formal, press, footers, the About screen. |
+| `lockup-horizontal-02.svg` | curb wordmark, hairline, SOCIAL CLUB in Geist Medium caps | Web header, email header, palette cards. The everyday full-name lockup. |
+| `lockup-horizontal-03.svg` | Monogram at x-height beside the wordmark | Partner co-branding, watermarks, merchandise. |
+| `lockup-stacked-01.svg` | Wordmark over a horizon rule over SOCIAL CLUB justified to the same width | Square placements: social avatars at large size, stickers, splash. |
+
+### Monograms (curb-profile C)
+
+An abstract C read as a curb in cross-section: a flat top (sidewalk), a chamfered outer edge (the curb's cast edge), a vertical face, and a square foot where the face meets the gutter. Stroke 12 on a 64 grid, so at 16px the stroke is 3px and the chamfer is 1px.
+
+| File | Construction | Reads at 16px | Use |
+| --- | --- | --- | --- |
+| `monogram-01-stroke.svg` | Uniform 12-unit stroke, outer chamfer 12, inner chamfer at the parallel offset (5). **Primary.** | Yes, verified in `work/check2.png` | App icon, favicon, avatar, tab, watermark. |
+| `monogram-02-block.svg` | Solid C: 10-unit lip, 16-unit face, 12-unit gutter slab, the lip stops 8 short of the slab (the step). | Yes | Heavy placements: embroidery, stamps, dark photo overlays. |
+| `monogram-03-horizon.svg` | The stroke C with its foot extended to the edge of the box, the road running out to the horizon. | Yes | Marketing, splash screen, the social card. Not for the icon (asymmetric in the squircle). |
+| `monogram-04-rolled.svg` | Uniform stroke with a 20-unit radius on the outer top-left, the rolled curb of a Newport residential street. | Yes | Alternate if the chamfer reads too hard next to rounded iOS chrome. Keep as an option, do not mix with 01 in one surface. |
+
+### Usage rules
+
+| Rule | Detail |
+| --- | --- |
+| Clear space, wordmark | The height of the c (x-height) on all sides. Nothing inside it, including rules. |
+| Clear space, monogram | One stroke width (12/64 of the mark's height) minimum, half the mark's height preferred. |
+| Minimum size, wordmark | 72px wide on screen (the chamfer stays above 1px), 18mm in print. Below 72px use `wordmark-04-tight` or the monogram. |
+| Minimum size, monogram | 16px. |
+| Minimum size, lockups | Horizontal 01: 200px wide. Horizontal 02: 160px. Stacked: 96px wide. |
+| Color | One of the three variants. Ink on light surfaces, light on `textPrimary` or photo scrims, accent on `bg` only (never accent on a photo). Never two colors inside one mark. |
+| Backgrounds | Flat color or a photo under `scrim`. Never on a gradient, never in a circle badge, never with an outline or a shadow. |
+| Rotation, distortion, effects | None. No italicizing the roman marks, no outlines, no glass effects on the marks themselves. |
+| Pairing | Wordmark and monogram may appear on the same screen only in `lockup-horizontal-03`. Otherwise one mark per surface. |
+| Which variant goes where | App icon and favicon: monogram 01. iOS large title on Feed: the word "curb" set live in Instrument Serif, not the SVG (Dynamic Type must work). Web header: lockup 02 at 40px tall. Splash: monogram 03 centered on `bg`. Social avatar: monogram 01 on `textPrimary`. Legal and About: lockup 01. Email: lockup 02. Print: wordmark 01 or lockup stacked. |
+
+## 10. App icon (iOS 26 layered)
+
+Built in Icon Composer from two flat layers per theme, in `icons/<theme>/`. The system renders light, dark, clear, and tinted appearances; because both layers are single solid colors and the mark is a silhouette, all four appearances hold without extra assets.
+
+| Theme | Background layer | Foreground layer | Files |
+| --- | --- | --- | --- |
+| Marine Layer (default) | Wet asphalt `#23272A` | Fog `#EDEFF0` monogram 01 | `icons/marine-layer/background.svg`, `foreground.svg`, `icon-1024.png` |
+| Harbor | Deep navy `#16223A` | Brass `#CBA55B` monogram 01 | `icons/harbor/...` |
+| Olive and Ivory | Sage olive `#4B5E3E` | Ivory `#EFECE1` monogram 01 | `icons/olive-ivory/...` |
+
+Icon Composer settings: background layer with no blur and no specular, foreground layer with glass **off**, specular **off**, shadow **none**, translucency 0. The C is 58% of the canvas tall, centered on its own bounds (not on the 64 grid box), which keeps it inside the safe zone with the squircle applied. No text, no rounded rectangle inside the layers (iOS applies the mask). The flattened `icon-1024.png` is square and goes to App Store Connect and to Expo's `icon` field. The `preview-360.png` files have a squircle mask baked in for documents only.
+
+The theme the user picks in Settings switches the alternate icon (`UIApplication.setAlternateIconName`) to match, with Marine Layer as the primary icon. Alternate icons are flattened PNGs at 1024 until Expo supports `.icon` bundles for alternates.
+
+## 11. Photography
+
+| Direction | Detail |
+| --- | --- |
+| Light | Overcast, early. 6:30 to 9:00 am under a marine layer. No golden hour, no midday sun, no night. |
+| Feel | 35mm. Fixed lens, eye level or slightly low, the frame includes the lot, the curb, the coffee, the person. |
+| Cars in context | A car next to another car, a car with a door open and a cup on the roof, a row along a curb. Never a car alone on a pedestal, never a three-quarter studio angle, never a badge close-up. |
+| Color | Desaturated and cool. Treatment on upload for editorial surfaces: saturation -20, temperature -200K equivalent, blacks lifted to `#15181A`, no clarity, no HDR, no vignette. User photos in feeds get the same treatment at half strength. |
+| People | Present, unposed, mid-conversation. Backs and hands are fine. No group shots facing the camera. |
+| Crop | 4:3 for cards, 16:9 for the detail hero, 1:1 for avatars. Horizon level. Leave space at the bottom for the scrim and title. |
+| Never | HDR, drone shots, rolling shots, smoke, wet-look filters, watermarks, dealer plates, license plates legible (blur them). |
+
+## 12. Do and don't
+
+| Do | Don't |
+| --- | --- |
+| Use Marine Layer unless the user picks otherwise. | Mix themes on one screen. |
+| One serif headline, one accent action per screen. | Serif in a button. Accent on two things. |
+| Write times and distances in the plate style. | Write "7:30AM" or "7.30" or "4.2 miles away!!!" |
+| Say "cars and coffee meets" in lowercase. | Call the product Cars and Coffee, or capitalize the category. |
+| Separate content with 1px rules or whitespace. | Drop shadows, gradients, glows, glass in the content area. |
+| Use monogram 01 for the icon and wordmark 01 everywhere else. | Put a car silhouette, a Porsche shape, a coffee cup, or steam in any mark. |
+| Desaturate and cool photos, keep the horizon level. | HDR, golden hour, rolling shots. |
+| Welcome every car in the copy. | "Exclusive", "members only", "elite", "supercar". |
+| Credit and link the host. | Claim a meet as ours. |
+| Keep "curb" lowercase. | "Curb", "CURB", "CSC". |
+
+## 13. Files
+
+| Path | What |
+| --- | --- |
+| `brand-v2/brand-guide.md` | This document |
+| `brand-v2/tokens.json` | Themed tokens, copied to `packages/design-tokens/tokens.json` |
+| `brand-v2/logos/*.svg` | 12 marks x 3 color variants, 36 files |
+| `brand-v2/icons/<theme>/` | Icon Composer layers, 1024 PNG, 360 preview |
+| `brand-v2/brand-sheet.png` | 2400x1600 overview |
+| `brand-v2/palette-<theme>.png` | 1600x1000 palette card per theme, light and dark |
+| `brand-v2/social-card-1200x630.png` | Open Graph and iMessage preview, Marine Layer |
+| `brand-v2/fonts/` | Instrument Serif (Regular, Italic) and Geist (Regular, Medium, SemiBold, Variable, Mono) as fetched |
+| `brand-v2/work/` | Generators: `palette.py` (colors, contrast, tokens), `logos.py`, `icons.py`, `sheets.py` |

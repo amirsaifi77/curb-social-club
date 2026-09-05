@@ -36,8 +36,8 @@ Fill in the template. Keep PRs focused; a schema change and its API endpoint can
 
 | Area | Tool |
 |---|---|
-| Ruby | rubocop-rails-omakase plus rubocop-rspec (`pnpm --filter @cac/api lint`) |
-| TypeScript | eslint and prettier from `@cac/config` (`pnpm lint`, `pnpm format`) |
+| Ruby | rubocop-rails-omakase plus rubocop-rspec (`pnpm --filter @curb/api lint`) |
+| TypeScript | eslint and prettier from `@curb/config` (`pnpm lint`, `pnpm format`) |
 | Markdown | Concise prose, headers, tables where they help. No em dashes; use commas, periods, or parentheses. |
 | Commits and docs | Plain language, no emoji. |
 

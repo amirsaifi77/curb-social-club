@@ -4,7 +4,7 @@ Conventions for Claude Code sessions in this repository. Read `docs/architecture
 
 ## What this is
 
-Cars and Coffee: a discovery and social platform for local car meets. iOS first, web second. Monorepo with a Rails 8 API, a React Router v7 web app, an Expo mobile app, and shared TypeScript packages. Solo maintainer (Amir), nights and weekends. Keep changes small and boring.
+Curb Social Club (Curb Social in prose, "curb" in the app; formerly the working title Cars and Coffee, see ADR 0009): a discovery and social platform for local car meets. iOS first, web second. Monorepo with a Rails 8 API, a React Router v7 web app, an Expo mobile app, and shared TypeScript packages. Solo maintainer (Amir), nights and weekends. Keep changes small and boring.
 
 ## Stack
 
@@ -20,13 +20,13 @@ Cars and Coffee: a discovery and social platform for local car meets. iOS first,
 
 | Task | Command |
 |---|---|
-| Install | `pnpm install` (JS only; Ruby via `pnpm --filter @cac/api build`) |
+| Install | `pnpm install` (JS only; Ruby via `pnpm --filter @curb/api build`) |
 | Database | `docker compose up -d` |
 | Everything | `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` |
-| API | `pnpm --filter @cac/api test`, `pnpm --filter @cac/api lint`, `pnpm --filter @cac/api openapi` |
+| API | `pnpm --filter @curb/api test`, `pnpm --filter @curb/api lint`, `pnpm --filter @curb/api openapi` |
 | Rails directly | `cd apps/api && bin/rails ...` |
-| Types | `pnpm --filter @cac/types generate` after any API spec change; commit the output |
-| Tokens | `pnpm --filter @cac/design-tokens build` |
+| Types | `pnpm --filter @curb/types generate` after any API spec change; commit the output |
+| Tokens | `pnpm --filter @curb/design-tokens build` |
 
 ## Rules
 
@@ -42,6 +42,8 @@ Cars and Coffee: a discovery and social platform for local car meets. iOS first,
 | Migrations | Use `structure.sql`. Add indexes concurrently in production. UUID primary keys. |
 | Commits | Conventional Commits, squash merge. `feat(api): ...`, `fix(mobile): ...`, `docs: ...`. |
 | Docs style | Concise prose, headers, tables. No em dashes anywhere in the repo (use commas, periods, parentheses). No emoji. |
+| Product name | "Curb Social Club" in formal contexts, "Curb Social" in prose, "curb" (lowercase) in the app, wordmark, URL scheme, and Expo slug. "cars and coffee" is the event category and stays lowercase; capitalize it only for a specific real-world event (South OC Cars and Coffee). Never call the product Cars and Coffee. |
+| Brand and UI copy | Calm, specific, dry. Name the place and the time. No hype words, no exclusivity language, no car silhouettes or coffee-cup cliches in marks. Flat rendering: solid fills, thin rules, no gradients or glows. See `brand/brand-guide.md`. |
 | Secrets | Never commit `.env` or keys. Use `.env.example` for new variables. |
 | Dependencies | Ask before adding a gem or npm package that adds a service dependency (Redis, another SaaS). |
 
@@ -55,6 +57,8 @@ Cars and Coffee: a discovery and social platform for local car meets. iOS first,
 | Importer adapters | `apps/api/app/services/importers/` (planned) |
 | Decisions | `docs/adr/` |
 | Mobile design | `docs/mobile-liquid-glass.md` |
+| Brand | `brand/brand-guide.md`, tokens in `packages/design-tokens/tokens.json` (three themes: Marine Layer default, Harbor, Olive and Ivory; each light and dark) |
+| Status and next steps | `docs/STATUS.md` |
 
 ## Current state
 

@@ -81,18 +81,18 @@ jobs:
       postgres:
         image: postgis/postgis:16-3.4
         env:
-          POSTGRES_USER: cac
-          POSTGRES_PASSWORD: cac
-          POSTGRES_DB: cac_test
+          POSTGRES_USER: curb
+          POSTGRES_PASSWORD: curb
+          POSTGRES_DB: curb_social_club_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U cac"
+          --health-cmd "pg_isready -U curb"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://cac:cac@localhost:5432/cac_test
+      DATABASE_URL: postgres://curb:curb@localhost:5432/curb_social_club_test
     steps:
       - uses: actions/checkout@v4
       - name: Check app exists
@@ -125,7 +125,7 @@ jobs:
         working-directory: apps/api
         run: |
           bundle exec rake rswag:specs:swaggerize
-          git diff --exit-code -- swagger/ || (echo "Run pnpm --filter @cac/api openapi and commit the result" && exit 1)
+          git diff --exit-code -- swagger/ || (echo "Run pnpm --filter @curb/api openapi and commit the result" && exit 1)
 
   js:
     name: JS workspaces (lint, typecheck, test, build)
@@ -152,7 +152,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Turbo (web, mobile, packages)
         if: steps.exists.outputs.present == 'true'
-        run: pnpm turbo run lint typecheck test build --filter='!@cac/api'
+        run: pnpm turbo run lint typecheck test build --filter='!@curb/api'
         env:
           # Optional Turborepo remote cache. Leave unset to run without it.
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -160,8 +160,8 @@ jobs:
       - name: Generated types are up to date
         if: steps.exists.outputs.present == 'true' && hashFiles('apps/api/swagger/v1/openapi.yaml') != ''
         run: |
-          pnpm --filter @cac/types generate
-          git diff --exit-code -- packages/types/src || (echo "Run pnpm --filter @cac/types generate and commit" && exit 1)
+          pnpm --filter @curb/types generate
+          git diff --exit-code -- packages/types/src || (echo "Run pnpm --filter @curb/types generate and commit" && exit 1)
 
   eas-build:
     name: EAS build (iOS) on tag

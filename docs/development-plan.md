@@ -1,6 +1,6 @@
-# Cars and Coffee: Development Plan
+# Curb Social Club: Development Plan
 
-Status: draft v0.1, 2026-09-05. Audience: Amir, solo builder at 10 to 15 hours per week, using Claude Code for most implementation. Companion docs: `docs/business-plan.md`, `docs/app-overview.md`.
+Status: draft v0.2, 2026-09-05 (renamed from the working title the same day, see ADR 0009). Audience: Amir, solo builder at 10 to 15 hours per week, using Claude Code for most implementation. Companion docs: `docs/business-plan.md`, `docs/app-overview.md`.
 
 ## Planning assumptions
 
@@ -16,17 +16,17 @@ Status: draft v0.1, 2026-09-05. Audience: Amir, solo builder at 10 to 15 hours p
 
 Goal: a deployable skeleton on every tier so every later phase ships to a real environment.
 
-Scope: monorepo with pnpm and Turborepo, GitHub Actions running lint, typecheck, Rails tests, and an Expo type build. Rails API skeleton with PostGIS enabled, health endpoint, versioned JSON API, Solid Queue for jobs, ActiveStorage to R2. Expo app shell with Expo Router, Liquid Glass tab bar (Home, Map, Create, Me), design tokens package (colors, type scale, spacing, radii, glass materials), a shared API client package generated from an OpenAPI spec. Auth: Sign in with Apple and Google producing a session token, anonymous browse by default, account deletion endpoint. Deploy pipeline: API to Render or Fly staging on merge to main, web to Vercel preview per PR, EAS development build installable on the builder's phone. Sentry on all three.
+Scope: monorepo with pnpm and Turborepo, GitHub Actions running lint, typecheck, Rails tests, and an Expo type build. Rails API skeleton (`rails new api --name=curb_social_club`) with PostGIS enabled, health endpoint, versioned JSON API, Solid Queue for jobs, ActiveStorage to R2. Expo app shell (slug `curb`, scheme `curb://`) with Expo Router, Liquid Glass tab bar (Home, Map, Create, Me), design tokens package (colors, type scale, spacing, radii, glass materials) with theme switching support: three themes (Marine Layer default, Harbor, Olive and Ivory), each with light and dark variants, exposed as a runtime theme context on mobile and CSS variable sets on web, plus a Settings toggle so any theme can be reviewed on device. Fonts loaded and subset (Instrument Serif, Geist, with Fraunces and Inter as fallbacks). A shared API client package generated from an OpenAPI spec. Design QA step before exit: review every Phase 0 screen on a physical iPhone under Liquid Glass in all six theme variants and confirm flat rendering (solid fills, thin rules, no gradients, glows, or glossy highlights leaking from glass tints into content surfaces), and record the result in `brand/previews/`. Auth: Sign in with Apple and Google producing a session token, anonymous browse by default, account deletion endpoint. Deploy pipeline: API to Render or Fly staging on merge to main, web to Vercel preview per PR, EAS development build installable on the builder's phone. Sentry on all three.
 
-Exit criteria: a stranger can install a dev build, see four tabs, sign in with Apple, and hit a live staging API. CI is green and blocks merges.
+Exit criteria: a stranger can install a dev build, see four tabs, switch themes in Settings, sign in with Apple, and hit a live staging API. The flat-rendering design QA is signed off. CI is green and blocks merges.
 
 ### Phase 1: Read-only discovery (November to mid December 2026, about 6 weeks)
 
 Goal: the app is useful with zero user-generated content, because the schedule is seeded.
 
-Scope: Event, Venue, Host, RecurrenceRule, Occurrence models with PostGIS geography columns and a nightly occurrence materializer. Admin-only Rails views (or a rake task plus CSV) for seeding. Seed 50 or more SoCal meets by hand with correct recurrence, venue pins, and source links. Proximity and bounding box endpoints with filters (date range, distance, theme, recurring). Feed, Map with clustering and bottom sheet, List, Search over events and places, Event detail with source attribution and directions. Onboarding with area picker and approximate location. Web: React Router v7 app with event pages, city pages, host pages, OG tags, sitemap.
+Scope: Event, Venue, Host, RecurrenceRule, Occurrence models with PostGIS geography columns and a nightly occurrence materializer. Admin-only Rails views (or a rake task plus CSV) for seeding. Seed 50 or more meets by hand with correct recurrence, venue pins, and source links: 25 in coastal Orange County (Newport Beach, Corona del Mar, Laguna Beach, Dana Point, San Clemente), largely found on the ground and through club calendars, and 25 in the Inland Empire from the research inventory. Proximity and bounding box endpoints with filters (date range, distance, theme, recurring). Feed, Map with clustering and bottom sheet, List, Search over events and places, Event detail with source attribution and directions. Onboarding with area picker and approximate location. Web: React Router v7 app with event pages, city pages, host pages, OG tags, sitemap.
 
-Exit criteria: open the app in Fontana, see this weekend's meets on the map and feed within two seconds, tap through to detail, get directions. Google can index an event page. 50 seeded meets verified against their sources.
+Exit criteria: open the app in Newport Beach or Fontana, see this weekend's meets on the map and feed within two seconds, tap through to detail, get directions. Google can index an event page. 50 seeded meets verified against their sources.
 
 ### Phase 2: Creation (mid December 2026 to January 2027, about 5 weeks, holiday adjusted)
 
@@ -66,7 +66,7 @@ Exit criteria: at least five claimed meets kept current by their hosts for four 
 
 Goal: public availability in the launch region with a working growth loop.
 
-Scope: App Store listing (screenshots in Liquid Glass style, preview video, keywords), submission with reviewer notes on UGC controls and the demo account, web launch with city pages indexed, Instagram roundup cadence, coffee shop QR cards placed, press note to local car media and IE community pages.
+Scope: App Store listing under the name Curb Social Club (screenshots in the Marine Layer theme under Liquid Glass, preview video, subtitle "Early mornings, quiet lots, every meet within 20 miles", keywords including "cars and coffee"), submission with reviewer notes on UGC controls and the demo account, web launch with city pages indexed, Instagram roundup cadence from @curbsocialclub, coffee shop QR cards placed in Newport, Corona del Mar, Laguna, and Rancho Cucamonga, press note to local car media, Porsche club newsletters, and coastal OC and IE community pages.
 
 Exit criteria: approved and live, web indexed, first week of public metrics captured against the targets in the business plan.
 
@@ -75,7 +75,7 @@ Exit criteria: approved and live, web indexed, first week of public metrics capt
 | Month | Milestone | Phase |
 |---|---|---|
 | October 2026 | Monorepo, CI, Rails and Expo skeletons, auth, staging deploys | 0 |
-| November 2026 | Event model, PostGIS queries, 50 seeded meets, Map and Feed | 1 |
+| November 2026 | Event model, PostGIS queries, 50 seeded meets (coastal OC and IE), Map and Feed | 1 |
 | December 2026 | Event detail, Search, web event and city pages, manual create started | 1 to 2 |
 | January 2027 | Create, recurrence, hosts and claim, RSVP, share, report and block | 2 |
 | February 2027 | Import pipeline with Evite and generic adapters, TestFlight internal, first hosts onboarded | 3, 5 |
@@ -121,7 +121,7 @@ Android, host web dashboard, Facebook importer (API access is unreliable, keep p
 
 ## App Store submission checklist
 
-- Distinctive app name cleared for trademark conflicts (see business plan risk) and reserved in App Store Connect.
+- "Curb Social Club" cleared by a trademark search (see the business plan risk table for the Curb namespace), the intent-to-use application filed in classes 009 and 042, and the name reserved in App Store Connect.
 - Sign in with Apple offered alongside Google (guideline 4.8, [WorkOS](https://workos.com/blog/apple-app-store-authentication-sign-in-with-apple-2025)).
 - In-app account deletion that removes account and content (guideline 5.1.1(v), [Apple](https://developer.apple.com/news/?id=12m75xbj)).
 - UGC safeguards: report on every content type, block users, terms accepted at signup, published contact email, reviewer notes describing the moderation queue and 24 hour response ([AcceptMyApp](https://acceptmy.app/guidelines/1-2-user-generated-content)).
@@ -131,19 +131,19 @@ Android, host web dashboard, Facebook importer (API access is unreliable, keep p
 - Age rating set for 13+ with no restricted content flags.
 - Universal Links AASA file served from the web domain and verified.
 - Push notification entitlement and a working test on a fresh install.
-- Screenshots for all required device sizes, app preview optional, keywords and subtitle written.
+- Screenshots for all required device sizes in the default theme, app preview optional, keywords (including "cars and coffee") and subtitle written in the brand voice.
 - Export compliance answered (standard encryption only).
 - Crash-free rate and no debug menus or test endpoints reachable.
 
 ## First 10 sessions with Claude Code
 
-1. Audit the existing scaffold in `research/`, decide keep or restart, and set up pnpm workspaces plus Turborepo with `apps/api`, `apps/web`, `apps/mobile`, `packages/tokens`, `packages/api-client`, `packages/types`.
-2. Rails 8 API-only app with PostGIS, RSpec, Solid Queue, health endpoint, Dockerfile, and a GitHub Actions workflow running specs against a PostGIS service container.
-3. Expo app with Expo Router, Liquid Glass tab bar, tokens package wired in, dark and light themes, and an EAS development build profile.
+1. Audit the existing scaffold in `research/`, decide keep or restart, and set up pnpm workspaces plus Turborepo with `apps/api`, `apps/web`, `apps/mobile`, `packages/design-tokens`, `packages/api-client`, `packages/types` under the `@curb/*` scope.
+2. Rails 8 API-only app (`--name=curb_social_club`, database `curb_social_club_development`) with PostGIS, RSpec, Solid Queue, health endpoint, Dockerfile, and a GitHub Actions workflow running specs against a PostGIS service container.
+3. Expo app (slug `curb`) with Expo Router, Liquid Glass tab bar, tokens package wired in with the three themes in light and dark and a Settings theme picker, fonts loaded, and an EAS development build profile. End the session with the flat-rendering QA on device.
 4. Auth end to end: Sign in with Apple and Google on the client, token exchange and session model on the API, anonymous session for browse, account deletion endpoint.
 5. Domain models and migrations: Event, Venue, Host, RecurrenceRule, Occurrence, with the nightly materializer job and PostGIS indexes, plus factories and specs.
 6. Proximity endpoints: radius and bounding box queries with filters and clustering, OpenAPI spec, generated TypeScript client.
-7. Seed tooling: a CSV format and rake task for meets, then a first batch of 20 real Inland Empire and OC meets with verified sources.
+7. Seed tooling: a CSV format and rake task for meets, then a first batch of 20 real meets with verified sources, 10 coastal Orange County and 10 Inland Empire.
 8. Map screen with MapKit, clustering, filter chips, and the bottom sheet list; Feed screen with date grouping and skeletons.
 9. Event detail screen with source attribution, directions, share sheet, and Universal Link handling; web event page with OG tags.
 10. ImportJob pipeline skeleton: adapter interface, generic Open Graph adapter, LLM extraction with JSON schema and per-field confidence, and the eval harness with the first 10 links.
@@ -158,4 +158,6 @@ Android, host web dashboard, Facebook importer (API access is unreliable, keep p
 | Host recruitment slower than planned | Beta lacks real hosts | Builder acts as host of record for seeded meets; keep claim friction low |
 | Solo bandwidth during holidays | December slips | Phase 2 is already holiday adjusted; protect Phase 1 exit criteria first |
 | Apple review rejection on UGC or login | Launch slips by weeks | Follow the checklist above, submit two weeks before the target date |
-| Name and trademark | Rename late is costly | Decide the public name by end of Phase 2 |
+| Name and trademark | Resolved 2026-09-05: Curb Social Club (ADR 0009). Remaining exposure is the crowded "Curb" namespace | Clearance search and intent-to-use filing in classes 009 and 042 before Phase 5; App Store title is always the full name |
+| Coastal seed gap | The research inventory has about six coastal Orange County meets; the small ones live in club calendars and group chats | Budget Sunday mornings in Phase 1 for on-the-ground seeding; recruit one club calendar owner as a source; let the IE count lead early |
+| Brand reads as exclusive | The coastal classic tone could put off first-timers and IE hosts | Two-way copy test (tasteful to the beachhead persona, welcoming to a first-timer) in every design review; no marque filters or tiers |

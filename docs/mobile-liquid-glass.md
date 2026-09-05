@@ -1,4 +1,4 @@
-# Liquid Glass on Mobile: Expo / React Native research for Cars and Coffee
+# Liquid Glass on Mobile: Expo / React Native research for Curb Social Club
 
 Workstream: mobile platform. Date: 2026-09-05. Target: iOS first, Android second, Expo Router, TypeScript.
 
@@ -42,7 +42,7 @@ Apple is explicit that glass belongs to the navigation layer and not to content:
 - Tint sparingly: "Tinting should only be used to bring emphasis to primary elements and actions in the UI ... When every element is tinted, nothing stands out." ([WWDC25 219](https://developer.apple.com/videos/play/wwdc2025/219/))
 - "Reduce your use of custom backgrounds in controls and navigation elements" because they "might overlay or interfere with Liquid Glass or other effects that the system provides, such as the scroll edge effect." ([Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass))
 
-For Cars and Coffee this translates to: feed cards, event photos, map tiles and comment threads are content and stay opaque. Tab bar, headers, the map's floating filter and locate-me controls, and sheets are the glass layer.
+For Curb Social Club this translates to: feed cards, event photos, map tiles and comment threads are content and stay opaque. Tab bar, headers, the map's floating filter and locate-me controls, and sheets are the glass layer.
 
 ### iOS 27 status (September 2026)
 
@@ -184,10 +184,13 @@ Callstack's `react-native-bottom-tabs` (`1.4.0`) also wraps `UITabBarController`
 // app.json (excerpt)
 {
   "expo": {
+    "name": "curb",
+    "slug": "curb",
+    "scheme": "curb",
     "ios": {
-      "icon": "./assets/icons/CarsAndCoffee.icon",
-      "bundleIdentifier": "com.carsandcoffee.app",
-      "associatedDomains": ["applinks:carsandcoffee.app"],
+      "icon": "./assets/icons/Curb.icon",
+      "bundleIdentifier": "club.curbsocial.app",
+      "associatedDomains": ["applinks:curbsocial.club"],
       "infoPlist": { "UIDesignRequiresCompatibility": false }
     },
     "plugins": ["expo-router", "expo-dev-client", "expo-notifications", "expo-apple-authentication"]
@@ -269,7 +272,7 @@ Sign in with Apple via `expo-apple-authentication` (57.0.1), Google via `expo-au
 
 ### Deep links, universal links, share
 
-Scheme `carsandcoffee://` plus universal links: `ios.associatedDomains: ["applinks:carsandcoffee.app"]` and an AASA file at `/.well-known/apple-app-site-association` served by the web app; EAS registers the entitlement automatically ([universal links docs](https://docs.expo.dev/linking/ios-universal-links/)). Android App Links via `intentFilters` with `autoVerify`. Expo Router maps `https://carsandcoffee.app/meet/123` to `meet/[id]` for free. Share out uses `expo-sharing` / RN `Share` with the canonical web URL so iMessage and Instagram unfurl the OG card the web app renders.
+Scheme `curb://` plus universal links: `ios.associatedDomains: ["applinks:curbsocial.club"]` (domain unconfirmed) and an AASA file at `/.well-known/apple-app-site-association` served by the web app; EAS registers the entitlement automatically ([universal links docs](https://docs.expo.dev/linking/ios-universal-links/)). Android App Links via `intentFilters` with `autoVerify`. Expo Router maps `https://curbsocial.club/meet/123` to `meet/[id]` for free. Share out uses `expo-sharing` / RN `Share` with the canonical web URL so iMessage and Instagram unfurl the OG card the web app renders.
 
 ### EAS Build, Submit, Update
 
@@ -298,7 +301,7 @@ apps/mobile/
     lib/                  # query client, api instance, storage, analytics
     hooks/                # useLiquidGlass, useLocationPermission, useSession
     theme/                # Unistyles config wiring tokens from packages/design-tokens
-  assets/icons/CarsAndCoffee.icon
+  assets/icons/Curb.icon
   .maestro/
   app.json  eas.json  metro.config.js  tsconfig.json
 packages/
@@ -324,7 +327,7 @@ export const radii = { pill: 999, card: 20, sheet: 28 } as const;
 
 // apps/mobile/src/theme/unistyles.ts
 import { StyleSheet } from 'react-native-unistyles';
-import { colors, spacing, radii } from '@cac/design-tokens';
+import { colors, spacing, radii } from '@curb/design-tokens';
 StyleSheet.configure({
   themes: { light: { colors: colors.light, spacing, radii }, dark: { colors: colors.dark, spacing, radii } },
   settings: { adaptiveThemes: true },

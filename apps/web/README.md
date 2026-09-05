@@ -1,6 +1,6 @@
-# @cac/web
+# @curb/web
 
-React Router v7 (framework mode, SSR) web app for Cars and Coffee. Not generated yet. See ADR 0005 for why React Router over Next.js.
+React Router v7 (framework mode, SSR) web app for Curb Social Club. Not generated yet. See ADR 0005 for why React Router over Next.js.
 
 ## Generate
 
@@ -9,7 +9,7 @@ cd apps
 pnpm dlx create-react-router@latest web --template remix-run/react-router-templates/vercel
 ```
 
-Then wire `@cac/config` (eslint, prettier, tsconfig), `@cac/api-client`, `@cac/design-tokens`, and set `VITE_API_URL`.
+Then wire `@curb/config` (eslint, prettier, tsconfig), `@curb/api-client`, `@curb/design-tokens`, and set `VITE_API_URL`.
 
 ## Planned structure
 
@@ -19,7 +19,7 @@ apps/web/
     routes.ts
     root.tsx                  # tokens CSS, theme, error boundary
     routes/
-      _index.tsx              # nearby upcoming, IP geolocation fallback to Inland Empire
+      _index.tsx              # nearby upcoming, IP geolocation fallback to coastal Orange County
       meets._index.tsx        # search and list
       meets.$slug.tsx         # event detail, meta + JSON-LD Event, primary SEO page
       meets.$slug.$occurrenceId.tsx
@@ -50,15 +50,15 @@ apps/web/
 | SEO | Loader-rendered event pages, `meta` exports, JSON-LD `Event` with `eventSchedule` for recurring meets, sitemap from the API |
 | Share cards | `/og/meets/:slug.png` rendered with Satori, cached at the edge for 1 h |
 | Universal links | Serve `apple-app-site-association` for the iOS app |
-| Maps | MapLibre GL JS with a free tile source, `supercluster` wrapper from `@cac/ui` |
+| Maps | MapLibre GL JS with a free tile source, `supercluster` wrapper from `@curb/ui` |
 | Auth | API session token in an httpOnly cookie managed by the SSR server |
-| Data | `@cac/api-client` in loaders (server) and TanStack Query hooks (client) |
+| Data | `@curb/api-client` in loaders (server) and TanStack Query hooks (client) |
 
 ## Commands
 
 | Command | What |
 |---|---|
-| `pnpm --filter @cac/web dev` | dev server on 5173 |
-| `pnpm --filter @cac/web build` | production build |
-| `pnpm --filter @cac/web typecheck` | `react-router typegen && tsc` |
-| `pnpm --filter @cac/web test` | vitest |
+| `pnpm --filter @curb/web dev` | dev server on 5173 |
+| `pnpm --filter @curb/web build` | production build |
+| `pnpm --filter @curb/web typecheck` | `react-router typegen && tsc` |
+| `pnpm --filter @curb/web test` | vitest |

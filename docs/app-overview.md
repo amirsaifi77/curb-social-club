@@ -1,6 +1,6 @@
-# Cars and Coffee: App Functional Overview
+# Curb Social Club: App Functional Overview
 
-Status: draft v0.1, 2026-09-05. Scope: iOS app (primary) and public web. Companion docs: `docs/business-plan.md`, `docs/development-plan.md`.
+Status: draft v0.2, 2026-09-05 (renamed from the working title the same day, see ADR 0009; copy examples updated to the Curb Social voice). Scope: iOS app (primary) and public web. Companion docs: `docs/business-plan.md`, `docs/development-plan.md`.
 
 ## How to read this doc
 
@@ -14,6 +14,8 @@ Each surface has a purpose, the key UI, the data it shows, its states (empty, lo
 - Offline shows the last cached feed and list with a "showing saved results" banner; map tiles come from MapKit's own cache. Writes queue locally and retry (RSVP, check-in) or fail visibly (create, comment).
 - Liquid Glass tab bar with four tabs: Home (feed), Map, Create (center action), Me. Search is a glass search field pinned above Home and Map.
 - Every event has a canonical web URL, and every deep link opens the same screen in app or web.
+- Copy is calm, specific, and dry. Name the place and the time. Sentence case. No hype words, no exclusivity language. "cars and coffee" is the category and stays lowercase; the product is "curb" in the app.
+- Rendering is flat under Liquid Glass: content surfaces use solid theme fills and thin rules, no gradients or glows. The glass layer is only the system chrome (tab bar, headers, floating map controls, sheets). Three themes (Marine Layer default, Harbor, Olive and Ivory), each light and dark, selectable in Settings.
 
 ## Surfaces
 
@@ -21,11 +23,11 @@ Each surface has a purpose, the key UI, the data it shows, its states (empty, lo
 
 Purpose: get to a useful map in under 15 seconds without demanding anything.
 
-Key UI: three swipeable cards (what it is, pick your area, optional interests), each with a Skip. Location permission is requested only on the "pick your area" card, with a text explanation before the system prompt. If denied or skipped, the user picks a home area by typing a city or dropping a pin.
+Key UI: three swipeable cards (what it is, pick your area, optional interests), each with a Skip. Card one copy: "Every car meet within 20 miles. Saturday and Sunday mornings, mostly." Card two: "Pick your area. We only use it to sort the map." Location permission is requested only on the "pick your area" card, with a text explanation before the system prompt. If denied or skipped, the user picks a home area by typing a city or dropping a pin.
 
 Data: home area (city or coordinate plus radius), optional vehicle interests (JDM, Euro, American muscle, exotics, trucks and offroad, classic, EV, general), notification opt-in later.
 
-States: no empty state. Loading only on area search. Error on geocode failure offers the pin option. Offline lets the user continue with a default region (Inland Empire) and re-prompts later.
+States: no empty state. Loading only on area search. Error on geocode failure offers the pin option. Offline lets the user continue with a default region (coastal Orange County) and re-prompts later.
 
 Scope: MVP. Interests are stored but only used for feed ranking in Later.
 
@@ -37,7 +39,7 @@ Key UI: a date-grouped list starting with "This weekend," then "Next week," then
 
 Data: events within the home radius sorted by start time, with recurring events expanded into their next occurrence.
 
-States: empty shows "No meets listed near you yet" with a button to widen radius and a button to add one. Loading shows five skeleton cards. Error shows inline retry. Offline shows cached feed with banner.
+States: empty shows "Nothing listed within 20 miles yet." with "Widen to 50 miles" and "Add a meet" buttons. Loading shows five skeleton cards. Error shows inline retry. Offline shows cached feed with banner.
 
 Scope: MVP for the event list; activity strip and personalized ranking are Later.
 
@@ -49,7 +51,7 @@ Key UI: full-bleed MapKit map with Liquid Glass filter chips floating at top (Th
 
 Data: PostGIS radius or bounding-box query returning events in the visible region with the active filters, capped at 200 with clustering server-side beyond that.
 
-States: empty shows a sheet message "Nothing here this weekend" with a "show all upcoming" toggle. Loading dims pins and shows a small progress indicator in the sheet. Error keeps the map and shows retry in the sheet. Offline shows last results and disables "search this area."
+States: empty shows a sheet message "Nothing here this weekend." with a "Show all upcoming" toggle. Loading dims pins and shows a small progress indicator in the sheet. Error keeps the map and shows retry in the sheet. Offline shows last results and disables "search this area."
 
 Scope: MVP. Heatmap of past meets and photo pins are Later.
 
@@ -69,7 +71,7 @@ Key UI: glass search field with recent searches and suggestions grouped by type 
 
 Data: Postgres full-text search over event title, description, host name, venue name; place search via MapKit geocoding.
 
-States: empty query shows recents and trending hosts. No results shows "Try a wider area" and a link to create. Offline searches cached results only.
+States: empty query shows recents and trending hosts. No results shows "No matches within 50 miles." with a "Search everywhere" link and a link to add the meet. Offline searches cached results only.
 
 Scope: MVP for events and places; hosts and venues in MVP if cheap, otherwise Later.
 
@@ -81,7 +83,7 @@ Key UI: cover image with glass overlay title, then blocks in this order: when (w
 
 Data: event, occurrence, venue, host, RSVP summary, source attribution, photos and comments when enabled.
 
-States: loading shows skeleton with the cover. Error on a deleted or private event shows a friendly "This meet is no longer listed" page. Offline shows cached detail and disables RSVP with "will send when online" if already queued. Cancelled occurrences show a red banner at the top and are dimmed in lists.
+States: loading shows skeleton with the cover. Error on a deleted or private event shows a plain "This meet is no longer listed." page with nearby meets below it. Offline shows cached detail and disables RSVP with "will send when online" if already queued. Cancelled occurrences show a solid banner at the top ("Cancelled this week. Host note: rain.") and are dimmed in lists.
 
 Scope: MVP without photos and comments; those arrive in Phase 4.
 
@@ -125,7 +127,7 @@ Key UI: recurring badge on cards, next three occurrences on the event detail, a 
 
 Data: RecurrenceRule (RFC 5545 style rule stored as fields, not raw RRULE string, for query simplicity), Occurrence rows materialized 90 days ahead by a nightly job, per-occurrence overrides.
 
-States: an occurrence in the past collapses into the event's history. A recurring event with no host update in 60 days gets a "verify this is still happening" prompt to followers and a "last confirmed" date on the detail.
+States: an occurrence in the past collapses into the event's history. A recurring event with no host update in 60 days gets a "Still happening? Last confirmed Jul 12." prompt to followers and a "Last confirmed" date on the detail.
 
 Scope: MVP.
 
@@ -149,7 +151,7 @@ Key UI: photo grid on event detail, a Post sheet from the detail (pick up to 10 
 
 Data: Post (user, occurrence, caption), Photo (ActiveStorage blob, dimensions, blurhash placeholder), moderation status.
 
-States: empty grid on an upcoming event says "Photos from this meet will show up here." Upload progress per photo with retry. Rejected by safety filter shows a neutral message and a link to guidelines.
+States: empty grid on an upcoming event says "Photos go here after the meet." and on a past one "No photos yet. Were you there?" Upload progress per photo with retry. Rejected by safety filter shows a neutral message and a link to guidelines.
 
 Scope: Phase 4.
 
@@ -161,7 +163,7 @@ Key UI: flat comment list on the event detail (no threads in v1), host replies a
 
 Data: Comment (user, event or occurrence, body, moderation status).
 
-States: empty says "Ask the host a question." Loading skeleton lines. Offline shows cached comments and disables composer.
+States: empty says "Ask the host something. Parking, rain plan, start time." Loading skeleton lines. Offline shows cached comments and disables composer.
 
 Scope: Phase 4.
 
@@ -173,7 +175,7 @@ Key UI: avatar, handle, home area (city only), bio, garage (cards for each car w
 
 Data: User, GarageCar (year, make, model, trim, color, photo, nickname).
 
-States: empty garage shows "Add your first car." Private profile hides going and posts from non-followers (Later).
+States: empty garage shows "Nothing in the garage yet. Add what you drive." Private profile hides going and posts from non-followers (Later).
 
 Scope: Profile and Garage basics are MVP because they are cheap and increase signup completion. Privacy controls beyond public and private are Later.
 
@@ -215,7 +217,7 @@ Scope: RSVP reminder and cancellation are MVP. Follow-based and nearby digest ar
 
 Purpose: the growth loop. Every event should be one tap away from iMessage and Instagram stories.
 
-Key UI: Share button on event detail opens the system share sheet with a rich link preview (title, date, venue, cover). A "Share to Story" option renders a 9:16 card image with the cover, title, date, venue, and a QR code to the web page. Universal Links (`carsandcoffee.app/e/slug`) open the app when installed and the web page otherwise.
+Key UI: Share button on event detail opens the system share sheet with a rich link preview (title, date, venue, cover). A "Share to Story" option renders a 9:16 card image with the cover, title, date, venue, and a QR code to the web page. Universal Links (`curbsocial.club/meets/slug`, domain unconfirmed) open the app when installed and the web page otherwise. Story cards use the flat editorial layout from the brand guide: serif title, thin rule, no gradient overlay.
 
 Data: canonical slug per event, Open Graph tags on the web page, a rendered card image cached in R2.
 
@@ -249,7 +251,7 @@ Scope: MVP.
 
 Purpose: SEO, link previews, and a no-install path. Later, a host dashboard.
 
-Key UI (MVP): home page with a region picker and this weekend's meets, city pages (`/socal/rancho-cucamonga`), event pages with full detail and RSVP (opens app or sign-in), host pages, and an "Open in app" banner. Server-rendered for crawlers and link unfurls.
+Key UI (MVP): home page with a region picker and this weekend's meets, city pages (`/socal/newport-beach`, `/socal/rancho-cucamonga`), event pages with full detail and RSVP (opens app or sign-in), host pages, and an "Open in app" banner. Server-rendered for crawlers and link unfurls.
 
 Key UI (Later): host dashboard for editing, occurrences, RSVP export, and analytics; admin moderation screens if not kept in Rails.
 
@@ -270,7 +272,7 @@ Scope: Public pages are MVP. Dashboard is Later.
 | Cancel this week because of rain | Host | Open event, host controls, cancel this occurrence with a note, RSVPs get a push | Yes |
 | Post photos after a meet | Photographer | Open the past occurrence, tap Post, pick photos, publish, photos appear on event and profile | Yes |
 | Check who is going | Regular | Open detail, see going avatars and garage badges, follow a host | Follow needs account |
-| Land from Google | Browser | Search "cars and coffee Riverside," open web event page, tap Open in app or just read | No |
+| Land from Google | Browser | Search "cars and coffee Newport Beach," open web event page, tap Open in app or just read | No |
 | Report a fake listing | Any | Long-press event, Report, choose "not a real meet," submit | No for MVP (rate limited) |
 
 ## MVP feature cut

@@ -6,7 +6,7 @@ Status: planning draft, 2026-09-05. The authoritative spec will be `apps/api/swa
 
 | Topic | Rule |
 |---|---|
-| Base URL | `https://api.carsandcoffee.app/v1` (production), `http://localhost:3000/v1` (dev) |
+| Base URL | `https://api.curbsocial.club/v1` (production, domain unconfirmed), `http://localhost:3000/v1` (dev) |
 | Format | JSON request and response bodies. Keys are `snake_case`. |
 | Timestamps | ISO 8601 in UTC (`2026-09-12T14:00:00Z`). Occurrence payloads also include `timezone` so clients render local time. |
 | Coordinates | `{ "lat": 34.09, "lng": -117.43 }` objects, never arrays. |
@@ -57,7 +57,7 @@ Field lists are the planned Alba serializers. `?include=` is not supported; each
   "id": "uuid",
   "slug": "saturday-cars-and-coffee-fontana-a1b2c3",
   "title": "Saturday Cars and Coffee Fontana",
-  "cover_url": "https://media.carsandcoffee.app/...",
+  "cover_url": "https://media.curbsocial.club/...",
   "cover_blurhash": "L6PZfSi_.AyE_3t7t7R**0o#DgR4",
   "tags": ["all"],
   "recurring": true,

@@ -1,8 +1,8 @@
 {
-  "name": "cars-and-coffee",
+  "name": "curb-social-club",
   "version": "0.0.0",
   "private": true,
-  "description": "Discovery and social platform for local car meets. Monorepo: Rails API, React web, Expo mobile, shared TypeScript packages.",
+  "description": "Curb Social Club: discovery and social platform for local car meets. Monorepo: Rails API, React web, Expo mobile, shared TypeScript packages.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.0",
   "engines": {

@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; --bg:#F3F4F4;--surface:#F9FAFA;--raised:#FFFFFF;--border:#D5D9DB;--ink:#23272A;--ink2:#5C6469;--accent:#5E2A2E;--accentInk:#F3F4F4;--link:#3C5A70;--glass:rgba(243,244,244,0.65);--glassHair:rgba(213,217,219,0.35); background: var(--bg); color: var(--ink); font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; font-feature-settings: 'tnum'; }
+    a { color: var(--link); text-decoration: none; } a:hover { color: var(--ink); }
+    .serif { font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif; font-weight: 400; }
+    .plate { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 13px; line-height: 16px; letter-spacing: 0.6px; text-transform: uppercase; font-feature-settings: 'tnum', 'case'; color: var(--ink2); }
+    .label { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 11px; line-height: 14px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink2); }
+    .caption { font-family: Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 500; font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: var(--ink2); }
+    .glass { background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.1); backdrop-filter: blur(20px) saturate(1.1); box-shadow: 0 0 0 1px var(--glassHair); }
+    .ico { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .ico-sm { width: 18px; height: 18px; }
+    .ico-xs { width: 14px; height: 14px; stroke-width: 1.75; }
+    .ico-fill { fill: currentColor; stroke: none; }
+    .chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 500; letter-spacing: 0.2px; white-space: nowrap; box-shadow: 0 0 0 1px var(--border); }
+    .rule { height: 1px; background: var(--border); flex: none; }
+</style>
+</helmet>
+<div style="width:1848px;height:1080px;background:#F3F4F4;padding:48px;display:flex;gap:48px;align-items:flex-start;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"><div style="display:flex;flex-direction:column;gap:16px;width:402px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid #D5D9DB">
+        <span class="serif" style="font-size:28px;line-height:32px;color:#23272A">Marine Layer</span>
+        <span class="caption" style="font-weight:400;font-size:13px;letter-spacing:0;color:#5C6469">Default. Fog white, wet asphalt, oxblood. &middot; marine-layer, light</span>
+      </div>
+      <div style="width:402px;height:874px;border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB;position:relative"><div style="--bg:#F3F4F4;--surface:#F9FAFA;--raised:#FFFFFF;--border:#D5D9DB;--ink:#23272A;--ink2:#5C6469;--accent:#5E2A2E;--accentInk:#F3F4F4;--link:#3C5A70;--glass:rgba(243,244,244,0.65);--glassHair:rgba(213,217,219,0.35);width:402px;height:874px;position:relative;overflow:hidden;background:#F3F4F4;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;color:#23272A">
+  <div style="position:absolute;top:58px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span class="serif" style="font-size:44px;line-height:44px;letter-spacing:-0.4px;color:#23272A">curb</span>
+    </div>
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#23272A;"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M4 7h16M7 12h10M10 17h4"/></svg></div>
+  </div>
+  <div style="position:absolute;top:114px;left:20px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:5">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span class="plate" style="">This weekend &middot; Newport Beach &middot; 25 mi</span><span class="caption" style="color:#3C5A70">Change</span></div>
+    <div class="rule"></div>
+    <div style="display:flex;gap:8px"><div class="chip" style="background:#23272A;color:#F3F4F4;box-shadow:none;height:30px;padding:0 12px;font-size:13px">Near me</div><div class="chip" style="background:#F9FAFA;color:#23272A;height:30px;padding:0 12px;font-size:13px">Following</div><div class="chip" style="background:#F9FAFA;color:#23272A;height:30px;padding:0 12px;font-size:13px">Series</div><div class="chip" style="background:#F9FAFA;color:#23272A;height:30px;padding:0 12px;font-size:13px">Past</div></div>
+  </div>
+  <div style="position:absolute;top:196px;left:20px;right:20px;bottom:0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+    <div style="display:flex;flex-direction:column;background:#F9FAFA;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB">
+      <div style="position:relative;overflow:hidden;background:#CFD4D6;height:271px"><div style="position:absolute;left:0;right:0;top:54%;bottom:0;background:#A9B1B5"></div><div style="position:absolute;left:0;right:0;top:80%;bottom:0;background:#717A7E"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SAT 7:30 AM &middot; 4.2 MI</span><div class="chip" style="color:#2E6B51;background:#F9FAFA"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg><span>Confirmed by host</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#23272A">Back Bay Coffee</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Air-Cooled &middot; Lot behind the bakery on Bayside &middot; 42 going</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;background:#F9FAFA;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB">
+      <div style="position:relative;overflow:hidden;background:#C6CCCF;height:271px"><div style="position:absolute;left:0;right:0;top:58%;bottom:0;background:#9EA7AB"></div><div style="position:absolute;left:0;right:0;top:84%;bottom:0;background:#5F6A6F"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SUN 8:00 AM &middot; 6.1 MI</span><div class="chip" style="color:#5C6469;background:#F9FAFA"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.2 1.2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.2-1.2"/></svg><span>Listed from Instagram</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#23272A">Balboa Island Sunday</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Coffee Cars &middot; Marine Ave, by the ferry &middot; 27 going</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;align-items:center;gap:10px;z-index:30"><div class="glass" style="flex:1;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 6px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#23272A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path class="ico-fill" d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5zM8 9v4h4V9zm6 0v1.2h3V9zm0 2.8V13h3v-1.2zM8 15v1.2h9V15z"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:600">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z"/><path d="M9 5v12M15 7v12"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M7 15.5V11a5 5 0 0 1 10 0v4.5l1.5 1.5H5.5z"/><path d="M10.5 19.5a1.5 1.5 0 0 0 3 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6469"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="2.8"/><path d="M6.8 18a5.5 5.5 0 0 1 10.4 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Profile</span></div></div><div class="glass" style="width:60px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;color:#23272A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M12 5.5v13M5.5 12h13"/></svg></div></div>
+</div></div>
+    </div><div style="display:flex;flex-direction:column;gap:16px;width:402px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid #D5D9DB">
+        <span class="serif" style="font-size:28px;line-height:32px;color:#23272A">Harbor</span>
+        <span class="caption" style="font-weight:400;font-size:13px;letter-spacing:0;color:#5C6469">Bone white, deep navy, old brass. &middot; harbor, light</span>
+      </div>
+      <div style="width:402px;height:874px;border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB;position:relative"><div style="--bg:#F4F0E7;--surface:#FAF7F0;--raised:#FFFDF8;--border:#DDD3C1;--ink:#16223A;--ink2:#5A6272;--accent:#7A5A1E;--accentInk:#F4F0E7;--link:#2F4E7A;--glass:rgba(244,240,231,0.65);--glassHair:rgba(221,211,193,0.35);width:402px;height:874px;position:relative;overflow:hidden;background:#F4F0E7;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;color:#16223A">
+  <div style="position:absolute;top:58px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span class="serif" style="font-size:44px;line-height:44px;letter-spacing:-0.4px;color:#16223A">curb</span>
+    </div>
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#16223A;"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M4 7h16M7 12h10M10 17h4"/></svg></div>
+  </div>
+  <div style="position:absolute;top:114px;left:20px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:5">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span class="plate" style="">This weekend &middot; Newport Beach &middot; 25 mi</span><span class="caption" style="color:#2F4E7A">Change</span></div>
+    <div class="rule"></div>
+    <div style="display:flex;gap:8px"><div class="chip" style="background:#16223A;color:#F4F0E7;box-shadow:none;height:30px;padding:0 12px;font-size:13px">Near me</div><div class="chip" style="background:#FAF7F0;color:#16223A;height:30px;padding:0 12px;font-size:13px">Following</div><div class="chip" style="background:#FAF7F0;color:#16223A;height:30px;padding:0 12px;font-size:13px">Series</div><div class="chip" style="background:#FAF7F0;color:#16223A;height:30px;padding:0 12px;font-size:13px">Past</div></div>
+  </div>
+  <div style="position:absolute;top:196px;left:20px;right:20px;bottom:0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+    <div style="display:flex;flex-direction:column;background:#FAF7F0;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #DDD3C1">
+      <div style="position:relative;overflow:hidden;background:#D5D3CC;height:271px"><div style="position:absolute;left:0;right:0;top:54%;bottom:0;background:#ADB0B1"></div><div style="position:absolute;left:0;right:0;top:80%;bottom:0;background:#606B79"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SAT 7:30 AM &middot; 4.2 MI</span><div class="chip" style="color:#2F6A4E;background:#FAF7F0"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg><span>Confirmed by host</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#16223A">Back Bay Coffee</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Air-Cooled &middot; Lot behind the bakery on Bayside &middot; 42 going</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;background:#FAF7F0;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #DDD3C1">
+      <div style="position:relative;overflow:hidden;background:#CFCEC8;height:271px"><div style="position:absolute;left:0;right:0;top:58%;bottom:0;background:#A5A9AB"></div><div style="position:absolute;left:0;right:0;top:84%;bottom:0;background:#55617A"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SUN 8:00 AM &middot; 6.1 MI</span><div class="chip" style="color:#5A6272;background:#FAF7F0"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.2 1.2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.2-1.2"/></svg><span>Listed from Instagram</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#16223A">Balboa Island Sunday</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Coffee Cars &middot; Marine Ave, by the ferry &middot; 27 going</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;align-items:center;gap:10px;z-index:30"><div class="glass" style="flex:1;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 6px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#16223A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path class="ico-fill" d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5zM8 9v4h4V9zm6 0v1.2h3V9zm0 2.8V13h3v-1.2zM8 15v1.2h9V15z"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:600">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5A6272"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z"/><path d="M9 5v12M15 7v12"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5A6272"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M7 15.5V11a5 5 0 0 1 10 0v4.5l1.5 1.5H5.5z"/><path d="M10.5 19.5a1.5 1.5 0 0 0 3 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5A6272"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="2.8"/><path d="M6.8 18a5.5 5.5 0 0 1 10.4 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Profile</span></div></div><div class="glass" style="width:60px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;color:#16223A"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M12 5.5v13M5.5 12h13"/></svg></div></div>
+</div></div>
+    </div><div style="display:flex;flex-direction:column;gap:16px;width:402px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid #D5D9DB">
+        <span class="serif" style="font-size:28px;line-height:32px;color:#23272A">Olive and Ivory</span>
+        <span class="caption" style="font-weight:400;font-size:13px;letter-spacing:0;color:#5C6469">Ivory, sage olive, burnt sienna. &middot; olive-ivory, light</span>
+      </div>
+      <div style="width:402px;height:874px;border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB;position:relative"><div style="--bg:#F3F0E5;--surface:#F9F7EE;--raised:#FFFEF7;--border:#D8D4C6;--ink:#22261E;--ink2:#5C6156;--accent:#8A3D1F;--accentInk:#F3F0E5;--link:#4B5E3E;--glass:rgba(243,240,229,0.65);--glassHair:rgba(216,212,198,0.35);width:402px;height:874px;position:relative;overflow:hidden;background:#F3F0E5;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;color:#22261E">
+  <div style="position:absolute;top:58px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span class="serif" style="font-size:44px;line-height:44px;letter-spacing:-0.4px;color:#22261E">curb</span>
+    </div>
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#22261E;"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M4 7h16M7 12h10M10 17h4"/></svg></div>
+  </div>
+  <div style="position:absolute;top:114px;left:20px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:5">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span class="plate" style="">This weekend &middot; Newport Beach &middot; 25 mi</span><span class="caption" style="color:#4B5E3E">Change</span></div>
+    <div class="rule"></div>
+    <div style="display:flex;gap:8px"><div class="chip" style="background:#22261E;color:#F3F0E5;box-shadow:none;height:30px;padding:0 12px;font-size:13px">Near me</div><div class="chip" style="background:#F9F7EE;color:#22261E;height:30px;padding:0 12px;font-size:13px">Following</div><div class="chip" style="background:#F9F7EE;color:#22261E;height:30px;padding:0 12px;font-size:13px">Series</div><div class="chip" style="background:#F9F7EE;color:#22261E;height:30px;padding:0 12px;font-size:13px">Past</div></div>
+  </div>
+  <div style="position:absolute;top:196px;left:20px;right:20px;bottom:0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+    <div style="display:flex;flex-direction:column;background:#F9F7EE;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #D8D4C6">
+      <div style="position:relative;overflow:hidden;background:#D4D5CC;height:271px"><div style="position:absolute;left:0;right:0;top:54%;bottom:0;background:#AAAFA4"></div><div style="position:absolute;left:0;right:0;top:80%;bottom:0;background:#6D7568"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SAT 7:30 AM &middot; 4.2 MI</span><div class="chip" style="color:#356A48;background:#F9F7EE"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg><span>Confirmed by host</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#22261E">Back Bay Coffee</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Air-Cooled &middot; Lot behind the bakery on Bayside &middot; 42 going</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;background:#F9F7EE;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #D8D4C6">
+      <div style="position:relative;overflow:hidden;background:#CDCFC5;height:271px"><div style="position:absolute;left:0;right:0;top:58%;bottom:0;background:#A1A79C"></div><div style="position:absolute;left:0;right:0;top:84%;bottom:0;background:#616A5D"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SUN 8:00 AM &middot; 6.1 MI</span><div class="chip" style="color:#5C6156;background:#F9F7EE"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.2 1.2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.2-1.2"/></svg><span>Listed from Instagram</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#22261E">Balboa Island Sunday</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Coffee Cars &middot; Marine Ave, by the ferry &middot; 27 going</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;align-items:center;gap:10px;z-index:30"><div class="glass" style="flex:1;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 6px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#22261E"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path class="ico-fill" d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5zM8 9v4h4V9zm6 0v1.2h3V9zm0 2.8V13h3v-1.2zM8 15v1.2h9V15z"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:600">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6156"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z"/><path d="M9 5v12M15 7v12"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6156"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M7 15.5V11a5 5 0 0 1 10 0v4.5l1.5 1.5H5.5z"/><path d="M10.5 19.5a1.5 1.5 0 0 0 3 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#5C6156"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="2.8"/><path d="M6.8 18a5.5 5.5 0 0 1 10.4 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Profile</span></div></div><div class="glass" style="width:60px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;color:#22261E"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M12 5.5v13M5.5 12h13"/></svg></div></div>
+</div></div>
+    </div><div style="display:flex;flex-direction:column;gap:16px;width:402px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid #D5D9DB">
+        <span class="serif" style="font-size:28px;line-height:32px;color:#23272A">Marine Layer Dark</span>
+        <span class="caption" style="font-weight:400;font-size:13px;letter-spacing:0;color:#5C6469">Same roles, lifted accent, dark ink on accent. &middot; marine-layer, dark</span>
+      </div>
+      <div style="width:402px;height:874px;border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #D5D9DB;position:relative"><div style="--bg:#15181A;--surface:#1E2225;--raised:#272C30;--border:#363C41;--ink:#EDEFF0;--ink2:#A2A9AE;--accent:#C98C8E;--accentInk:#15181A;--link:#8FB0C6;--glass:rgba(21,24,26,0.65);--glassHair:rgba(54,60,65,0.35);width:402px;height:874px;position:relative;overflow:hidden;background:#15181A;font-family:Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;color:#EDEFF0">
+  <div style="position:absolute;top:58px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span class="serif" style="font-size:44px;line-height:44px;letter-spacing:-0.4px;color:#EDEFF0">curb</span>
+    </div>
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#EDEFF0;"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M4 7h16M7 12h10M10 17h4"/></svg></div>
+  </div>
+  <div style="position:absolute;top:114px;left:20px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:5">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span class="plate" style="">This weekend &middot; Newport Beach &middot; 25 mi</span><span class="caption" style="color:#8FB0C6">Change</span></div>
+    <div class="rule"></div>
+    <div style="display:flex;gap:8px"><div class="chip" style="background:#EDEFF0;color:#15181A;box-shadow:none;height:30px;padding:0 12px;font-size:13px">Near me</div><div class="chip" style="background:#1E2225;color:#EDEFF0;height:30px;padding:0 12px;font-size:13px">Following</div><div class="chip" style="background:#1E2225;color:#EDEFF0;height:30px;padding:0 12px;font-size:13px">Series</div><div class="chip" style="background:#1E2225;color:#EDEFF0;height:30px;padding:0 12px;font-size:13px">Past</div></div>
+  </div>
+  <div style="position:absolute;top:196px;left:20px;right:20px;bottom:0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+    <div style="display:flex;flex-direction:column;background:#1E2225;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #363C41">
+      <div style="position:relative;overflow:hidden;background:#3C4348;height:271px"><div style="position:absolute;left:0;right:0;top:54%;bottom:0;background:#2F3539"></div><div style="position:absolute;left:0;right:0;top:80%;bottom:0;background:#22272A"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SAT 7:30 AM &middot; 4.2 MI</span><div class="chip" style="color:#7FBB9C;background:#1E2225"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="m12 3 1.9 1.4 2.3-.3.9 2.2 2.1.9-.3 2.3L20.3 12l-1.4 1.9.3 2.3-2.1.9-.9 2.2-2.3-.3L12 20.3l-1.9-1.4-2.3.3-.9-2.2-2.1-.9.3-2.3L3.7 12l1.4-1.9-.3-2.3 2.1-.9.9-2.2 2.3.3z"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6"/></svg><span>Confirmed by host</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#EDEFF0">Back Bay Coffee</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Back Bay Air-Cooled &middot; Lot behind the bakery on Bayside &middot; 42 going</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;background:#1E2225;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #363C41">
+      <div style="position:relative;overflow:hidden;background:#434A4F;height:271px"><div style="position:absolute;left:0;right:0;top:58%;bottom:0;background:#333A3E"></div><div style="position:absolute;left:0;right:0;top:84%;bottom:0;background:#25292C"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="plate" style="">SUN 8:00 AM &middot; 6.1 MI</span><div class="chip" style="color:#A2A9AE;background:#1E2225"><svg class="ico ico-xs" viewBox="0 0 24 24" style=""><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.2 1.2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1.2-1.2"/></svg><span>Listed from Instagram</span></div></div>
+        <div class="serif" style="font-size:22px;line-height:26px;color:#EDEFF0">Balboa Island Sunday</div>
+        <div class="caption" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Balboa Coffee Cars &middot; Marine Ave, by the ferry &middot; 27 going</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;align-items:center;gap:10px;z-index:30"><div class="glass" style="flex:1;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 6px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#EDEFF0"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path class="ico-fill" d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5zM8 9v4h4V9zm6 0v1.2h3V9zm0 2.8V13h3v-1.2zM8 15v1.2h9V15z"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:600">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#A2A9AE"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z"/><path d="M9 5v12M15 7v12"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#A2A9AE"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M7 15.5V11a5 5 0 0 1 10 0v4.5l1.5 1.5H5.5z"/><path d="M10.5 19.5a1.5 1.5 0 0 0 3 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:66px;height:56px;color:#A2A9AE"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="10" r="2.8"/><path d="M6.8 18a5.5 5.5 0 0 1 10.4 0"/></svg><span style="font-family:-apple-system, 'SF Pro Text', Geist, Inter, sans-serif;font-size:10px;line-height:12px;font-weight:500">Profile</span></div></div><div class="glass" style="width:60px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;color:#EDEFF0"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:1.75"><path d="M12 5.5v13M5.5 12h13"/></svg></div></div>
+</div></div>
+    </div></div>
+</x-dc>
+</body>
+</html>

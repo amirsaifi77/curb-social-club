@@ -21,13 +21,13 @@ Status: planned setup, 2026-09-05. Nothing here works yet because the apps have 
 ## First run
 
 ```sh
-git clone git@github.com:<amir>/cars-and-coffee.git
-cd cars-and-coffee
+git clone git@github.com:amirsaifi77/curb-social-club.git
+cd curb-social-club
 mise install
 pnpm install                     # JS workspaces only; Rails is skipped
 docker compose up -d             # Postgres 16 + PostGIS 3.4 on 5432
 cp apps/api/.env.example apps/api/.env
-pnpm --filter @cac/api build     # bundle install + db:prepare (creates extensions, runs migrations, seeds)
+pnpm --filter @curb/api build     # bundle install + db:prepare (creates extensions, runs migrations, seeds)
 pnpm dev                         # turbo runs api, web, and mobile dev servers
 ```
 
@@ -35,23 +35,23 @@ pnpm dev                         # turbo runs api, web, and mobile dev servers
 
 | App | Command | Notes |
 |---|---|---|
-| api | `pnpm --filter @cac/api dev` | `bin/dev` runs Puma on 3000 and Solid Queue worker via `Procfile.dev` |
-| api | `pnpm --filter @cac/api test` | `bundle exec rspec` |
-| api | `pnpm --filter @cac/api lint` | rubocop |
-| api | `pnpm --filter @cac/api openapi` | Regenerates `swagger/v1/openapi.yaml` |
+| api | `pnpm --filter @curb/api dev` | `bin/dev` runs Puma on 3000 and Solid Queue worker via `Procfile.dev` |
+| api | `pnpm --filter @curb/api test` | `bundle exec rspec` |
+| api | `pnpm --filter @curb/api lint` | rubocop |
+| api | `pnpm --filter @curb/api openapi` | Regenerates `swagger/v1/openapi.yaml` |
 | api | `cd apps/api && bin/rails c` | Console |
-| web | `pnpm --filter @cac/web dev` | React Router dev server on 5173, proxies `/v1` to 3000 |
-| mobile | `pnpm --filter @cac/mobile dev` | `expo start --dev-client` |
-| mobile | `pnpm --filter @cac/mobile ios` | Build and run a development build on the simulator (`expo run:ios`) |
-| types | `pnpm --filter @cac/types generate` | OpenAPI to TS |
-| tokens | `pnpm --filter @cac/design-tokens build` | tokens.json to TS and CSS |
+| web | `pnpm --filter @curb/web dev` | React Router dev server on 5173, proxies `/v1` to 3000 |
+| mobile | `pnpm --filter @curb/mobile dev` | `expo start --dev-client` |
+| mobile | `pnpm --filter @curb/mobile ios` | Build and run a development build on the simulator (`expo run:ios`) |
+| types | `pnpm --filter @curb/types generate` | OpenAPI to TS |
+| tokens | `pnpm --filter @curb/design-tokens build` | tokens.json to TS and CSS |
 | all | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` | Turbo across the workspace |
 
 ## Database
 
-`docker-compose.yml` runs `postgis/postgis:16-3.4` with a persistent volume. Rails `database.yml` reads `DATABASE_URL` (`postgres://cac:cac@localhost:5432/cac_development`). `db:prepare` enables `postgis`, `pgcrypto`, `btree_gist`, `pg_trgm`, and `citext` through the first migration.
+`docker-compose.yml` runs `postgis/postgis:16-3.4` with a persistent volume. Rails `database.yml` reads `DATABASE_URL` (`postgres://curb:curb@localhost:5432/curb_social_club_development`). `db:prepare` enables `postgis`, `pgcrypto`, `btree_gist`, `pg_trgm`, and `citext` through the first migration.
 
-Seeds create a moderator user, a few venues in Fontana, Rancho Cucamonga, Riverside, and Irvine, one recurring Saturday meet per venue, and materialized occurrences for the next 8 weeks, so the map is not empty on first launch.
+Seeds create a moderator user, a few venues in Newport Beach, Corona del Mar, San Clemente, and Rancho Cucamonga, one recurring Saturday meet per venue, and materialized occurrences for the next 8 weeks, so the map is not empty on first launch.
 
 ## Environment variables
 
@@ -76,7 +76,7 @@ Mobile and web use `EXPO_PUBLIC_API_URL` and `VITE_API_URL` respectively; nothin
 
 ## Mobile dev build
 
-Expo Go cannot load the native modules we use (maps, Apple auth, glass effects), so the first run needs a development build: `pnpm --filter @cac/mobile ios` builds locally with Xcode, or `eas build --profile development --platform ios` produces one in the cloud to install on a device. After that, `expo start --dev-client` hot reloads JS as usual.
+Expo Go cannot load the native modules we use (maps, Apple auth, glass effects), so the first run needs a development build: `pnpm --filter @curb/mobile ios` builds locally with Xcode, or `eas build --profile development --platform ios` produces one in the cloud to install on a device. After that, `expo start --dev-client` hot reloads JS as usual.
 
 The API on a physical device: point `EXPO_PUBLIC_API_URL` at your Mac's LAN IP, or run `ngrok http 3000` and use that URL, which also makes Apple universal link testing easier.
 

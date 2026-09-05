@@ -1,4 +1,4 @@
-# @cac/types
+# @curb/types
 
 TypeScript types generated from the Rails API's OpenAPI spec. Do not hand edit `src/generated.d.ts`.
 
@@ -6,9 +6,9 @@ TypeScript types generated from the Rails API's OpenAPI spec. Do not hand edit `
 
 ```
 apps/api rswag request specs
-  -> pnpm --filter @cac/api openapi      (bundle exec rake rswag:specs:swaggerize)
+  -> pnpm --filter @curb/api openapi      (bundle exec rake rswag:specs:swaggerize)
   -> apps/api/swagger/v1/openapi.yaml    (committed)
-  -> pnpm --filter @cac/types generate   (openapi-typescript openapi.yaml -o src/generated.d.ts)
+  -> pnpm --filter @curb/types generate   (openapi-typescript openapi.yaml -o src/generated.d.ts)
   -> src/index.ts re-exports paths, components, and friendly aliases
 ```
 

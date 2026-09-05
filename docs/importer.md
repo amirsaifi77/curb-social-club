@@ -6,7 +6,7 @@ Status: planning draft, 2026-09-05. Detail for `architecture.md` section 3.7 and
 
 A user pastes a link (or shares one from another app, or photographs a flyer) and gets a mostly filled event form within a few seconds. The user reviews, fixes low-confidence fields, and publishes. The original link is preserved on the event so the app links out rather than replacing the source community.
 
-Evite is the first adapter because that is what Amir's local meets use today. Everything else is ordered by expected usage in the Inland Empire: Instagram posts, flyers, Eventbrite, Meetup, Partiful.
+Evite is the first adapter because that is what Amir's local meets use today. Everything else is ordered by expected usage in coastal Orange County and the Inland Empire: Instagram posts, flyers, Eventbrite, Meetup, Partiful.
 
 ## Pipeline
 
@@ -57,7 +57,7 @@ Adapters register in a fixed list. `Registry.for(source)` returns the highest pr
 
 ### Fetcher
 
-Faraday connection with middleware in this order: cache (Solid Cache, 6 h, keyed by normalized URL), per-host throttle (token bucket in Solid Cache), robots check, retry (2 attempts on 5xx and timeouts, none on 4xx), redirect following (max 5, same-site or known short-link hosts only), size limit (2 MB), timeout (10 s). User agent: `CarsAndCoffeeBot/1.0 (+https://carsandcoffee.app/bot)`.
+Faraday connection with middleware in this order: cache (Solid Cache, 6 h, keyed by normalized URL), per-host throttle (token bucket in Solid Cache), robots check, retry (2 attempts on 5xx and timeouts, none on 4xx), redirect following (max 5, same-site or known short-link hosts only), size limit (2 MB), timeout (10 s). User agent: `CurbSocialClubBot/1.0 (+https://curbsocial.club/bot)` (domain unconfirmed).
 
 Robots policy: for adapters marked `user_initiated_single_fetch` (all launch adapters), the fetch is a single request for the exact URL the user pasted, which is the same thing a link preview does. We still read `robots.txt` and log disallowed hits so we can review, but we do not block Instagram and Partiful previews on that basis. No adapter ever crawls, paginates, or follows links beyond the pasted page and its `og:image`.
 
