@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["Gemfile", "Gemfile.lock", "db/**", "config/**"],
+      "outputs": [],
+      "cache": false
+    },
+    "test": {
+      "inputs": ["Gemfile.lock", "app/**", "config/**", "db/**", "lib/**", "spec/**", ".rspec"],
+      "outputs": ["coverage/**"],
+      "cache": false,
+      "env": ["DATABASE_URL", "RAILS_ENV"]
+    },
+    "lint": {
+      "inputs": ["Gemfile.lock", ".rubocop.yml", "app/**", "config/**", "db/**", "lib/**", "spec/**"],
+      "outputs": []
+    },
+    "openapi": {
+      "inputs": ["Gemfile.lock", "app/**", "config/**", "spec/requests/**", "spec/swagger_helper.rb"],
+      "outputs": ["swagger/**"],
+      "env": ["DATABASE_URL", "RAILS_ENV"]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+name: Feature
+description: Propose a feature or improvement
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard or missing for a user today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should happen instead? Sketch the UX or API.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options: [api, web, mobile, packages, importer, docs]
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Links, screenshots, related issues.

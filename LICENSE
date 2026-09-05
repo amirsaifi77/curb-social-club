@@ -1,0 +1,9 @@
+Copyright (c) 2026 Amir Saifi. All rights reserved.
+
+This repository is private and proprietary. No license is granted to copy,
+modify, distribute, or use this software or its documentation, in whole or in
+part, without prior written permission from the copyright holder.
+
+Note: this is a placeholder for a private project. If the project is ever
+opened to outside contributors, replace this file with a chosen license
+(MIT, Apache-2.0, or similar) and update the "license" field in package.json.

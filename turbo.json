@@ -1,0 +1,37 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": [".nvmrc", ".ruby-version", "pnpm-workspace.yaml"],
+  "globalEnv": ["CI", "NODE_ENV", "RAILS_ENV"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**", ".react-router/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": ["*.tsbuildinfo"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "openapi": {
+      "outputs": ["swagger/**"]
+    },
+    "generate": {
+      "dependsOn": ["^openapi"],
+      "outputs": ["src/generated.d.ts", "dist/**"]
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

@@ -1,0 +1,77 @@
+# Node / pnpm
+node_modules/
+.pnpm-store/
+.turbo/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Ruby / Rails (apps/api)
+apps/api/.bundle/
+apps/api/vendor/bundle/
+apps/api/log/*
+!apps/api/log/.keep
+apps/api/tmp/*
+!apps/api/tmp/.keep
+apps/api/storage/*
+!apps/api/storage/.keep
+apps/api/public/uploads/
+apps/api/db/*.sqlite3
+apps/api/coverage/
+apps/api/.byebug_history
+apps/api/config/master.key
+apps/api/config/credentials/*.key
+
+# Expo / React Native (apps/mobile)
+apps/mobile/.expo/
+apps/mobile/ios/
+apps/mobile/android/
+apps/mobile/web-build/
+apps/mobile/expo-env.d.ts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+*.ipa
+*.apk
+*.aab
+
+# React Router / Vite (apps/web)
+apps/web/.react-router/
+apps/web/build/
+apps/web/.vercel/
+
+# Generated (committed on purpose; listed here as a reminder, not ignored)
+# packages/types/src/generated.d.ts
+# apps/api/swagger/v1/openapi.yaml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.claude/

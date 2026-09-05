@@ -1,0 +1,15 @@
+{
+  "name": "@cac/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Rails 8 API-only backend. This package.json exists so Turborepo can run and cache Ruby tasks; pnpm installs nothing here.",
+  "scripts": {
+    "dev": "bin/dev",
+    "build": "bundle install && bin/rails db:prepare",
+    "test": "bundle exec rspec",
+    "lint": "bundle exec rubocop",
+    "typecheck": "echo 'ruby: no typecheck task' && exit 0",
+    "openapi": "bundle exec rake rswag:specs:swaggerize",
+    "clean": "rm -rf tmp/cache coverage"
+  }
+}

@@ -1,0 +1,23 @@
+# Local development database only. The Rails app runs on the host.
+# Usage: docker compose up -d
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: cac-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cac
+      POSTGRES_PASSWORD: cac
+      POSTGRES_DB: cac_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - cac-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cac -d cac_development"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  cac-pgdata:

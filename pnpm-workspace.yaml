@@ -1,0 +1,6 @@
+# apps/api is a Rails app. It is listed here so Turborepo can orchestrate it,
+# but its package.json has no dependencies, so pnpm installs nothing for it.
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tooling"
