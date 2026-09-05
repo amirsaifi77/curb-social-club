@@ -673,7 +673,7 @@ Summary only; the mobile workstream owns `docs/mobile-liquid-glass.md` and the d
 
 | Topic | Decision |
 |---|---|
-| SDK | Latest Expo SDK (54 at time of writing; move to 55 when stable), New Architecture on, Expo Router for file-based navigation, development builds (not Expo Go) because of native modules for maps, Apple auth, and glass effects. |
+| SDK | Expo SDK 57 (current stable as of September 2026; SDK 58 is in canary and is needed for Xcode 27, see [mobile-liquid-glass.md](mobile-liquid-glass.md)), New Architecture on, Expo Router for file-based navigation, development builds (not Expo Go) because of native modules for maps, Apple auth, and glass effects. |
 | Language | TypeScript strict, shared `@cac/config` tsconfig. |
 | Styling | Design tokens from `@cac/design-tokens`; styling library choice (NativeWind vs Unistyles) is the mobile workstream's call, tokens support both. |
 | iOS 26 | Liquid Glass via `expo-glass-effect` and native tab bars where the SDK exposes them. Custom glass fallbacks on iOS < 26. |

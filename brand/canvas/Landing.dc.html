@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { margin: 0; font-family: Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif; color: #1F1712; -webkit-font-smoothing: antialiased; font-feature-settings: 'cv11', 'ss01', 'tnum'; }
+    a { color: #2C6BA3; text-decoration: none; } a:hover { color: #1F4F7A; }
+    * { box-sizing: border-box; }
+    .glass { background: rgba(255,255,255,0.58); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 8px 32px rgba(42,26,16,0.16), inset 0 1px 0 rgba(255,255,255,0.8); }
+    .glass-dark { background: rgba(30,25,23,0.42); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22); color: #F5EFE8; }
+    .glass-amber { background: rgba(232,135,30,0.82); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255,255,255,0.55); box-shadow: 0 8px 28px rgba(168,89,10,0.35), inset 0 1px 0 rgba(255,255,255,0.6); color: #2A1A10; }
+    .ico { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .ico-sm { width: 18px; height: 18px; }
+    .ico-fill { fill: currentColor; stroke: none; }
+    .photo { position: relative; overflow: hidden; background: linear-gradient(180deg, #F5B865 0%, #E8A052 38%, #8A7E74 62%, #4A403B 100%); }
+    .photo::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 22% 12%, rgba(255,243,223,0.9) 0%, rgba(255,243,223,0) 45%); }
+    .photo.v2 { background: linear-gradient(180deg, #BFDDF5 0%, #F5D9A6 40%, #8A7E74 62%, #3A312C 100%); }
+    .photo.v3 { background: linear-gradient(180deg, #F0A040 0%, #C26A25 40%, #5A3A22 65%, #2A1A10 100%); }
+    .photo.v4 { background: linear-gradient(180deg, #E6F2FB 0%, #FAD9A6 45%, #B3A79D 62%, #4A403B 100%); }
+    .photo .car { position: absolute; left: 50%; bottom: 10%; width: 58%; transform: translateX(-50%); fill: #1F1712; opacity: 0.78; }
+    .scrim { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(20,17,16,0) 0%, rgba(20,17,16,0.72) 100%); }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .stack > * { flex: none; }
+    .avatar { width: 28px; height: 28px; border-radius: 999px; border: 2px solid #FFFFFF; flex: none; }
+
+    body { background: #FBF7F1; }
+  </style>
+</helmet>
+<div style="width:1440px;min-height:1900px;background:#FBF7F1;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-220px;right:-160px;width:760px;height:760px;border-radius:999px;background:radial-gradient(circle, rgba(245,184,101,0.55) 0%, rgba(245,184,101,0) 65%)"></div>
+  <div style="position:absolute;top:24px;left:50%;transform:translateX(-50%);width:1120px;z-index:10">
+    <div class="glass" style="height:64px;border-radius:32px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px">
+      <div style="display:flex;align-items:center;gap:10px"><svg viewBox="0 0 64 64" style="width:32px;height:32px;flex:none"><g fill="none" stroke="#2A1A10" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20c-3-3 3-6 0-10"/><path d="M32 20c-3-3 3-6 0-10"/><path d="M42 30h3a5 5 0 0 1 0 10h-3"/></g><path fill="#2A1A10" d="M12 26h30v14a3 3 0 0 1-3 3H19a7 7 0 0 1-7-7z"/><circle cx="21" cy="49" r="5.5" fill="#2A1A10"/><circle cx="21" cy="49" r="2" fill="#FBF7F1"/><circle cx="36" cy="49" r="5.5" fill="#2A1A10"/><circle cx="36" cy="49" r="2" fill="#FBF7F1"/></svg><span style="font-size:18px;font-weight:700;letter-spacing:-0.3px">Cars <span style="color:#E8871E">&amp;</span> Coffee</span></div>
+      <div style="display:flex;align-items:center;gap:32px"><span style="font-size:15px;font-weight:500;color:#1F1712">Find a meet</span><span style="font-size:15px;font-weight:500;color:#1F1712">Hosts</span><span style="font-size:15px;font-weight:500;color:#1F1712">Add your meet</span></div>
+      <div style="height:44px;padding:0 18px;border-radius:22px;background:#2A1A10;color:#FFFFFF;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path class="ico-fill" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.1 5.8c.6-.8 1.1-1.8 1-2.8-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 0 2.1-.6 2.7-1.4z"/></svg>Get the app</div>
+    </div>
+  </div>
+  <div style="position:absolute;top:150px;left:50%;transform:translateX(-50%);width:1120px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:64px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:28px;padding-top:40px">
+      <div class="chip" style="align-self:flex-start;background:#FDF0DC;color:#A8590A;height:32px;padding:0 14px;font-size:13px"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M12 21s-6-5.2-6-10.5a6 6 0 0 1 12 0C18 15.8 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg>Inland Empire · OC · LA</div>
+      <h1 style="margin:0;font-size:64px;font-weight:700;letter-spacing:-2px;line-height:68px;color:#1F1712;text-wrap:balance">Find your Saturday morning.</h1>
+      <p style="margin:0;font-size:20px;line-height:30px;color:#6B5F57;max-width:520px;text-wrap:pretty">Every local car meet, on one map. Coffee meetups from Fontana to Irvine, from Miatas to McLarens. Browse without an account.</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="height:56px;padding:0 22px;border-radius:28px;background:#2A1A10;color:#FFFFFF;display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;white-space:nowrap"><svg class="ico" viewBox="0 0 24 24" style=""><path class="ico-fill" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.1 5.8c.6-.8 1.1-1.8 1-2.8-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 0 2.1-.6 2.7-1.4z"/></svg>Download on the App Store</div>
+        <a href="#" style="font-size:17px;font-weight:600;color:#A8590A;display:flex;align-items:center;gap:4px;white-space:nowrap">Browse meets on the web<svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="m9 5 7 7-7 7"/></svg></a>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div style="display:flex;align-items:center"><div class="avatar" style="width:32px;height:32px;background:#E8871E;"></div><div class="avatar" style="width:32px;height:32px;background:#4A8FCB;margin-left:-8px;"></div><div class="avatar" style="width:32px;height:32px;background:#7C5CC4;margin-left:-8px;"></div><div class="avatar" style="width:32px;height:32px;background:#1E7A4A;margin-left:-8px;"></div><div class="avatar" style="width:32px;height:32px;background:#B3A79D;margin-left:-8px;"></div></div><span style="font-size:15px;color:#6B5F57">[GOING COUNT] people going this weekend</span></div>
+    </div>
+    <div style="position:relative;height:720px;display:flex;align-items:center;justify-content:center">
+      <div style="width:360px;height:700px;border-radius:52px;background:#1E1917;padding:12px;box-shadow:0 30px 80px rgba(42,26,16,0.35)">
+        <div style="width:100%;height:100%;border-radius:42px;overflow:hidden;position:relative;background:#EFE9E0">
+          <div style="position:absolute;inset:0;transform:scale(0.865);transform-origin:top left;width:390px;height:784px"><div style="width:390px;height:784px;position:relative;overflow:hidden;background:#EFE9E0;border-radius:0">
+  <svg viewBox="0 0 390 844" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
+  <rect width="390" height="844" fill="#EFE9E0"/>
+  <g fill="#E3EEDD"><rect x="30" y="120" width="120" height="90" rx="12"/><rect x="250" y="520" width="110" height="80" rx="12"/><rect x="60" y="600" width="90" height="70" rx="12"/></g>
+  <g fill="#E6DCD0"><rect x="180" y="150" width="90" height="60" rx="4"/><rect x="200" y="380" width="70" height="50" rx="4"/><rect x="40" y="380" width="110" height="60" rx="4"/></g>
+  <g stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round"><path d="M0 260h390M0 470h390M0 700h390M90 0v844M290 0v844M190 0v844"/></g>
+  <g stroke="#FFFFFF" stroke-width="3" fill="none"><path d="M0 340h390M0 600h390M140 0v844M340 0v844M40 0v844"/></g>
+  <g stroke="#F5D9A6" stroke-width="10" fill="none" stroke-linecap="round"><path d="M-10 90c120 40 180 120 240 260s80 260 170 380"/></g>
+  <g stroke="#E8871E" stroke-width="3" fill="none" stroke-dasharray="10 8" opacity="0.5"><path d="M-10 90c120 40 180 120 240 260s80 260 170 380"/></g>
+</svg>
+  <div style="position:absolute;left:150px;top:300px;width:180px;height:180px;border-radius:999px;background:rgba(232,135,30,0.10);border:1.5px solid rgba(232,135,30,0.45);transform:translate(-50%,-50%)"></div>
+  <div style="position:absolute;left:150px;top:300px;width:18px;height:18px;border-radius:999px;background:#2C6BA3;border:3px solid #FFFFFF;box-shadow:0 0 0 6px rgba(44,107,163,0.2);transform:translate(-50%,-50%)"></div>
+  <div style="position:absolute;left:212px;top:246px;width:38px;height:38px;border-radius:999px;background:#E8871E;color:#2A1A10;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #FFFFFF,0 4px 12px rgba(42,26,16,0.35);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M5 15l1.5-5a2 2 0 0 1 2-1.5h7a2 2 0 0 1 2 1.5L19 15"/><rect x="3" y="14" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div>
+  <div style="position:absolute;left:96px;top:372px;width:34px;height:34px;border-radius:999px;background:#1E7A4A;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M5 15l1.5-5a2 2 0 0 1 2-1.5h7a2 2 0 0 1 2 1.5L19 15"/><rect x="3" y="14" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div>
+  <div style="position:absolute;left:336px;top:128px;width:34px;height:34px;border-radius:999px;background:#4A8FCB;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M5 15l1.5-5a2 2 0 0 1 2-1.5h7a2 2 0 0 1 2 1.5L19 15"/><rect x="3" y="14" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div>
+  <div style="position:absolute;left:250px;top:420px;width:34px;height:34px;border-radius:999px;background:#7C5CC4;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></svg></div>
+  <div style="position:absolute;left:120px;top:560px;width:34px;height:34px;border-radius:999px;background:#4A8FCB;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M5 15l1.5-5a2 2 0 0 1 2-1.5h7a2 2 0 0 1 2 1.5L19 15"/><rect x="3" y="14" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div>
+  <div style="position:absolute;left:330px;top:640px;width:34px;height:34px;border-radius:999px;background:#7C5CC4;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)"><svg class="ico ico-sm" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></svg></div>
+  <div style="position:absolute;left:60px;top:220px;width:40px;height:40px;border-radius:999px;background:#2A1A10;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)">3</div>
+  <div style="position:absolute;left:320px;top:470px;width:40px;height:40px;border-radius:999px;background:#2A1A10;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 0 0 2px #FFFFFF,0 3px 8px rgba(42,26,16,0.28);transform:translate(-50%,-50%)">5</div>
+  <div class="glass" style="position:absolute;left:212px;top:166px;transform:translateX(-50%);padding:8px 12px;border-radius:14px;display:flex;flex-direction:column;gap:1px;white-space:nowrap">
+    <span style="font-size:13px;font-weight:600;color:#1F1712">Sunrise Coffee &amp; Cars</span>
+    <span style="font-size:12px;color:#6B5F57">Today 7:00am · 4.2 mi · 42 going</span>
+  </div>
+  <div style="position:absolute;top:60px;right:16px;display:flex;flex-direction:column;gap:10px;z-index:12">
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#1F1712"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M20 4 4 11l8 1 1 8z"/></svg></div>
+    <div class="glass" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#1F1712"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></div>
+  </div>
+  <div style="position:absolute;top:60px;left:16px;z-index:12">
+    <div class="glass" style="height:44px;padding:0 14px 0 12px;border-radius:22px;display:flex;align-items:center;gap:8px;color:#1F1712"><svg viewBox="0 0 64 64" style="width:24px;height:24px;flex:none"><g fill="none" stroke="#2A1A10" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20c-3-3 3-6 0-10"/><path d="M32 20c-3-3 3-6 0-10"/><path d="M42 30h3a5 5 0 0 1 0 10h-3"/></g><path fill="#2A1A10" d="M12 26h30v14a3 3 0 0 1-3 3H19a7 7 0 0 1-7-7z"/><circle cx="21" cy="49" r="5.5" fill="#2A1A10"/><circle cx="21" cy="49" r="2" fill="#FBF7F1"/><circle cx="36" cy="49" r="5.5" fill="#2A1A10"/><circle cx="36" cy="49" r="2" fill="#FBF7F1"/></svg><span style="font-size:15px;font-weight:600">Inland Empire</span><svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#8A7E74"><path d="m6 9 6 6 6-6"/></svg></div>
+  </div>
+  <div style="position:absolute;left:16px;right:16px;bottom:96px;z-index:20;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:8px">
+      <div class="glass chip" style="height:32px;color:#1F1712"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>This weekend</div>
+      <div class="glass chip" style="height:32px;color:#1F1712"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M20 4 4 11l8 1 1 8z"/></svg>25 mi</div>
+      <div class="glass chip" style="height:32px;color:#1F1712"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M5 15l1.5-5a2 2 0 0 1 2-1.5h7a2 2 0 0 1 2 1.5L19 15"/><rect x="3" y="14" width="18" height="5" rx="1.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>All cars</div>
+    </div>
+    <div class="glass" style="height:52px;border-radius:26px;display:flex;align-items:center;gap:10px;padding:0 10px 0 16px;color:#1F1712">
+      <svg class="ico" viewBox="0 0 24 24" style="color:#6B5F57"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+      <span style="flex:1;font-size:17px;color:#6B5F57">Search meets, hosts, places</span>
+      <div style="width:36px;height:36px;border-radius:18px;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;color:#1F1712"><svg class="ico ico-sm" viewBox="0 0 24 24" style=""><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></div>
+    </div>
+  </div>
+  <div style="position:absolute;left:16px;right:16px;bottom:18px;display:flex;align-items:center;gap:10px;z-index:20"><div class="glass" style="flex:1;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:space-around;padding:0 6px;color:#1F1712"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span style="font-size:11px;font-weight:500">Feed</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#A8590A"><svg class="ico" viewBox="0 0 24 24" style=""><path class="ico-fill" d="M9 4 3 6v14l6-2V4zM15 6l-6-2v14l6 2zM15 6l6-2v14l-6 2z"/></svg><span style="font-size:11px;font-weight:600">Map</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span style="font-size:11px;font-weight:500">Activity</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;height:52px;justify-content:center;color:#6B5F57"><svg class="ico" viewBox="0 0 24 24" style=""><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5a6 6 0 0 1 11 0"/></svg><span style="font-size:11px;font-weight:500">Profile</span></div></div><div class="glass-amber" style="width:64px;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:2.2"><path d="M12 5v14M5 12h14"/></svg></div></div>
+</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;top:960px;left:50%;transform:translateX(-50%);width:1120px;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:640px">
+      <span style="font-size:13px;font-weight:600;color:#A8590A;letter-spacing:0.4px;text-transform:uppercase">For hosts</span>
+      <h2 style="margin:0;font-size:40px;font-weight:700;letter-spacing:-1px;line-height:46px">Already posted your meet? Paste the link.</h2>
+      <p style="margin:0;font-size:18px;line-height:28px;color:#6B5F57;text-wrap:pretty">Keep organizing on Evite, Instagram, or Facebook. We read the link, draft the listing, and send people back to your original post.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:20px">
+      <div style="display:flex;flex-direction:column;gap:14px;padding:28px;background:#FFFFFF;border-radius:24px;box-shadow:0 2px 12px rgba(42,26,16,0.06)">
+      <div style="width:48px;height:48px;border-radius:16px;background:#FDF0DC;color:#A8590A;display:flex;align-items:center;justify-content:center"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/></svg></div>
+      <span style="font-size:13px;font-weight:600;color:#8A7E74;letter-spacing:0.4px;text-transform:uppercase">Step 1</span>
+      <span style="font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:28px">Paste a link</span>
+      <span style="font-size:16px;line-height:24px;color:#6B5F57;text-wrap:pretty">Evite, Eventbrite, Meetup, Facebook Events, Instagram, Partiful, or a photo of the flyer.</span>
+    </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding:28px;background:#FFFFFF;border-radius:24px;box-shadow:0 2px 12px rgba(42,26,16,0.06)">
+      <div style="width:48px;height:48px;border-radius:16px;background:#FDF0DC;color:#A8590A;display:flex;align-items:center;justify-content:center"><svg class="ico" viewBox="0 0 24 24" style=""><path d="m12 3 2.2 1.6 2.7-.3 1 2.5 2.5 1-.3 2.7L21.7 12l-1.6 2.2.3 2.7-2.5 1-1 2.5-2.7-.3L12 21l-2.2-1.6-2.7.3-1-2.5-2.5-1 .3-2.7L2.3 12l1.6-2.2-.3-2.7 2.5-1 1-2.5 2.7.3z"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg></div>
+      <span style="font-size:13px;font-weight:600;color:#8A7E74;letter-spacing:0.4px;text-transform:uppercase">Step 2</span>
+      <span style="font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:28px">Check the draft</span>
+      <span style="font-size:16px;line-height:24px;color:#6B5F57;text-wrap:pretty">Title, time, place, and host come in with a confidence tag on each. Fix what we got wrong in a tap.</span>
+    </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding:28px;background:#FFFFFF;border-radius:24px;box-shadow:0 2px 12px rgba(42,26,16,0.06)">
+      <div style="width:48px;height:48px;border-radius:16px;background:#FDF0DC;color:#A8590A;display:flex;align-items:center;justify-content:center"><svg class="ico" viewBox="0 0 24 24" style=""><path d="M12 21s-6-5.2-6-10.5a6 6 0 0 1 12 0C18 15.8 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg></div>
+      <span style="font-size:13px;font-weight:600;color:#8A7E74;letter-spacing:0.4px;text-transform:uppercase">Step 3</span>
+      <span style="font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:28px">Post it</span>
+      <span style="font-size:16px;line-height:24px;color:#6B5F57;text-wrap:pretty">Your meet shows up on the map and in feeds nearby, with a link back to where you posted it first.</span>
+    </div>
+    </div>
+  </div>
+  <div style="position:absolute;top:1480px;left:50%;transform:translateX(-50%);width:1120px;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:20px">
+    <div style="grid-column:span 1;padding:28px;border-radius:24px;background:#2A1A10;color:#F5EFE8;display:flex;flex-direction:column;gap:16px;justify-content:space-between;min-height:260px">
+      <svg viewBox="0 0 64 64" style="width:40px;height:40px;flex:none"><g fill="none" stroke="#F5EFE8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20c-3-3 3-6 0-10"/><path d="M32 20c-3-3 3-6 0-10"/><path d="M42 30h3a5 5 0 0 1 0 10h-3"/></g><path fill="#F5EFE8" d="M12 26h30v14a3 3 0 0 1-3 3H19a7 7 0 0 1-7-7z"/><circle cx="21" cy="49" r="5.5" fill="#F5EFE8"/><circle cx="21" cy="49" r="2" fill="#2A1A10"/><circle cx="36" cy="49" r="5.5" fill="#F5EFE8"/><circle cx="36" cy="49" r="2" fill="#2A1A10"/></svg>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:24px;font-weight:700;letter-spacing:-0.4px;line-height:30px">Bring whatever you drive.</span><span style="font-size:15px;line-height:22px;color:#B3A79D">Daily beaters, project cars, and the occasional supercar park in the same lot here.</span></div>
+    </div>
+    <div style="grid-column:span 2;border-radius:24px;overflow:hidden;position:relative;min-height:260px"><div class="photo v2" style="position:absolute;inset:0"><svg class="car" viewBox="0 0 200 70"><path d="M8 52c0-6 4-10 10-11l22-3 22-18c3-3 7-4 11-4h44c5 0 9 2 12 5l18 17 32 6c6 1 11 6 11 12v6c0 3-2 5-5 5H13c-3 0-5-2-5-5z"/><circle cx="52" cy="58" r="11" fill="#FBF7F1"/><circle cx="52" cy="58" r="5"/><circle cx="150" cy="58" r="11" fill="#FBF7F1"/><circle cx="150" cy="58" r="5"/><path d="M66 36l16-14h30l4 14z" fill="#FBF7F1" opacity="0.55"/><path d="M120 22h22l14 14h-34z" fill="#FBF7F1" opacity="0.55"/></svg><div class="scrim" style="height:140px"></div><div style="position:absolute;left:24px;bottom:22px;color:#FFFFFF;display:flex;flex-direction:column;gap:4px"><span style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Sunrise Coffee &amp; Cars</span><span style="font-size:15px;opacity:0.85">Victoria Gardens · Every Saturday 7 to 10am</span></div></div></div>
+  </div>
+  <div style="position:absolute;top:1800px;left:50%;transform:translateX(-50%);width:1120px;display:flex;align-items:center;justify-content:space-between;padding-top:28px;border-top:1px solid #E7DED4">
+    <div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 64 64" style="width:24px;height:24px;flex:none"><g fill="none" stroke="#2A1A10" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20c-3-3 3-6 0-10"/><path d="M32 20c-3-3 3-6 0-10"/><path d="M42 30h3a5 5 0 0 1 0 10h-3"/></g><path fill="#2A1A10" d="M12 26h30v14a3 3 0 0 1-3 3H19a7 7 0 0 1-7-7z"/><circle cx="21" cy="49" r="5.5" fill="#2A1A10"/><circle cx="21" cy="49" r="2" fill="#FBF7F1"/><circle cx="36" cy="49" r="5.5" fill="#2A1A10"/><circle cx="36" cy="49" r="2" fill="#FBF7F1"/></svg><span style="font-size:14px;font-weight:600">Cars &amp; Coffee</span><span style="font-size:14px;color:#8A7E74">· Built in Fontana, CA</span></div>
+    <div style="display:flex;gap:24px;font-size:14px;color:#6B5F57"><span>Add your meet</span><span>Hosts</span><span>Privacy</span><span>Contact</span></div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

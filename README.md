@@ -40,7 +40,8 @@ packages/
   design-tokens/  tokens.json source of truth and generated outputs
   ui/             Shared logic and headless components (see README for scope)
   config/         Shared eslint, prettier, tsconfig
-docs/             Architecture, data model, API, importer, ADRs
+docs/             Architecture, data model, API, importer, ADRs, plans, research
+brand/            Brand guide, tokens, logo and icon assets, screen previews, Figma scripts
 tooling/          Repo-level scripts
 .github/          CI workflows and templates
 ```
@@ -68,6 +69,13 @@ See [docs/local-development.md](docs/local-development.md) for the full planned 
 | [docs/api.md](docs/api.md) | REST v1 reference draft |
 | [docs/importer.md](docs/importer.md) | Link and flyer import pipeline |
 | [docs/adr/](docs/adr/) | Decision records |
+| [docs/mobile-liquid-glass.md](docs/mobile-liquid-glass.md) | Liquid Glass on Expo and the mobile architecture |
+| [docs/business-plan.md](docs/business-plan.md) | Proposal and business plan |
+| [docs/app-overview.md](docs/app-overview.md) | What the app does, surface by surface |
+| [docs/development-plan.md](docs/development-plan.md) | Phased development plan |
+| [docs/gaps-and-open-questions.md](docs/gaps-and-open-questions.md) | Open decisions |
+| [docs/research/market-research.md](docs/research/market-research.md) | Market and competitor research |
+| [brand/brand-guide.md](brand/brand-guide.md) | Brand guide and design assets |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branching, commits, PRs |
 | [CLAUDE.md](CLAUDE.md) | Conventions for Claude Code sessions |
 

@@ -9,7 +9,14 @@ Planning documents for the Cars and Coffee platform. Start with the architecture
 | [api.md](api.md) | REST v1 conventions and endpoint reference draft | Architecture workstream |
 | [importer.md](importer.md) | Link and flyer import pipeline, adapters, confidence, LLM fallback | Architecture workstream |
 | [local-development.md](local-development.md) | Planned local setup and commands | Architecture workstream |
-| mobile-liquid-glass.md | iOS 26 Liquid Glass design and Expo implementation (not yet written) | Mobile workstream |
+| [mobile-liquid-glass.md](mobile-liquid-glass.md) | iOS 26 Liquid Glass design language and how to achieve it in Expo, plus the mobile architecture | Mobile workstream |
+| [business-plan.md](business-plan.md) | Project proposal and business plan, personas, go-to-market, metrics, risks, budget | Product workstream |
+| [app-overview.md](app-overview.md) | Functional overview of every surface, the import-from-link flow, MVP cut list | Product workstream |
+| [development-plan.md](development-plan.md) | Phased plan for a solo builder, milestones from October 2026, first Claude Code sessions | Product workstream |
+| [gaps-and-open-questions.md](gaps-and-open-questions.md) | Every open decision across workstreams with a suggested default | All |
+| [research/market-research.md](research/market-research.md) | How meets are organized today, competitors, trademark, SoCal seed inventory, import feasibility | Research workstream |
+| [research/market-summary.md](research/market-summary.md) | One-page summary of the research | Research workstream |
+| [../brand/brand-guide.md](../brand/brand-guide.md) | Palette, type, voice, logo, Liquid Glass layout rules | Brand workstream |
 | [adr/](adr/) | Architecture decision records | All |
 
 ## ADRs
