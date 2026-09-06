@@ -247,7 +247,7 @@ Read first: docs/adr/0008-hosting.md, docs/architecture.md sections 3.10, 3.11, 
 Deliverables:
 - `apps/web` generated with the exact command in its README (React Router v7, Vercel template), wired to `@curb/config` and `@curb/design-tokens` (`tokens.css` in `root.tsx`), a placeholder home route, `VITE_API_URL` read in loaders, and Playwright installed with one smoke test.
 - Render blueprint (`render.yaml`) for the API web service, a Solid Queue worker, and a Postgres instance with PostGIS; `bin/render-build.sh`; health check on `/v1/health`; environment variables documented in `.env.example`.
-- Vercel project settings committed where possible (`vercel.json`), preview per PR.
+- Vercel project settings committed where possible (`vercel.json`), preview per PR. The root `vercel.json` currently only sets `git.deploymentEnabled: false` (added 2026-09-06 so the docs-only repo stops failing builds); replace it rather than merging into it.
 - Sentry initialized on API (`sentry-rails`), web, and mobile (`@sentry/react-native`), with a `SENTRY_DSN` per tier and a documented way to send a test event.
 - `docs/local-development.md` updated with the staging URLs and how to point the dev build at staging.
 

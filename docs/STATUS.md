@@ -26,6 +26,7 @@ Brand (2026-09-05): quiet coastal classic luxury. Beachhead persona is the young
 | Thing | Location |
 |---|---|
 | Monorepo skeleton (docs and config only) | GitHub: https://github.com/amirsaifi77/curb-social-club (renamed from cars-and-coffee; rebrand, Lido Blue accent, and primary CTA spec are committed on main). Local clone: `~/Documents/Curb/curb-social-club` |
+| Vercel project | https://vercel.com/amirsaifi77/curb-social-club (project `curb-social-club`, Node 24.x). Git deployments are disabled by the root `vercel.json` (added 2026-09-06) because every build failed at `pnpm install`: with no lockfile in the repo yet, Vercel fell back to pnpm 6, which `engines.pnpm >=9` rejects. Session 0.8 replaces that file with real project settings once `apps/web` exists |
 | Feature specs (the unit a session builds from) | `docs/specs/` (16 specs plus `README.md` index and `_template.md`), mirrored in the claude.ai project |
 | Screen inventory | `docs/screens.md` (S01 to S41, W01 to W17, A01 to A12) |
 | Session prompts | `docs/sessions.md` (preamble, template, Phase 0 sessions 0.1 to 0.10, Phase 1 sessions 1.1 to 1.17) |
