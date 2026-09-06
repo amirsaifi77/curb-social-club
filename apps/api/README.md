@@ -10,6 +10,8 @@ Rails 8 API-only backend for Curb Social Club. Not generated yet. This README is
 | Rails app name (`--name`) | `curb_social_club`, so `config/application.rb` defines `module CurbSocialClub` |
 | Databases | `curb_social_club_development`, `curb_social_club_test`, `curb_social_club_production` (Rails defaults from the app name; `docker-compose.yml` and CI create the same names) |
 | Importer user agent | `CurbSocialClubBot/1.0` (see `docs/importer.md`) |
+| Feature flags | `config/features.yml`: `clubs_self_service`, `sponsors_self_service`, `instagram_posts` |
+| Admin | `/admin`, cookie sessions, roles `admin` and `moderator`, Google Identity Services sign-in (`docs/specs/admin.md`) |
 
 ## Generate
 
@@ -44,17 +46,24 @@ apps/api/
   app/
     controllers/
       api/v1/                 # one controller per resource, ApplicationController handles auth and errors
-      admin/                  # moderation views, session cookie auth for moderators
+      admin/                  # hand-written ERB views (no admin gem): sign-in, dashboard, CRUD for venues,
+                              # events, occurrences, sponsorships, clubs, memberships, sponsors, users, spots,
+                              # CSV seeds, claim review, moderation queue; cookie sessions; docs/specs/admin.md
     models/
     serializers/              # Alba resources: EventSummaryResource, EventResource, ...
     policies/                 # Pundit
     services/
       auth/                   # AppleTokenVerifier, GoogleTokenVerifier, SessionIssuer
       importers/              # BaseAdapter, Registry, Fetcher, DraftEvent, adapters/*, LlmExtractor
-      geo/                    # NearbyQuery, ViewportQuery
-      recurrence/             # Materializer
+      geo/                    # NearbyQuery, ViewportQuery (events and spots)
+      recurrence/             # Materializer, Describer
+      venues/                 # Deduper
+      seeds/                  # EventRowImporter, ClubRowImporter, SponsorRowImporter (CSV, dry run)
+      external_media/         # InstagramOembed client (cached, never stores images)
+      safety/                 # image classifier adapter with FakeClassifier for specs
       notifications/          # FanOut, ExpoPush, Mailer helpers
-    jobs/                     # ImportJob, MaterializeOccurrencesJob, NotificationDeliveryJob, PurgeJob, ...
+    jobs/                     # ImportJob, MaterializeOccurrencesJob, SeedDecayJob, HostConsistencyJob,
+                              # NotificationDeliveryJob, ReminderSchedulerJob, WeeklyDigestJob, PurgeDeletedUsersJob, ...
     mailers/
   config/
     recurring.yml             # Solid Queue schedule
@@ -62,7 +71,8 @@ apps/api/
   db/
     migrate/
     structure.sql
-    seeds.rb                  # coastal Orange County and Inland Empire venues, sample recurring meets
+    seeds.rb                  # app account, moderator user, then db/seeds/*.csv through the importers
+    seeds/                    # events.csv, clubs.csv, sponsors.csv, venues.csv (formats in docs/specs)
   spec/
     requests/api/v1/          # rswag specs, generate OpenAPI
     models/, services/, jobs/, policies/

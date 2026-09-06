@@ -1,6 +1,6 @@
 # Curb Social Club Docs
 
-Planning documents for the Curb Social Club platform (Curb Social in prose, "curb" in the app; the working title was Cars and Coffee until 2026-09-05, see ADR 0009). Start with `STATUS.md`, then the architecture doc, then the ADRs for the reasoning behind each choice.
+Planning documents for the Curb Social Club platform (Curb Social in prose, "curb" in the app; the working title was Cars and Coffee until 2026-09-05, see ADR 0009). Start with `STATUS.md`, then the architecture doc, then the ADRs for the reasoning behind each choice. For implementation, the path is `specs/README.md` (what to build), `screens.md` (where it lives), and `sessions.md` (the prompt for tonight).
 
 | Doc | What it covers | Owner |
 |---|---|---|
@@ -13,7 +13,10 @@ Planning documents for the Curb Social Club platform (Curb Social in prose, "cur
 | [mobile-liquid-glass.md](mobile-liquid-glass.md) | iOS 26 Liquid Glass design language and how to achieve it in Expo, plus the mobile architecture | Mobile workstream |
 | [business-plan.md](business-plan.md) | Project proposal and business plan, brand direction, personas, go-to-market, metrics, risks (including the Curb namespace), budget | Product workstream |
 | [app-overview.md](app-overview.md) | Functional overview of every surface, the import-from-link flow, copy examples, MVP cut list | Product workstream |
-| [development-plan.md](development-plan.md) | Phased plan for a solo builder, milestones from October 2026, first Claude Code sessions | Product workstream |
+| [development-plan.md](development-plan.md) | Phased plan for a solo builder, milestones from October 2026 to a June 2027 launch, the "Holding May" trade | Product workstream |
+| [specs/](specs/README.md) | Feature requirement specs: one per domain, with numbered requirements, data and API references, screens and states, copy, acceptance criteria, verification, and session slices | All |
+| [screens.md](screens.md) | Screen inventory: every iOS, web, and admin screen with route, phase, owning spec, and states | Product workstream |
+| [sessions.md](sessions.md) | Claude Code session prompts: preamble, template, Phase 0 (ten) and Phase 1 (seventeen) written in full | Product workstream |
 | [components/primary-cta.md](components/primary-cta.md) | Primary CTA states, motion, timings, haptics, long-running variant, implementation notes | Design workstream |
 | [gaps-and-open-questions.md](gaps-and-open-questions.md) | Every open decision across workstreams with a suggested default; resolved items keep their number | All |
 | [research/market-research.md](research/market-research.md) | How meets are organized today, competitors, trademark records for the old name, SoCal seed inventory (section 4), import feasibility | Research workstream |
@@ -35,6 +38,8 @@ Planning documents for the Curb Social Club platform (Curb Social in prose, "cur
 | [0007](adr/0007-importer-architecture.md) | Pluggable importer with LLM fallback | Accepted |
 | [0008](adr/0008-hosting.md) | Render for API and Postgres, Vercel for web, R2 for media | Proposed |
 | [0009](adr/0009-rebrand-to-curb-social-club.md) | Rebrand to Curb Social Club and the coastal classic direction | Accepted |
+| [0010](adr/0010-host-types-clubs-sponsors.md) | Polymorphic event hosts, clubs, and sponsors | Accepted |
+| [0011](adr/0011-external-media-instagram.md) | Instagram photos by share sheet and oEmbed, never stored | Accepted |
 
 ## Writing an ADR
 

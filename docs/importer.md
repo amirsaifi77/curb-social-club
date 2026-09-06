@@ -67,13 +67,14 @@ Each adapter implements `matches?`, `parse(fetched)`, and optionally overrides `
 
 | Adapter | Match | Primary extraction | Notes |
 |---|---|---|---|
-| `EviteAdapter` | `evite.com/event/*` | Embedded JSON state (`window.__INITIAL_STATE__` or equivalent), then schema.org, then visible text | Private invites return a login page; detect and fail with `login_required`. |
+| `EviteAdapter` | `evite.com/event/*` | Text only: the invite text the user pasted or shared (`imports.source_text`), never a server-side fetch (Evite's terms and robots.txt forbid it, gaps item 13) | A bare Evite URL with no text fails with `text_required` and the client asks for the text. |
 | `EventbriteAdapter` | `eventbrite.com/e/*` | Eventbrite API v3 with app token (event id from URL), fallback to JSON-LD | Most reliable source. |
 | `MeetupAdapter` | `meetup.com/*/events/*` | JSON-LD `Event` in page | Recurring series are separate events on Meetup; we import one date. |
 | `PartifulAdapter` | `partiful.com/e/*` | Next.js page data, OG tags | Markup churn expected; VCR cassettes refreshed quarterly. |
-| `InstagramAdapter` | `instagram.com/p/*`, `/reel/*` | OG title, description (caption), image | Captions rarely contain structured dates, so LLM extraction is the normal path. Confidence capped at 0.8. |
+| `InstagramAdapter` | `instagram.com/p/*`, `/reel/*` | Text only: the caption the user shared or pasted; never fetches and never stores the image (gaps item 14, ADR 0011) | Captions rarely contain structured dates, so LLM extraction is the normal path. Confidence capped at 0.8. |
 | `FlyerOcrAdapter` | no URL, `flyer_blob_id` present | OCR text (client-provided from Apple Vision, else Google Vision on server) to LLM | Image also becomes the draft cover. |
-| `GenericOgAdapter` | anything | JSON-LD `Event`, OpenGraph, `<title>`, `<h1>`, visible text | Always last. |
+| `PasteTextAdapter` | no URL, `source_text` present | Pasted text to LLM | The fallback the client offers whenever a fetch is blocked. |
+| `GenericOgAdapter` | any other URL | JSON-LD `Event`, OpenGraph, `<title>`, `<h1>`, visible text | Always last among URL adapters. |
 
 Facebook Events is deliberately absent: public event pages are login-walled for automated fetches. Users share a screenshot into the flyer path instead.
 

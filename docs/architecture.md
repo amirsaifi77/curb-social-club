@@ -75,7 +75,7 @@ flowchart LR
 |---|---|
 | Browse nearby | Client sends lat/lng/radius or a map bbox. Rails runs a PostGIS query on `event_occurrences`, returns a page of occurrences with denormalized event and venue summaries. No auth required. |
 | Import from link | Client `POST /v1/imports` with a URL. Rails creates an `Import`, enqueues `ImportJob`, returns 202 with the import id. Job runs the adapter, writes `parsed_payload`, marks status. Client polls `GET /v1/imports/:id` (or receives a push) and opens the draft editor. |
-| Publish event | Client `POST /v1/events` with the edited draft. Rails validates, geocodes if needed, stores the RRULE, and enqueues `MaterializeOccurrencesJob` which writes rows into `event_occurrences` for the next 8 weeks. |
+| Publish event | Client `POST /v1/events` with the edited draft. Rails validates, geocodes if needed, stores the RRULE, and enqueues `MaterializeOccurrencesJob` which writes rows into `event_occurrences` for the next 90 days. |
 | Photo post | Client requests a direct-upload signature, uploads to R2, then `POST /v1/posts` with the blob signed id. A job strips EXIF, generates variants, computes a blurhash. |
 | Notification | A job fans out `Notification` rows for followers, then batches push tokens to Expo and emails to Resend. |
 
@@ -195,7 +195,7 @@ Generated with `rails new api --api --database=postgresql --skip-test` (RSpec re
 
 ### 3.2 Data model
 
-Full column-level definitions live in `docs/data-model.md`. The ERD:
+Full column-level definitions live in `docs/data-model.md`, which is the source of truth and is ahead of this summary. Since v0.3 (2026-09-06, ADR 0010 and 0011) an event's host is polymorphic (`User`, `Club`, or `Sponsor`), clubs have memberships, sponsors attach to events as components through `event_sponsorships`, host claims are `claim_requests`, photos may point at a `spot` (a photo location with its own page and map layer), and Instagram posts are `posts` of kind `instagram` backed by `external_media` rows that hold a URL and never an image. Follows cover users, clubs, sponsors, and events. The ERD below shows the original core; see the data model doc for the current one.
 
 ```mermaid
 erDiagram
@@ -203,7 +203,7 @@ erDiagram
   users ||--o{ sessions : has
   users ||--|| profiles : has
   users ||--o{ vehicles : owns
-  users ||--o{ events : hosts
+  users ||--o{ events : "hosts (also clubs, sponsors)"
   users ||--o{ rsvps : makes
   users ||--o{ check_ins : makes
   users ||--o{ posts : writes
@@ -428,9 +428,9 @@ Home area for anonymous users: the client sends an approximate location (rounded
 
 ### 3.5 Recurrence
 
-Events store `rrule` (RFC 5545 string, for example `FREQ=WEEKLY;BYDAY=SA`), `dtstart` (in the venue's timezone, stored as UTC plus `timezone` column), `duration_minutes`, and optional `rrule_until`. One-off events have a null `rrule`.
+Events store `rrule` (RFC 5545 string, for example `FREQ=WEEKLY;BYDAY=SA`), `dtstart` (in the venue's timezone, stored as UTC plus `timezone` column), `duration_minutes`, and optional `rrule_until`. One-off events have a null `rrule`. Since v0.3, `events.cadence` (`once`, `weekly`, `monthly`, `seasonal`, `announced`) names the pattern; `announced` events have no rule and no occurrences until the host adds a date through `POST /events/:id/occurrences`.
 
-`MaterializeOccurrencesJob` runs nightly (Solid Queue recurring) and on every event create/update. It uses `ice_cube` to expand the schedule from now to `now + 8.weeks`, upserts `event_occurrences` on `(event_id, starts_at)`, and marks occurrences past the new horizon or removed from the rule as `cancelled` (never hard deleted, because RSVPs may reference them). Hosts can cancel or edit a single occurrence; overrides live on the occurrence row and survive re-materialization because the upsert only touches rows whose `overridden_at` is null.
+`MaterializeOccurrencesJob` runs nightly (Solid Queue recurring) and on every event create/update. It uses `ice_cube` to expand the schedule from now to `now + 90.days` (the horizon in `docs/specs/events-and-occurrences.md`; a read-time check re-runs it for an event whose materialized horizon has dropped under 60 days), upserts `event_occurrences` on `(event_id, starts_at)`, and marks occurrences past the new horizon or removed from the rule as `cancelled` (never hard deleted, because RSVPs may reference them). Hosts can cancel or edit a single occurrence; overrides live on the occurrence row and survive re-materialization because the upsert only touches rows whose `overridden_at` is null.
 
 Why materialize rather than expand at query time: PostGIS plus time filters need a real column to index. Expanding RRULEs per request cannot use an index and makes "next Saturday near me" a scan.
 
@@ -497,6 +497,8 @@ Endpoint list (A = anonymous allowed, U = user required, H = host or owner, M = 
 | GET | `/openapi.yaml` | A | Spec |
 
 Anonymous browse is a product principle, so every read endpoint for public content is anonymous. The API never requires an account to view an event page, which also lets the web SSR loader fetch without a token.
+
+The table above is the original core. `docs/api.md` v0.3 adds `/clubs`, `/sponsors`, `/spots` (including `/spots/map` for the map layer), `/events/:id/claims`, `/events/:id/confirm`, `/posts/:id/embed` for Instagram oEmbed, the sectioned `/feed`, and `/me/clubs`, `/me/claims`, `/me/following`. Follow accepts `User`, `Club`, `Sponsor`, and `Event`. The admin UI is server-rendered Rails under `/admin` and is not part of v1.
 
 ### 3.7 Importer pipeline
 
@@ -597,7 +599,7 @@ Cross-cutting rules:
 | Sessions | Server issues a random 32-byte token, stores `SHA256(token)` in `sessions.token_digest` with `expires_at` (90 days, sliding), `device_id`, `last_seen_at`. Clients store it in Keychain (`expo-secure-store`) or an httpOnly cookie set by the web SSR server. Revocation is a row delete. No JWT for sessions; opaque tokens are simpler to revoke and rotate. |
 | Anonymous | Clients generate a UUID on first launch and send `X-Device-Id`. Used for push registration before sign-in, "recently viewed", and home area. On sign-in, the device row is linked to the user. |
 | Account linking | If an Apple identity signs in with an email matching an existing Google-only user (Apple email verified, not relay), link identities rather than creating a duplicate. Otherwise create a new user. |
-| Deletion | `DELETE /me` schedules a job that anonymizes posts and comments, deletes RSVPs and follows, and revokes the Apple token via Apple's revoke endpoint (required by App Store Review Guideline 5.1.1(v)). |
+| Deletion | `DELETE /me` marks the user `deleted`, hides their posts and comments immediately, deletes RSVPs, follows, and memberships, and revokes the Apple token via Apple's revoke endpoint (required by App Store Review Guideline 5.1.1(v)). A purge job hard-deletes the user and their content after 30 days; signing in again before then restores the account. Reports and moderation actions keep a null author reference. See `docs/specs/auth-and-accounts.md`. |
 
 ### 3.9 Notifications
 
@@ -648,7 +650,12 @@ When Next.js would win: heavy image optimization needs, an eventual marketing si
 | `/meets/:slug` | Event detail, next occurrences, photos | Primary SEO target. `meta` export emits title, description, `og:image`, `og:type=event`, JSON-LD `Event` with `eventSchedule` for recurring meets. |
 | `/meets/:slug/:occurrenceId` | Single date | Canonical points at the event unless the occurrence is overridden |
 | `/map` | Client-only map with bbox fetch | noindex |
-| `/u/:handle` | Profile, garage, hosted events | Indexable |
+| `/u/:handle` | Profile, garage, hosted events, clubs | Indexable |
+| `/clubs`, `/clubs/:slug` | Club directory and club page (members, upcoming meets) | Indexable |
+| `/sponsors/:slug` | Sponsor page (hosted and sponsored meets) | Indexable |
+| `/spots`, `/spots/:slug` | Photo spot directory and spot page | Indexable |
+| `/socal/:city` | City page: this weekend in one city | Indexable |
+| `/posts/:id` | Post page (photos or an Instagram embed) | noindex |
 | `/new` | Create or import (auth required, client-side) | noindex |
 | `/imports/:id` | Draft editor | noindex |
 | `/sign-in` | Apple JS and Google Identity Services | noindex |
@@ -764,5 +771,8 @@ Commit convention: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`) wit
 | [0006](adr/0006-auth-strategy.md) | Apple and Google sign-in with opaque session tokens | Accepted |
 | [0007](adr/0007-importer-architecture.md) | Pluggable importer with LLM fallback | Accepted |
 | [0008](adr/0008-hosting.md) | Render for API and Postgres, Vercel for web, R2 for media | Proposed, confirm |
+| [0009](adr/0009-rebrand-to-curb-social-club.md) | Rebrand to Curb Social Club and the coastal classic direction | Accepted |
+| [0010](adr/0010-host-types-clubs-sponsors.md) | Polymorphic event hosts, clubs, and sponsors | Accepted |
+| [0011](adr/0011-external-media-instagram.md) | Instagram photos by share sheet and oEmbed, never stored | Accepted |
 
-Related docs: `data-model.md`, `api.md`, `importer.md`, `local-development.md`, `mobile-liquid-glass.md` (mobile workstream).
+Related docs: `data-model.md`, `api.md`, `importer.md`, `local-development.md`, `mobile-liquid-glass.md` (mobile workstream), `screens.md` (screen inventory), `specs/` (feature requirement specs).
