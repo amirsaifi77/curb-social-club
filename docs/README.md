@@ -14,6 +14,7 @@ Planning documents for the Curb Social Club platform (Curb Social in prose, "cur
 | [business-plan.md](business-plan.md) | Project proposal and business plan, brand direction, personas, go-to-market, metrics, risks (including the Curb namespace), budget | Product workstream |
 | [app-overview.md](app-overview.md) | Functional overview of every surface, the import-from-link flow, copy examples, MVP cut list | Product workstream |
 | [development-plan.md](development-plan.md) | Phased plan for a solo builder, milestones from October 2026, first Claude Code sessions | Product workstream |
+| [components/primary-cta.md](components/primary-cta.md) | Primary CTA states, motion, timings, haptics, long-running variant, implementation notes | Design workstream |
 | [gaps-and-open-questions.md](gaps-and-open-questions.md) | Every open decision across workstreams with a suggested default; resolved items keep their number | All |
 | [research/market-research.md](research/market-research.md) | How meets are organized today, competitors, trademark records for the old name, SoCal seed inventory (section 4), import feasibility | Research workstream |
 | [research/market-summary.md](research/market-summary.md) | One-page summary of the research | Research workstream |

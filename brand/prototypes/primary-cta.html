@@ -1,0 +1,383 @@
+<title>Curb Primary CTA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F3F4F4; --surface: #F9FAFA; --raised: #FFFFFF; --border: #D5D9DB;
+    --ink: #23272A; --ink2: #5C6469; --accent: #0E2A47; --accent-pressed: #0A1D32; --accent-ink: #F3F4F4;
+    --link: #3C5A70; --success: #2E6B51; --error: #A33A31; --warning: #805518;
+    --track: rgba(243,244,244,.35);
+    --serif: "Instrument Serif", Fraunces, Georgia, "Times New Roman", serif;
+    --ui: Geist, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15181A; --surface: #1E2225; --raised: #272C30; --border: #363C41;
+      --ink: #EDEFF0; --ink2: #A2A9AE; --accent: #9DC1E4; --accent-pressed: #B9D3EC; --accent-ink: #15181A;
+      --link: #8FB0C6; --success: #7FBB9C; --error: #DE8F86; --warning: #D2A868; --track: rgba(21,24,26,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15181A; --surface: #1E2225; --raised: #272C30; --border: #363C41;
+    --ink: #EDEFF0; --ink2: #A2A9AE; --accent: #9DC1E4; --accent-pressed: #B9D3EC; --accent-ink: #15181A;
+    --link: #8FB0C6; --success: #7FBB9C; --error: #DE8F86; --warning: #D2A868; --track: rgba(21,24,26,.35);
+  }
+  /* Phone-local theme (independent of page theme) */
+  .phone[data-scheme="light"] {
+    --bg: #F3F4F4; --surface: #F9FAFA; --raised: #FFFFFF; --border: #D5D9DB;
+    --ink: #23272A; --ink2: #5C6469; --accent: #0E2A47; --accent-pressed: #0A1D32; --accent-ink: #F3F4F4;
+    --link: #3C5A70; --success: #2E6B51; --error: #A33A31; --track: rgba(243,244,244,.35);
+  }
+  .phone[data-scheme="dark"] {
+    --bg: #15181A; --surface: #1E2225; --raised: #272C30; --border: #363C41;
+    --ink: #EDEFF0; --ink2: #A2A9AE; --accent: #9DC1E4; --accent-pressed: #B9D3EC; --accent-ink: #15181A;
+    --link: #8FB0C6; --success: #7FBB9C; --error: #DE8F86; --track: rgba(21,24,26,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--link); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 32px; }
+  .wordmark { font-family: var(--serif); font-size: 34px; line-height: 1; letter-spacing: -.01em; }
+  header h1 { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 32px; letter-spacing: -.2px; margin: 0; text-wrap: balance; }
+  .eyebrow { font-family: var(--ui); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+  .meta { color: var(--ink2); font-size: 13px; }
+  h2 { font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 26px; margin: 0 0 12px; }
+  p { max-width: 62ch; margin: 0 0 12px; }
+  p.lede { font-size: 16px; }
+  .sec { margin-top: 56px; }
+
+  /* Demo layout */
+  .demo { display: grid; grid-template-columns: 402px 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 860px) { .demo { grid-template-columns: 1fr; } }
+
+  /* Phone */
+  .phone { width: 402px; max-width: 100%; height: 700px; border-radius: 44px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .photo { height: 240px; background: linear-gradient(180deg, var(--border) 0 55%, color-mix(in srgb, var(--ink2) 55%, var(--border)) 55% 78%, color-mix(in srgb, var(--ink2) 85%, var(--border)) 78%); position: relative; }
+  .phone .glassbar { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; }
+  .glassbtn { width: 40px; height: 40px; border-radius: 20px; background: color-mix(in srgb, var(--bg) 65%, transparent); backdrop-filter: blur(20px) saturate(1.1); -webkit-backdrop-filter: blur(20px) saturate(1.1); border: 1px solid color-mix(in srgb, var(--border) 35%, transparent); display: grid; place-items: center; color: var(--ink); font-size: 16px; }
+  .sheet { flex: 1; background: var(--raised); border-radius: 20px 20px 0 0; margin-top: -20px; padding: 18px 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .plate { font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .title { font-family: var(--serif); font-size: 28px; line-height: 32px; letter-spacing: -.2px; }
+  .sub { color: var(--ink2); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 500; color: var(--ink); }
+  .chip.ok { color: var(--success); border-color: color-mix(in srgb, var(--success) 45%, var(--border)); }
+  .going-row { display: flex; align-items: baseline; gap: 6px; color: var(--ink2); font-size: 14px; margin-top: 4px; }
+  .count { display: inline-block; position: relative; height: 20px; overflow: hidden; vertical-align: bottom; font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; }
+  .count .d { display: inline-block; transition: transform 200ms cubic-bezier(.2,0,0,1), opacity 200ms; }
+  .count .d.out { position: absolute; left: 0; top: 0; transform: translateY(-12px); opacity: 0; }
+  .count .d.in { transform: translateY(12px); opacity: 0; }
+  .spacer { flex: 1; }
+  .cta-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .caption { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink2); min-height: 16px; opacity: 0; transform: translateY(4px); transition: opacity 160ms cubic-bezier(.2,0,0,1), transform 160ms cubic-bezier(.2,0,0,1); }
+  .caption.show { opacity: 1; transform: none; }
+  .caption.err { color: var(--error); }
+  .progress { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; opacity: 0; transition: opacity 120ms; }
+  .progress.show { opacity: 1; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 300ms cubic-bezier(.2,0,0,1); }
+
+  /* The button */
+  .cta { position: relative; height: 52px; width: 100%; border-radius: 8px; border: 1px solid transparent; background: var(--accent); color: var(--accent-ink); font: 500 15px/20px var(--ui); cursor: pointer; padding: 0 16px; display: grid; place-items: center; transition: background-color 120ms cubic-bezier(.2,0,0,1), border-color 200ms cubic-bezier(.2,0,0,1), color 200ms cubic-bezier(.2,0,0,1), transform 120ms cubic-bezier(.2,0,0,1); -webkit-tap-highlight-color: transparent; outline: none; }
+  .cta:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+  .cta > * { grid-area: 1 / 1; }
+  .cta .label { transition: opacity 120ms cubic-bezier(.2,0,0,1); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+  .cta .label .lead { width: 16px; height: 16px; display: none; }
+  .cta .ring, .cta .check { width: 20px; height: 20px; opacity: 0; transition: opacity 120ms cubic-bezier(.2,0,0,1); }
+  .cta .ring circle { fill: none; stroke-width: 1.5; }
+  .cta .ring .track { stroke: var(--track); }
+  .cta .ring .arc { stroke: var(--accent-ink); stroke-dasharray: 14.14 42.41; stroke-linecap: round; transform-origin: 50% 50%; transition: stroke-dasharray 120ms cubic-bezier(.2,0,0,1); }
+  .cta .check path { fill: none; stroke: var(--accent-ink); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .cta[data-status="pressed"] { background: var(--accent-pressed); transform: scale(.98); transition-duration: 80ms; }
+  .cta[data-status="loading"] .label, .cta[data-status="long"] .label { opacity: 0; }
+  .cta[data-status="long"] .label { opacity: 1; padding-left: 28px; }
+  .cta[data-status="loading"] .ring, .cta[data-status="long"] .ring { opacity: 1; transition-delay: 60ms; }
+  .cta[data-status="loading"] .ring .arc, .cta[data-status="long"] .ring .arc { animation: spin 900ms linear infinite; }
+  .cta[data-status="long"] .ring { justify-self: start; }
+  .cta[data-status="confirmed"] .label { opacity: 0; }
+  .cta[data-status="confirmed"] .ring { opacity: 0; }
+  .cta[data-status="confirmed"] .ring .arc { stroke-dasharray: 56.55 0; }
+  .cta[data-status="confirmed"] .check { opacity: 1; }
+  .cta[data-status="confirmed"] .check path { transition: stroke-dashoffset 240ms cubic-bezier(.2,0,0,1) 60ms; stroke-dashoffset: 0; }
+  .cta[data-status="going"], .cta[data-status="queued"] { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+  .cta[data-status="going"] .label .lead, .cta[data-status="queued"] .label .lead { display: block; }
+  .cta[data-status="going"] .label .lead path, .cta[data-status="queued"] .label .lead path { fill: none; stroke: var(--accent); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .cta[data-status="disabled"] { background: var(--border); color: var(--ink2); cursor: default; }
+  .cta[data-status="error"] { background: var(--accent); }
+
+  .reduced .cta, .reduced .cta * , .reduced .caption, .reduced .count .d { transition-duration: 120ms !important; transition-delay: 0ms !important; }
+  .reduced .cta[data-status="pressed"] { transform: none; }
+  .reduced .cta[data-status="loading"] .label { opacity: 1; }
+  .reduced .cta[data-status="loading"] .ring { display: none; }
+  .reduced .cta[data-status="confirmed"] .check path { transition: none; stroke-dashoffset: 0; }
+  .reduced .count .d { transform: none !important; }
+
+  /* Controls */
+  .panel { display: flex; flex-direction: column; gap: 20px; }
+  .group { border-top: 1px solid var(--border); padding-top: 14px; }
+  .group .eyebrow { margin-bottom: 10px; display: block; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opt { border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 12px; font: 500 14px/20px var(--ui); cursor: pointer; }
+  .opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .opt[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .opt.act { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .log { font-family: var(--mono); font-size: 12px; line-height: 18px; color: var(--ink2); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; height: 168px; overflow: auto; white-space: pre; }
+  .log b { color: var(--ink); font-weight: 500; }
+  .haptics { display: flex; gap: 8px; }
+  .hap { font-size: 12px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; transition: color 120ms, border-color 120ms; }
+  .hap.on { color: var(--accent); border-color: var(--accent); }
+
+  /* Gallery */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(236px, 1fr)); gap: 20px 24px; }
+  .g { display: flex; flex-direction: column; gap: 10px; }
+  .g .swatch { background: var(--raised); border: 1px solid var(--border); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 8px; min-height: 132px; }
+  .g .name { font-weight: 500; }
+  .g .desc { color: var(--ink2); font-size: 13px; }
+  .g .cta { pointer-events: none; }
+  .g .cta[data-status="loading"] .ring .arc { animation-play-state: paused; transform: rotate(45deg); }
+
+  /* Timeline */
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-weight: 500; color: var(--ink2); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 0 12px 10px 0; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tblwrap { overflow-x: auto; }
+  code { font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .foot { margin-top: 56px; border-top: 1px solid var(--border); padding-top: 16px; color: var(--ink2); font-size: 13px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="wordmark">curb</div>
+      <h1>Primary CTA prototype</h1>
+    </div>
+    <div class="meta">Marine Layer · Lido Blue accent · spec: <code>docs/components/primary-cta.md</code></div>
+  </header>
+
+  <p class="lede">Tap "I'm going" below. Each network scenario runs the real state machine with the spec's timings: a 150ms grace before the ring appears, a 400ms minimum once it does, a 600ms confirmed hold, then the settled "Going" state. The haptic chips light up when iOS would fire one.</p>
+
+  <section class="demo">
+    <div class="phone" id="phone" data-scheme="light">
+      <div class="photo">
+        <div class="glassbar"><div class="glassbtn">‹</div><div class="glassbtn">↥</div></div>
+      </div>
+      <div class="sheet">
+        <div class="plate">Sat 7:30 am · 4.2 mi · every Saturday</div>
+        <div class="title">Back Bay Coffee</div>
+        <div class="sub">Back Bay Air-Cooled · Lot behind the bakery on Bayside Dr</div>
+        <div class="chips"><span class="chip ok">✓ Confirmed by host</span><span class="chip">Parking in the lot</span></div>
+        <div class="going-row"><span class="count" id="count"><span class="d" id="digits">42</span></span><span>going</span></div>
+        <div class="spacer"></div>
+        <div class="cta-wrap">
+          <button class="cta" id="cta" data-status="idle" aria-live="off">
+            <span class="label"><svg class="lead" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><span id="label">I'm going</span></span>
+            <svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="track" cx="10" cy="10" r="9"/><circle class="arc" cx="10" cy="10" r="9"/></svg>
+            <svg class="check" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>
+          </button>
+          <div class="progress" id="progress"><i></i></div>
+          <div class="caption" id="caption" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="group">
+        <span class="eyebrow">Network scenario</span>
+        <div class="row" id="scenarios">
+          <button class="opt" data-s="fast" aria-pressed="true">Fast (120ms)</button>
+          <button class="opt" data-s="normal" aria-pressed="false">Normal (700ms)</button>
+          <button class="opt" data-s="slow" aria-pressed="false">Slow (3.5s)</button>
+          <button class="opt" data-s="fail" aria-pressed="false">Fails (1.2s)</button>
+          <button class="opt" data-s="timeout" aria-pressed="false">Hangs (timeout)</button>
+          <button class="opt" data-s="offline" aria-pressed="false">Offline</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="eyebrow">Variant</span>
+        <div class="row" id="variants">
+          <button class="opt" data-v="rsvp" aria-pressed="true">I'm going (RSVP)</button>
+          <button class="opt" data-v="import" aria-pressed="false">Import from link (long running)</button>
+          <button class="opt" data-v="disabled" aria-pressed="false">Cancelled event</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="eyebrow">Rendering</span>
+        <div class="row">
+          <button class="opt" id="schemeBtn" aria-pressed="false">Phone dark mode</button>
+          <button class="opt" id="rmBtn" aria-pressed="false">Reduced motion</button>
+          <button class="opt" id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="eyebrow">Haptics (iOS)</span>
+        <div class="haptics"><span class="hap" id="hapLight">impact light</span><span class="hap" id="hapSuccess">success</span><span class="hap" id="hapError">error</span></div>
+      </div>
+      <div class="group">
+        <span class="eyebrow">Event log</span>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Every state, at rest</h2>
+    <p>Static renders of the nine states, in the phone's current scheme. Width never changes between states; only fill, stroke, label, and the 20pt icon slot do.</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Timings</h2>
+    <p>Exported as <code>motion</code> in <code>packages/design-tokens/tokens.json</code> so Figma, iOS, and web agree. Easing is <code>cubic-bezier(0.2, 0, 0, 1)</code> everywhere except the press, which is a spring on iOS (damping 20, stiffness 300, mass 0.6).</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th>Transition</th><th>Duration</th><th>What moves</th></tr></thead>
+      <tbody>
+        <tr><td>Idle to Pressed</td><td class="n">80 ms</td><td>scale 1.00 to 0.98, fill to accentPressed</td></tr>
+        <tr><td>Idle to Loading</td><td class="n">120 + 120 ms</td><td>label fades out, ring fades in 60 ms later and starts rotating</td></tr>
+        <tr><td>Loading, steady</td><td class="n">900 ms / turn</td><td>ring rotation only; no pulsing, no width change</td></tr>
+        <tr><td>Loading to Confirmed</td><td class="n">240 ms</td><td>arc completes to a full circle and fades, check draws on from 60 ms</td></tr>
+        <tr><td>Confirmed hold</td><td class="n">600 ms</td><td>nothing; the success haptic fires on the first frame</td></tr>
+        <tr><td>Confirmed to Going</td><td class="n">200 ms</td><td>fill to surface, 1px accent stroke, check shrinks to 16pt and leads the label</td></tr>
+        <tr><td>Loading to Error</td><td class="n">160 ms</td><td>ring fades, "Try again" fades in, caption slides up 4pt</td></tr>
+        <tr><td>Count update</td><td class="n">200 ms</td><td>changed digit slides up 12pt, runs with Confirmed</td></tr>
+        <tr><td>Grace before ring</td><td class="n">150 ms</td><td>a response inside the grace skips Loading entirely</td></tr>
+        <tr><td>Ring minimum</td><td class="n">400 ms</td><td>once shown, the ring never flashes</td></tr>
+        <tr><td>"Still working" caption</td><td class="n">2 000 ms</td><td>appears under the button, stays until resolution</td></tr>
+        <tr><td>Client timeout</td><td class="n">10 000 ms</td><td>UI moves to Error; a late success reconciles silently</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="foot">Curb Social Club · Primary CTA v1 · 2026-09-05. Prototype only; production timings live in the tokens package and the <code>useAsyncAction</code> hook.</div>
+</div>
+
+<script>
+(function(){
+  const M = { press:80, release:120, fade:120, settle:200, draw:240, spin:900, hold:600, loadingDelay:150, loadingMin:400, stillWorkingAfter:2000, timeout:10000, stageInterval:1500 };
+  const cta = document.getElementById('cta'), label = document.getElementById('label'), caption = document.getElementById('caption'), progress = document.getElementById('progress'), bar = progress.querySelector('i');
+  const logEl = document.getElementById('log'), digitsEl = document.getElementById('digits'), countEl = document.getElementById('count');
+  const phone = document.getElementById('phone');
+  let scenario = 'fast', variant = 'rsvp', reduced = false, run = 0, going = false, count = 42;
+  const t0 = () => performance.now();
+  let start = 0;
+  function log(msg, strong){ const t = Math.round(performance.now() - start); const line = document.createElement('div'); line.innerHTML = (strong?'<b>':'') + String(t).padStart(5,' ') + ' ms  ' + msg + (strong?'</b>':''); logEl.appendChild(line); logEl.scrollTop = logEl.scrollHeight; }
+  function haptic(id){ const el = document.getElementById(id); el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 500); log('haptic ' + el.textContent); }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  function setStatus(s){ cta.dataset.status = s; cta.setAttribute('aria-busy', s==='loading'||s==='long' ? 'true' : 'false'); }
+  function setCaption(text, err){ caption.textContent = text || ''; caption.classList.toggle('err', !!err); caption.classList.toggle('show', !!text); }
+  function setCount(n){
+    const oldD = digitsEl; const newD = document.createElement('span'); newD.className = 'd in'; newD.textContent = n; newD.id = 'digits';
+    countEl.appendChild(newD); oldD.id = ''; oldD.classList.add('out');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ newD.classList.remove('in'); }));
+    setTimeout(()=>oldD.remove(), 260);
+  }
+
+  // Simulated network
+  function request(){
+    const delays = { fast:120, normal:700, slow:3500, fail:1200, timeout:60000, offline:0 };
+    const d = delays[scenario];
+    return new Promise((resolve, reject) => { setTimeout(() => scenario==='fail' ? reject(new Error('network')) : resolve(), d); });
+  }
+
+  async function submit(){
+    const myRun = ++run; start = t0(); logEl.textContent = '';
+    log('press down'); haptic('hapLight');
+    setStatus('pressed'); await sleep(M.press);
+    log('release, request sent'); setStatus('idle'); setCaption('');
+
+    if (scenario === 'offline') {
+      log('offline: optimistic queue', true); setStatus('queued'); setCount(++count);
+      setCaption("Saved on this phone. Will sync when you're back online."); going = true; return;
+    }
+
+    let shownAt = 0, stillTimer, stageTimer, done = false;
+    const stages = ['Reading link','Finding the date','Finding the place','Drafting your event'];
+    const delayTimer = setTimeout(() => {
+      if (done) return; shownAt = t0(); log('ring shown (past 150 ms grace)');
+      if (variant === 'import') { setStatus('long'); let i = 0; label.textContent = stages[0]; progress.classList.add('show'); bar.style.width = '18%';
+        stageTimer = setInterval(() => { i = Math.min(i+1, stages.length-1); label.textContent = stages[i]; bar.style.width = (18 + i*18) + '%'; log('stage: ' + stages[i]); }, M.stageInterval);
+      } else { setStatus('loading'); }
+      stillTimer = setTimeout(() => { if (!done && variant !== 'import') { setCaption('Still working'); log('caption: Still working'); } }, M.stillWorkingAfter - M.loadingDelay);
+    }, M.loadingDelay);
+    const timeoutP = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), M.timeout));
+
+    let ok = true, why = '';
+    try { await Promise.race([request(), timeoutP]); } catch (e) { ok = false; why = e.message; }
+    done = true; clearTimeout(delayTimer); clearTimeout(stillTimer); clearInterval(stageTimer);
+    if (myRun !== run) return;
+    log(ok ? 'response ok' : 'response failed: ' + why, true);
+    if (shownAt) { const shown = t0() - shownAt; if (shown < M.loadingMin) { log('holding ring to 400 ms minimum'); await sleep(M.loadingMin - shown); } }
+    else if (ok) log('inside grace, skipping Loading');
+
+    if (!ok) {
+      setStatus('error'); label.textContent = 'Try again'; progress.classList.remove('show'); bar.style.width = '0';
+      setCaption(variant==='import' ? "We couldn't read that link. Paste the invite text instead." : "Couldn't save. Check your connection.", true);
+      haptic('hapError'); return;
+    }
+    if (variant === 'import') { bar.style.width = '100%'; }
+    setStatus('confirmed'); setCaption(''); haptic('hapSuccess'); log('confirmed, check draws on');
+    if (variant === 'rsvp') setCount(++count);
+    await sleep(M.hold); if (myRun !== run) return;
+    if (variant === 'import') { log('sheet would transition to the draft form'); setStatus('idle'); label.textContent = 'Import'; progress.classList.remove('show'); bar.style.width = '0'; return; }
+    setStatus('going'); label.textContent = 'Going'; going = true; log('settled: Going', true);
+  }
+
+  cta.addEventListener('click', () => {
+    if (cta.dataset.status === 'disabled') return;
+    if (['loading','long','confirmed','pressed'].includes(cta.dataset.status)) { log('tap ignored while busy'); return; }
+    if (going && cta.dataset.status !== 'error') {
+      if (confirm('Not going anymore?')) { going = false; setStatus('idle'); label.textContent = "I'm going"; setCount(--count); setCaption(''); logEl.textContent=''; start=t0(); log('removed RSVP'); }
+      return;
+    }
+    submit();
+  });
+
+  function reset(){ run++; going = false; count = 42; digitsEl.textContent = 42; setStatus(variant==='disabled' ? 'disabled' : 'idle'); label.textContent = variant==='import' ? 'Import' : variant==='disabled' ? 'Cancelled' : "I'm going"; setCaption(''); progress.classList.remove('show'); bar.style.width='0'; logEl.textContent=''; }
+  document.getElementById('scenarios').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if(!b) return; scenario = b.dataset.s; [...e.currentTarget.children].forEach(x => x.setAttribute('aria-pressed', x===b)); });
+  document.getElementById('variants').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if(!b) return; variant = b.dataset.v; [...e.currentTarget.children].forEach(x => x.setAttribute('aria-pressed', x===b)); reset(); });
+  document.getElementById('schemeBtn').addEventListener('click', e => { const dark = phone.dataset.scheme !== 'dark'; phone.dataset.scheme = dark ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', dark); document.getElementById('gallery').dataset.scheme = phone.dataset.scheme; renderGallery(); });
+  document.getElementById('rmBtn').addEventListener('click', e => { reduced = !reduced; document.body.classList.toggle('reduced', reduced); e.currentTarget.setAttribute('aria-pressed', reduced); });
+  document.getElementById('resetBtn').addEventListener('click', reset);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { reduced = true; document.body.classList.add('reduced'); document.getElementById('rmBtn').setAttribute('aria-pressed','true'); }
+
+  // Gallery
+  const states = [
+    ['idle',"I'm going",'Idle','Lido Blue fill, fog label. The only accent on the screen.'],
+    ['pressed',"I'm going",'Pressed','accentPressed fill, scale 0.98, 80 ms.'],
+    ['loading','','Loading','Label hidden but retained for width; 20pt ring, 1.5pt stroke.'],
+    ['long','Reading link','Long running','Ring leads stage copy; 2pt progress hairline below. Importer only.'],
+    ['confirmed','','Confirmed','Check draws on over 240 ms. Holds 600 ms. Success haptic.'],
+    ['going','Going','Going (settled)','Surface fill, 1px accent stroke, 16pt leading check.'],
+    ['error','Try again','Error','Idle fill returns; error caption below. No shake.'],
+    ['queued','Going','Queued (offline)','Going, with a textSecondary caption about syncing.'],
+    ['disabled','Cancelled','Disabled','Border fill, textSecondary label naming the reason.'],
+  ];
+  function renderGallery(){
+    const g = document.getElementById('gallery'); g.innerHTML = '';
+    const scheme = phone.dataset.scheme;
+    states.forEach(([s, text, name, desc]) => {
+      const el = document.createElement('div'); el.className = 'g';
+      el.innerHTML = `<div class="swatch phone-tokens" data-scheme="${scheme}">
+        <button class="cta" data-status="${s}" tabindex="-1" aria-hidden="true">
+          <span class="label"><svg class="lead" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg><span>${text}</span></span>
+          <svg class="ring" viewBox="0 0 20 20"><circle class="track" cx="10" cy="10" r="9"/><circle class="arc" cx="10" cy="10" r="9"/></svg>
+          <svg class="check" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>
+        </button>
+        ${s==='long' ? '<div class="progress show"><i style="width:54%"></i></div>' : ''}
+        ${s==='error' ? '<div class="caption err show">Couldn’t save. Check your connection.</div>' : ''}
+        ${s==='queued' ? '<div class="caption show">Saved on this phone. Will sync when you’re back online.</div>' : ''}
+      </div><div class="name">${name}</div><div class="desc">${desc}</div>`;
+      g.appendChild(el);
+    });
+  }
+  // gallery swatches borrow the phone token blocks by class
+  const style = document.createElement('style');
+  style.textContent = `.phone-tokens[data-scheme="light"]{--bg:#F3F4F4;--surface:#F9FAFA;--raised:#FFFFFF;--border:#D5D9DB;--ink:#23272A;--ink2:#5C6469;--accent:#0E2A47;--accent-pressed:#0A1D32;--accent-ink:#F3F4F4;--error:#A33A31;--track:rgba(243,244,244,.35)}
+  .phone-tokens[data-scheme="dark"]{--bg:#15181A;--surface:#1E2225;--raised:#272C30;--border:#363C41;--ink:#EDEFF0;--ink2:#A2A9AE;--accent:#9DC1E4;--accent-pressed:#B9D3EC;--accent-ink:#15181A;--error:#DE8F86;--track:rgba(21,24,26,.35)}`;
+  document.head.appendChild(style);
+  renderGallery();
+})();
+</script>

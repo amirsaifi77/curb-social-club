@@ -99,3 +99,8 @@ packages/design-tokens/
   dist/            # generated
   package.json
 ```
+
+
+## Added in 2.2.0
+
+`accentPressed` joins the 21 color roles in every theme and scheme (the accent one step darker in light, lighter in dark). A `motion` block exports the durations, easing, and async-button timings used by `docs/components/primary-cta.md`, so Figma's Motion collection, the `useAsyncAction` hook, and the CSS agree on one set of numbers.

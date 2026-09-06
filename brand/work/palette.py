@@ -22,6 +22,7 @@ THEMES = {
       "textSecondary": "#5C6469",   # slate grey
       "accent":        "#0E2A47",   # lidoBlue (Lido Isle, Newport Beach)
       "accentInk":     "#F3F4F4",   # fog on lidoBlue
+      "accentPressed": "#0A1D32",   # accent, pressed
       "link":          "#3C5A70",   # muted slate blue
       "success":       "#2E6B51",
       "warning":       "#805518",   # tobacco
@@ -45,6 +46,7 @@ THEMES = {
       "textSecondary": "#A2A9AE",
       "accent":        "#9DC1E4",   # lidoBlueLifted (Lido Blue lifted for dark)
       "accentInk":     "#15181A",
+      "accentPressed": "#B9D3EC",   # accent, pressed
       "link":          "#8FB0C6",   # slate blue lifted
       "success":       "#7FBB9C",
       "warning":       "#D2A868",
@@ -72,6 +74,7 @@ THEMES = {
       "textSecondary": "#5A6272",
       "accent":        "#7A5A1E",   # old brass
       "accentInk":     "#F4F0E7",
+      "accentPressed": "#664B19",   # accent, pressed
       "link":          "#2F4E7A",   # harbor blue
       "success":       "#2F6A4E",
       "warning":       "#875416",
@@ -95,6 +98,7 @@ THEMES = {
       "textSecondary": "#A7AEBC",
       "accent":        "#CBA55B",   # brass
       "accentInk":     "#0F1A2B",
+      "accentPressed": "#D4B476",   # accent, pressed
       "link":          "#8FB4E0",
       "success":       "#7FBB9C",
       "warning":       "#D8AC5E",
@@ -122,6 +126,7 @@ THEMES = {
       "textSecondary": "#5C6156",
       "accent":        "#8A3D1F",   # burnt sienna
       "accentInk":     "#F3F0E5",
+      "accentPressed": "#75341A",   # accent, pressed
       "link":          "#4B5E3E",   # sage olive
       "success":       "#356A48",
       "warning":       "#84561A",
@@ -145,6 +150,7 @@ THEMES = {
       "textSecondary": "#A8AB9E",
       "accent":        "#D9946E",   # sienna lifted
       "accentInk":     "#191C15",
+      "accentPressed": "#E0A98A",   # accent, pressed
       "link":          "#A9B98F",   # sage lifted
       "success":       "#84BB99",
       "warning":       "#D4A961",
@@ -162,6 +168,15 @@ THEMES = {
   },
 }
 
+MOTION = {
+  "principle": "Quiet. Opacity and tone first, scale second, position last. Nothing bounces.",
+  "duration": {"press": 80, "release": 120, "fade": 120, "settle": 200, "draw": 240, "spin": 900, "hold": 600},
+  "easing": {"standard": "cubic-bezier(0.2, 0, 0, 1)", "spring": {"damping": 20, "stiffness": 300, "mass": 0.6}},
+  "asyncButton": {"loadingDelay": 150, "loadingMin": 400, "confirmedHold": 600, "stillWorkingAfter": 2000, "timeout": 10000, "stageInterval": 1500},
+  "reducedMotion": "No scale or slide; all transitions become 120ms opacity fades; indeterminate ring becomes a label plus the system indicator.",
+  "spec": "docs/components/primary-cta.md"
+}
+
 ROLE_DESC = {
   "bg": "Page background",
   "surface": "Cards, list rows, flat content surface",
@@ -171,6 +186,7 @@ ROLE_DESC = {
   "textSecondary": "Metadata, captions, placeholders",
   "accent": "The one action per screen, selected states, today pin",
   "accentInk": "Text and icons on accent fills",
+  "accentPressed": "Accent while pressed (one step darker in light, lighter in dark)",
   "link": "Inline links, upcoming pin",
   "success": "Confirmed, live now",
   "warning": "Check this, medium confidence",
@@ -217,6 +233,7 @@ def pairs(p):
         out.append((f"Warning text on {s}", "warning", s, 4.5))
         out.append((f"Error text on {s}", "error", s, 4.5))
     out.append(("Accent ink on accent (button)", "accentInk", "accent", 4.5))
+    out.append(("Accent ink on accent pressed", "accentInk", "accentPressed", 4.5))
     out.append(("Border on bg (non-text, 1px rule)", "border", "bg", 1.2))
     for pin in ("pinNow", "pinToday", "pinUpcoming", "pinRecurring", "pinPast", "pinCluster"):
         out.append((f"Pin label on {pin}", "pinLabel", pin, 3.0))
@@ -318,7 +335,7 @@ def tokens():
       "meta": {
         "name": "Curb Social Club design tokens",
         "brand": {"legal": "Curb Social Club", "common": "Curb Social", "app": "curb"},
-        "version": "2.1.0",
+        "version": "2.2.0",
         "date": "2026-09-05",
         "defaultTheme": "marine-layer",
         "format": "Flat W3C-style tokens. themes.<theme>.<light|dark>.<role> = {$value,$type}. Hex8 values carry alpha.",
@@ -332,6 +349,7 @@ def tokens():
       "spacing": SPACING,
       "radius": RADIUS,
       "glass": GLASS,
+      "motion": MOTION,
     }
 
 if __name__ == "__main__":
