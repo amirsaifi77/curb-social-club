@@ -1,4 +1,4 @@
-# Curb Social Club: Planning Status (2026-09-05)
+# Curb Social Club: Planning Status (2026-09-06)
 
 Read this first in any new session. It records what exists, where it lives, and what was decided.
 
@@ -11,7 +11,7 @@ Read this first in any new session. It records what exists, where it lives, and 
 | curb | In-app brand, always lowercase: wordmark, Expo slug, URL scheme `curb://` |
 | cars and coffee | The event category, lowercase, never the product name. Capitalize only for a named real-world event (South OC Cars and Coffee) |
 
-The product was renamed from the working title "Cars and Coffee" on 2026-09-05 because the phrase is descriptive at the USPTO and undefendable (ADR 0009). The local checkout folder may still be named `cars-and-coffee`; the remote is `github.com/amirsaifi77/curb-social-club`.
+The product was renamed from the working title "Cars and Coffee" on 2026-09-05 because the phrase is descriptive at the USPTO and undefendable (ADR 0009). The local clone lives at `~/Documents/Curb/curb-social-club`; the remote is `github.com/amirsaifi77/curb-social-club`.
 
 ## Decisions confirmed by Amir
 
@@ -23,10 +23,10 @@ Brand (2026-09-05): quiet coastal classic luxury. Beachhead persona is the young
 
 | Thing | Location |
 |---|---|
-| Monorepo skeleton (docs and config only) | GitHub: https://github.com/amirsaifi77/curb-social-club (renamed from cars-and-coffee; three commits on main plus the uncommitted rebrand) |
+| Monorepo skeleton (docs and config only) | GitHub: https://github.com/amirsaifi77/curb-social-club (renamed from cars-and-coffee; rebrand, Lido Blue accent, and primary CTA spec are committed on main). Local clone: `~/Documents/Curb/curb-social-club` |
 | Plans, research, open questions | `docs/` in the repo; mirrored in the claude.ai project |
 | Brand guide, tokens, logos, icons, canvas, previews | `brand/` in the repo (`brand-guide.md`, `tokens.json`, `logos/`, `icons/`, `canvas/`, `previews/`, `work/`, `brand-sheet.png`); tokens consumed by apps from `packages/design-tokens/tokens.json` |
-| Working brand files during the rebrand | `/home/claude/cac/brand-v2/` (planning workspace, not the repo); `/home/claude/cac/brand/` is the superseded amber identity |
+| Session output | Always inside the repo clone, so it can be committed. The parent folder `~/Documents/Curb/` holds only the repo clone (loose drafts and superseded exports were removed 2026-09-06); nothing is written there |
 | Figma file "Curb Social Club" | https://www.figma.com/design/aRyM1JhTPCIhMpPLX051T9 (Figma Professional). Pages: Cover, Brand Guide (8 frames), Foundations (Theme collection with 6 modes: Marine Layer, Harbor, Olive and Ivory, each Light and Dark), Components, iOS Screens (5 screens plus Feed in each theme), Web, Assets. The old amber file (https://www.figma.com/design/68kmmZuZQ2jrAWYu7vtVIe) is superseded |
 | Design canvas "Curb Social Club Design Canvas" | https://claude.ai/code/artifact/b3bc82aa-c60f-4cef-91e4-e28b1c51ab9a (Feed, Map, List, Event detail, Create from link, Theme comparison, Web landing, Brand board). The amber-era canvas (https://claude.ai/code/artifact/00be4ff6-39cc-4033-aaa0-df0f21debb3e) is superseded |
 | Open decisions | `docs/gaps-and-open-questions.md` (item 1 name and item 31 Figma are resolved; items 26 to 29 are the open brand decisions) |

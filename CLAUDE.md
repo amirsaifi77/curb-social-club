@@ -59,6 +59,7 @@ Curb Social Club (Curb Social in prose, "curb" in the app; formerly the working 
 | Mobile design | `docs/mobile-liquid-glass.md` |
 | Brand | `brand/brand-guide.md`, tokens in `packages/design-tokens/tokens.json` (three themes: Marine Layer default, Harbor, Olive and Ivory; each light and dark) |
 | Status and next steps | `docs/STATUS.md` |
+| Session output | Everything Claude produces for this project (docs, research, brand assets, previews, specs) is saved inside this repo so it can be committed. Never write to the parent folder `~/Documents/Curb/`. |
 
 ## Current state
 
