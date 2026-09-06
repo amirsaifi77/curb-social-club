@@ -12,7 +12,7 @@ import json, sys, os
 THEMES = {
   "marine-layer": {
     "name": "Marine Layer",
-    "story": "Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one oxblood accent.",
+    "story": "Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one Lido Blue accent.",
     "light": {
       "bg":            "#F3F4F4",   # fog white
       "surface":       "#F9FAFA",   # lifted fog
@@ -20,18 +20,18 @@ THEMES = {
       "border":        "#D5D9DB",   # overcast grey hairline
       "textPrimary":   "#23272A",   # wet asphalt
       "textSecondary": "#5C6469",   # slate grey
-      "accent":        "#5E2A2E",   # oxblood
-      "accentInk":     "#F3F4F4",   # fog on oxblood
+      "accent":        "#0E2A47",   # lidoBlue (Lido Isle, Newport Beach)
+      "accentInk":     "#F3F4F4",   # fog on lidoBlue
       "link":          "#3C5A70",   # muted slate blue
       "success":       "#2E6B51",
       "warning":       "#805518",   # tobacco
       "error":         "#A33A31",
       "pinNow":        "#2E6B51",
-      "pinToday":      "#5E2A2E",
+      "pinToday":      "#0E2A47",   # lidoBlue
       "pinUpcoming":   "#48677D",
       "pinRecurring":  "#5E5B7A",
       "pinPast":       "#7E8588",
-      "pinCluster":    "#23272A",
+      "pinCluster":    "#5C6469",   # textSecondary, so the grey cluster reads apart from the navy today pin
       "pinLabel":      "#FFFFFF",
       "glassTint":     "#F3F4F4A6",  # fog white at 65%
       "scrim":         "#23272A40",
@@ -43,14 +43,14 @@ THEMES = {
       "border":        "#363C41",
       "textPrimary":   "#EDEFF0",   # fog
       "textSecondary": "#A2A9AE",
-      "accent":        "#C98C8E",   # oxblood lifted for dark
+      "accent":        "#9DC1E4",   # lidoBlueLifted (Lido Blue lifted for dark)
       "accentInk":     "#15181A",
       "link":          "#8FB0C6",   # slate blue lifted
       "success":       "#7FBB9C",
       "warning":       "#D2A868",
       "error":         "#DE8F86",
       "pinNow":        "#7FBB9C",
-      "pinToday":      "#C98C8E",
+      "pinToday":      "#9DC1E4",   # lidoBlueLifted
       "pinUpcoming":   "#8FB0C6",
       "pinRecurring":  "#A9A4C9",
       "pinPast":       "#6C7478",
@@ -318,7 +318,7 @@ def tokens():
       "meta": {
         "name": "Curb Social Club design tokens",
         "brand": {"legal": "Curb Social Club", "common": "Curb Social", "app": "curb"},
-        "version": "2.0.0",
+        "version": "2.1.0",
         "date": "2026-09-05",
         "defaultTheme": "marine-layer",
         "format": "Flat W3C-style tokens. themes.<theme>.<light|dark>.<role> = {$value,$type}. Hex8 values carry alpha.",

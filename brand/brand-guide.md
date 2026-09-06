@@ -1,6 +1,6 @@
 # Curb Social Club Brand Guide
 
-Version 2.0, 2026-09-05. Supersedes the Cars and Coffee amber brand (v0.1). Companion files: `tokens.json`, `logos/`, `icons/`, `brand-sheet.png`, `palette-*.png`, `social-card-1200x630.png`. Written for a solo builder shipping iOS first under iOS 26 Liquid Glass, then web, with everything mirrored in Figma as variable modes.
+Version 2.1, 2026-09-05. Supersedes the Cars and Coffee amber brand (v0.1). Companion files: `tokens.json`, `logos/`, `icons/`, `brand-sheet.png`, `palette-*.png`, `social-card-1200x630.png`. Written for a solo builder shipping iOS first under iOS 26 Liquid Glass, then web, with everything mirrored in Figma as variable modes.
 
 ## 1. Brand essence
 
@@ -100,9 +100,11 @@ Three themes, each flat, each with a light and a dark scheme. Marine Layer is th
 
 Accent rule: one accent per screen. In light schemes the accent is dark and carries light ink; in dark schemes the accent is lifted and carries dark ink. This keeps every accent usable both as a fill and as text.
 
+Each accent has a name. Marine Layer's is **Lido Blue**, a deep harbor navy (`#0E2A47` light, `#9DC1E4` lifted for dark), named for Lido Isle in Newport Beach. Harbor's is old brass and Olive and Ivory's is burnt sienna. The name is for people; code and Figma use the role `accent`.
+
 ### Marine Layer (`marine-layer`)
 
-Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one oxblood accent.
+Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one Lido Blue accent.
 
 | Role | Light | Dark | Use |
 | --- | --- | --- | --- |
@@ -112,18 +114,18 @@ Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one oxblood ac
 | border | #D5D9DB | #363C41 | 1px hairline rules and dividers |
 | textPrimary | #23272A | #EDEFF0 | Body, titles, icons |
 | textSecondary | #5C6469 | #A2A9AE | Metadata, captions, placeholders |
-| accent | #5E2A2E | #C98C8E | The one action per screen, selected states, today pin |
+| accent | #0E2A47 | #9DC1E4 | The one action per screen, selected states, today pin |
 | accentInk | #F3F4F4 | #15181A | Text and icons on accent fills |
 | link | #3C5A70 | #8FB0C6 | Inline links, upcoming pin |
 | success | #2E6B51 | #7FBB9C | Confirmed, live now |
 | warning | #805518 | #D2A868 | Check this, medium confidence |
 | error | #A33A31 | #DE8F86 | Failed, low confidence |
 | pinNow | #2E6B51 | #7FBB9C | Map pin: happening right now |
-| pinToday | #5E2A2E | #C98C8E | Map pin: later today |
+| pinToday | #0E2A47 | #9DC1E4 | Map pin: later today |
 | pinUpcoming | #48677D | #8FB0C6 | Map pin: this week or later |
 | pinRecurring | #5E5B7A | #A9A4C9 | Map pin: weekly or monthly series |
 | pinPast | #7E8588 | #6C7478 | Map pin: ended, photos only |
-| pinCluster | #23272A | #EDEFF0 | Map cluster count badge |
+| pinCluster | #5C6469 | #EDEFF0 | Map cluster count badge |
 | pinLabel | #FFFFFF | #15181A | Glyph or count on any pin |
 | glassTint | #F3F4F4A6 | #15181AA6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
 | scrim | #23272A40 | #00000059 | Overlay under text on photos (hex8, alpha) |
@@ -186,7 +188,7 @@ Sage-olive, ivory, stone grey, a burnt-sienna accent.
 
 ### Map pins
 
-Pins are a filled circle with a 2px ring in `surfaceRaised` and a small glyph in `pinLabel`. No teardrops. State is carried by color only, so the six pin colors are chosen to separate in value as well as hue.
+Pins are a filled circle with a 2px ring in `surfaceRaised` and a small glyph in `pinLabel`. No teardrops. State is carried by color only, so the six pin colors are chosen to separate in value as well as hue. In Marine Layer light the cluster badge is `textSecondary` (`#5C6469`) rather than `textPrimary`, so the grey cluster reads apart from the Lido Blue today pin; the other themes keep `textPrimary` for the cluster.
 
 | State | Meaning | Glyph |
 | --- | --- | --- |
@@ -204,7 +206,7 @@ Pins are a filled circle with a 2px ring in `surfaceRaised` and a small glyph in
 
 ## 5. Contrast (WCAG 2.1)
 
-Computed from the relative luminance formula by `work/palette.py`. Body text needs 4.5:1, large text and UI components need 3:1. Every text-on-surface pair in every theme and scheme is at or above 5.1:1. Every accent-ink-on-accent pair is at or above 5.5:1. Pin labels are UI components (3:1) and pins against the page background are UI components (3:1); the weakest is `pinPast` at 3.3:1, which was darkened from a first draft that measured 2.9.
+Computed from the relative luminance formula by `work/palette.py`. Body text needs 4.5:1, large text and UI components need 3:1. Every text-on-surface pair in every theme and scheme is at or above 5.3:1. Every accent-ink-on-accent pair is at or above 5.5:1 (Marine Layer's Lido Blue measures 13.2:1 light and 9.5:1 dark). Pin labels are UI components (3:1) and pins against the page background are UI components (3:1); the weakest is `pinPast` at 3.3:1, which was darkened from a first draft that measured 2.9.
 
 #### Marine Layer, light
 
@@ -213,37 +215,37 @@ Computed from the relative luminance formula by `work/palette.py`. Body text nee
 | Text primary on bg | #23272A | #F3F4F4 | 13.66 | 4.5 | AA |
 | Text secondary on bg | #5C6469 | #F3F4F4 | 5.47 | 4.5 | AA |
 | Link on bg | #3C5A70 | #F3F4F4 | 6.60 | 4.5 | AA |
-| Accent as text on bg | #5E2A2E | #F3F4F4 | 10.32 | 4.5 | AA |
+| Accent as text on bg | #0E2A47 | #F3F4F4 | 13.23 | 4.5 | AA |
 | Success text on bg | #2E6B51 | #F3F4F4 | 5.71 | 4.5 | AA |
 | Warning text on bg | #805518 | #F3F4F4 | 5.90 | 4.5 | AA |
 | Error text on bg | #A33A31 | #F3F4F4 | 5.94 | 4.5 | AA |
 | Text primary on surface | #23272A | #F9FAFA | 14.40 | 4.5 | AA |
 | Text secondary on surface | #5C6469 | #F9FAFA | 5.77 | 4.5 | AA |
 | Link on surface | #3C5A70 | #F9FAFA | 6.95 | 4.5 | AA |
-| Accent as text on surface | #5E2A2E | #F9FAFA | 10.88 | 4.5 | AA |
+| Accent as text on surface | #0E2A47 | #F9FAFA | 13.94 | 4.5 | AA |
 | Success text on surface | #2E6B51 | #F9FAFA | 6.02 | 4.5 | AA |
 | Warning text on surface | #805518 | #F9FAFA | 6.22 | 4.5 | AA |
 | Error text on surface | #A33A31 | #F9FAFA | 6.26 | 4.5 | AA |
 | Text primary on surfaceRaised | #23272A | #FFFFFF | 15.05 | 4.5 | AA |
 | Text secondary on surfaceRaised | #5C6469 | #FFFFFF | 6.03 | 4.5 | AA |
 | Link on surfaceRaised | #3C5A70 | #FFFFFF | 7.27 | 4.5 | AA |
-| Accent as text on surfaceRaised | #5E2A2E | #FFFFFF | 11.37 | 4.5 | AA |
+| Accent as text on surfaceRaised | #0E2A47 | #FFFFFF | 14.57 | 4.5 | AA |
 | Success text on surfaceRaised | #2E6B51 | #FFFFFF | 6.29 | 4.5 | AA |
 | Warning text on surfaceRaised | #805518 | #FFFFFF | 6.50 | 4.5 | AA |
 | Error text on surfaceRaised | #A33A31 | #FFFFFF | 6.55 | 4.5 | AA |
-| Accent ink on accent (button) | #F3F4F4 | #5E2A2E | 10.32 | 4.5 | AA |
+| Accent ink on accent (button) | #F3F4F4 | #0E2A47 | 13.23 | 4.5 | AA |
 | Pin label on pinNow | #FFFFFF | #2E6B51 | 6.29 | 3.0 | AA |
 | pinNow against bg (UI component) | #2E6B51 | #F3F4F4 | 5.71 | 3.0 | AA |
-| Pin label on pinToday | #FFFFFF | #5E2A2E | 11.37 | 3.0 | AA |
-| pinToday against bg (UI component) | #5E2A2E | #F3F4F4 | 10.32 | 3.0 | AA |
+| Pin label on pinToday | #FFFFFF | #0E2A47 | 14.57 | 3.0 | AA |
+| pinToday against bg (UI component) | #0E2A47 | #F3F4F4 | 13.23 | 3.0 | AA |
 | Pin label on pinUpcoming | #FFFFFF | #48677D | 5.98 | 3.0 | AA |
 | pinUpcoming against bg (UI component) | #48677D | #F3F4F4 | 5.43 | 3.0 | AA |
 | Pin label on pinRecurring | #FFFFFF | #5E5B7A | 6.45 | 3.0 | AA |
 | pinRecurring against bg (UI component) | #5E5B7A | #F3F4F4 | 5.86 | 3.0 | AA |
 | Pin label on pinPast | #FFFFFF | #7E8588 | 3.75 | 3.0 | AA |
 | pinPast against bg (UI component) | #7E8588 | #F3F4F4 | 3.40 | 3.0 | AA |
-| Pin label on pinCluster | #FFFFFF | #23272A | 15.05 | 3.0 | AA |
-| pinCluster against bg (UI component) | #23272A | #F3F4F4 | 13.66 | 3.0 | AA |
+| Pin label on pinCluster | #FFFFFF | #5C6469 | 6.03 | 3.0 | AA |
+| pinCluster against bg (UI component) | #5C6469 | #F3F4F4 | 5.47 | 3.0 | AA |
 
 #### Marine Layer, dark
 
@@ -252,29 +254,29 @@ Computed from the relative luminance formula by `work/palette.py`. Body text nee
 | Text primary on bg | #EDEFF0 | #15181A | 15.46 | 4.5 | AA |
 | Text secondary on bg | #A2A9AE | #15181A | 7.49 | 4.5 | AA |
 | Link on bg | #8FB0C6 | #15181A | 7.81 | 4.5 | AA |
-| Accent as text on bg | #C98C8E | #15181A | 6.48 | 4.5 | AA |
+| Accent as text on bg | #9DC1E4 | #15181A | 9.50 | 4.5 | AA |
 | Success text on bg | #7FBB9C | #15181A | 8.06 | 4.5 | AA |
 | Warning text on bg | #D2A868 | #15181A | 8.10 | 4.5 | AA |
 | Error text on bg | #DE8F86 | #15181A | 7.12 | 4.5 | AA |
 | Text primary on surface | #EDEFF0 | #1E2225 | 13.89 | 4.5 | AA |
 | Text secondary on surface | #A2A9AE | #1E2225 | 6.73 | 4.5 | AA |
 | Link on surface | #8FB0C6 | #1E2225 | 7.01 | 4.5 | AA |
-| Accent as text on surface | #C98C8E | #1E2225 | 5.82 | 4.5 | AA |
+| Accent as text on surface | #9DC1E4 | #1E2225 | 8.53 | 4.5 | AA |
 | Success text on surface | #7FBB9C | #1E2225 | 7.24 | 4.5 | AA |
 | Warning text on surface | #D2A868 | #1E2225 | 7.28 | 4.5 | AA |
 | Error text on surface | #DE8F86 | #1E2225 | 6.39 | 4.5 | AA |
 | Text primary on surfaceRaised | #EDEFF0 | #272C30 | 12.23 | 4.5 | AA |
 | Text secondary on surfaceRaised | #A2A9AE | #272C30 | 5.92 | 4.5 | AA |
 | Link on surfaceRaised | #8FB0C6 | #272C30 | 6.17 | 4.5 | AA |
-| Accent as text on surfaceRaised | #C98C8E | #272C30 | 5.12 | 4.5 | AA |
+| Accent as text on surfaceRaised | #9DC1E4 | #272C30 | 7.51 | 4.5 | AA |
 | Success text on surfaceRaised | #7FBB9C | #272C30 | 6.37 | 4.5 | AA |
 | Warning text on surfaceRaised | #D2A868 | #272C30 | 6.41 | 4.5 | AA |
 | Error text on surfaceRaised | #DE8F86 | #272C30 | 5.63 | 4.5 | AA |
-| Accent ink on accent (button) | #15181A | #C98C8E | 6.48 | 4.5 | AA |
+| Accent ink on accent (button) | #15181A | #9DC1E4 | 9.50 | 4.5 | AA |
 | Pin label on pinNow | #15181A | #7FBB9C | 8.06 | 3.0 | AA |
 | pinNow against bg (UI component) | #7FBB9C | #15181A | 8.06 | 3.0 | AA |
-| Pin label on pinToday | #15181A | #C98C8E | 6.48 | 3.0 | AA |
-| pinToday against bg (UI component) | #C98C8E | #15181A | 6.48 | 3.0 | AA |
+| Pin label on pinToday | #15181A | #9DC1E4 | 9.50 | 3.0 | AA |
+| pinToday against bg (UI component) | #9DC1E4 | #15181A | 9.50 | 3.0 | AA |
 | Pin label on pinUpcoming | #15181A | #8FB0C6 | 7.81 | 3.0 | AA |
 | pinUpcoming against bg (UI component) | #8FB0C6 | #15181A | 7.81 | 3.0 | AA |
 | Pin label on pinRecurring | #15181A | #A9A4C9 | 7.51 | 3.0 | AA |
@@ -538,7 +540,7 @@ SF Symbols on iOS, rendered at the **thin** weight for content icons and at the 
 
 ## 9. Logo system
 
-Two directions, both drawn from real outlines. Wordmarks are Instrument Serif converted to paths and edited; monograms are geometry on a 64-unit grid. All files are clean SVG with a viewBox and no font dependencies, in `logos/`. Each mark ships in three color variants: ink (`#23272A`, file has no suffix), light (`#EDEFF0`, `-light`), and accent (oxblood `#5E2A2E`, `-accent`).
+Two directions, both drawn from real outlines. Wordmarks are Instrument Serif converted to paths and edited; monograms are geometry on a 64-unit grid. All files are clean SVG with a viewBox and no font dependencies, in `logos/`. Each mark ships in three color variants: ink (`#23272A`, file has no suffix), light (`#EDEFF0`, `-light`), and accent (Lido Blue `#0E2A47`, `-accent`).
 
 ### Wordmarks (lowercase curb)
 
@@ -616,6 +618,7 @@ The theme the user picks in Settings switches the alternate icon (`UIApplication
 | --- | --- |
 | Use Marine Layer unless the user picks otherwise. | Mix themes on one screen. |
 | One serif headline, one accent action per screen. | Serif in a button. Accent on two things. |
+| Put Lido Blue on the action and the today pin, nothing else. | Use the accent as a tint, a background band, an icon fill, or on a photo. |
 | Write times and distances in the plate style. | Write "7:30AM" or "7.30" or "4.2 miles away!!!" |
 | Say "cars and coffee meets" in lowercase. | Call the product Cars and Coffee, or capitalize the category. |
 | Separate content with 1px rules or whitespace. | Drop shadows, gradients, glows, glass in the content area. |
@@ -638,3 +641,10 @@ The theme the user picks in Settings switches the alternate icon (`UIApplication
 | `brand-v2/social-card-1200x630.png` | Open Graph and iMessage preview, Marine Layer |
 | `brand-v2/fonts/` | Instrument Serif (Regular, Italic) and Geist (Regular, Medium, SemiBold, Variable, Mono) as fetched |
 | `brand-v2/work/` | Generators: `palette.py` (colors, contrast, tokens), `logos.py`, `icons.py`, `sheets.py` |
+
+## 14. Changelog
+
+| Version | Date | Change |
+| --- | --- | --- |
+| v2.1 | 2026-09-05 | Marine Layer accent changed from oxblood #5E2A2E to Lido Blue #0E2A47; dark lift #9DC1E4; cluster pin moved to textSecondary. |
+| v2.0 | 2026-09-05 | Curb Social Club brand: three flat themes, Instrument Serif and Geist, curb-profile monogram. Supersedes the Cars and Coffee amber brand. |

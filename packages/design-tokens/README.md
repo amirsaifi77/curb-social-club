@@ -8,7 +8,7 @@ Three flat themes, each with a light and a dark scheme. Marine Layer is the defa
 
 | Theme key | Name | Story | Light accent | Dark accent |
 |---|---|---|---|---|
-| `marine-layer` | Marine Layer (default) | Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, oxblood | `#5E2A2E` | `#C98C8E` |
+| `marine-layer` | Marine Layer (default) | Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, Lido Blue | `#0E2A47` | `#9DC1E4` |
 | `harbor` | Harbor | Deep navy, bone white, warm sand, old brass | `#7A5A1E` | `#CBA55B` |
 | `olive-ivory` | Olive and Ivory | Sage-olive, ivory, stone grey, burnt sienna | `#8A3D1F` | `#D9946E` |
 
@@ -48,7 +48,7 @@ type Scheme = "light" | "dark";
 // Returns the flat role map for one theme and scheme: { bg: "#F3F4F4", surface: "#F9FAFA", ... }
 // Falls back to the default theme for an unknown name and to "light" for an unknown scheme.
 const t = getTheme("marine-layer", "dark");
-t.accent;     // "#C98C8E"
+t.accent;     // "#9DC1E4"
 t.accentInk;  // "#15181A"
 t.glassTint;  // "#15181AA6"
 ```

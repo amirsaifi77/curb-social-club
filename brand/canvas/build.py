@@ -438,7 +438,7 @@ def create(T):
 
 # ---------------------------------------------------------------- Theme comparison
 def comparison():
-    variants = [(theme('marine-layer', 'light'), 'Marine Layer', 'Default. Fog white, wet asphalt, oxblood.'),
+    variants = [(theme('marine-layer', 'light'), 'Marine Layer', 'Default. Fog white, wet asphalt, Lido Blue.'),
                 (theme('harbor', 'light'), 'Harbor', 'Bone white, deep navy, old brass.'),
                 (theme('olive-ivory', 'light'), 'Olive and Ivory', 'Ivory, sage olive, burnt sienna.'),
                 (theme('marine-layer', 'dark'), 'Marine Layer Dark', 'Same roles, lifted accent, dark ink on accent.')]
@@ -671,7 +671,7 @@ canvas = {
   ],
   "annotations": [
     {"id": "brand-note", "x": 0, "y": -360, "w": 460, "text": "curb, iOS 26 Liquid Glass, Marine Layer (light).\nGlass is the nav layer only: tab bar pill, toolbar buttons, bottom search. Content is flat: surface on bg, 1px hairlines, no shadows, no gradients.\nInstrument Serif for the masthead, section headers and event titles. Geist for everything else (it also stands in for SF Pro in the tab bar). Plate style (uppercase, tracked, tabular) for times and distances.\nNo status bar drawn; the real one renders on top."},
-    {"id": "accent-note", "x": 1500, "y": -240, "w": 400, "text": "One accent per screen: oxblood goes on I'm going (detail), Post (create), and the today pin (map). Selected tab is ink, not accent, so the accent stays reserved for the action."},
+    {"id": "accent-note", "x": 1500, "y": -240, "w": 400, "text": "One accent per screen: Lido Blue goes on I'm going (detail), Post (create), and the today pin (map). Selected tab is ink, not accent, so the accent stays reserved for the action."},
     {"id": "themes-note", "x": 1900, "y": 1040, "w": 380, "text": "Same Feed, four token sets. Every role name is shared, so a component is written once and themed by tokens. Placeholder photos are flat three-band blocks (sky, lot, asphalt), desaturated and cool."},
   ],
   "launch": {"view": "canvas"}

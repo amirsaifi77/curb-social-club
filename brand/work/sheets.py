@@ -108,7 +108,7 @@ def brand_sheet():
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{css}</style></head><body><div class="page">
     <div class="head">
       <div style="display:flex;align-items:flex-end;gap:36px">{svg("wordmark-01-chamfer", h=120)}
-        <div style="font-size:14px;color:{SEC};line-height:1.6;padding-bottom:6px">Curb Social Club<br>Brand sheet, v2.0</div></div>
+        <div style="font-size:14px;color:{SEC};line-height:1.6;padding-bottom:6px">Curb Social Club<br>Brand sheet, v2.1</div></div>
       <div class="meta">2026-09-05<br>Instrument Serif + Geist<br>Three themes, light and dark<br>Flat: no gradients, no shadows</div>
     </div>
     <div>
@@ -197,7 +197,7 @@ def palette_card(tk):
     """
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{css}</style></head><body><div class="wrap">
     <div class="head"><div><div class="serif tn">{t['name']}</div><div class="ts">{t['story']}</div></div>
-    <div style="display:flex;align-items:center;gap:20px">{svg('lockup-horizontal-02', h=40)}<div style="font-size:12px;color:{SEC};text-align:right;line-height:1.6">Theme <b style="font-weight:500;color:{INK}">{tk}</b><br>tokens.json v2.0, 2026-09-05</div></div></div>
+    <div style="display:flex;align-items:center;gap:20px">{svg('lockup-horizontal-02', h=40)}<div style="font-size:12px;color:{SEC};text-align:right;line-height:1.6">Theme <b style="font-weight:500;color:{INK}">{tk}</b><br>tokens.json v2.1, 2026-09-05</div></div></div>
     <div class="sides">{side('light')}{side('dark')}</div></div></body></html>"""
     open(f"{W}/palette-{tk}.html", "w").write(html)
 

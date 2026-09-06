@@ -15,7 +15,7 @@ os.makedirs(OUT, exist_ok=True)
 
 INK = "#23272A"      # marine layer text primary (light scheme)
 LIGHT = "#EDEFF0"    # marine layer text primary (dark scheme)
-ACCENT = "#5E2A2E"   # oxblood
+ACCENT = "#0E2A47"   # lidoBlue, marine layer accent (light scheme)
 VARIANTS = {"": INK, "-light": LIGHT, "-accent": ACCENT}
 
 # --------------------------------------------------------------------------
