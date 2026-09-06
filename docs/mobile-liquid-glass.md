@@ -216,7 +216,7 @@ Callstack's `react-native-bottom-tabs` (`1.4.0`) also wraps `UITabBarController`
 | iOS 16.4 to 18 | `Platform.OS === 'ios'` and not available | Native tabs (system blur bar) | Native header (system blur) | `expo-blur` pill with `systemThinMaterial` |
 | Android | `Platform.OS === 'android'` | JS `<Tabs>` or native tabs with Material Symbols | Material 3 header via Colors API | Tonal elevated surface, no blur |
 
-Keep the same layout, spacing and iconography across tiers so screens differ in material only. Encapsulate this in a `packages/ui` `Surface` primitive with a `material="glass" | "blur" | "solid"` prop resolved at runtime.
+Keep the same layout, spacing and iconography across tiers so screens differ in material only. Encapsulate this in a `Surface` primitive in `apps/mobile/src/ui` (not `packages/ui`, which holds logic only) with a `material="glass" | "blur" | "solid"` prop resolved at runtime.
 
 **Accessibility.** On iOS 26, Reduce Transparency makes glass frostier and Increase Contrast makes it near-solid with borders; Reduce Motion drops the elastic effects ([WWDC25 219](https://developer.apple.com/videos/play/wwdc2025/219/)). System components handle this. For custom `GlassView`s, subscribe to `AccessibilityInfo.isReduceTransparencyEnabled()` and the `reduceTransparencyChanged` event (iOS only, [RN docs](https://reactnative.dev/docs/accessibilityinfo)) and swap to the solid tier. Every SF Symbol tab and toolbar icon needs an accessibility label. Test with the iOS 27 intensity slider once available.
 

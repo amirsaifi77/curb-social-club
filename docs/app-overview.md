@@ -1,6 +1,6 @@
 # Curb Social Club: App Functional Overview
 
-Status: draft v0.2, 2026-09-05 (renamed from the working title the same day, see ADR 0009; copy examples updated to the Curb Social voice). Scope: iOS app (primary) and public web. Companion docs: `docs/business-plan.md`, `docs/development-plan.md`.
+Status: draft v0.3, 2026-09-06 (v0.2 was 2026-09-05). Scope: iOS app (primary) and public web. Companion docs: `docs/business-plan.md`, `docs/development-plan.md`. Since v0.3 the feature specs in `docs/specs/` are the source of truth for behavior, states, copy, and acceptance criteria, and `docs/screens.md` is the source for routes and phases; this document is the narrative overview. v0.3 adds clubs, sponsors, connected socials on profiles, follow across every host type, Instagram posts from the share sheet, and photo spots.
 
 ## How to read this doc
 
@@ -12,7 +12,8 @@ Each surface has a purpose, the key UI, the data it shows, its states (empty, lo
 - Loading uses skeletons that match the final layout, never spinners on full screens.
 - Errors are inline with a retry, and never block the navigation chrome.
 - Offline shows the last cached feed and list with a "showing saved results" banner; map tiles come from MapKit's own cache. Writes queue locally and retry (RSVP, check-in) or fail visibly (create, comment).
-- Liquid Glass tab bar with four tabs: Home (feed), Map, Create (center action), Me. Search is a glass search field pinned above Home and Map.
+- Liquid Glass tab bar with four tabs: Home (feed), Map, Create (center action), Me. Search is a glass search field pinned above Home and Map. Notifications live behind a bell on Home and under Me.
+- Every event has a host, which is a person, a club, or a sponsor, shown the same way everywhere (avatar, name, verified badge) and linking to that host's page. Every host can be followed.
 - Every event has a canonical web URL, and every deep link opens the same screen in app or web.
 - Copy is calm, specific, and dry. Name the place and the time. Sentence case. No hype words, no exclusivity language. "cars and coffee" is the category and stays lowercase; the product is "curb" in the app.
 - Rendering is flat under Liquid Glass: content surfaces use solid theme fills and thin rules, no gradients or glows. The glass layer is only the system chrome (tab bar, headers, floating map controls, sheets). Three themes (Marine Layer default, Harbor, Olive and Ivory), each light and dark, selectable in Settings.
@@ -35,13 +36,13 @@ Scope: MVP. Interests are stored but only used for feed ranking in Later.
 
 Purpose: answer "what is happening this weekend near me" the moment the app opens.
 
-Key UI: a date-grouped list starting with "This weekend," then "Next week," then "Later." Each card shows cover image, title, day and time, venue and distance, host avatar, recurring badge, going count, and a source pill (Instagram, Evite, Host) when imported. A thin activity strip above the list (Later) shows photos and posts from followed hosts and people.
+Key UI: a sectioned list. Sections in order: "This weekend," "Following" (signed in only), "Recent photos" (Phase 4), "Clubs near you," "Sponsors near you" (only sponsors with an upcoming meet nearby, organic and unpaid), "Spots near you" (Phase 4), "Next week," "Later." Empty sections are omitted. Each event card shows cover image, title, day and time, venue and distance, the host chip, recurring badge, going count, up to two sponsor logos, a source pill (Instagram, Evite, Host) when imported, and a confirmation chip ("Unclaimed. Last confirmed Aug 30." or "Check. Last confirmed Jul 12." when stale). Club and sponsor cards show avatar or logo, name, home area, and follower count. Photo cards show the image or an Instagram embed card with the poster's handle.
 
-Data: events within the home radius sorted by start time, with recurring events expanded into their next occurrence.
+Data: `GET /feed` sections (see `docs/api.md`), computed from the home radius (20 miles by default) with recurring events expanded into their next occurrence. No cross-section ranking at launch.
 
 States: empty shows "Nothing listed within 20 miles yet." with "Widen to 50 miles" and "Add a meet" buttons. Loading shows five skeleton cards. Error shows inline retry. Offline shows cached feed with banner.
 
-Scope: MVP for the event list; activity strip and personalized ranking are Later.
+Scope: MVP for the event, club, and sponsor sections; photo and spot sections are Phase 4; personalized ranking is Later. Spec: `docs/specs/discovery.md`.
 
 ### Map
 
@@ -53,7 +54,7 @@ Data: PostGIS radius or bounding-box query returning events in the visible regio
 
 States: empty shows a sheet message "Nothing here this weekend." with a "Show all upcoming" toggle. Loading dims pins and shows a small progress indicator in the sheet. Error keeps the map and shows retry in the sheet. Offline shows last results and disables "search this area."
 
-Scope: MVP. Heatmap of past meets and photo pins are Later.
+Scope: MVP. A Spots layer (photo locations with their own pin style, toggled from the filter row) is Phase 4. Heatmap of past meets is Later. Spec: `docs/specs/discovery.md`.
 
 ### List view
 
@@ -67,7 +68,7 @@ Data: identical query to Map. Scope: MVP.
 
 Purpose: find a specific meet, host, venue, or city.
 
-Key UI: glass search field with recent searches and suggestions grouped by type (Events, Hosts, Venues, Places). Typing a city moves the map.
+Key UI: glass search field with recent searches and suggestions grouped by type (Events, Clubs, Sponsors, Places; Spots in Phase 4). Typing a city moves the map.
 
 Data: Postgres full-text search over event title, description, host name, venue name; place search via MapKit geocoding.
 
@@ -79,7 +80,7 @@ Scope: MVP for events and places; hosts and venues in MVP if cheap, otherwise La
 
 Purpose: everything needed to decide to go and to get there.
 
-Key UI: cover image with glass overlay title, then blocks in this order: when (with next occurrences for recurring meets and an "add to calendar" action), where (map snippet, address, directions button, parking note), host (avatar, follow button, claimed badge), going (avatars and count, "I'm going" button), about (description), source (a card that says "Originally posted on Instagram by @host" with a link out), photos (grid from past occurrences, Later), comments (Later). Share button in the nav bar.
+Key UI: cover image with glass overlay title, then blocks in this order: when (with next occurrences for recurring meets and an "add to calendar" action), where (map snippet, address, directions button, parking note), host (the person, club, or sponsor with avatar, follow button, claimed or unclaimed treatment and "Are you the host? Claim this meet."), sponsors ("Presented by", "Coffee by", "Vendor", "Partner" rows linking to sponsor pages, only when present), going (avatars and count, "I'm going" button), about (description), source (a card that says "Originally posted on Instagram by @host" with a link out), photos (grid of photos and Instagram posts from past occurrences, Phase 4), comments (Phase 4). Share button in the nav bar. Spec: `docs/specs/event-detail-and-rsvp.md`.
 
 Data: event, occurrence, venue, host, RSVP summary, source attribution, photos and comments when enabled.
 
@@ -127,7 +128,7 @@ Key UI: recurring badge on cards, next three occurrences on the event detail, a 
 
 Data: RecurrenceRule (RFC 5545 style rule stored as fields, not raw RRULE string, for query simplicity), Occurrence rows materialized 90 days ahead by a nightly job, per-occurrence overrides.
 
-States: an occurrence in the past collapses into the event's history. A recurring event with no host update in 60 days gets a "Still happening? Last confirmed Jul 12." prompt to followers and a "Last confirmed" date on the detail.
+States: an occurrence in the past collapses into the event's history. A recurring event with no host confirmation in 30 days (gaps item 5) gets a "Still happening? Last confirmed Jul 12." prompt to followers and a "Last confirmed" date on the detail.
 
 Scope: MVP.
 
@@ -147,9 +148,9 @@ Scope: RSVP is MVP. Check-in is Phase 4.
 
 Purpose: make meets feel alive and give photographers and regulars a reason to return.
 
-Key UI: photo grid on event detail, a Post sheet from the detail (pick up to 10 photos, optional caption, tag the event automatically), and an activity strip on Home from followed accounts. Photos show the poster's handle and link to their profile.
+Key UI: photo grid on event detail, a Post sheet from the detail (pick up to 10 photos from the Photos picker, optional caption, tag the event automatically, optionally tag a spot per photo), and an activity strip on Home from followed accounts. Photos show the poster's handle and link to their profile. Sharing an Instagram post from Instagram's share sheet into curb creates an Instagram post: the app keeps the post URL and renders it through Instagram's oEmbed, never copying the image (ADR 0011); it appears in the same grids as an embed card and disappears gracefully if the source is deleted or private. Instagram Login for Business and Creator accounts is Later.
 
-Data: Post (user, occurrence, caption), Photo (ActiveStorage blob, dimensions, blurhash placeholder), moderation status.
+Data: Post (user, occurrence, caption, kind photo or instagram), Photo (ActiveStorage blob, dimensions, blurhash placeholder, optional spot), ExternalMedia (URL, author handle, status), safety status. Spec: `docs/specs/photos-and-posts.md`.
 
 States: empty grid on an upcoming event says "Photos go here after the meet." and on a past one "No photos yet. Were you there?" Upload progress per photo with retry. Rejected by safety filter shows a neutral message and a link to guidelines.
 
@@ -171,35 +172,69 @@ Scope: Phase 4.
 
 Purpose: identity for people and a small, fun reason to complete a profile.
 
-Key UI: avatar, handle, home area (city only), bio, garage (cards for each car with year, make, model, optional photo and nickname), tabs for Going, Posts, Following. Garage appears on RSVP avatars as a small badge (Later).
+Key UI: avatar, handle, home area (city only), bio, connected socials as icon links (Instagram, YouTube, TikTok, X, Threads, website; handles only, no OAuth), clubs the person belongs to (with role), garage (cards for each car with year, make, model, optional photo and nickname), tabs for Going, Posts, Following. Garage appears on RSVP avatars as a small badge (Later). Profiles are viewable by anyone; follower counts show on host profiles only.
 
-Data: User, GarageCar (year, make, model, trim, color, photo, nickname).
+Data: User, Profile (links, home, counts), ClubMembership, GarageCar (year, make, model, trim, color, photo, nickname). Spec: `docs/specs/profiles-and-follow.md`.
 
 States: empty garage shows "Nothing in the garage yet. Add what you drive." Private profile hides going and posts from non-followers (Later).
 
 Scope: Profile and Garage basics are MVP because they are cheap and increase signup completion. Privacy controls beyond public and private are Later.
 
-### Hosts, organizer pages, and claiming a meet
+### Hosts and claiming a meet
 
 Purpose: give organizers a home and make claimed meets trustworthy.
 
-Key UI: host page with banner, name, links (Instagram, website), upcoming and past meets, followers count, "Claimed" badge. On any unclaimed event detail, "Are you the host? Claim this meet." Claim flow: sign in, state the relationship, verify by one of three methods (a code posted to the source Instagram or site, an email at a domain matching the source, or manual review by the app owner). Claimed events show the host badge and unlock host controls: edit, cancel an occurrence, pin a comment, see RSVP list.
+Key UI: the host of a meet is a person (their profile), a club (its club page), or a sponsor (its sponsor page), shown with one host chip everywhere. On any unclaimed event detail, "Are you the host? Claim this meet." Claim flow: sign in, choose to claim as yourself or as a club you manage, state the relationship, add an evidence link, confirm you have the venue's permission, and wait for manual review by the app owner. Claimed events show the host badge and unlock host controls: edit, cancel an occurrence, confirm "Still happening?", see the RSVP list.
 
-Data: Host (organization or person, verified flag, links), HostMembership (user, host, role), ClaimRequest (status, evidence).
+Data: `events.host_type` and `host_id` (ADR 0010), ClaimRequest (claim as, relationship, evidence, venue permission, status). Spec: `docs/specs/create-and-host-tools.md`.
 
 States: pending claim shows "Claim under review" to the requester only. Rejected claims can be resubmitted once. Contested claims (two requesters) go to manual review.
 
-Scope: Host pages and claim with manual review are MVP. Automated verification is Later.
+Scope: Host chips and pages are MVP from Phase 1; claim with manual review is Phase 2. Automated verification is Later.
+
+### Clubs
+
+Purpose: a home for the groups that organize and attend meets together, without making the app feel like a members-only wall.
+
+Key UI: club page with banner, avatar, name, verified badge, home area, description, links, member count with avatars, follower count, upcoming meets, and a Follow button. Members list with owner and admin labels. Clubs appear as hosts on meet cards, in a "Clubs near you" section of the feed, in search, and on member profiles. Joining is optional and separate from following; a club is open to join or by invitation.
+
+Data: Club (slug, join policy, status, verified, home), ClubMembership (role owner, admin, member; status). Spec: `docs/specs/clubs.md`.
+
+States: hidden clubs render "This club is no longer listed." Empty upcoming says "No meets listed yet. Follow to hear when one is."
+
+Scope: club pages, members, club as host, and follow are MVP (seeded and edited by the admin). Join, invite links, roles, and club management in the app and on the web are Phase 7.
+
+### Sponsors and vendors
+
+Purpose: give the brands, vendors, and venue businesses that back meets a page, and let a meet show who is presenting it or pouring the coffee.
+
+Key UI: sponsor page with logo, banner, tagline, description, website and links, upcoming meets it hosts or backs, and a Follow button. On an event, a sponsors block lists each sponsor with its role ("Presented by", "Coffee by", "Vendor", "Partner"). Sponsors can also host meets directly. A "Sponsors near you" feed section shows sponsors with an upcoming meet nearby; it is organic and unpaid at launch, and any paid placement in the future is labeled.
+
+Data: Sponsor (kind brand, vendor, or venue; slug; links; status), EventSponsorship (role, note, position). Spec: `docs/specs/sponsors.md`.
+
+Scope: MVP, managed only through the admin UI (no sponsor creation in the app). Sponsor self-service on the web is Phase 7.
+
+### Spots
+
+Purpose: let enthusiasts find the backdrops other people shoot at, and give a photo a place as well as a meet.
+
+Key UI: when posting a photo, an optional "Where was this shot?" step suggests existing spots within 150 m of a dropped pin or the phone's current location (never the photo's EXIF), or creates a new one with a name, notes, and an access kind (public, permit, private with permission, unknown). Spot page with the access badge and notes, directions, and a grid of every photo and Instagram post tagged there. A Spots layer on the Map with its own pin style. Spot directory on the web. Spots with restricted access carry a calm warning line.
+
+Data: Spot (location, access, notes, status), `photos.spot_id`, `external_media.spot_id`. Spec: `docs/specs/spots.md`.
+
+States: a spot with no photos yet says so; a merged spot redirects to the survivor; reported spots can be hidden.
+
+Scope: Phase 4.
 
 ### Follow
 
 Purpose: personalize the feed and power notifications.
 
-Key UI: Follow button on host pages and profiles, Following tab on Me, follower counts on host pages only (not on people, to keep it low pressure).
+Key UI: Follow button on profiles, club pages, sponsor pages, and event detail; Following tab on Me with a type filter; follower counts on host pages and clubs, not on ordinary profiles, to keep it low pressure.
 
-Data: Follow (follower, followable polymorphic).
+Data: Follow (follower, followable: User, Club, Sponsor, or Event).
 
-Scope: Follow hosts is MVP (needed for "host you follow posted" notifications). Follow people is Phase 4.
+Scope: Follow across every type is Phase 2. Follow-based notifications are Phase 4. Spec: `docs/specs/profiles-and-follow.md`.
 
 ### Notifications
 
@@ -251,15 +286,15 @@ Scope: MVP.
 
 Purpose: SEO, link previews, and a no-install path. Later, a host dashboard.
 
-Key UI (MVP): home page with a region picker and this weekend's meets, city pages (`/socal/newport-beach`, `/socal/rancho-cucamonga`), event pages with full detail and RSVP (opens app or sign-in), host pages, and an "Open in app" banner. Server-rendered for crawlers and link unfurls.
+Key UI (MVP): home page with a region picker and this weekend's meets, city pages (`/socal/newport-beach`, `/socal/rancho-cucamonga`), event pages with full detail (RSVP opens the app or the App Store), profile, club, sponsor, and spot pages, a club directory and a spot directory, and an "Open in app" banner. Server-rendered for crawlers and link unfurls. The site is read-only at launch (gaps item 10).
 
-Key UI (Later): host dashboard for editing, occurrences, RSVP export, and analytics; admin moderation screens if not kept in Rails.
+Key UI (Phase 7): web sign-in and RSVP, create and import, club management, sponsor self-service, host dashboard for editing, occurrences, RSVP export, and analytics. Admin screens stay in Rails.
 
 Framework: React Router v7 in framework mode with SSR on Vercel, per ADR 0005 (status Proposed). Event, city, and host pages need server rendering and Open Graph tags for SEO and link previews. Next.js is the alternative if App Router conventions or ISR caching turn out to matter more than a lighter framework; the choice does not affect the API or mobile app. The host dashboard can be a client-rendered section of the same app later.
 
 States: event not found renders a 404 with nearby meets. Deleted or private events render a neutral "no longer listed" page with a 410.
 
-Scope: Public pages are MVP. Dashboard is Later.
+Scope: Public pages are MVP. Sign-in, management, and the dashboard are Phase 7. Spec: `docs/specs/web.md`.
 
 ## User journeys
 
@@ -274,20 +309,26 @@ Scope: Public pages are MVP. Dashboard is Later.
 | Check who is going | Regular | Open detail, see going avatars and garage badges, follow a host | Follow needs account |
 | Land from Google | Browser | Search "cars and coffee Newport Beach," open web event page, tap Open in app or just read | No |
 | Report a fake listing | Any | Long-press event, Report, choose "not a real meet," submit | No for MVP (rate limited) |
+| Find the club behind a meet | Browser | Open detail, tap the club chip, read the club page, open a member's profile | No; Follow needs an account |
+| Share an Instagram photo to a meet | Photographer | In Instagram, share the post to curb, pick the meet and optionally the spot, publish; the embed appears on the event | Yes |
+| Find a place to shoot | Enthusiast | Map, toggle Spots, tap a pin, read access notes, get directions | No |
 
 ## MVP feature cut
 
+"Must" is everything through Phase 4 (TestFlight beta and launch). "Should" ships at launch if time allows, else in the first month. "Later" is Phase 7 or beyond. The "Holding May" trade in `docs/development-plan.md` moves spots pages and Instagram posts from Must to Should if velocity demands it.
+
 | Must (TestFlight beta and launch) | Should (launch if time allows, else month one) | Later |
 |---|---|---|
-| Feed, Map with clustering and filters, List, Search (events and places) | Search for hosts and venues | Personalized feed ranking, activity strip |
-| Event detail with source attribution and directions | Add to calendar | Photos, comments, check-in |
-| Manual create with recurrence and exceptions | Duplicate detection on manual create | Follow people, garage badges on RSVPs |
-| Import from link: Evite, generic OG plus LLM, paste text fallback | Eventbrite and Meetup importers | Partiful, Instagram, flyer OCR, Facebook |
-| Sign in with Apple and Google, account deletion | Profile privacy toggle | Automated host verification |
-| Profiles with garage basics, host pages, claim with manual review | Host controls: cancel occurrence with push | Host dashboard on web, analytics |
-| RSVP with reminder push, cancellation push | Story share card | Nearby digest, follow notifications, in-app inbox |
-| Share with Universal Links and OG previews | | Venue pages and partnerships |
-| Report and block, admin moderation queue | | Image safety filtering, trust scores |
-| Settings with location and notification controls | | Android |
-| Web: home, city pages, event pages, host pages | | Monetization surfaces |
-| Seeded schedule of 50 to 100 SoCal meets | | |
+| Sectioned feed (events, photos, clubs, sponsors, spots), Map with clustering, filters, and the Spots layer, List, Search (events, clubs, sponsors, places, spots) | Search for venues | Personalized feed ranking |
+| Event detail with source attribution, sponsors block, directions, photos, and comments | Add to calendar | Threaded comments, likes |
+| Manual create with recurrence, exceptions, announced and seasonal cadences, as yourself or as a club | Duplicate detection on manual create | Garage badges on RSVPs |
+| Import from link: Evite text, generic OG plus LLM, paste text fallback | Eventbrite and Meetup importers | Partiful, Instagram caption, flyer OCR, Facebook |
+| Sign in with Apple and Google, account deletion | Profile privacy toggle | Automated host verification, Instagram Login |
+| Profiles with garage, connected socials, and clubs; club and sponsor pages (seeded); claim with manual review | Host controls beyond cancel and confirm | Club membership and management, sponsor self-service, host dashboard on web, analytics |
+| RSVP with reminder push, cancellation push; check-in; follow people, clubs, sponsors, events; follow notifications, weekly digest, inbox | Story share card | Direct messages |
+| Photos from the Photos picker, Instagram posts from the share sheet, spots with tagging, pages, and the map layer | | Venue pages and partnerships |
+| Share with Universal Links and OG previews | | Trust scores |
+| Report and block on every content type, admin moderation queue, image safety filter | | Android |
+| Settings with location, notification, and privacy controls | | Monetization surfaces, web sign-in and RSVP |
+| Web: home, city, event, profile, club, sponsor, spot, and post pages (read-only) | | Widgets, localization |
+| Seeded schedule of 50 to 100 SoCal meets, about 10 clubs, about 5 sponsors | | |

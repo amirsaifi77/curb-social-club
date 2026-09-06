@@ -26,19 +26,30 @@ Then add `@curb/config`, `@curb/api-client`, `@curb/design-tokens`, `@curb/ui` a
 
 ```
 apps/mobile/
-  app/                        # Expo Router
-    _layout.tsx               # providers: query client, auth, theme, glass tab bar
+  app/                        # Expo Router; ids and phases in docs/screens.md
+    _layout.tsx               # providers: query client, auth, theme, native glass tabs
     (tabs)/
-      index.tsx               # feed
-      map.tsx                 # Apple Maps + supercluster
-      new.tsx                 # create or paste link
-      inbox.tsx               # notifications
-      profile.tsx
-    meets/[slug].tsx
-    occurrences/[id].tsx
-    imports/[id].tsx          # draft editor with polling
-    u/[handle].tsx
-    sign-in.tsx
+      index.tsx               # S02 Home (sectioned feed)
+      map.tsx                 # S03 Map, Apple Maps + supercluster, Spots layer (Phase 4)
+      new.tsx                 # S06 Create: paste a link or add the details
+      me.tsx                  # S07 Me
+    onboarding.tsx            # S01 (modal, first launch)
+    search.tsx                # S05 (modal)
+    meets/[slug].tsx          # S08; also edit, schedule, claim, photos, comments routes
+    meets/new.tsx             # S20
+    occurrences/[id].tsx      # S09; occurrences/[id]/going.tsx is S10
+    u/[handle].tsx            # S11
+    clubs/[slug].tsx          # S12; clubs/[slug]/members.tsx is S13; manage and join are Phase 7
+    sponsors/[slug].tsx       # S14
+    spots/[slug].tsx          # S15 (Phase 4); spots/pick.tsx is S18
+    posts/[id].tsx            # S16 (Phase 4); posts/new.tsx is S17
+    imports/[id].tsx          # S24 draft editor with polling
+    share.tsx                 # S19 share extension target: Instagram post URL to S17, anything else to import
+    notifications.tsx         # S30
+    me/garage.tsx, me/following.tsx
+    settings.tsx              # S27 with the theme picker (S38); settings/profile.tsx, settings/delete-account.tsx
+    sign-in.tsx               # S26 (modal)
+    dev/gallery.tsx           # S40, dev builds only
   src/
     api/                      # thin wrappers over @curb/api-client
     features/                 # per-domain components and hooks
@@ -51,7 +62,7 @@ apps/mobile/
 
 ## Native modules expected
 
-`react-native-maps`, `expo-apple-authentication`, `@react-native-google-signin/google-signin`, `expo-notifications`, `expo-location`, `expo-secure-store`, `expo-image`, `expo-image-manipulator`, `expo-glass-effect`, share extension plugin, Vision OCR native module or plugin.
+`react-native-maps`, `expo-apple-authentication`, `@react-native-google-signin/google-signin`, `expo-notifications`, `expo-location`, `expo-secure-store`, `expo-image`, `expo-image-picker`, `expo-image-manipulator`, `expo-glass-effect`, `react-native-webview` (Instagram embeds), `react-native-mmkv`, `react-native-unistyles`, share extension plugin, Vision OCR native module or plugin.
 
 ## Integration points
 
@@ -63,7 +74,9 @@ apps/mobile/
 | Deep links | `curb://` scheme plus universal links for `https://curbsocial.club/meets/*` and `/u/*` (domain unconfirmed) |
 | Import | Share extension and paste field call `POST /v1/imports`, then open `imports/[id]` |
 | Location | Coarse for browse (rounded to 2 decimals), precise only during check-in |
-| Tokens | Theme from `@curb/design-tokens`: three themes (Marine Layer default, Harbor, Olive and Ivory), each light and dark, switchable at runtime (NativeWind or Unistyles, mobile workstream decides) |
+| Tokens | Theme from `@curb/design-tokens`: three themes (Marine Layer default, Harbor, Olive and Ivory), each light and dark, switchable at runtime with Unistyles 3 (decided in `docs/specs/design-system-and-theming.md`) |
+| Tabs | Four native Liquid Glass tabs: Home, Map, Create, Me. Notifications behind a bell on Home and under Me (`docs/screens.md`) |
+| Instagram | The share extension receives Instagram post URLs and opens the post composer; embeds render from `GET /v1/posts/:id/embed` in a WebView; images are never stored (ADR 0011) |
 
 ## Commands
 

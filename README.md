@@ -19,7 +19,7 @@ Status: planning. This repository currently holds documentation and configuratio
 
 | Principle | What it means in practice |
 |---|---|
-| Easy and useful, not exclusive | Browse everything without an account. An account is needed only to post, RSVP, follow, or comment. Every meet is listed and every car is welcome; the brand is a tone, not a velvet rope. |
+| Easy and useful, not exclusive | Browse everything without an account. An account is needed only to post, RSVP, follow, or comment. Every meet is listed and every car is welcome; the brand is a tone, not a velvet rope. Clubs are optional to join and always visible; sponsors are pages, not gates. |
 | Meet people where they are | Meets are organized on Instagram, Facebook, Evite, group chats, and flyers. The app imports from and links out to those sources instead of competing with them. |
 | Signature feature | Paste a link or snap a flyer, get a draft event. Pluggable importers with an LLM fallback. |
 | Boring infrastructure | One Rails API, one Postgres, managed hosting. Optimize for a solo builder with limited hours. |
@@ -83,6 +83,9 @@ See [docs/local-development.md](docs/local-development.md) for the full planned 
 | [docs/business-plan.md](docs/business-plan.md) | Proposal, brand direction, and business plan |
 | [docs/app-overview.md](docs/app-overview.md) | What the app does, surface by surface |
 | [docs/development-plan.md](docs/development-plan.md) | Phased development plan |
+| [docs/specs/](docs/specs/README.md) | Feature requirement specs, one per domain, with acceptance criteria and session slices |
+| [docs/screens.md](docs/screens.md) | Screen inventory with routes, phases, and states |
+| [docs/sessions.md](docs/sessions.md) | Claude Code session prompts |
 | [docs/gaps-and-open-questions.md](docs/gaps-and-open-questions.md) | Open decisions |
 | [docs/research/market-research.md](docs/research/market-research.md) | Market and competitor research, trademark records, seed inventory |
 | [brand/brand-guide.md](brand/brand-guide.md) | Brand guide: themes, type, voice, logo directions, Liquid Glass rules |
