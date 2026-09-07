@@ -1,0 +1,41 @@
+---
+openapi: 3.0.1
+info:
+  title: Curb Social Club API
+  version: v1
+  description: REST API for Curb Social Club. Public read endpoints work without a
+    token.
+paths:
+  "/v1/health":
+    get:
+      summary: Service health
+      description: 'Liveness check: database reachability and Solid Queue lag.'
+      tags:
+      - Health
+      responses:
+        '200':
+          description: service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - ok
+                    - degraded
+                  db:
+                    type: boolean
+                  queue_lag_s:
+                    type: integer
+                    nullable: true
+                required:
+                - status
+                - db
+                - queue_lag_s
+servers:
+- url: http://localhost:3000
+  description: Development
+- url: https://api.curbsocial.club
+  description: Production (domain unconfirmed)

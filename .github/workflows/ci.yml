@@ -93,7 +93,9 @@ jobs:
           --health-retries 10
     env:
       RAILS_ENV: test
-      DATABASE_URL: postgres://curb:curb@localhost:5432/curb_social_club_test
+      # postgis:// scheme so DATABASE_URL selects the PostGIS adapter; a
+      # postgres:// URL would override database.yml back to plain postgresql.
+      DATABASE_URL: postgis://curb:curb@localhost:5432/curb_social_club_test
     steps:
       - uses: actions/checkout@v4
       - name: Check app exists

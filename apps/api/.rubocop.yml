@@ -1,0 +1,17 @@
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# Overwrite or add rules to create your own house style
+#
+# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
+# Layout/SpaceInsideArrayLiteralBrackets:
+#   Enabled: false
+
+plugins:
+  - rubocop-rspec
+
+# rswag's path/response DSL defines examples via run_test!, which this cop
+# cannot see; every file under spec/requests uses it.
+RSpec/EmptyExampleGroup:
+  Exclude:
+    - "spec/requests/**/*"

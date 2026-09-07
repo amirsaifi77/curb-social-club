@@ -542,7 +542,7 @@ Index `(target_type, target_id, created_at DESC)`, `(admin_id, created_at DESC)`
 
 ## Solid Queue and Solid Cache
 
-Both live in the primary database at launch (single Postgres instance keeps cost down). Rails 8 generates `db/queue_schema.rb` and `db/cache_schema.rb`; point `config/database.yml` `queue` and `cache` at the same database until load says otherwise.
+Both live in the primary database at launch (single Postgres instance keeps cost down). The `solid_queue_*` and `solid_cache_entries` tables are created by ordinary migrations in the primary schema (`structure.sql` carries them), which keeps `db:prepare` and the test setup single-database. When load says otherwise, split them out to their own databases with `queue` and `cache` entries in `config/database.yml` and per-database schema files.
 
 ## Retention summary
 
