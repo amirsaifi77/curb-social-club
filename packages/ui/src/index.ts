@@ -1,4 +1,9 @@
-// Placeholder entry point wired in session 0.1 so the workspace pipeline runs.
-// Shared logic (map, format, links, hooks, schemas) lands in later sessions;
-// this package stays logic-only and headless per its README.
-export const packageName = '@curb/ui';
+export { DEFAULT_TIMINGS, createAsyncActionMachine } from './hooks/asyncActionMachine';
+export type {
+  AsyncActionMachine,
+  AsyncActionState,
+  AsyncActionStatus,
+  AsyncActionTimings,
+} from './hooks/asyncActionMachine';
+export { useAsyncAction } from './hooks/useAsyncAction';
+export type { UseAsyncActionResult } from './hooks/useAsyncAction';

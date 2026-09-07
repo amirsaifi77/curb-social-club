@@ -2,7 +2,7 @@
 
 The primary call to action is the one accent-colored action on a screen: "I'm going" on event detail, "Follow" on a host page, "Post event" on the create sheet, "Import" on the paste-a-link sheet. This spec covers the button itself, the state machine behind it, the motion between states, and the long-running variant used by the importer. It applies to iOS first and to web with the same timings.
 
-Design constraints from the brand: flat fills, no shadows, no glows, one accent per screen, sentence case, Geist Subhead (15/20 medium) for the label, 8pt radius, 52pt tall on iOS (48px on web), full width inside a sheet, hug width inline. Glass is never used on a button; the CTA is content, and it can sit on a glass toolbar only as an accessory pill.
+Design constraints from the brand: flat fills, no shadows, no glows, one accent per screen, sentence case, Geist Subhead (15/20 medium) for the label, 8pt radius (`radius.button` in the tokens), 52pt tall on iOS (48px on web), full width inside a sheet, hug width inline. Glass is never used on a button; the CTA is content, and it can sit on a glass toolbar only as an accessory pill.
 
 ## States
 
