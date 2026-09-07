@@ -158,6 +158,26 @@ jobs:
           # Optional Turborepo remote cache. Leave unset to run without it.
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Cache Playwright browsers
+        if: steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Playwright smoke test (web)
+        if: steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
+        run: |
+          pnpm --filter @curb/web exec playwright install --with-deps chromium
+          pnpm --filter @curb/web test:e2e
+      - name: Upload Playwright report
+        if: failure() && steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7
       - name: Generated types are up to date
         if: steps.exists.outputs.present == 'true' && hashFiles('apps/api/swagger/v1/openapi.yaml') != ''
         run: |

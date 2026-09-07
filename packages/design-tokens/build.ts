@@ -9,7 +9,12 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { emitTailwindTheme, emitTokensCss, emitTokensTs } from './src/lib/emit';
+import {
+  emitTailwindTheme,
+  emitTailwindThemeDts,
+  emitTokensCss,
+  emitTokensTs,
+} from './src/lib/emit';
 import type { TokensSource } from './src/lib/types';
 import { checkMirror, validateTokens } from './src/lib/validate';
 
@@ -36,4 +41,5 @@ mkdirSync(dist, { recursive: true });
 writeFileSync(join(dist, 'tokens.ts'), emitTokensTs(tokens));
 writeFileSync(join(dist, 'tokens.css'), emitTokensCss(tokens));
 writeFileSync(join(dist, 'tailwind.theme.js'), emitTailwindTheme(tokens));
-console.log('tokens: wrote dist/tokens.ts, dist/tokens.css, dist/tailwind.theme.js');
+writeFileSync(join(dist, 'tailwind.theme.d.ts'), emitTailwindThemeDts());
+console.log('tokens: wrote dist/tokens.ts, dist/tokens.css, dist/tailwind.theme.js (+ .d.ts)');

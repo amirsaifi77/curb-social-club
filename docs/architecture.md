@@ -625,7 +625,7 @@ Sentry for exceptions and performance traces (Rails and jobs, plus Expo and web 
 
 Render is the recommendation (ADR 0008): managed Postgres supports PostGIS with `CREATE EXTENSION`, background workers and cron are first class, blueprints (`render.yaml`) keep it declarative, and there is no Dockerfile or VM to babysit. Fly.io is the alternative if we later want multi-region or lower cost; Fly Managed Postgres also supports PostGIS. Kamal (the Rails 8 default) is intentionally not used at launch because it needs a VPS to manage.
 
-Dockerfile expectations: Rails 8 generates a production `Dockerfile` (multi-stage, `jemalloc`, Thruster in front of Puma). Keep it, add `libvips` and `postgis` client libs to the runtime stage. Render can build from it directly, so the same image works if we move to Fly.
+Dockerfile expectations: Rails 8 generates a production `Dockerfile` (multi-stage, `jemalloc`, Thruster in front of Puma). Keep it, add `libvips` and `postgis` client libs to the runtime stage. Render can build from it directly, so the same image works if we move to Fly. Session 0.8 (ADR 0008 status log) deploys staging on Render's native Ruby runtime through `bin/render-build.sh` instead; the Dockerfile stays the portable path and the one that guarantees `libvips`, which the native runtime may lack when uploads land.
 
 Backups: Render managed Postgres daily snapshots (7 day retention on the starter tier). Add a weekly `pg_dump` job to R2 for off-platform copies. R2 bucket versioning on for media.
 

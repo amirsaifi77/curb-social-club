@@ -371,7 +371,7 @@ No other user-facing write endpoints. Sponsors and event sponsorships are manage
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/health` | `{ status: "ok", db: true, queue_lag_s: 3 }` |
+| GET | `/health` | `{ status: "ok", db: true, queue_lag_s: 3 }`; 503 with `status: "degraded"` and `db: false` while the database is unreachable, so host health checks fail with it |
 | GET | `/sitemap` | `{ events: [{ slug, updated_at }], clubs: [...], sponsors: [...], spots: [...] }` for public, non-hidden, non-dormant rows. Cached 1 h. The web app builds `sitemap.xml` from it. |
 | GET | `/openapi.yaml` | Served by rswag-api |
 | GET | `/.well-known/apple-app-site-association` | Served by the web app, not the API |

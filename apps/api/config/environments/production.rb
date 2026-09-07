@@ -38,7 +38,8 @@ Rails.application.configure do
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
   # Prevent health checks from clogging up the logs.
-  config.silence_healthcheck_path = "/up"
+  # Render polls /v1/health (render.yaml); keep its lines out of the log.
+  config.silence_healthcheck_path = "/v1/health"
 
   # One structured line per request instead of the multi-line default.
   config.lograge.enabled = true

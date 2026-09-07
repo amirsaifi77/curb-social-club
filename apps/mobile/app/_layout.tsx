@@ -8,10 +8,12 @@ import { useEffect } from 'react';
 import { auth } from '@/lib/auth';
 import { getDeviceId } from '@/lib/device-id';
 import { registerDevice } from '@/lib/devices';
+import { initSentry, wrapWithSentry } from '@/lib/sentry';
 
+initSentry();
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   // The four subset families from packages/design-tokens/fonts (R-11).
   // Instrument Serif Italic deliberately never ships.
   const [fontsLoaded] = useFonts({
@@ -51,3 +53,7 @@ export default function RootLayout() {
     </Stack>
   );
 }
+
+// Sentry's wrapper adds the touch event boundary and the profiler around
+// the root; navigation breadcrumbs need the navigation integration later.
+export default wrapWithSentry(RootLayout);

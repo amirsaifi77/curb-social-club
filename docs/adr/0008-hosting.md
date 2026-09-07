@@ -2,6 +2,8 @@
 
 Date: 2026-09-05. Status: Proposed (confirm with Amir).
 
+Status log: 2026-09-07 (session 0.8) committed `render.yaml` (web service, Solid Queue worker, Postgres 16 with the extensions created by the first migration, env var group `curb-staging`), `apps/api/bin/render-build.sh`, `apps/web/vercel.json` (React Router framework preset and the Turborepo build; the project's Root Directory is set to `apps/web` in the dashboard), and Sentry on all three tiers. The API starts Puma directly (`bundle exec puma -C config/puma.rb`) rather than through Thruster, which Render's proxy makes redundant on the starter tier; Thruster stays available in `bin/thrust` if asset caching becomes worth it. Moves to Accepted once the first blueprint apply shows `/v1/health` green on Render and a PR shows a Vercel preview.
+
 ## Context
 
 The brief allows Render or Fly.io for Rails plus Postgres/PostGIS, Vercel for web, and R2 or S3 for media. Requirements: managed Postgres with the PostGIS extension, a background worker process for Solid Queue, scheduled jobs, low fixed cost, minimal operations for a solo builder, and a path to grow.
@@ -10,7 +12,7 @@ The brief allows Render or Fly.io for Rails plus Postgres/PostGIS, Vercel for we
 
 | Layer | Choice | Detail |
 |---|---|---|
-| API and workers | Render | One web service (`bin/thrust bin/rails server`), one background worker (`bin/jobs`), both built from the Rails Dockerfile. Declared in `render.yaml`. Auto deploy from `main` after CI. |
+| API and workers | Render | One web service (Puma), one background worker (`bin/jobs`), both on Render's native Ruby runtime with `bin/render-build.sh` (the Dockerfile stays the portable path for Fly or Kamal). Declared in `render.yaml`. Auto deploy from `main` after CI checks pass. |
 | Database | Render managed Postgres 16 | `CREATE EXTENSION postgis` is supported. Daily backups. Start on the smallest paid tier; free tier databases expire. |
 | Web | Vercel | React Router v7 preset, preview deploys per PR, production on `main`, edge caching for OG images. |
 | Media | Cloudflare R2 | S3-compatible endpoint for Active Storage via `aws-sdk-s3`. Public bucket behind a custom domain (`media.curbsocial.club`, domain unconfirmed) with Cloudflare caching. No egress fees. |

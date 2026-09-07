@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+@config "../tailwind.config.ts";
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-textPrimary);
+  font-family: var(--font-ui);
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
