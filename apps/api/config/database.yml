@@ -1,0 +1,35 @@
+# Postgres 16 with PostGIS through activerecord-postgis-adapter.
+#
+# DATABASE_URL, when set, is merged over these values and wins. Use the
+# postgis:// scheme (postgis://curb:curb@localhost:5432/curb_social_club_development);
+# a postgres:// URL would switch the adapter back to plain postgresql.
+#
+# Solid Queue and Solid Cache live in the primary database at launch
+# (docs/data-model.md), so each environment has a single database and the
+# solid_queue and solid_cache tables are created by regular migrations.
+default: &default
+  adapter: postgis
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("PGHOST", "localhost") %>
+  port: <%= ENV.fetch("PGPORT", 5432) %>
+  username: <%= ENV.fetch("PGUSER", "curb") %>
+  password: <%= ENV.fetch("PGPASSWORD", "curb") %>
+
+development:
+  <<: *default
+  database: curb_social_club_development
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: curb_social_club_test
+
+# Production connects through DATABASE_URL (postgis:// scheme) set by the host.
+production:
+  <<: *default
+  database: curb_social_club_production
