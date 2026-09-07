@@ -9,7 +9,7 @@ RSpec.describe "v1/devices" do
       tags "Devices"
       consumes "application/json"
       produces "application/json"
-      parameter name: :body, in: :body, schema: {
+      parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
           anonymous_id: { type: :string, format: :uuid },
@@ -53,7 +53,7 @@ RSpec.describe "v1/devices" do
       tags "Devices"
       consumes "application/json"
       produces "application/json"
-      parameter name: :body, in: :body, schema: {
+      parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
           push_token: { type: :string, nullable: true }, push_enabled: { type: :boolean }, app_version: { type: :string },

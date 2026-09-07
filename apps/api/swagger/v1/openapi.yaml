@@ -44,6 +44,28 @@ paths:
                     - is_new
                 required:
                 - data
+        '200':
+          description: existing account signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        "$ref": "#/components/schemas/User"
+                      is_new:
+                        type: boolean
+                    required:
+                    - token
+                    - user
+                    - is_new
+                required:
+                - data
         '401':
           description: token could not be verified
           content:
@@ -76,12 +98,15 @@ paths:
                   properties:
                     givenName:
                       type: string
+                      nullable: true
                     familyName:
                       type: string
+                      nullable: true
               required:
               - identity_token
               - authorization_code
               - nonce
+        required: true
   "/v1/auth/google":
     post:
       summary: Sign in with Google
@@ -121,6 +146,26 @@ paths:
                 - data
         '200':
           description: existing account signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        "$ref": "#/components/schemas/User"
+                      is_new:
+                        type: boolean
+                    required:
+                    - token
+                    - user
+                    - is_new
+                required:
+                - data
         '401':
           description: token could not be verified
           content:
@@ -137,6 +182,7 @@ paths:
                   type: string
               required:
               - id_token
+        required: true
   "/v1/auth/session":
     delete:
       summary: Sign out this session
@@ -211,6 +257,7 @@ paths:
               required:
               - anonymous_id
               - platform
+        required: true
   "/v1/devices/{anonymous_id}":
     parameters:
     - name: anonymous_id
@@ -265,6 +312,7 @@ paths:
                       type: number
                 timezone:
                   type: string
+        required: true
   "/v1/health":
     get:
       summary: Service health
@@ -383,6 +431,7 @@ paths:
                       type: string
               required:
               - profile
+        required: true
     delete:
       summary: Delete account
       description: Soft-deletes now (sessions revoked, devices unlinked) and purges
@@ -472,14 +521,33 @@ components:
           type: boolean
         links:
           type: object
+          additionalProperties:
+            type: string
         clubs:
           type: array
           items:
             type: object
+            additionalProperties: true
         counts:
           type: object
+          additionalProperties:
+            type: integer
         viewer:
           type: object
+          properties:
+            following:
+              type: boolean
+            blocked:
+              type: boolean
+            is_self:
+              type: boolean
+            reported:
+              type: boolean
+          required:
+          - following
+          - blocked
+          - is_self
+          - reported
       required:
       - id
       - handle
@@ -522,11 +590,18 @@ components:
             properties:
               provider:
                 type: string
+                enum:
+                - apple
+                - google
               email:
                 type: string
                 nullable: true
+            required:
+            - provider
+            - email
         notification_prefs:
           type: object
+          additionalProperties: true
         unread_notifications_count:
           type: integer
       required:

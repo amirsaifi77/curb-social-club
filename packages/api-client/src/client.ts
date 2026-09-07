@@ -1,6 +1,5 @@
+import type { ApiErrorBody, paths } from '@curb/types';
 import createOpenapiClient, { type Middleware } from 'openapi-fetch';
-
-import type { ApiErrorBody, paths } from './paths';
 
 type MaybePromise<T> = T | Promise<T>;
 

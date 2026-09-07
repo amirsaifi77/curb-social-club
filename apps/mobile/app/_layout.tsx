@@ -1,5 +1,7 @@
 import '@/lib/unistyles';
 
+import { ApiClientProvider } from '@curb/api-client';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,6 +10,7 @@ import { useEffect } from 'react';
 import { auth } from '@/lib/auth';
 import { getDeviceId } from '@/lib/device-id';
 import { registerDevice } from '@/lib/devices';
+import { queryClient } from '@/lib/query-client';
 import { initSentry, wrapWithSentry } from '@/lib/sentry';
 
 initSentry();
@@ -35,22 +38,28 @@ function RootLayout() {
 
   if (!fontsLoaded) return null;
 
+  // The shared client feeds both the auth store and the TanStack hooks from
+  // @curb/api-client, so screens share one cache and one token source.
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
-      <Stack.Screen name="settings/delete-account" options={{ title: 'Delete account' }} />
-      <Stack.Screen
-        name="sign-in"
-        options={{
-          presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
-          sheetGrabberVisible: true,
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
-    </Stack>
+    <QueryClientProvider client={queryClient}>
+      <ApiClientProvider client={auth.client}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
+          <Stack.Screen name="settings/delete-account" options={{ title: 'Delete account' }} />
+          <Stack.Screen
+            name="sign-in"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
+        </Stack>
+      </ApiClientProvider>
+    </QueryClientProvider>
   );
 }
 
