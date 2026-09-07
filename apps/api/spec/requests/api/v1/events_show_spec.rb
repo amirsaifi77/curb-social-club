@@ -132,6 +132,18 @@ RSpec.describe "v1/events/{slug}" do
       expect(json.dig("data", "upcoming_occurrences").size).to eq(1)
     end
 
+    it "enqueues the read-time materializer at most once an hour per event (R-14)" do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+      event = create_meet(:corona_del_mar, cadence: "weekly", rrule: "FREQ=WEEKLY;BYDAY=SA")
+      event.occurrences.update_all(starts_at: 45.days.from_now, ends_at: 45.days.from_now + 2.hours)
+
+      expect { 3.times { get "/v1/events/#{event.slug}" } }.to have_enqueued_job(MaterializeOccurrencesJob).once
+
+      travel_to 61.minutes.from_now do
+        expect { get "/v1/events/#{event.slug}" }.to have_enqueued_job(MaterializeOccurrencesJob).once
+      end
+    end
+
     it "AC-19: a recurring event re-materializes on read when its horizon is under 60 days (R-14)" do
       event = create_meet(:corona_del_mar, cadence: "weekly", rrule: "FREQ=WEEKLY;BYDAY=SA")
       event.occurrences.update_all(starts_at: 45.days.from_now, ends_at: 45.days.from_now + 2.hours)
@@ -144,6 +156,26 @@ RSpec.describe "v1/events/{slug}" do
       once = create_meet(:lido)
       once.occurrences.update_all(starts_at: 2.days.from_now, ends_at: 2.days.from_now + 2.hours)
       expect { get "/v1/events/#{once.slug}" }.not_to have_enqueued_job(MaterializeOccurrencesJob)
+    end
+
+    it "keeps an unlisted event indistinguishable from an unknown slug, even when it is cancelled (R-5)" do
+      event = create_meet(:corona_del_mar, title: "Unlisted and cancelled", visibility: "unlisted")
+      event.update!(status: "cancelled")
+
+      get "/v1/events/#{event.slug}"
+      expect(response).to have_http_status(:not_found)
+
+      get "/v1/events/#{event.slug}", params: { token: Events::UnlistedToken.generate(event.id) }
+      expect(response).to have_http_status(:gone)
+    end
+
+    it "keeps a gone event's 410 when the client sends a malformed near" do
+      event = create_meet(:corona_del_mar)
+      event.update!(status: "cancelled")
+
+      get "/v1/events/#{event.slug}", params: { near: "not,coordinates" }
+      expect(response).to have_http_status(:gone)
+      expect(json.dig("error", "details", "nearby")).to eq([])
     end
 
     it "is anonymous, publicly cacheable, and 404s an unknown slug" do

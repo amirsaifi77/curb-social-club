@@ -364,6 +364,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '404':
+          description: unknown event
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
         '401':
           description: anonymous
           content:
@@ -815,6 +821,18 @@ paths:
         schema:
           type: string
       responses:
+        '400':
+          description: a crafted or malformed cursor
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: an event the viewer cannot see
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
         '200':
           description: 'AC-23: three scheduled and one cancelled upcoming date'
           content:

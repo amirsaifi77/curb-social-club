@@ -412,6 +412,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description unknown event */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -839,6 +848,24 @@ export interface paths {
                                 total: number | null;
                             };
                         };
+                    };
+                };
+                /** @description a crafted or malformed cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description an event the viewer cannot see */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };

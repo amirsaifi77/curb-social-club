@@ -40,6 +40,13 @@ RSpec.describe "v1/events/{id}/confirm" do
         end
       end
 
+      response "404", "unknown event" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(user).token}" }
+        let(:id) { SecureRandom.uuid }
+        run_test!
+      end
+
       response "401", "anonymous" do
         schema "$ref" => "#/components/schemas/Error"
         let(:Authorization) { nil }

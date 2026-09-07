@@ -12,6 +12,22 @@ RSpec.describe "v1/occurrences" do
       parameter name: :limit, in: :query, required: false, schema: { type: :integer, minimum: 1, maximum: 50 }
       parameter name: :cursor, in: :query, required: false, schema: { type: :string }
 
+      response "400", "a crafted or malformed cursor" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:id) { create_meet(:corona_del_mar).id }
+        let(:cursor) { Geo::Cursor.encode("occurrence", [ "not-a-time", SecureRandom.uuid ]) }
+
+        run_test! do
+          expect(json["error"]).to include("code" => "bad_request", "message" => "cursor is invalid.")
+        end
+      end
+
+      response "404", "an event the viewer cannot see" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:id) { create(:event).id }
+        run_test!
+      end
+
       response "200", "AC-23: three scheduled and one cancelled upcoming date" do
         schema type: :object,
                properties: {
@@ -91,8 +107,39 @@ RSpec.describe "v1/occurrences" do
 
       get "/v1/events/#{event.id}/occurrences", params: { cursor: "nope" }
       expect(response).to have_http_status(:bad_request)
+      # Both halves of the tuple are parsed in Ruby, never cast by Postgres.
+      [ [ "not-a-time", SecureRandom.uuid ], [ 42, SecureRandom.uuid ], [ nil, SecureRandom.uuid ],
+        [ Time.current.utc.iso8601(6), "not-a-uuid" ] ].each do |values|
+        get "/v1/events/#{event.id}/occurrences", params: { cursor: Geo::Cursor.encode("occurrence", values) }
+        expect(response).to have_http_status(:bad_request), "expected #{values.inspect} to be rejected"
+        expect(json.dig("error", "message")).to eq("cursor is invalid.")
+      end
       get "/v1/events/#{event.id}/occurrences", params: { limit: "many" }
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it "serializes the event summary once for a page and keeps the response private for a host-only event" do
+      event = create_meet(:corona_del_mar, cadence: "weekly", rrule: "FREQ=WEEKLY;BYDAY=SA")
+      first = event.occurrences.first.starts_at
+      9.times { |i| create(:event_occurrence, event: event, starts_at: first + ((i + 1) * 7).days) }
+
+      queries = 0
+      counter = ->(_name, _start, _finish, _id, payload) { queries += 1 unless payload[:name] == "SCHEMA" }
+      ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
+        get "/v1/events/#{event.id}/occurrences", params: { limit: 10 }
+      end
+      expect(json["data"].size).to eq(10)
+      expect(queries).to be < 15
+
+      draft = create(:event)
+      create(:event_occurrence, event: draft)
+      headers = { "Authorization" => "Bearer #{Auth::SessionIssuer.issue(draft.host).token}" }
+      get "/v1/events/#{draft.id}/occurrences", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(response.headers["Cache-Control"]).to include("no-store")
+
+      get "/v1/events/#{event.id}/occurrences"
+      expect(response.headers["Cache-Control"]).to include("public", "max-age=30")
     end
 
     it "hides the dates of an event the viewer cannot see" do

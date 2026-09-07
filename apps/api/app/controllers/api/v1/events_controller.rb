@@ -4,6 +4,11 @@ module Api
     # Anonymous, cacheable for 30 seconds per docs/api.md Conventions; the
     # payload carries nothing viewer-specific in Phase 1.
     class EventsController < ApplicationController
+      NEARBY_LIMIT = 3
+      # One read-time re-materialization per event per hour, however hot the
+      # page is; the nightly run does the rest.
+      MATERIALIZE_THROTTLE = 1.hour
+
       rescue_from Geo::ParamError do |e|
         no_store
         render_error :bad_request, e.message, status: :bad_request
@@ -30,16 +35,18 @@ module Api
 
       # GET /v1/events/:slug (R-22; event-detail-and-rsvp.md R-4 to R-6)
       def show
-        event = Event.with_stale.includes(:venue, sponsorships: :sponsor).find_by(slug: params[:slug])
+        event = Event.with_stale.includes(:venue, sponsorships: { sponsor: { logo_attachment: :blob } })
+                     .with_attached_cover.find_by(slug: params[:slug])
         return render_not_found if event.nil?
 
         policy = EventPolicy.new(current_user, event)
         return render_not_found if event.draft? && !policy.edit?
-        return render_gone(event) if event.gone? && !policy.edit?
+        # The unlisted check comes first, so a tokenless request cannot tell
+        # a cancelled unlisted event from a slug that does not exist (R-5).
         return render_not_found if event.unlisted? && !policy.edit? && !Events::UnlistedToken.valid?(params[:token], event.id)
+        return render_gone if event.gone? && !policy.edit?
 
-        # R-14: a missed nightly run self-heals on read.
-        MaterializeOccurrencesJob.perform_later(event.id) if event.horizon_short?
+        schedule_materialize(event)
         detail_cache
         render_data EventResource.new(Geo::EventHit.for(event), params: { viewer: current_user }).to_h
       end
@@ -65,15 +72,23 @@ module Api
         render_error :not_found, "Event not found", status: :not_found
       end
 
+      # R-14: a missed nightly run self-heals on read, at most once an hour
+      # per event, so a hot page cannot flood the queue (and a seasonal
+      # series past its rrule_until cannot enqueue on every request).
+      def schedule_materialize(event)
+        return unless event.horizon_short?
+        return unless Rails.cache.write("materialize:#{event.id}", true, expires_in: MATERIALIZE_THROTTLE, unless_exist: true)
+
+        MaterializeOccurrencesJob.perform_later(event.id)
+      end
+
       # R-6: a cancelled or hidden event is gone for the public, with a few
-      # nearby meets when the client sent its location.
-      def render_gone(event)
+      # nearby meets when the client sent a usable location.
+      def render_gone
         no_store
         render json: { error: { code: :gone, message: "This meet is no longer listed.",
                                 details: { nearby: nearby_summaries } } }, status: :gone
       end
-
-      NEARBY_LIMIT = 3
 
       def nearby_summaries
         origin = Geo::Coordinates.origin(params[:near])
@@ -82,6 +97,10 @@ module Api
         page = Geo::NearbyQuery.new(origin: origin, window: Geo::Window.parse,
                                     filters: Geo::EventFilters.from_params({}), limit: NEARBY_LIMIT).call
         EventSummaryResource.new(page.items).to_h
+      rescue Geo::ParamError
+        # A bad device coordinate should not turn "no longer listed" into a
+        # generic 400; the page just loses its nearby list.
+        []
       end
 
       # The detail carries viewer fields once someone is signed in, so only
