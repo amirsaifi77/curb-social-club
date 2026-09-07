@@ -49,7 +49,7 @@ pnpm dev                         # turbo runs api, web, and mobile dev servers
 
 ## Database
 
-`docker-compose.yml` runs `postgis/postgis:16-3.4` with a persistent volume. Rails `database.yml` reads `DATABASE_URL` (`postgres://curb:curb@localhost:5432/curb_social_club_development`). `db:prepare` enables `postgis`, `pgcrypto`, `btree_gist`, `pg_trgm`, and `citext` through the first migration.
+`docker-compose.yml` runs `postgis/postgis:16-3.4` with a persistent volume. Rails `database.yml` defaults to `curb:curb@localhost:5432` and honors `DATABASE_URL` when set; use the `postgis://` scheme (`postgis://curb:curb@localhost:5432/curb_social_club_development`), because a `postgres://` URL overrides the adapter back to plain postgresql. `db:prepare` enables `postgis`, `pgcrypto`, `btree_gist`, `pg_trgm`, and `citext` through the first migration.
 
 Seeds create a moderator user, a few venues in Newport Beach, Corona del Mar, San Clemente, and Rancho Cucamonga, one recurring Saturday meet per venue, and materialized occurrences for the next 8 weeks, so the map is not empty on first launch.
 
