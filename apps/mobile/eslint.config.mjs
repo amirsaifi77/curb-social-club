@@ -17,7 +17,7 @@ export default [
   },
   {
     // CommonJS tooling files executed by Node and Jest.
-    files: ['babel.config.js', 'jest.config.js', 'jest.setup.js', 'metro.config.js'],
+    files: ['babel.config.js', 'jest.config.js', 'jest.setup.js', 'jest.setup-after-env.js', 'metro.config.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: { require: 'readonly', module: 'writable', jest: 'readonly', __dirname: 'readonly' },
