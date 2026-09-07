@@ -178,6 +178,30 @@ RSpec.describe Event do
     end
   end
 
+  describe "decay clocks (R-25, R-26)" do
+    it "scopes stale and decayable off one confirmation clock, falling back to published_at then created_at" do
+      fresh = create(:event, :published, last_confirmed_at: 1.day.ago)
+      stale = create(:event, :published, last_confirmed_at: 31.days.ago)
+      old = create(:event, :published, last_confirmed_at: 91.days.ago)
+      claimed = create(:event, :published, claimed_at: 1.day.ago, last_confirmed_at: 200.days.ago)
+      draft = create(:event, last_confirmed_at: 200.days.ago)
+      never = create(:event, :published)
+      never.update_columns(published_at: nil, created_at: 200.days.ago, last_confirmed_at: nil)
+
+      # stale mirrors stale_sql exactly (unclaimed plus the clock), so the
+      # scope and the flag on a payload can never disagree; callers that
+      # only want live rows compose it, as the dashboard does in 1.9.
+      expect(described_class.stale).to contain_exactly(stale, old, never, draft)
+      expect(described_class.published.stale).to contain_exactly(stale, old, never)
+      expect(described_class.decayable).to contain_exactly(old, never)
+      expect(described_class.decayable).not_to include(fresh, claimed, draft)
+      expect(described_class.decayable.where(id: old.id).count).to eq(1)
+      old.update!(dormant_at: Time.current)
+      expect(described_class.decayable).not_to include(old)
+      expect(described_class.not_dormant).not_to include(old)
+    end
+  end
+
   describe "host counter caches" do
     it "keeps clubs.events_count on publish, cancel, host change, and destroy" do
       club = create(:club)

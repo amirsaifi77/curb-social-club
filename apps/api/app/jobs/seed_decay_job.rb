@@ -8,8 +8,11 @@ class SeedDecayJob < ApplicationJob
   queue_as :default
 
   def perform(now: Time.current)
-    slugs = Event.decayable(now).order(:slug).pluck(:slug)
-    Event.decayable(now).update_all(dormant_at: now, updated_at: now) if slugs.any?
+    # One evaluation, so the log and the return value name exactly the rows
+    # this run changed even if another writer lands mid-job.
+    rows = Event.decayable(now).order(:slug).pluck(:id, :slug)
+    Event.where(id: rows.map(&:first)).update_all(dormant_at: now, updated_at: now) if rows.any?
+    slugs = rows.map(&:last)
     log(slugs)
     slugs
   end

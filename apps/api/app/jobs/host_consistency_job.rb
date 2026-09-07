@@ -13,7 +13,7 @@ class HostConsistencyJob < ApplicationJob
 
   def perform(now: Time.current)
     report = { generated_at: now.utc.iso8601, missing: [], hidden: [], renamed: [] }
-    Event::HOST_TYPES.each { |host_type| audit(host_type, report) }
+    Event::HOST_TYPES.each { |host_type| audit(host_type, report, now) }
     Rails.cache.write(REPORT_KEY, report, expires_in: REPORT_TTL)
     log(report)
     report
@@ -23,11 +23,11 @@ class HostConsistencyJob < ApplicationJob
 
   # Rows are (id, slug, host_id, host_name) so the pass costs one query per
   # host type plus one for the hosts themselves.
-  def audit(host_type, report)
+  def audit(host_type, report, now)
     rows = Event.published.where(host_type: host_type).order(:slug).pluck(:id, :slug, :host_id, :host_name)
     return if rows.empty?
 
-    hosts = current_names(host_type, rows.map { |row| row[2] })
+    hosts = current_names(host_type, rows.map { |row| row[2] }.uniq)
     renames = Hash.new { |hash, key| hash[key] = [] }
 
     rows.each do |id, slug, host_id, host_name|
@@ -41,7 +41,7 @@ class HostConsistencyJob < ApplicationJob
       renames[host[:name]] << id
     end
 
-    renames.each { |name, ids| Event.where(id: ids).update_all(host_name: name, updated_at: Time.current) }
+    renames.each { |name, ids| Event.where(id: ids).update_all(host_name: name, updated_at: now) }
   end
 
   # { host_id => { name:, hidden: } } for the hosts these events name.

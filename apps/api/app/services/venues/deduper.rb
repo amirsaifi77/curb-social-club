@@ -3,11 +3,16 @@ module Venues
   # whose normalized name matches (lowercased, whitespace collapsed) and
   # whose location is within 100 m, otherwise create one. The importer
   # (1.10) and the admin venue form call this so two rows never describe
-  # the same lot.
+  # the same lot. No unique index backs the name and radius match, so two
+  # concurrent callers could still create two rows; the only callers are
+  # the single-threaded importer and the admin form.
   class Deduper
     MATCH_RADIUS_M = 100
-    # Matches Venue.normalize_name: trim, collapse whitespace, lowercase.
-    NORMALIZED_NAME_SQL = "lower(regexp_replace(btrim(venues.name), '\\s+', ' ', 'g'))".freeze
+    # Matches Venue.normalize_name (downcase, then split and join, which
+    # strips and collapses every kind of ASCII whitespace). Collapse runs
+    # before the trim because btrim alone strips spaces, not tabs or
+    # newlines, and a CSV cell brings both.
+    NORMALIZED_NAME_SQL = "lower(btrim(regexp_replace(venues.name, '\\s+', ' ', 'g')))".freeze
 
     def self.find_or_create(attrs)
       attrs = attrs.symbolize_keys

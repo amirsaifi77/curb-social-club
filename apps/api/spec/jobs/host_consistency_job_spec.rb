@@ -27,7 +27,10 @@ RSpec.describe HostConsistencyJob, type: :request do
       get "/v1/events/#{event.slug}"
       expect(response).to have_http_status(:ok)
     end
+    get "/v1/events/#{sponsored.slug}"
     expect(json.dig("data", "host", "name")).to eq("Hidden Sponsor")
+    get "/v1/events/#{orphan.slug}"
+    expect(json.dig("data", "host")).to be_nil
   end
 
   it "AC-12: reports zero after a rename, because the model callback already rewrote host_name (R-2)" do

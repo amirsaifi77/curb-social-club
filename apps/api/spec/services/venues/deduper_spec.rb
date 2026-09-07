@@ -21,6 +21,14 @@ RSpec.describe Venues::Deduper, type: :service do
     expect(Venue.count).to eq(2)
   end
 
+  it "matches a stored name carrying a tab or newline, which is what a CSV cell brings" do
+    messy = create(:venue, name: "\tBack Bay Coffee\n", location: Geo.point(33.6172, -117.9270), created_by: creator)
+
+    expect(find_or_create("Back Bay Coffee", 33.6172, -117.9270).id).to eq(messy.id)
+    expect(find_or_create("back bay  coffee", 33.6177, -117.9270).id).to eq(messy.id)
+    expect(Venue.count).to eq(1)
+  end
+
   it "does not merge two different names at the same point, and matches the nearest of several" do
     lot = find_or_create("Lido Lot", 33.6172, -117.9270)
     other = find_or_create("Lido Garage", 33.6172, -117.9270)
