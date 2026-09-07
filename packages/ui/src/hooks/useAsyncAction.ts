@@ -15,10 +15,10 @@ export interface UseAsyncActionResult extends AsyncActionState {
   reset: () => void;
 }
 
-// The primary CTA hook (R-17): { status, run, error } over the state
-// machine, with the timings from @curb/design-tokens motion.asyncButton
+// The primary CTA hook (R-17): { status, run, error, pending } over the
+// state machine, with the timings from @curb/design-tokens motion.asyncButton
 // unless overridden. fn is read fresh on every run, so callers need not
-// memoize it.
+// memoize it; options are read once, when the machine is created.
 export function useAsyncAction(
   fn: () => Promise<unknown>,
   options: Partial<AsyncActionTimings> = {},

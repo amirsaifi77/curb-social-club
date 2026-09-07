@@ -5,8 +5,10 @@ import { AccessibilityInfo } from 'react-native';
 // can force a value (tests, the gallery's toggle).
 export function useReduceMotion(override?: boolean): boolean {
   const [enabled, setEnabled] = useState(false);
+  const overridden = override !== undefined;
 
   useEffect(() => {
+    if (overridden) return;
     let active = true;
     AccessibilityInfo.isReduceMotionEnabled()
       .then((value) => {
@@ -18,7 +20,7 @@ export function useReduceMotion(override?: boolean): boolean {
       active = false;
       subscription.remove();
     };
-  }, []);
+  }, [overridden]);
 
   return override ?? enabled;
 }

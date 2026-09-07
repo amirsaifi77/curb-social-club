@@ -90,6 +90,10 @@ export default function GalleryScreen() {
         }}
       />
       <Text variant="caption" color="secondary">
+        Slow: 3 s request, the Still working caption after 2 s.
+      </Text>
+      <PrimaryButton label="I'm going" reduceMotion={reduceMotion} onPress={() => wait(3_000)} />
+      <Text variant="caption" color="secondary">
         Fast: 80 ms request, confirmed with no loading.
       </Text>
       <PrimaryButton
@@ -129,11 +133,19 @@ export default function GalleryScreen() {
                 label="I'm going"
                 status={status}
                 stages={status === 'longRunning' ? IMPORT_STAGES : undefined}
+                showProgress={status === 'longRunning'}
                 disabledReason="Ended"
                 colors={getTheme(name, scheme)}
                 reduceMotion={reduceMotion}
               />
             ))}
+            <PrimaryButton
+              label="I'm going"
+              status="disabled"
+              disabledReason="Cancelled"
+              colors={getTheme(name, scheme)}
+              reduceMotion={reduceMotion}
+            />
           </View>
         )),
       )}

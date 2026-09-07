@@ -46,28 +46,9 @@ exports[`PrimaryButton in harbor dark renders confirmed 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -78,12 +59,25 @@ exports[`PrimaryButton in harbor dark renders confirmed 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -91,14 +85,19 @@ exports[`PrimaryButton in harbor dark renders confirmed 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -108,6 +107,59 @@ exports[`PrimaryButton in harbor dark renders confirmed 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -286,28 +338,9 @@ exports[`PrimaryButton in harbor dark renders disabled 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(47, 63, 87, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -318,12 +351,25 @@ exports[`PrimaryButton in harbor dark renders disabled 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#2F3F57",
+            "borderColor": "#2F3F57",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -331,14 +377,19 @@ exports[`PrimaryButton in harbor dark renders disabled 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(47, 63, 87, 1)",
+            "backgroundColor": "#2F3F57",
+            "borderColor": "#2F3F57",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -348,6 +399,59 @@ exports[`PrimaryButton in harbor dark renders disabled 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -447,28 +551,9 @@ exports[`PrimaryButton in harbor dark renders error 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -479,12 +564,25 @@ exports[`PrimaryButton in harbor dark renders error 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -492,14 +590,19 @@ exports[`PrimaryButton in harbor dark renders error 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -509,6 +612,59 @@ exports[`PrimaryButton in harbor dark renders error 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -637,28 +793,9 @@ exports[`PrimaryButton in harbor dark renders going 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(23, 36, 56, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -669,14 +806,24 @@ exports[`PrimaryButton in harbor dark renders going 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#172438",
             "borderColor": "#CBA55B",
-            "borderWidth": 1,
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
           },
         ]
       }
@@ -685,17 +832,19 @@ exports[`PrimaryButton in harbor dark renders going 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#172438",
             "borderColor": "#CBA55B",
-            "borderWidth": 1,
           },
+          {},
           {
-            "backgroundColor": "rgba(23, 36, 56, 1)",
             "transform": [
               {
                 "scale": 1,
@@ -705,6 +854,59 @@ exports[`PrimaryButton in harbor dark renders going 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <RNSVGSvgView
         align="xMidYMid"
         bbHeight={16}
@@ -865,28 +1067,9 @@ exports[`PrimaryButton in harbor dark renders idle 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -897,12 +1080,25 @@ exports[`PrimaryButton in harbor dark renders idle 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -910,14 +1106,19 @@ exports[`PrimaryButton in harbor dark renders idle 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -927,6 +1128,59 @@ exports[`PrimaryButton in harbor dark renders idle 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -1026,28 +1280,9 @@ exports[`PrimaryButton in harbor dark renders loading 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -1058,12 +1293,25 @@ exports[`PrimaryButton in harbor dark renders loading 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -1071,14 +1319,19 @@ exports[`PrimaryButton in harbor dark renders loading 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -1088,6 +1341,59 @@ exports[`PrimaryButton in harbor dark renders loading 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -1137,140 +1443,137 @@ exports[`PrimaryButton in harbor dark renders loading 1`] = `
         </Text>
       </View>
       <View
-        collapsable={false}
-        jestAnimatedProps={
-          {
-            "value": {},
-          }
-        }
-        jestAnimatedStyle={
-          {
-            "value": {
-              "opacity": 1,
-              "transform": [
-                {
-                  "rotate": "40deg",
-                },
-              ],
-            },
-          }
-        }
-        jestInlineStyle={
-          [
-            {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "position": "absolute",
-            },
-          ]
-        }
         pointerEvents="none"
         style={
-          [
-            {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "position": "absolute",
-            },
-            {
-              "opacity": 0,
-              "transform": [
-                {
-                  "rotate": "0deg",
-                },
-              ],
-            },
-          ]
+          {
+            "alignItems": "center",
+            "justifyContent": "center",
+            "position": "absolute",
+          }
         }
-        testID="primary-button-ring"
       >
-        <RNSVGSvgView
-          align="xMidYMid"
-          bbHeight={20}
-          bbWidth={20}
-          focusable={false}
-          height={20}
-          meetOrSlice={0}
-          minX={0}
-          minY={0}
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+                "transform": [
+                  {
+                    "rotate": "40deg",
+                  },
+                ],
+              },
+            }
+          }
+          jestInlineStyle={{}}
           style={
             [
               {
-                "backgroundColor": "transparent",
-                "borderWidth": 0,
-              },
-              {
-                "flex": 0,
-                "height": 20,
-                "width": 20,
+                "opacity": 0,
+                "transform": [
+                  {
+                    "rotate": "0deg",
+                  },
+                ],
               },
             ]
           }
-          vbHeight={20}
-          vbWidth={20}
-          width={20}
+          testID="primary-button-ring"
         >
-          <RNSVGGroup
-            fill={
-              {
-                "payload": 4278190080,
-                "type": 0,
-              }
+          <RNSVGSvgView
+            align="xMidYMid"
+            bbHeight={20}
+            bbWidth={20}
+            focusable={false}
+            height={20}
+            meetOrSlice={0}
+            minX={0}
+            minY={0}
+            style={
+              [
+                {
+                  "backgroundColor": "transparent",
+                  "borderWidth": 0,
+                },
+                {
+                  "flex": 0,
+                  "height": 20,
+                  "width": 20,
+                },
+              ]
             }
+            vbHeight={20}
+            vbWidth={20}
+            width={20}
           >
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeOpacity",
-                ]
-              }
-              r={9.25}
-              stroke={
+            <RNSVGGroup
+              fill={
                 {
-                  "payload": 4279179819,
+                  "payload": 4278190080,
                   "type": 0,
                 }
               }
-              strokeOpacity={0.35}
-              strokeWidth={1.5}
-            />
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeDasharray",
-                  "strokeLinecap",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4279179819,
-                  "type": 0,
+            >
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeOpacity",
+                  ]
                 }
-              }
-              strokeDasharray={
-                [
-                  "14.529866022852794",
-                  "58.119464091411174",
-                ]
-              }
-              strokeLinecap={1}
-              strokeWidth={1.5}
-            />
-          </RNSVGGroup>
-        </RNSVGSvgView>
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4279179819,
+                    "type": 0,
+                  }
+                }
+                strokeOpacity={0.35}
+                strokeWidth={1.5}
+              />
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeDasharray",
+                    "strokeLinecap",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4279179819,
+                    "type": 0,
+                  }
+                }
+                strokeDasharray={
+                  [
+                    "14.529866022852794",
+                    "58.119464091411174",
+                  ]
+                }
+                strokeLinecap={1}
+                strokeWidth={1.5}
+              />
+            </RNSVGGroup>
+          </RNSVGSvgView>
+        </View>
       </View>
     </View>
   </View>
@@ -1323,28 +1626,9 @@ exports[`PrimaryButton in harbor dark renders longRunning 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -1355,12 +1639,25 @@ exports[`PrimaryButton in harbor dark renders longRunning 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -1368,14 +1665,19 @@ exports[`PrimaryButton in harbor dark renders longRunning 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(203, 165, 91, 1)",
+            "backgroundColor": "#CBA55B",
+            "borderColor": "#CBA55B",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -1399,65 +1701,20 @@ exports[`PrimaryButton in harbor dark renders longRunning 1`] = `
             },
           }
         }
-        jestInlineStyle={{}}
-        style={
-          [
-            {
-              "opacity": 1,
-            },
-          ]
-        }
-      >
-        <Text
-          maxFontSizeMultiplier={2}
-          numberOfLines={1}
-          style={
-            [
-              {
-                "fontFamily": "Geist-Medium",
-                "fontSize": 15,
-                "fontVariant": undefined,
-                "letterSpacing": 0,
-                "lineHeight": 20,
-                "textTransform": undefined,
-              },
-              {
-                "color": "#23272A",
-              },
-              {
-                "color": "#0F1A2B",
-              },
-            ]
-          }
-        >
-          Reading link
-        </Text>
-      </View>
-      <View
-        collapsable={false}
-        jestAnimatedProps={
-          {
-            "value": {},
-          }
-        }
-        jestAnimatedStyle={
-          {
-            "value": {
-              "opacity": 1,
-              "transform": [
-                {
-                  "rotate": "40deg",
-                },
-              ],
-            },
-          }
-        }
         jestInlineStyle={
           [
             {
-              "alignItems": "center",
-              "justifyContent": "center",
+              "bottom": 0,
+              "left": 0,
               "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
             },
           ]
         }
@@ -1465,109 +1722,203 @@ exports[`PrimaryButton in harbor dark renders longRunning 1`] = `
         style={
           [
             {
-              "alignItems": "center",
-              "justifyContent": "center",
+              "bottom": 0,
+              "left": 0,
               "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
             },
             {
               "opacity": 0,
-              "transform": [
-                {
-                  "rotate": "0deg",
-                },
-              ],
             },
           ]
         }
-        testID="primary-button-ring"
+      />
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
       >
-        <RNSVGSvgView
-          align="xMidYMid"
-          bbHeight={20}
-          bbWidth={20}
-          focusable={false}
-          height={20}
-          meetOrSlice={0}
-          minX={0}
-          minY={0}
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+                "transform": [
+                  {
+                    "rotate": "40deg",
+                  },
+                ],
+              },
+            }
+          }
+          jestInlineStyle={{}}
           style={
             [
               {
-                "backgroundColor": "transparent",
-                "borderWidth": 0,
-              },
-              {
-                "flex": 0,
-                "height": 20,
-                "width": 20,
+                "opacity": 0,
+                "transform": [
+                  {
+                    "rotate": "0deg",
+                  },
+                ],
               },
             ]
           }
-          vbHeight={20}
-          vbWidth={20}
-          width={20}
+          testID="primary-button-ring"
         >
-          <RNSVGGroup
-            fill={
-              {
-                "payload": 4278190080,
-                "type": 0,
+          <RNSVGSvgView
+            align="xMidYMid"
+            bbHeight={20}
+            bbWidth={20}
+            focusable={false}
+            height={20}
+            meetOrSlice={0}
+            minX={0}
+            minY={0}
+            style={
+              [
+                {
+                  "backgroundColor": "transparent",
+                  "borderWidth": 0,
+                },
+                {
+                  "flex": 0,
+                  "height": 20,
+                  "width": 20,
+                },
+              ]
+            }
+            vbHeight={20}
+            vbWidth={20}
+            width={20}
+          >
+            <RNSVGGroup
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
               }
+            >
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeOpacity",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4279179819,
+                    "type": 0,
+                  }
+                }
+                strokeOpacity={0.35}
+                strokeWidth={1.5}
+              />
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeDasharray",
+                    "strokeLinecap",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4279179819,
+                    "type": 0,
+                  }
+                }
+                strokeDasharray={
+                  [
+                    "14.529866022852794",
+                    "58.119464091411174",
+                  ]
+                }
+                strokeLinecap={1}
+                strokeWidth={1.5}
+              />
+            </RNSVGGroup>
+          </RNSVGSvgView>
+        </View>
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+              },
+            }
+          }
+          jestInlineStyle={{}}
+          style={
+            [
+              {
+                "opacity": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            maxFontSizeMultiplier={2}
+            numberOfLines={1}
+            style={
+              [
+                {
+                  "fontFamily": "Geist-Medium",
+                  "fontSize": 15,
+                  "fontVariant": undefined,
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "textTransform": undefined,
+                },
+                {
+                  "color": "#23272A",
+                },
+                {
+                  "color": "#0F1A2B",
+                },
+              ]
             }
           >
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeOpacity",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4279179819,
-                  "type": 0,
-                }
-              }
-              strokeOpacity={0.35}
-              strokeWidth={1.5}
-            />
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeDasharray",
-                  "strokeLinecap",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4279179819,
-                  "type": 0,
-                }
-              }
-              strokeDasharray={
-                [
-                  "14.529866022852794",
-                  "58.119464091411174",
-                ]
-              }
-              strokeLinecap={1}
-              strokeWidth={1.5}
-            />
-          </RNSVGGroup>
-        </RNSVGSvgView>
+            Reading link
+          </Text>
+        </View>
       </View>
     </View>
   </View>
@@ -1674,28 +2025,9 @@ exports[`PrimaryButton in harbor dark renders queued 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(23, 36, 56, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -1706,14 +2038,24 @@ exports[`PrimaryButton in harbor dark renders queued 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#172438",
             "borderColor": "#CBA55B",
-            "borderWidth": 1,
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
           },
         ]
       }
@@ -1722,17 +2064,19 @@ exports[`PrimaryButton in harbor dark renders queued 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#172438",
             "borderColor": "#CBA55B",
-            "borderWidth": 1,
           },
+          {},
           {
-            "backgroundColor": "rgba(23, 36, 56, 1)",
             "transform": [
               {
                 "scale": 1,
@@ -1742,6 +2086,59 @@ exports[`PrimaryButton in harbor dark renders queued 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#D4B476",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <RNSVGSvgView
         align="xMidYMid"
         bbHeight={16}
@@ -1931,28 +2328,9 @@ exports[`PrimaryButton in marine-layer light renders confirmed 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -1963,12 +2341,25 @@ exports[`PrimaryButton in marine-layer light renders confirmed 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -1976,14 +2367,19 @@ exports[`PrimaryButton in marine-layer light renders confirmed 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -1993,6 +2389,59 @@ exports[`PrimaryButton in marine-layer light renders confirmed 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -2171,28 +2620,9 @@ exports[`PrimaryButton in marine-layer light renders disabled 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(213, 217, 219, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -2203,12 +2633,25 @@ exports[`PrimaryButton in marine-layer light renders disabled 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#D5D9DB",
+            "borderColor": "#D5D9DB",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -2216,14 +2659,19 @@ exports[`PrimaryButton in marine-layer light renders disabled 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(213, 217, 219, 1)",
+            "backgroundColor": "#D5D9DB",
+            "borderColor": "#D5D9DB",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -2233,6 +2681,59 @@ exports[`PrimaryButton in marine-layer light renders disabled 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -2332,28 +2833,9 @@ exports[`PrimaryButton in marine-layer light renders error 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -2364,12 +2846,25 @@ exports[`PrimaryButton in marine-layer light renders error 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -2377,14 +2872,19 @@ exports[`PrimaryButton in marine-layer light renders error 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -2394,6 +2894,59 @@ exports[`PrimaryButton in marine-layer light renders error 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -2522,28 +3075,9 @@ exports[`PrimaryButton in marine-layer light renders going 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(249, 250, 250, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -2554,14 +3088,24 @@ exports[`PrimaryButton in marine-layer light renders going 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#F9FAFA",
             "borderColor": "#0E2A47",
-            "borderWidth": 1,
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
           },
         ]
       }
@@ -2570,17 +3114,19 @@ exports[`PrimaryButton in marine-layer light renders going 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#F9FAFA",
             "borderColor": "#0E2A47",
-            "borderWidth": 1,
           },
+          {},
           {
-            "backgroundColor": "rgba(249, 250, 250, 1)",
             "transform": [
               {
                 "scale": 1,
@@ -2590,6 +3136,59 @@ exports[`PrimaryButton in marine-layer light renders going 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <RNSVGSvgView
         align="xMidYMid"
         bbHeight={16}
@@ -2750,28 +3349,9 @@ exports[`PrimaryButton in marine-layer light renders idle 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -2782,12 +3362,25 @@ exports[`PrimaryButton in marine-layer light renders idle 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -2795,14 +3388,19 @@ exports[`PrimaryButton in marine-layer light renders idle 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -2812,6 +3410,59 @@ exports[`PrimaryButton in marine-layer light renders idle 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -2911,28 +3562,9 @@ exports[`PrimaryButton in marine-layer light renders loading 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -2943,12 +3575,25 @@ exports[`PrimaryButton in marine-layer light renders loading 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -2956,14 +3601,19 @@ exports[`PrimaryButton in marine-layer light renders loading 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -2973,6 +3623,59 @@ exports[`PrimaryButton in marine-layer light renders loading 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <View
         collapsable={false}
         jestAnimatedProps={
@@ -3022,140 +3725,137 @@ exports[`PrimaryButton in marine-layer light renders loading 1`] = `
         </Text>
       </View>
       <View
-        collapsable={false}
-        jestAnimatedProps={
-          {
-            "value": {},
-          }
-        }
-        jestAnimatedStyle={
-          {
-            "value": {
-              "opacity": 1,
-              "transform": [
-                {
-                  "rotate": "40deg",
-                },
-              ],
-            },
-          }
-        }
-        jestInlineStyle={
-          [
-            {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "position": "absolute",
-            },
-          ]
-        }
         pointerEvents="none"
         style={
-          [
-            {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "position": "absolute",
-            },
-            {
-              "opacity": 0,
-              "transform": [
-                {
-                  "rotate": "0deg",
-                },
-              ],
-            },
-          ]
+          {
+            "alignItems": "center",
+            "justifyContent": "center",
+            "position": "absolute",
+          }
         }
-        testID="primary-button-ring"
       >
-        <RNSVGSvgView
-          align="xMidYMid"
-          bbHeight={20}
-          bbWidth={20}
-          focusable={false}
-          height={20}
-          meetOrSlice={0}
-          minX={0}
-          minY={0}
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+                "transform": [
+                  {
+                    "rotate": "40deg",
+                  },
+                ],
+              },
+            }
+          }
+          jestInlineStyle={{}}
           style={
             [
               {
-                "backgroundColor": "transparent",
-                "borderWidth": 0,
-              },
-              {
-                "flex": 0,
-                "height": 20,
-                "width": 20,
+                "opacity": 0,
+                "transform": [
+                  {
+                    "rotate": "0deg",
+                  },
+                ],
               },
             ]
           }
-          vbHeight={20}
-          vbWidth={20}
-          width={20}
+          testID="primary-button-ring"
         >
-          <RNSVGGroup
-            fill={
-              {
-                "payload": 4278190080,
-                "type": 0,
-              }
+          <RNSVGSvgView
+            align="xMidYMid"
+            bbHeight={20}
+            bbWidth={20}
+            focusable={false}
+            height={20}
+            meetOrSlice={0}
+            minX={0}
+            minY={0}
+            style={
+              [
+                {
+                  "backgroundColor": "transparent",
+                  "borderWidth": 0,
+                },
+                {
+                  "flex": 0,
+                  "height": 20,
+                  "width": 20,
+                },
+              ]
             }
+            vbHeight={20}
+            vbWidth={20}
+            width={20}
           >
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeOpacity",
-                ]
-              }
-              r={9.25}
-              stroke={
+            <RNSVGGroup
+              fill={
                 {
-                  "payload": 4294178036,
+                  "payload": 4278190080,
                   "type": 0,
                 }
               }
-              strokeOpacity={0.35}
-              strokeWidth={1.5}
-            />
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeDasharray",
-                  "strokeLinecap",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4294178036,
-                  "type": 0,
+            >
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeOpacity",
+                  ]
                 }
-              }
-              strokeDasharray={
-                [
-                  "14.529866022852794",
-                  "58.119464091411174",
-                ]
-              }
-              strokeLinecap={1}
-              strokeWidth={1.5}
-            />
-          </RNSVGGroup>
-        </RNSVGSvgView>
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4294178036,
+                    "type": 0,
+                  }
+                }
+                strokeOpacity={0.35}
+                strokeWidth={1.5}
+              />
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeDasharray",
+                    "strokeLinecap",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4294178036,
+                    "type": 0,
+                  }
+                }
+                strokeDasharray={
+                  [
+                    "14.529866022852794",
+                    "58.119464091411174",
+                  ]
+                }
+                strokeLinecap={1}
+                strokeWidth={1.5}
+              />
+            </RNSVGGroup>
+          </RNSVGSvgView>
+        </View>
       </View>
     </View>
   </View>
@@ -3208,28 +3908,9 @@ exports[`PrimaryButton in marine-layer light renders longRunning 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -3240,12 +3921,25 @@ exports[`PrimaryButton in marine-layer light renders longRunning 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
+          {
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
+          },
         ]
       }
       style={
@@ -3253,14 +3947,19 @@ exports[`PrimaryButton in marine-layer light renders longRunning 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
-          false,
           {
-            "backgroundColor": "rgba(14, 42, 71, 1)",
+            "backgroundColor": "#0E2A47",
+            "borderColor": "#0E2A47",
+          },
+          {},
+          {
             "transform": [
               {
                 "scale": 1,
@@ -3284,65 +3983,20 @@ exports[`PrimaryButton in marine-layer light renders longRunning 1`] = `
             },
           }
         }
-        jestInlineStyle={{}}
-        style={
-          [
-            {
-              "opacity": 1,
-            },
-          ]
-        }
-      >
-        <Text
-          maxFontSizeMultiplier={2}
-          numberOfLines={1}
-          style={
-            [
-              {
-                "fontFamily": "Geist-Medium",
-                "fontSize": 15,
-                "fontVariant": undefined,
-                "letterSpacing": 0,
-                "lineHeight": 20,
-                "textTransform": undefined,
-              },
-              {
-                "color": "#23272A",
-              },
-              {
-                "color": "#F3F4F4",
-              },
-            ]
-          }
-        >
-          Reading link
-        </Text>
-      </View>
-      <View
-        collapsable={false}
-        jestAnimatedProps={
-          {
-            "value": {},
-          }
-        }
-        jestAnimatedStyle={
-          {
-            "value": {
-              "opacity": 1,
-              "transform": [
-                {
-                  "rotate": "40deg",
-                },
-              ],
-            },
-          }
-        }
         jestInlineStyle={
           [
             {
-              "alignItems": "center",
-              "justifyContent": "center",
+              "bottom": 0,
+              "left": 0,
               "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
             },
           ]
         }
@@ -3350,109 +4004,203 @@ exports[`PrimaryButton in marine-layer light renders longRunning 1`] = `
         style={
           [
             {
-              "alignItems": "center",
-              "justifyContent": "center",
+              "bottom": 0,
+              "left": 0,
               "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
             },
             {
               "opacity": 0,
-              "transform": [
-                {
-                  "rotate": "0deg",
-                },
-              ],
             },
           ]
         }
-        testID="primary-button-ring"
+      />
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
       >
-        <RNSVGSvgView
-          align="xMidYMid"
-          bbHeight={20}
-          bbWidth={20}
-          focusable={false}
-          height={20}
-          meetOrSlice={0}
-          minX={0}
-          minY={0}
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+                "transform": [
+                  {
+                    "rotate": "40deg",
+                  },
+                ],
+              },
+            }
+          }
+          jestInlineStyle={{}}
           style={
             [
               {
-                "backgroundColor": "transparent",
-                "borderWidth": 0,
-              },
-              {
-                "flex": 0,
-                "height": 20,
-                "width": 20,
+                "opacity": 0,
+                "transform": [
+                  {
+                    "rotate": "0deg",
+                  },
+                ],
               },
             ]
           }
-          vbHeight={20}
-          vbWidth={20}
-          width={20}
+          testID="primary-button-ring"
         >
-          <RNSVGGroup
-            fill={
-              {
-                "payload": 4278190080,
-                "type": 0,
+          <RNSVGSvgView
+            align="xMidYMid"
+            bbHeight={20}
+            bbWidth={20}
+            focusable={false}
+            height={20}
+            meetOrSlice={0}
+            minX={0}
+            minY={0}
+            style={
+              [
+                {
+                  "backgroundColor": "transparent",
+                  "borderWidth": 0,
+                },
+                {
+                  "flex": 0,
+                  "height": 20,
+                  "width": 20,
+                },
+              ]
+            }
+            vbHeight={20}
+            vbWidth={20}
+            width={20}
+          >
+            <RNSVGGroup
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
               }
+            >
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeOpacity",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4294178036,
+                    "type": 0,
+                  }
+                }
+                strokeOpacity={0.35}
+                strokeWidth={1.5}
+              />
+              <RNSVGCircle
+                cx={10}
+                cy={10}
+                fill={null}
+                propList={
+                  [
+                    "fill",
+                    "stroke",
+                    "strokeWidth",
+                    "strokeDasharray",
+                    "strokeLinecap",
+                  ]
+                }
+                r={9.25}
+                stroke={
+                  {
+                    "payload": 4294178036,
+                    "type": 0,
+                  }
+                }
+                strokeDasharray={
+                  [
+                    "14.529866022852794",
+                    "58.119464091411174",
+                  ]
+                }
+                strokeLinecap={1}
+                strokeWidth={1.5}
+              />
+            </RNSVGGroup>
+          </RNSVGSvgView>
+        </View>
+        <View
+          collapsable={false}
+          jestAnimatedProps={
+            {
+              "value": {},
+            }
+          }
+          jestAnimatedStyle={
+            {
+              "value": {
+                "opacity": 1,
+              },
+            }
+          }
+          jestInlineStyle={{}}
+          style={
+            [
+              {
+                "opacity": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            maxFontSizeMultiplier={2}
+            numberOfLines={1}
+            style={
+              [
+                {
+                  "fontFamily": "Geist-Medium",
+                  "fontSize": 15,
+                  "fontVariant": undefined,
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "textTransform": undefined,
+                },
+                {
+                  "color": "#23272A",
+                },
+                {
+                  "color": "#F3F4F4",
+                },
+              ]
             }
           >
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeOpacity",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4294178036,
-                  "type": 0,
-                }
-              }
-              strokeOpacity={0.35}
-              strokeWidth={1.5}
-            />
-            <RNSVGCircle
-              cx={10}
-              cy={10}
-              fill={null}
-              propList={
-                [
-                  "fill",
-                  "stroke",
-                  "strokeWidth",
-                  "strokeDasharray",
-                  "strokeLinecap",
-                ]
-              }
-              r={9.25}
-              stroke={
-                {
-                  "payload": 4294178036,
-                  "type": 0,
-                }
-              }
-              strokeDasharray={
-                [
-                  "14.529866022852794",
-                  "58.119464091411174",
-                ]
-              }
-              strokeLinecap={1}
-              strokeWidth={1.5}
-            />
-          </RNSVGGroup>
-        </RNSVGSvgView>
+            Reading link
+          </Text>
+        </View>
       </View>
     </View>
   </View>
@@ -3559,28 +4307,9 @@ exports[`PrimaryButton in marine-layer light renders queued 1`] = `
       jestAnimatedStyle={
         {
           "value": {
-            "backgroundColor": "rgba(249, 250, 250, 1)",
             "transform": [
               {
-                "scale": {
-                  "callStart": null,
-                  "callback": undefined,
-                  "current": 1,
-                  "finished": true,
-                  "initialEnergy": 0,
-                  "lastTimestamp": 0,
-                  "omega0": 22.360679774997898,
-                  "omega1": 14.907119849998598,
-                  "onFrame": [Function],
-                  "onStart": [Function],
-                  "reduceMotion": false,
-                  "startTimestamp": 0,
-                  "startValue": 0,
-                  "timestamp": 0,
-                  "toValue": 1,
-                  "velocity": 0,
-                  "zeta": 0.7453559924999299,
-                },
+                "scale": 1,
               },
             ],
           },
@@ -3591,14 +4320,24 @@ exports[`PrimaryButton in marine-layer light renders queued 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#F9FAFA",
             "borderColor": "#0E2A47",
-            "borderWidth": 1,
+          },
+          {
+            "transitionDuration": 200,
+            "transitionProperty": [
+              "backgroundColor",
+              "borderColor",
+            ],
+            "transitionTimingFunction": "ease-in-out",
           },
         ]
       }
@@ -3607,17 +4346,19 @@ exports[`PrimaryButton in marine-layer light renders queued 1`] = `
           {
             "alignItems": "center",
             "borderRadius": 8,
+            "borderWidth": 1,
             "flexDirection": "row",
             "height": 52,
             "justifyContent": "center",
+            "overflow": "hidden",
             "paddingHorizontal": 16,
           },
           {
+            "backgroundColor": "#F9FAFA",
             "borderColor": "#0E2A47",
-            "borderWidth": 1,
           },
+          {},
           {
-            "backgroundColor": "rgba(249, 250, 250, 1)",
             "transform": [
               {
                 "scale": 1,
@@ -3627,6 +4368,59 @@ exports[`PrimaryButton in marine-layer light renders queued 1`] = `
         ]
       }
     >
+      <View
+        collapsable={false}
+        jestAnimatedProps={
+          {
+            "value": {},
+          }
+        }
+        jestAnimatedStyle={
+          {
+            "value": {
+              "opacity": 0,
+            },
+          }
+        }
+        jestInlineStyle={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+          ]
+        }
+        pointerEvents="none"
+        style={
+          [
+            {
+              "bottom": 0,
+              "left": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            },
+            {
+              "borderRadius": 8,
+            },
+            {
+              "backgroundColor": "#0A1D32",
+            },
+            {
+              "opacity": 0,
+            },
+          ]
+        }
+      />
       <RNSVGSvgView
         align="xMidYMid"
         bbHeight={16}

@@ -31,13 +31,16 @@ export interface AsyncActionState {
   status: AsyncActionStatus;
   error: unknown;
   stillWorking: boolean;
+  // True from run() until the run reaches idle, going, or error, including
+  // the delay window before loading shows; run() is ignored while pending.
+  pending: boolean;
 }
 
 export interface AsyncActionMachine {
   getState(): AsyncActionState;
   subscribe(listener: () => void): () => void;
-  // Runs fn unless a run is in flight (loading or confirmed). From going the
-  // run is a removal: success settles to idle instead of confirmed.
+  // Runs fn unless a run is pending. From going the run is a removal:
+  // success settles to idle instead of confirmed.
   run(fn: () => Promise<unknown>): void;
   reset(): void;
   dispose(): void;
@@ -50,7 +53,12 @@ export function createAsyncActionMachine(
   clock: { now(): number } = { now: () => Date.now() },
 ): AsyncActionMachine {
   const timings: AsyncActionTimings = { ...DEFAULT_TIMINGS, ...options };
-  let state: AsyncActionState = { status: 'idle', error: null, stillWorking: false };
+  let state: AsyncActionState = {
+    status: 'idle',
+    error: null,
+    stillWorking: false,
+    pending: false,
+  };
   const listeners = new Set<() => void>();
   const timers = new Set<Timer>();
   // Per run: when loading appeared (null while it has not), whether the run
@@ -90,11 +98,17 @@ export function createAsyncActionMachine(
     else after(remaining, callback);
   }
 
+  // A run's final states clear its remaining timers (still working, timeout).
+  function finish(next: Partial<AsyncActionState>): void {
+    clearTimers();
+    setState({ ...next, stillWorking: false, pending: false });
+  }
+
   function settleSuccess(id: number): void {
     if (id !== runId) return;
     if (settled === 'timeout') {
       // Late success after the timeout: reconcile silently (no confirmed).
-      setState({ status: removing ? 'idle' : 'going', error: null, stillWorking: false });
+      finish({ status: removing ? 'idle' : 'going', error: null });
       return;
     }
     if (settled) return;
@@ -102,12 +116,13 @@ export function createAsyncActionMachine(
     afterMinLoading(() => {
       if (id !== runId) return;
       if (removing) {
-        setState({ status: 'idle', error: null, stillWorking: false });
+        finish({ status: 'idle', error: null });
         return;
       }
+      clearTimers();
       setState({ status: 'confirmed', error: null, stillWorking: false });
       after(timings.hold, () => {
-        if (id === runId) setState({ status: 'going' });
+        if (id === runId) finish({ status: 'going' });
       });
     });
   }
@@ -118,7 +133,7 @@ export function createAsyncActionMachine(
     // A failure before loading has shown still shows loading for its
     // minimum, so it reads as tried, then failed.
     const showError = () => {
-      if (id === runId) setState({ status: 'error', error, stillWorking: false });
+      if (id === runId) finish({ status: 'error', error });
     };
     if (loadingShownAt === null) {
       const untilLoading = Math.max(0, startedAt + timings.delay - clock.now());
@@ -141,14 +156,14 @@ export function createAsyncActionMachine(
   }
 
   function run(fn: () => Promise<unknown>): void {
-    if (state.status === 'loading' || state.status === 'confirmed') return;
+    if (state.pending) return;
     clearTimers();
     const id = ++runId;
     removing = state.status === 'going';
     loadingShownAt = null;
     settled = null;
     startedAt = clock.now();
-    setState({ error: null, stillWorking: false });
+    setState({ error: null, stillWorking: false, pending: true });
 
     after(timings.delay, () => {
       if (id === runId && !settled) showLoading();
@@ -159,7 +174,7 @@ export function createAsyncActionMachine(
     after(timings.timeout, () => {
       if (id !== runId || settled) return;
       settled = 'timeout';
-      setState({ status: 'error', error: new Error('timeout'), stillWorking: false });
+      finish({ status: 'error', error: new Error('timeout') });
     });
 
     let promise: Promise<unknown>;
@@ -177,7 +192,7 @@ export function createAsyncActionMachine(
   function reset(): void {
     clearTimers();
     runId += 1;
-    setState({ status: 'idle', error: null, stillWorking: false });
+    setState({ status: 'idle', error: null, stillWorking: false, pending: false });
   }
 
   return {

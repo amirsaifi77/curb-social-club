@@ -126,17 +126,24 @@ describe('useAsyncAction state machine', () => {
     expect(seen()).toEqual(['loading', 'error', 'going']);
   });
 
-  it('ignores run while in flight and runs again from error', async () => {
+  it('ignores a second run inside the delay window and while loading, then runs again from error', async () => {
     const { machine } = harness();
     const first = deferred();
     const fn = vi.fn(() => first.promise);
     machine.run(fn);
-    await tick(200);
+    expect(machine.getState().pending).toBe(true);
+    await tick(100);
+    machine.run(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    await tick(100);
     machine.run(fn);
     expect(fn).toHaveBeenCalledTimes(1);
     first.reject(new Error('x'));
-    await tick(400);
+    await tick(349);
+    expect(machine.getState().status).toBe('loading');
+    await tick(1);
     expect(machine.getState().status).toBe('error');
+    expect(machine.getState().pending).toBe(false);
 
     const second = deferred();
     machine.run(() => second.promise);
@@ -145,6 +152,22 @@ describe('useAsyncAction state machine', () => {
     await tick(0);
     expect(machine.getState().status).toBe('confirmed');
     expect(machine.getState().error).toBeNull();
+    expect(machine.getState().pending).toBe(true);
+    machine.run(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    await tick(600);
+    expect(machine.getState().status).toBe('going');
+    expect(machine.getState().pending).toBe(false);
+  });
+
+  it('clears the still-working and timeout timers once a run has settled', async () => {
+    const { machine } = harness();
+    machine.run(() => Promise.resolve());
+    await tick(700);
+    expect(machine.getState().status).toBe('going');
+    await tick(10_000);
+    expect(machine.getState().status).toBe('going');
+    expect(machine.getState().stillWorking).toBe(false);
   });
 
   it('treats a run from going as a removal that settles to idle', async () => {

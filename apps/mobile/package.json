@@ -17,7 +17,7 @@
   "dependencies": {
     "@curb/api-client": "workspace:*",
     "@curb/design-tokens": "workspace:*",
-    "@curb/ui": "workspace:^",
+    "@curb/ui": "workspace:*",
     "@expo/ui": "~57.0.16",
     "@react-native-google-signin/google-signin": "^16.1.5",
     "@sentry/react-native": "~7.11.0",

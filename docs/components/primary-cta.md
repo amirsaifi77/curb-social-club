@@ -99,7 +99,7 @@ iOS (Expo, Reanimated 4, react-native-svg, expo-haptics). One component, `Primar
 
 Web (React Router, CSS). Same state names as `data-status` attributes on a `<button>`. Transitions are CSS; the ring is an inline SVG with a CSS rotation keyframe; the check uses `stroke-dashoffset` with a transition. `prefers-reduced-motion` switches to the reduced set above. `aria-busy` mirrors `busy`, `aria-live="polite"` on the caption.
 
-Shared: a `useAsyncAction(fn, { delay: 150, minLoading: 400, hold: 600, timeout: 10000 })` hook in `packages/ui` that returns `{ status, run, error }` and is used by both platforms, so the timings live in one place. Timings are exported from `packages/design-tokens` under `motion` so Figma's motion spec and the code agree.
+Shared: a `useAsyncAction(fn, { delay: 150, minLoading: 400, hold: 600, timeout: 10000 })` hook in `packages/ui` that returns `{ status, run, error, pending }` and is used by both platforms, so the timings live in one place. `pending` is true from the tap until the run reaches idle, going, or error, so a second tap inside the 150ms window is ignored too. Timings are exported from `packages/design-tokens` under `motion` so Figma's motion spec and the code agree: the durations above, the 60ms stagger (`duration.stagger`), and the progress curve (`asyncButton.progress`: fast to 60 percent over 3s, then to 90 percent over 12s). In the uncontrolled mode the mobile button passes `{ removing }` to `onPress` and hands `onGoingPress` a `remove` callback to run after the confirmation sheet; without `onGoingPress` a tap on Going does nothing, never an instant removal.
 
 ## Open questions
 

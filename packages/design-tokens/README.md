@@ -6,11 +6,11 @@ Source of truth for color, spacing, typography, radii, and iOS glass material pa
 
 Three flat themes, each with a light and a dark scheme. Marine Layer is the default. Every theme exposes the same role names, so components are written once against roles and themed by swapping the token set. Figma mirrors this as one variable collection with six modes (`marine-layer/light`, `marine-layer/dark`, and so on).
 
-| Theme key | Name | Story | Light accent | Dark accent |
-|---|---|---|---|---|
-| `marine-layer` | Marine Layer (default) | Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, Lido Blue | `#0E2A47` | `#9DC1E4` |
-| `harbor` | Harbor | Deep navy, bone white, warm sand, old brass | `#7A5A1E` | `#CBA55B` |
-| `olive-ivory` | Olive and Ivory | Sage-olive, ivory, stone grey, burnt sienna | `#8A3D1F` | `#D9946E` |
+| Theme key      | Name                   | Story                                                                       | Light accent | Dark accent |
+| -------------- | ---------------------- | --------------------------------------------------------------------------- | ------------ | ----------- |
+| `marine-layer` | Marine Layer (default) | Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, Lido Blue | `#0E2A47`    | `#9DC1E4`   |
+| `harbor`       | Harbor                 | Deep navy, bone white, warm sand, old brass                                 | `#7A5A1E`    | `#CBA55B`   |
+| `olive-ivory`  | Olive and Ivory        | Sage-olive, ivory, stone grey, burnt sienna                                 | `#8A3D1F`    | `#D9946E`   |
 
 Roles per scheme: `bg`, `surface`, `surfaceRaised`, `border`, `textPrimary`, `textSecondary`, `accent`, `accentInk`, `link`, `success`, `warning`, `error`, `pinNow`, `pinToday`, `pinUpcoming`, `pinRecurring`, `pinPast`, `pinCluster`, `pinLabel`, `glassTint` (hex8), `scrim` (hex8).
 
@@ -28,7 +28,7 @@ Contrast is verified for every theme and scheme: text roles on `bg`, `surface`, 
   },
   "typography": { "families": {...}, "scale": { "display", "title", "headline", "subhead", "body", "caption", "plate", "label" }, "features": {...} },
   "spacing": { "0".."24", "gutter", "pageMax", "readingMax", "tabBarInset", "bottomSearchInset" },
-  "radius": { "none", "hairline", "sm", "md", "lg", "card", "sheet", "pill" },
+  "radius": { "none", "hairline", "sm", "button", "md", "lg", "card", "sheet", "pill" },
   "glass": { "material", "blur", "saturate", "tintAlpha", "hairline", "shadow", "textOnGlass" }
 }
 ```
@@ -40,31 +40,32 @@ Color tokens use the W3C Design Tokens `$value` / `$type` shape. Typography, spa
 The build emits `getTheme(name, scheme)` alongside the raw objects:
 
 ```ts
-import { getTheme, themes, typography, spacing, radius, glass } from "@curb/design-tokens";
+import { getTheme, themes, typography, spacing, radius, glass } from '@curb/design-tokens';
 
-type ThemeName = "marine-layer" | "harbor" | "olive-ivory";
-type Scheme = "light" | "dark";
+type ThemeName = 'marine-layer' | 'harbor' | 'olive-ivory';
+type Scheme = 'light' | 'dark';
 
 // Returns the flat role map for one theme and scheme: { bg: "#F3F4F4", surface: "#F9FAFA", ... }
 // Falls back to the default theme for an unknown name and to "light" for an unknown scheme.
-const t = getTheme("marine-layer", "dark");
-t.accent;     // "#9DC1E4"
-t.accentInk;  // "#15181A"
-t.glassTint;  // "#15181AA6"
+const t = getTheme('marine-layer', 'dark');
+t.accent; // "#9DC1E4"
+t.accentInk; // "#15181A"
+t.glassTint; // "#15181AA6"
 ```
 
 Reference implementation for `build.ts`:
 
 ```ts
-import tokens from "./tokens.json";
+import tokens from './tokens.json';
 
 export type ThemeName = keyof typeof tokens.themes;
-export type Scheme = "light" | "dark";
+export type Scheme = 'light' | 'dark';
 export type Role = (typeof tokens.meta.roles)[number];
 export type ThemeColors = Record<Role, string>;
 
-export function getTheme(name: ThemeName | string, scheme: Scheme | string = "light"): ThemeColors {
-  const theme = tokens.themes[name as ThemeName] ?? tokens.themes[tokens.meta.defaultTheme as ThemeName];
+export function getTheme(name: ThemeName | string, scheme: Scheme | string = 'light'): ThemeColors {
+  const theme =
+    tokens.themes[name as ThemeName] ?? tokens.themes[tokens.meta.defaultTheme as ThemeName];
   const set = (theme as any)[scheme] ?? theme.light;
   const out = {} as ThemeColors;
   for (const role of tokens.meta.roles) out[role as Role] = set[role].$value;
@@ -82,10 +83,10 @@ pnpm --filter @curb/design-tokens build
 
 Implemented in session 0.3: `build.ts` (run with `tsx`) validates the schema and the contrast gate, checks the `brand/tokens.json` mirror, and emits:
 
-| Output | Consumer |
-|---|---|
-| `dist/tokens.ts` | `themes`, `getTheme`, `typography`, `spacing`, `radius`, `glass` for mobile and web components |
-| `dist/tokens.css` | Web custom properties per theme and scheme, plus `--font-display`, `--font-ui`, spacing and radius |
+| Output                               | Consumer                                                                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `dist/tokens.ts`                     | `themes`, `getTheme`, `typography`, `spacing`, `radius`, `glass` for mobile and web components                           |
+| `dist/tokens.css`                    | Web custom properties per theme and scheme, plus `--font-display`, `--font-ui`, spacing and radius                       |
 | `dist/tailwind.theme.js` (+ `.d.ts`) | NativeWind and web Tailwind config mapping role names to `var(--color-<role>)`; `apps/web/tailwind.config.ts` extends it |
 
 Outputs are generated and gitignored; the `build` task runs before dependents via Turborepo.
@@ -99,7 +100,6 @@ packages/design-tokens/
   dist/            # generated
   package.json
 ```
-
 
 ## Added in 2.2.0
 
