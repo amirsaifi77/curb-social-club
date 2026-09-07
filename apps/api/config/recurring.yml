@@ -1,5 +1,11 @@
-# Solid Queue recurring schedule (docs/specs/auth-and-accounts.md R-16, R-29).
+# Solid Queue recurring schedule (docs/specs/auth-and-accounts.md R-16, R-29;
+# docs/specs/events-and-occurrences.md R-10). Cron entries carry their zone;
+# the "at ... every day" ones run in the app's UTC.
 shared: &shared
+  materialize_occurrences:
+    class: MaterializeOccurrencesJob
+    queue: default
+    schedule: "0 2 * * * America/Los_Angeles"
   session_sweep:
     class: SessionSweepJob
     queue: default

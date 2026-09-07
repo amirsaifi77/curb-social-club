@@ -25,6 +25,9 @@ gem "rgeo"
 gem "rgeo-geojson"
 gem "geocoder"
 
+# Recurrence expansion for MaterializeOccurrencesJob (docs/architecture.md 3.5)
+gem "ice_cube"
+
 # Jobs and cache (both on the primary database, docs/data-model.md).
 # mission_control-jobs mounts at /admin/jobs behind the admin session
 # (docs/specs/admin.md R-12); it needs an asset pipeline, so propshaft

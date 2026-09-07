@@ -101,6 +101,7 @@ apps/api/
 | `bin/rails c` | console |
 | `bundle exec annotaterb models` | refresh the schema comment at the bottom of each model after a migration (`.annotaterb.yml`; models only) |
 | `bin/rails db:seed` | seed venues and meets |
+| `bin/rails runner 'MaterializeOccurrencesJob.perform_now'` | expand every published event's schedule 90 days ahead (also nightly at 02:00 Pacific, `config/recurring.yml`) |
 | `bin/rails "admin:grant[you@example.com]"` | give an existing user the admin role (`[email,moderator]` for moderator), then sign in at `/admin/sign_in` |
 | `bin/rails assets:precompile` | propshaft output for `/admin` and Mission Control in production (`public/assets`, gitignored) |
 | `bin/rails sentry:test_event` | send one message to Sentry to verify `SENTRY_DSN` on a tier |
