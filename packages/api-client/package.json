@@ -15,11 +15,20 @@
   },
   "devDependencies": {
     "@curb/config": "workspace:*",
+    "@tanstack/react-query": "^5.102.8",
+    "@types/react": "^19.1.13",
     "eslint": "^9.17.0",
+    "react": "^19.1.1",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@curb/types": "workspace:*",
     "openapi-fetch": "^0.17.0"
+  },
+  "description": "Typed client for the Curb Social Club API: openapi-fetch over @curb/types, request functions, TanStack Query options and hooks, shared query keys.",
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "react": ">=18"
   }
 }

@@ -4,19 +4,22 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.d.ts"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "generate": "openapi-typescript ../../apps/api/swagger/v1/openapi.yaml -o src/generated.d.ts",
+    "build": "tsc --noEmit",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+    "clean": "rm -rf .turbo *.tsbuildinfo"
   },
   "devDependencies": {
     "@curb/config": "workspace:*",
     "eslint": "^9.17.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "description": "TypeScript types generated from the Rails API's OpenAPI spec. Types only: no runtime code."
 }

@@ -11,13 +11,13 @@ RSpec.describe "v1/auth" do
       consumes "application/json"
       produces "application/json"
       parameter name: "X-Device-Id", in: :header, schema: { type: :string, format: :uuid }, required: false
-      parameter name: :body, in: :body, schema: {
+      parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
           identity_token: { type: :string },
           authorization_code: { type: :string },
           nonce: { type: :string, description: "Raw nonce; its SHA256 must equal the token's nonce claim" },
-          full_name: { type: :object, nullable: true, properties: { givenName: { type: :string }, familyName: { type: :string } } }
+          full_name: { type: :object, nullable: true, properties: { givenName: { type: :string, nullable: true }, familyName: { type: :string, nullable: true } } }
         },
         required: %w[identity_token authorization_code nonce]
       }
@@ -36,6 +36,21 @@ RSpec.describe "v1/auth" do
           expect(json.dig("data", "is_new")).to be(true)
           expect(json.dig("data", "user", "profile", "display_name")).to eq("Ada Lovelace")
           expect(Device.find_by(anonymous_id: device_id).user_id).to eq(json.dig("data", "user", "id"))
+        end
+      end
+
+      response "200", "existing account signed in" do
+        schema type: :object, properties: {
+          data: { type: :object, properties: {
+            token: { type: :string }, user: { "$ref" => "#/components/schemas/User" }, is_new: { type: :boolean }
+          }, required: %w[token user is_new] }
+        }, required: %w[data]
+        let(:user) { create(:user) }
+        let!(:identity) { create(:identity, :apple, user: user, provider_uid: "apple-known") }
+        let(:body) { apple_params(nonce: apple_nonce, sub: "apple-known") }
+        run_test! do
+          expect(json.dig("data", "is_new")).to be(false)
+          expect(json.dig("data", "user", "id")).to eq(user.id)
         end
       end
 
@@ -64,7 +79,7 @@ RSpec.describe "v1/auth" do
       consumes "application/json"
       produces "application/json"
       parameter name: "X-Device-Id", in: :header, schema: { type: :string, format: :uuid }, required: false
-      parameter name: :body, in: :body, schema: {
+      parameter name: :body, in: :body, required: true, schema: {
         type: :object, properties: { id_token: { type: :string } }, required: %w[id_token]
       }
 
@@ -82,6 +97,11 @@ RSpec.describe "v1/auth" do
       end
 
       response "200", "existing account signed in" do
+        schema type: :object, properties: {
+          data: { type: :object, properties: {
+            token: { type: :string }, user: { "$ref" => "#/components/schemas/User" }, is_new: { type: :boolean }
+          }, required: %w[token user is_new] }
+        }, required: %w[data]
         let(:user) { create(:user) }
         let!(:identity) { create(:identity, user: user, provider_uid: "google-known") }
         let(:body) { { id_token: google_token(sub: "google-known", email: user.email) } }

@@ -1,7 +1,7 @@
 // Auth state, the sign-in flows, and the pending-action pattern (R-21,
 // R-24, R-25). Pure: every platform dependency is injected so the store is
 // unit-testable; src/lib/auth.ts builds the app instance.
-import { ApiError, createClient, unwrap, type ApiClient, type User } from '@curb/api-client';
+import { api, ApiError, createClient, type ApiClient, type User } from '@curb/api-client';
 import { useSyncExternalStore } from 'react';
 
 import type { TokenStore } from './session-token';
@@ -148,19 +148,17 @@ export function createAuthStore(deps: AuthStoreDeps) {
     }
     setState({ status: 'hydrating', user: readCachedUser(deps.cache) });
     try {
-      const result = await client.GET('/v1/me');
-      if (result.response.status === 401) {
-        // Middleware already signed out.
-      } else if (result.data) {
-        rememberUser(result.data.data);
-        setState({ status: 'signedIn', user: result.data.data, stale: false });
-      } else if (isSuspendedError(ApiError.fromResponse(result.response.status, result.error))) {
+      const { data: user } = await api.me.get(client);
+      rememberUser(user);
+      setState({ status: 'signedIn', user, stale: false });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        // The client middleware already signed out.
+      } else if (isSuspendedError(error)) {
         await signOutLocally();
       } else {
         setState({ status: 'signedIn', stale: true });
       }
-    } catch {
-      setState({ status: 'signedIn', stale: true });
     } finally {
       hydrating = false;
     }
@@ -171,15 +169,12 @@ export function createAuthStore(deps: AuthStoreDeps) {
   async function signInWithApple(): Promise<SignInOutcome> {
     const credential = await deps.providers.apple();
     if (!credential) return { cancelled: true };
-    const result = await client.POST('/v1/auth/apple', {
-      body: {
-        identity_token: credential.identityToken,
-        authorization_code: credential.authorizationCode,
-        nonce: credential.nonce,
-        full_name: credential.fullName,
-      },
+    const body = await api.auth.apple(client, {
+      identity_token: credential.identityToken,
+      authorization_code: credential.authorizationCode,
+      nonce: credential.nonce,
+      full_name: credential.fullName,
     });
-    const body = unwrap(result);
     await completeSignIn(body.data.token, body.data.user);
     return { cancelled: false, isNew: body.data.is_new, user: body.data.user };
   }
@@ -187,8 +182,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
   async function signInWithGoogle(): Promise<SignInOutcome> {
     const idToken = await deps.providers.google();
     if (!idToken) return { cancelled: true };
-    const result = await client.POST('/v1/auth/google', { body: { id_token: idToken } });
-    const body = unwrap(result);
+    const body = await api.auth.google(client, { id_token: idToken });
     await completeSignIn(body.data.token, body.data.user);
     return { cancelled: false, isNew: body.data.is_new, user: body.data.user };
   }
@@ -198,7 +192,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
   // removes it, so the phone never stays signed in by accident.
   async function signOut(): Promise<void> {
     try {
-      await client.DELETE('/v1/auth/session');
+      await api.auth.signOut(client);
     } catch {
       // Offline or the token was already invalid; nothing else to do.
     }
@@ -207,7 +201,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
 
   // DELETE /me, then local sign-out; returns purge_after (R-26).
   async function deleteAccount(): Promise<string> {
-    const body = unwrap(await client.DELETE('/v1/me'));
+    const body = await api.me.destroy(client);
     await signOutLocally();
     return body.data.purge_after;
   }

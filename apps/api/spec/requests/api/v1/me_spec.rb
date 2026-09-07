@@ -33,7 +33,7 @@ RSpec.describe "v1/me" do
       consumes "application/json"
       produces "application/json"
       security [ { bearer: [] } ]
-      parameter name: :body, in: :body, schema: {
+      parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: { profile: { type: :object, properties: { handle: { type: :string }, display_name: { type: :string } } } },
         required: %w[profile]

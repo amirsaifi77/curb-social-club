@@ -37,7 +37,7 @@ RSpec.configure do |config|
             properties: {
               error: {
                 type: :object,
-                properties: { code: { type: :string }, message: { type: :string }, details: { type: :object, nullable: true } },
+                properties: { code: { type: :string }, message: { type: :string }, details: { type: :object, nullable: true, additionalProperties: true } },
                 required: %w[code message]
               }
             },
@@ -48,8 +48,15 @@ RSpec.configure do |config|
             properties: {
               id: { type: :string, format: :uuid }, handle: { type: :string }, display_name: { type: :string },
               bio: { type: :string, nullable: true }, avatar_url: { type: :string, nullable: true },
-              home_label: { type: :string, nullable: true }, is_host: { type: :boolean }, links: { type: :object },
-              clubs: { type: :array, items: { type: :object } }, counts: { type: :object }, viewer: { type: :object }
+              home_label: { type: :string, nullable: true }, is_host: { type: :boolean },
+              links: { type: :object, additionalProperties: { type: :string } },
+              clubs: { type: :array, items: { type: :object, additionalProperties: true } },
+              counts: { type: :object, additionalProperties: { type: :integer } },
+              viewer: {
+                type: :object,
+                properties: { following: { type: :boolean }, blocked: { type: :boolean }, is_self: { type: :boolean }, reported: { type: :boolean } },
+                required: %w[following blocked is_self reported]
+              }
             },
             required: %w[id handle display_name is_host links clubs counts viewer]
           },
@@ -61,8 +68,15 @@ RSpec.configure do |config|
               status: { type: :string, enum: %w[active suspended deleted] },
               created_at: { type: :string, format: "date-time" },
               profile: { "$ref" => "#/components/schemas/Profile" },
-              identities: { type: :array, items: { type: :object, properties: { provider: { type: :string }, email: { type: :string, nullable: true } } } },
-              notification_prefs: { type: :object },
+              identities: {
+                type: :array,
+                items: {
+                  type: :object,
+                  properties: { provider: { type: :string, enum: %w[apple google] }, email: { type: :string, nullable: true } },
+                  required: %w[provider email]
+                }
+              },
+              notification_prefs: { type: :object, additionalProperties: true },
               unread_notifications_count: { type: :integer }
             },
             required: %w[id role status created_at profile identities notification_prefs]
@@ -74,7 +88,7 @@ RSpec.configure do |config|
               push_enabled: { type: :boolean }, push_token_present: { type: :boolean },
               app_version: { type: :string, nullable: true }, timezone: { type: :string, nullable: true },
               user_id: { type: :string, format: :uuid, nullable: true },
-              home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } } },
+              home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] },
               last_seen_at: { type: :string, format: "date-time", nullable: true }
             },
             required: %w[anonymous_id platform push_enabled push_token_present]
