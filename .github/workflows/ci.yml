@@ -14,7 +14,7 @@ concurrency:
 
 env:
   PNPM_VERSION: 9
-  NODE_VERSION: 22
+  NODE_VERSION: 24
   RUBY_VERSION: "3.3"
 
 jobs:

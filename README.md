@@ -60,7 +60,7 @@ tooling/          Repo-level scripts
 The apps are not generated yet. When they are, the flow will be:
 
 ```sh
-mise install            # Node 22 and Ruby 3.3 from .nvmrc and .ruby-version
+mise install            # Node 24 and Ruby 3.3 from .nvmrc and .ruby-version (nvm plus rbenv works too)
 pnpm install
 docker compose up -d    # Postgres + PostGIS
 pnpm --filter @curb/api build

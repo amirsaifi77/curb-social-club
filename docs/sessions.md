@@ -67,7 +67,7 @@ Deliverables:
 - Audit of the existing skeleton in the PR description: what is kept, what is replaced, and why (the plan assumed a `research/` scaffold; the repo has `apps/*` and `packages/*` placeholders instead).
 - `packages/config` with shared eslint (flat config), prettier, and tsconfig bases; each other package extends them.
 - `packages/design-tokens`, `packages/ui`, `packages/types`, `packages/api-client` as real workspace packages with `package.json`, `tsconfig.json`, a `src/index.ts`, and passing `lint`, `typecheck`, `test` (Vitest, one placeholder test each), `build` scripts.
-- Root `turbo.json` pipeline with `dependsOn` for `build`, `pnpm-lock.yaml` committed, `.nvmrc` and `.ruby-version` respected by `mise`.
+- Root `turbo.json` pipeline with `dependsOn` for `build`, `pnpm-lock.yaml` committed, `.nvmrc` (Node 24) and `.ruby-version` respected by `mise` and `nvm`.
 - CI `js` job runs and passes on the PR (the `api` job still skips).
 
 Must pass: `pnpm install --frozen-lockfile` then `pnpm turbo run lint typecheck test build --filter='!@curb/api'` exits 0 locally and in CI; `tooling/check-em-dashes.sh` passes.

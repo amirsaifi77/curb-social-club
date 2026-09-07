@@ -7,7 +7,7 @@ Status: planned setup, 2026-09-05. Nothing here works yet because the apps have 
 | Tool | Version | Install |
 |---|---|---|
 | mise | latest | `brew install mise`. One tool manager for Node and Ruby. asdf works too; nvm plus rbenv is fine if already installed. |
-| Node | 22 (`.nvmrc`) | `mise use node@22` |
+| Node | 24 LTS (`.nvmrc`) | `mise use node@24`, or `nvm use` if nvm is already installed |
 | pnpm | 9 (pinned in root `package.json` `packageManager`) | `corepack enable && corepack prepare pnpm@latest --activate` |
 | Ruby | 3.3 (`.ruby-version`) | `mise use ruby@3.3` |
 | Docker Desktop or OrbStack | latest | For Postgres + PostGIS only |

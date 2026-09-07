@@ -25,7 +25,7 @@ Curb Social Club (Curb Social in prose, "curb" in the app; formerly the working 
 | apps/web | React 19, TypeScript, React Router v7 framework mode (SSR), Vite, Vercel. Read-only public site at launch. |
 | apps/mobile | Expo (SDK 57 now, 58 when stable), Expo Router, TypeScript, iOS 26 Liquid Glass, Unistyles 3, react-native-maps on Apple Maps, TanStack Query, EAS. Four native tabs: Home, Map, Create, Me. |
 | packages | api-client (openapi-fetch + TanStack Query), types (openapi-typescript output), design-tokens (tokens.json, three themes in light and dark), ui (logic and headless only, no rendering code), config (eslint, prettier, tsconfig) |
-| Tooling | pnpm 9 workspaces, Turborepo 2, GitHub Actions, mise for Node 22 and Ruby 3.3 |
+| Tooling | pnpm 9 workspaces, Turborepo 2, GitHub Actions, Node 24 LTS and Ruby 3.3 pinned in `.nvmrc` and `.ruby-version` (mise, or nvm plus rbenv) |
 
 ## Commands
 
