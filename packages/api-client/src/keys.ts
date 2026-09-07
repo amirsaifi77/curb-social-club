@@ -7,6 +7,9 @@ export const queryKeys = {
   device: (anonymousId: string) => ['curb', 'devices', anonymousId] as const,
   events: (query: Record<string, unknown> = {}) => ['curb', 'events', query] as const,
   eventsMap: (query: Record<string, unknown>) => ['curb', 'events', 'map', query] as const,
+  event: (slug: string) => ['curb', 'events', slug] as const,
+  eventOccurrences: (eventId: string) => ['curb', 'events', eventId, 'occurrences'] as const,
+  occurrence: (id: string) => ['curb', 'occurrences', id] as const,
 };
 
 export const mutationKeys = {
@@ -17,4 +20,5 @@ export const mutationKeys = {
   deleteAccount: ['curb', 'me', 'delete'] as const,
   registerDevice: ['curb', 'devices', 'register'] as const,
   updateDevice: ['curb', 'devices', 'update'] as const,
+  confirmEvent: ['curb', 'events', 'confirm'] as const,
 };

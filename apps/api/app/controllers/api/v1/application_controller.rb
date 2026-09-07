@@ -44,6 +44,16 @@ module Api
       def render_data(payload, status: :ok)
         render json: { data: payload }, status: status
       end
+
+      # docs/api.md Conventions: public GETs are cacheable for 30 seconds.
+      # Anything viewer-specific or param-determined calls no_store instead.
+      def public_cache
+        expires_in 30.seconds, public: true, stale_while_revalidate: 300.seconds
+      end
+
+      def no_store
+        response.cache_control.replace(no_store: true)
+      end
     end
   end
 end

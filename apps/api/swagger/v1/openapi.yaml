@@ -328,6 +328,48 @@ paths:
                 timezone:
                   type: string
         required: true
+  "/v1/events/{id}/confirm":
+    post:
+      summary: Confirm the schedule is current
+      description: 'The host (the user host, an owner or admin of the hosting club,
+        or a platform admin) answers "Still happening?": last_confirmed_at moves to
+        now, dormant_at clears, and a dormant event is re-materialized (R-24, R-28).
+        Anyone else gets 403.'
+      tags:
+      - Events
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '200':
+          description: 'AC-18: an admin confirms a dormant event'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Event"
+                required:
+                - data
+        '403':
+          description: 'AC-18: a member with no role may not confirm'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: anonymous
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/v1/events/map":
     get:
       summary: Map pins in a viewport
@@ -403,6 +445,60 @@ paths:
                 - meta
         '400':
           description: bbox missing or wider than 5 degrees
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/events/{slug}":
+    get:
+      summary: Event detail
+      description: The Event shape. Anonymous by default. A draft is 404 unless the
+        viewer can edit; an unlisted event needs its share token; a cancelled or hidden
+        event is 410 gone with up to three nearby meets when near is sent; a dormant
+        event is 200 with dormant true. A recurring event whose materialized horizon
+        is under 60 days re-materializes on read (R-14).
+      tags:
+      - Events
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: token
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Share token for an unlisted event
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng; fills nearby on a 410
+      responses:
+        '200':
+          description: 'AC-1: published recurring event with sponsorships and six
+            dates'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Event"
+                required:
+                - data
+        '404':
+          description: 'AC-22: a draft is not readable by the public'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '410':
+          description: 'AC-3: a cancelled event is gone, with nearby meets when near
+            is sent'
           content:
             application/json:
               schema:
@@ -692,6 +788,91 @@ paths:
                     - purge_after
                 required:
                 - data
+  "/v1/events/{id}/occurrences":
+    get:
+      summary: Upcoming occurrences of an event
+      description: Upcoming scheduled and cancelled dates, oldest first, cursor paginated
+        (R-22).
+      tags:
+      - Events
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'AC-23: three scheduled and one cancelled upcoming date'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Occurrence"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/occurrences/{id}":
+    get:
+      summary: One occurrence
+      description: The Occurrence shape with its event summary, timezone, and override
+        note.
+      tags:
+      - Occurrences
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '200':
+          description: 'AC-23: a cancelled occurrence carries its timezone and note'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Occurrence"
+                required:
+                - data
+        '404':
+          description: unknown occurrence
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
 servers:
 - url: http://localhost:3000
   description: Development
@@ -1065,6 +1246,321 @@ components:
       - stale
       - last_confirmed_at
       - sponsors_preview
+    SponsorSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        kind:
+          type: string
+          enum:
+          - brand
+          - vendor
+          - venue
+        logo_url:
+          type: string
+          nullable: true
+        verified:
+          type: boolean
+        tagline:
+          type: string
+          nullable: true
+        followers_count:
+          type: integer
+        home_label:
+          type: string
+          nullable: true
+      required:
+      - id
+      - slug
+      - name
+      - kind
+      - logo_url
+      - verified
+      - tagline
+      - followers_count
+      - home_label
+    Event:
+      description: 'Event detail: EventSummary plus the fields only the detail screen
+        needs.'
+      allOf:
+      - "$ref": "#/components/schemas/EventSummary"
+      - type: object
+        properties:
+          description:
+            type: string
+            nullable: true
+          parking_note:
+            type: string
+            nullable: true
+          rrule:
+            type: string
+            nullable: true
+          dtstart:
+            type: string
+            format: date-time
+            nullable: true
+          duration_minutes:
+            type: integer
+          rsvp_mode:
+            type: string
+            enum:
+            - open
+            - count_only
+            - 'off'
+          capacity:
+            type: integer
+            nullable: true
+          status:
+            type: string
+            enum:
+            - draft
+            - published
+            - cancelled
+          visibility:
+            type: string
+            enum:
+            - public
+            - unlisted
+          dormant:
+            type: boolean
+            description: Out of lists and the map, page still served (R-27)
+          hidden:
+            type: boolean
+            description: Only ever true for the host or an admin; the public gets
+              410
+          external_host_name:
+            type: string
+            nullable: true
+          venue:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              address_line1:
+                type: string
+                nullable: true
+              address_line2:
+                type: string
+                nullable: true
+              city:
+                type: string
+                nullable: true
+              region:
+                type: string
+                nullable: true
+              postal_code:
+                type: string
+                nullable: true
+              country:
+                type: string
+              timezone:
+                type: string
+              location:
+                type: object
+                properties:
+                  lat:
+                    type: number
+                  lng:
+                    type: number
+                required:
+                - lat
+                - lng
+            required:
+            - id
+            - name
+            - address_line1
+            - address_line2
+            - city
+            - region
+            - postal_code
+            - country
+            - timezone
+            - location
+          upcoming_occurrences:
+            type: array
+            maxItems: 4
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                starts_at:
+                  type: string
+                  format: date-time
+                ends_at:
+                  type: string
+                  format: date-time
+                timezone:
+                  type: string
+                going_count:
+                  type: integer
+                status:
+                  type: string
+                  enum:
+                  - scheduled
+                  - cancelled
+                  - completed
+                override_note:
+                  type: string
+                  nullable: true
+              required:
+              - id
+              - starts_at
+              - ends_at
+              - timezone
+              - going_count
+              - status
+              - override_note
+          sponsorships:
+            type: array
+            items:
+              type: object
+              properties:
+                sponsor:
+                  "$ref": "#/components/schemas/SponsorSummary"
+                role:
+                  type: string
+                  enum:
+                  - presented_by
+                  - coffee
+                  - vendor
+                  - partner
+                note:
+                  type: string
+                  nullable: true
+                position:
+                  type: integer
+              required:
+              - sponsor
+              - role
+              - note
+              - position
+          viewer:
+            type: object
+            properties:
+              following:
+                type: boolean
+              rsvp:
+                type: string
+                enum:
+                - going
+                nullable: true
+              can_edit:
+                type: boolean
+              can_claim:
+                type: boolean
+              claim_status:
+                type: string
+                enum:
+                - pending
+                nullable: true
+              reported:
+                type: boolean
+            required:
+            - following
+            - rsvp
+            - can_edit
+            - can_claim
+            - claim_status
+            - reported
+          photos_count:
+            type: integer
+          comments_count:
+            type: integer
+          followers_count:
+            type: integer
+        required:
+        - description
+        - parking_note
+        - rrule
+        - dtstart
+        - duration_minutes
+        - rsvp_mode
+        - capacity
+        - status
+        - visibility
+        - dormant
+        - hidden
+        - external_host_name
+        - venue
+        - upcoming_occurrences
+        - sponsorships
+        - viewer
+        - photos_count
+        - comments_count
+        - followers_count
+    Occurrence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        event:
+          "$ref": "#/components/schemas/EventSummary"
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+        status:
+          type: string
+          enum:
+          - scheduled
+          - cancelled
+          - completed
+        override_note:
+          type: string
+          nullable: true
+        going_count:
+          type: integer
+        interested_count:
+          type: integer
+        check_in_count:
+          type: integer
+        going_preview:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        viewer:
+          type: object
+          properties:
+            rsvp:
+              type: string
+              enum:
+              - going
+              nullable: true
+            checked_in:
+              type: boolean
+          required:
+          - rsvp
+          - checked_in
+      required:
+      - id
+      - event
+      - starts_at
+      - ends_at
+      - timezone
+      - status
+      - override_note
+      - going_count
+      - interested_count
+      - check_in_count
+      - going_preview
+      - viewer
     MapPin:
       type: object
       properties:

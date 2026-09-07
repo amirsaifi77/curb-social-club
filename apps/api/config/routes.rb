@@ -30,6 +30,13 @@ Rails.application.routes.draw do
       resources :events, only: %i[index] do
         collection { get :map }
       end
+      # Public reads address an event by slug; writes and nested reads use
+      # the id (docs/api.md Conventions). Both come after the collection
+      # routes so "map" is never taken for a slug.
+      get "events/:slug", to: "events#show", as: :event
+      post "events/:id/confirm", to: "events#confirm"
+      get "events/:id/occurrences", to: "occurrences#index"
+      resources :occurrences, only: %i[show]
     end
   end
 end

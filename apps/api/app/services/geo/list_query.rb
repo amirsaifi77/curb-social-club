@@ -9,10 +9,21 @@ module Geo
 
     attr_reader :window, :filters, :limit, :cursor
 
+    # Scalars only: an array or a non-integer is a 400, never a 500. Shared
+    # with the occurrence list, which pages the same way.
+    def self.parse_limit(value)
+      return DEFAULT_LIMIT if value.blank?
+      raise ParamError, "limit must be an integer between 1 and #{MAX_LIMIT}." unless value.is_a?(String) || value.is_a?(Integer)
+
+      Integer(value.to_s).clamp(1, MAX_LIMIT)
+    rescue ArgumentError
+      raise ParamError, "limit must be an integer between 1 and #{MAX_LIMIT}."
+    end
+
     def initialize(window:, filters:, limit: DEFAULT_LIMIT, cursor: nil)
       @window = window
       @filters = filters
-      @limit = parse_limit(limit)
+      @limit = self.class.parse_limit(limit)
       @cursor = cursor.presence
     end
 
@@ -29,16 +40,6 @@ module Geo
     end
 
     private
-
-    # Scalars only: an array or a non-integer is a 400, never a 500.
-    def parse_limit(value)
-      return DEFAULT_LIMIT if value.blank?
-      raise ParamError, "limit must be an integer between 1 and #{MAX_LIMIT}." unless value.is_a?(String) || value.is_a?(Integer)
-
-      Integer(value.to_s).clamp(1, MAX_LIMIT)
-    rescue ArgumentError
-      raise ParamError, "limit must be an integer between 1 and #{MAX_LIMIT}."
-    end
 
     def outer_relation
       relation = model.unscoped.from(inner_relation, :hits)
