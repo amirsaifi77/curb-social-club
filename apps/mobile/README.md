@@ -1,6 +1,6 @@
 # @curb/mobile
 
-Expo (React Native) app for Curb Social Club. iOS first, iOS 26 Liquid Glass design language. Not generated yet. The mobile workstream owns the deep design in `docs/mobile-liquid-glass.md`; this README is the integration contract with the rest of the monorepo.
+Expo (React Native) app for Curb Social Club. iOS first, iOS 26 Liquid Glass design language. Generated in session 0.4 (SDK 57). The mobile workstream owns the deep design in `docs/mobile-liquid-glass.md`; this README is the integration contract with the rest of the monorepo.
 
 ## Generate
 

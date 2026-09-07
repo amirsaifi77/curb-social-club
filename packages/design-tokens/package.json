@@ -7,14 +7,16 @@
     ".": "./dist/tokens.ts",
     "./tokens.css": "./dist/tokens.css",
     "./tailwind.theme": "./dist/tailwind.theme.js",
-    "./tokens.json": "./tokens.json"
+    "./tokens.json": "./tokens.json",
+    "./fonts/*": "./fonts/*"
   },
   "scripts": {
     "build": "tsx build.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+    "clean": "rm -rf dist .turbo *.tsbuildinfo",
+    "fonts": "python3 scripts/subset_fonts.py"
   },
   "devDependencies": {
     "@curb/config": "workspace:*",
