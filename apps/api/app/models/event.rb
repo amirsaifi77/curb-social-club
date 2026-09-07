@@ -34,6 +34,7 @@ class Event < ApplicationRecord
   before_destroy :remember_sponsor_ids, prepend: true
   before_validation :generate_slug, on: :create
   before_validation :copy_timezone_from_venue, on: :create
+  before_validation :truncate_dtstart
   before_validation :write_host_name
   before_validation :normalize_source_url
   before_save :stamp_published_at
@@ -80,10 +81,6 @@ class Event < ApplicationRecord
   # R-15: "Every Saturday", "First Sunday of the month", ...; nil for once.
   def rrule_text
     Recurrence::Describer.call(self)
-  end
-
-  def schedule_changed?
-    (saved_changes.keys & SCHEDULE_ATTRIBUTES).any?
   end
 
   # R-9: scheduled occurrences only. Bulk writers (the materializer's
@@ -189,10 +186,20 @@ class Event < ApplicationRecord
     @sponsor_ids_before_destroy = sponsor_ids
   end
 
+  # Occurrence starts are whole seconds (the materializer truncates ice_cube
+  # times), so dtstart is stored the same way and lookups by starts_at agree.
+  def truncate_dtstart
+    self.dtstart = dtstart.change(usec: 0) if dtstart && dtstart.usec.nonzero?
+  end
+
   # R-10: after create or a schedule change of a published event. A draft
   # that is published later fires then, since status is a schedule attribute.
   def materialize_after_commit?
     materializable? && (previously_new_record? || schedule_changed?)
+  end
+
+  def schedule_changed?
+    (saved_changes.keys & SCHEDULE_ATTRIBUTES).any?
   end
 
   def enqueue_materializer

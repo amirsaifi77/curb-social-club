@@ -27,6 +27,18 @@ RSpec.describe MaterializeOccurrencesJob do
     expect(once.occurrences.count).to eq(1)
   end
 
+  it "reports one event's failure and still materializes the rest in the nightly run" do
+    broken = create(:event, :weekly, :published)
+    healthy = create(:event, :weekly, :published)
+    allow(Recurrence::Materializer).to receive(:call).and_call_original
+    allow(Recurrence::Materializer).to receive(:call).with(broken).and_raise(ArgumentError, "bad rule")
+    allow(Rails.logger).to receive(:error)
+
+    expect { described_class.perform_now }.not_to raise_error
+    expect(healthy.occurrences.count).to be_between(12, 14)
+    expect(Rails.logger).to have_received(:error).with(/#{broken.id}.*ArgumentError: bad rule/)
+  end
+
   it "materializes one event when given its id and ignores an unknown id" do
     event = create(:event, :weekly, :published)
     other = create(:event, :weekly, :published)

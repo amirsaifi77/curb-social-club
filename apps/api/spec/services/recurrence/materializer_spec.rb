@@ -56,7 +56,7 @@ RSpec.describe Recurrence::Materializer do
         expect(sundays.map { |row| row.starts_at.in_time_zone(zone).strftime("%F") }.first(2)).to eq(%w[2026-10-25 2026-11-01])
         expect(event.reload.occurrences_count).to eq(14)
 
-        described_class.call(event)
+        expect(described_class.call(event)).to have_attributes(created: 0, updated: 0, cancelled: 0)
         expect(event.occurrences.count).to eq(26)
         expect(nov14.reload.starts_at).to eq(local("2026-11-14 08:00"))
       end
@@ -76,6 +76,8 @@ RSpec.describe Recurrence::Materializer do
         expect(local_dates(monthly)).to eq([ "Sun Oct 4 07:30", "Sun Nov 1 07:30", "Sun Dec 6 07:30" ])
         expect(local_dates(seasonal)).to eq([ "Sat Oct 3 07:30", "Sat Oct 10 07:30", "Sat Oct 17 07:30", "Sat Oct 24 07:30", "Sat Oct 31 07:30" ])
         expect(seasonal.occurrences.where("starts_at > ?", local("2026-11-01")).count).to eq(0)
+        expect(described_class.call(monthly)).to have_attributes(created: 0, updated: 0, cancelled: 0)
+        expect(described_class.call(seasonal)).to have_attributes(created: 0, updated: 0, cancelled: 0)
       end
     end
   end
@@ -158,6 +160,14 @@ RSpec.describe Recurrence::Materializer do
       expect(moved.location.y).to be_within(0.0001).of(34.1065)
       expect(pinned.reload.location.y).to be_within(0.0001).of(33.6172)
       expect(pinned.ends_at).to eq(pinned.starts_at + 120.minutes)
+    end
+
+    it "stores dtstart at whole seconds so a second run finds its own rows" do
+      event = create(:event, :published, venue: venue, dtstart: 10.days.from_now.change(usec: 123_456))
+      expect(event.dtstart.usec).to eq(0)
+      described_class.call(event)
+      expect(described_class.call(event)).to have_attributes(created: 0, updated: 0, cancelled: 0)
+      expect(event.occurrences.count).to eq(1)
     end
 
     it "keeps a row that is in progress right now" do
