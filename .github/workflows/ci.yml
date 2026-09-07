@@ -12,8 +12,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# pnpm's version comes from the packageManager field in the root package.json;
+# pnpm/action-setup fails if both that field and a workflow version are set.
 env:
-  PNPM_VERSION: 9
   NODE_VERSION: 24
   RUBY_VERSION: "3.3"
 
@@ -140,8 +141,6 @@ jobs:
           if [ -f pnpm-lock.yaml ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "no pnpm-lock.yaml yet, skipping"; fi
       - uses: pnpm/action-setup@v4
         if: steps.exists.outputs.present == 'true'
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         if: steps.exists.outputs.present == 'true'
         with:
@@ -170,8 +169,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
