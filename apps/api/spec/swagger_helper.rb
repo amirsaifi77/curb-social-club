@@ -81,6 +81,70 @@ RSpec.configure do |config|
             },
             required: %w[id role status created_at profile identities notification_prefs]
           },
+          Host: {
+            type: :object,
+            description: "One shape for every host type (ADR 0010); switch on type only for the link target.",
+            properties: {
+              type: { type: :string, enum: %w[user club sponsor] }, id: { type: :string, format: :uuid },
+              slug: { type: :string, nullable: true }, name: { type: :string, nullable: true },
+              avatar_url: { type: :string, nullable: true }, verified: { type: :boolean },
+              kind: { type: :string, enum: %w[brand vendor venue], nullable: true }
+            },
+            required: %w[type id slug name avatar_url verified kind]
+          },
+          EventSummary: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, slug: { type: :string }, title: { type: :string },
+              cover_url: { type: :string, nullable: true }, cover_blurhash: { type: :string, nullable: true },
+              tags: { type: :array, items: { type: :string, enum: Event::TAGS } },
+              recurring: { type: :boolean }, rrule_text: { type: :string, nullable: true },
+              host: { "$ref" => "#/components/schemas/Host" },
+              venue: {
+                type: :object,
+                properties: {
+                  id: { type: :string, format: :uuid }, name: { type: :string }, city: { type: :string, nullable: true },
+                  location: { type: :object, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] }
+                },
+                required: %w[id name city location]
+              },
+              next_occurrence: {
+                type: :object, nullable: true,
+                properties: {
+                  id: { type: :string, format: :uuid }, starts_at: { type: :string, format: "date-time" },
+                  ends_at: { type: :string, format: "date-time" }, timezone: { type: :string },
+                  going_count: { type: :integer }, status: { type: :string, enum: EventOccurrence::STATUSES }
+                },
+                required: %w[id starts_at ends_at timezone going_count status]
+              },
+              distance_m: { type: :integer, nullable: true, description: "Meters from near, computed in PostGIS; null without near" },
+              source: { type: :object, nullable: true, properties: { type: { type: :string, nullable: true }, url: { type: :string } }, required: %w[type url] },
+              claimed: { type: :boolean }, cadence: { type: :string, enum: Event::CADENCES },
+              stale: { type: :boolean, description: "Unclaimed and not confirmed within 30 days (R-25)" },
+              last_confirmed_at: { type: :string, format: "date-time", nullable: true },
+              sponsors_preview: {
+                type: :array, maxItems: 2,
+                items: {
+                  type: :object,
+                  properties: {
+                    id: { type: :string, format: :uuid }, slug: { type: :string }, name: { type: :string },
+                    logo_url: { type: :string, nullable: true }, role: { type: :string, enum: EventSponsorship::ROLES }
+                  },
+                  required: %w[id slug name logo_url role]
+                }
+              }
+            },
+            required: %w[id slug title cover_url cover_blurhash tags recurring rrule_text host venue next_occurrence distance_m source claimed cadence stale last_confirmed_at sponsors_preview]
+          },
+          MapPin: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid, description: "The occurrence" }, event_id: { type: :string, format: :uuid },
+              slug: { type: :string }, lat: { type: :number }, lng: { type: :number },
+              starts_at: { type: :string, format: "date-time" }, title: { type: :string }, going_count: { type: :integer }
+            },
+            required: %w[id event_id slug lat lng starts_at title going_count]
+          },
           Device: {
             type: :object,
             properties: {

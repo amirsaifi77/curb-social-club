@@ -51,7 +51,7 @@ Not in this phase: the write endpoints `POST /events`, `PATCH /events/:id`, `DEL
 **Geo and API**
 
 - R-16 `GET /events` with `near` MUST query `event_occurrences` with `ST_DWithin(location, origin, radius_m)` and `starts_at BETWEEN from AND to`, join `events` for `status = 'published'`, `visibility = 'public'`, `dormant_at IS NULL`, return one EventSummary per event with its earliest occurrence in the window as `next_occurrence`, include `distance_m` from `ST_Distance`, default `radius_km` 32 (80 when `q` is present), clamp to 160, default window now to +14 days, maximum window 90 days. (US-1)
-- R-17 `GET /events` with `bbox=w,s,e,n` MUST use `ST_Intersects(location, ST_MakeEnvelope(w, s, e, n, 4326)::geography)` with the same joins; `near` and `bbox` together MUST return 400 `bad_request`. (US-2)
+- R-17 `GET /events` with `bbox=w,s,e,n` MUST use `ST_Intersects(location, ST_MakeEnvelope(w, s, e, n, 4326)::geography)` with the same joins; with `near` as well, the box is the filter and `near` supplies `distance_m` and enables `sort=distance` (discovery.md R-8, the map sheet). `sort=distance` without `near` MUST return 400 `bad_request`. (US-2)
 - R-18 `GET /events` without `near` or `bbox` but with `host=<type>:<id>`, `sponsor=<id>`, or `q` MUST query `events` directly, include `announced` events with `next_occurrence` null, and order by `next_occurrence.starts_at` nulls last. (US-4)
 - R-19 Filters MUST compose: `tags[]` matches any tag (`&&`), `recurring=true` means `cadence != 'once'`, `q` matches `events.title` or `events.host_name` by trigram similarity (`%` operator, threshold 0.3) or `venues.name` `ILIKE`; `sort=date` (default) orders by the local calendar day of `starts_at`, then `stale` (fresh first), then `starts_at`, then `distance_m`; `sort=distance` requires `near` and orders by `distance_m`. (US-1)
 - R-20 Ordering MUST place stale events after fresh ones within the same local calendar day of `starts_at` (see R-25), and the response MUST paginate by opaque cursor with `meta.next_cursor`. (US-5)
@@ -108,7 +108,7 @@ Blank cells leave existing values unchanged on update and take the default on cr
 
 ## API
 
-`GET /events`, `GET /events/map`, `GET /events/:slug`, `GET /events/:id/occurrences`, `GET /occurrences/:id`, `POST /events/:id/confirm`, all as in `docs/api.md`, with these deltas: EventSummary gains `stale: boolean` and `cadence`; Event gains `dormant: boolean`; `GET /events` returns 400 `bad_request` for `near` with `bbox`, for a window over 90 days, and for `sort=distance` without `near`; `GET /events/map` returns one pin per event. Shapes consumed: Host, EventSummary, Event, Occurrence, MapPin. Write endpoints are listed in create-and-host-tools.md and call the model rules in R-3, R-4, R-10, R-11, R-13.
+`GET /events`, `GET /events/map`, `GET /events/:slug`, `GET /events/:id/occurrences`, `GET /occurrences/:id`, `POST /events/:id/confirm`, all as in `docs/api.md`, with these deltas: EventSummary gains `stale: boolean` and `cadence`; Event gains `dormant: boolean`; `GET /events` returns 400 `bad_request` for a window over 90 days and for `sort=distance` without `near`; `GET /events/map` returns one pin per event. Shapes consumed: Host, EventSummary, Event, Occurrence, MapPin. Write endpoints are listed in create-and-host-tools.md and call the model rules in R-3, R-4, R-10, R-11, R-13.
 
 ## Screens and states
 
@@ -133,7 +133,11 @@ No screen is owned here. Copy below is the exact wording consumers must use for 
 | Detail, dormant | Not confirmed since Jun 1. Are you the host? Confirm it and it comes back. |
 | Detail, announced, no dates | No dates listed yet. Follow to hear when the host posts one. |
 | Occurrence, cancelled | Cancelled this week. Host note: {override_note} |
-| `GET /events` 400, near and bbox | Send near or bbox, not both. |
+| `GET /events` 400, sort=distance without near | Send near to sort by distance. |
+| `GET /events` 400, malformed near | near must be lat,lng. |
+| `GET /events` and `GET /events/map` 400, malformed bbox | bbox must be w,s,e,n. |
+| `GET /events/map` 400, no bbox | Send bbox as w,s,e,n. |
+| `GET /events/map` 400, bbox over 5 degrees | bbox can be at most 5 degrees wide. Zoom in. |
 | `GET /events` 400, window | The window can be at most 90 days. |
 | Importer row error, missing verification | Row {n}: verification_source_url and verified_date are required. |
 | Importer row error, unknown host | Row {n}: no {host_type} with slug {host_slug}. |
@@ -148,7 +152,7 @@ Geo fixtures used below (real coordinates, `starts_at` next Saturday 07:30 Ameri
 | AC-1 | One published occurrence at each coastal fixture | `GET /events?near=33.6172,-117.9270` | Five events (Corona del Mar, Huntington, Laguna, Irvine, Dana Point) in that order, each with integer `distance_m`; Corona del Mar's is between 5,200 and 5,400; San Clemente and Victoria Gardens absent | R-16, R-19, R-23 |
 | AC-2 | Same fixtures | `GET /events?near=33.6172,-117.9270&radius_km=80&sort=distance`, then `radius_km=500` | Seven events with San Clemente sixth and Victoria Gardens seventh; `radius_km=500` behaves as 160 and returns the same seven | R-16, R-19 |
 | AC-3 | One published occurrence at each Inland Empire fixture plus Lido | `GET /events?near=34.1065,-117.4356` | Four events ordered by `starts_at` then distance (Victoria Gardens, Ontario Mills, Riverside, Redlands); Irvine and Lido absent | R-16 |
-| AC-4 | Coastal fixtures | `GET /events?bbox=-118.05,33.40,-117.60,33.70` | Six events (every coastal fixture including Irvine Spectrum and San Clemente, excluding Victoria Gardens); `GET /events?near=33.6172,-117.9270&bbox=...` is 400 `bad_request` | R-17 |
+| AC-4 | Coastal fixtures | `GET /events?bbox=-118.05,33.40,-117.60,33.70` | Six events (every coastal fixture including Irvine Spectrum and San Clemente, excluding Victoria Gardens) with `distance_m` null; `GET /events?near=33.6172,-117.9270&bbox=...` returns the same six with integer `distance_m` from `near` | R-17 |
 | AC-5 | 501 published occurrences inside a bbox over Fontana, staggered by one minute | `GET /events/map?bbox=...` | 500 MapPins, the soonest 500, `meta.truncated: true`; with 12 occurrences the count is 12 and `truncated` is false | R-21 |
 | AC-6 | A weekly Saturday event at Victoria Gardens with occurrences on the next two Saturdays inside a 14-day window | `GET /events?near=34.1065,-117.4356` and `GET /events/map` over it | One EventSummary and one MapPin, `next_occurrence` is the nearer Saturday | R-16, R-21 |
 | AC-7 | An event with `dtstart` 2026-10-24 07:30 America/Los_Angeles, `rrule` `FREQ=WEEKLY;BYDAY=SA`, `cadence` `weekly` | `MaterializeOccurrencesJob` runs twice | 13 or 14 `scheduled` rows within 90 days, the count identical after the second run; `starts_at` for Oct 31 is `14:30Z` and for Nov 7 is `15:30Z`; `ends_at` equals `starts_at` plus `duration_minutes` | R-10, R-12 |

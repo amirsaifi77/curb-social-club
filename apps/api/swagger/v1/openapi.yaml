@@ -328,6 +328,225 @@ paths:
                 timezone:
                   type: string
         required: true
+  "/v1/events/map":
+    get:
+      summary: Map pins in a viewport
+      description: One MapPin per event (its earliest scheduled occurrence in the
+        window) inside bbox, the soonest 500 by starts_at, with meta.truncated when
+        the box held more. bbox is required and at most 5 degrees wide.
+      tags:
+      - Events
+      parameters:
+      - name: bbox
+        in: query
+        required: true
+        schema:
+          type: string
+        description: w,s,e,n
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: tags[]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - jdm
+            - euro
+            - exotic
+            - classic
+            - muscle
+            - truck
+            - ev
+            - bike
+            - all
+        style: form
+        explode: true
+      - name: recurring
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: 'AC-5: 501 occurrences give the soonest 500 pins and truncated'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/MapPin"
+                  meta:
+                    type: object
+                    properties:
+                      truncated:
+                        type: boolean
+                    required:
+                    - truncated
+                required:
+                - data
+                - meta
+        '400':
+          description: bbox missing or wider than 5 degrees
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/events":
+    get:
+      summary: List events
+      description: EventSummary rows from indexed PostGIS queries. near or bbox selects
+        the earliest scheduled occurrence per event in the window (default now to
+        +14 days, at most 90); host, sponsor, or q without geo lists events directly,
+        announced ones included with a null next_occurrence. With near, radius_km
+        defaults to 32 (80 with q) and clamps at 160. bbox with near returns the box
+        with distance_m from near.
+      tags:
+      - Events
+      parameters:
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng
+      - name: radius_km
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: bbox
+        in: query
+        required: false
+        schema:
+          type: string
+        description: w,s,e,n
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: tags[]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - jdm
+            - euro
+            - exotic
+            - classic
+            - muscle
+            - truck
+            - ev
+            - bike
+            - all
+        style: form
+        explode: true
+        description: Any tag matches
+      - name: recurring
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: true keeps cadence other than once
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Trigram match on title and host name, ILIKE on venue name
+      - name: host
+        in: query
+        required: false
+        schema:
+          type: string
+        description: user:<id>, club:<id>, or sponsor:<id>
+      - name: sponsor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+        description: Events the sponsor hosts or is attached to
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - date
+          - distance
+        description: distance needs near
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'AC-1: nearby meets from Lido, nearest first within a day'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/EventSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+        '400':
+          description: near with an unusable window, sort, or coordinates
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/v1/health":
     get:
       summary: Service health
@@ -628,6 +847,252 @@ components:
       - profile
       - identities
       - notification_prefs
+    Host:
+      type: object
+      description: One shape for every host type (ADR 0010); switch on type only for
+        the link target.
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - club
+          - sponsor
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        verified:
+          type: boolean
+        kind:
+          type: string
+          enum:
+          - brand
+          - vendor
+          - venue
+          nullable: true
+      required:
+      - type
+      - id
+      - slug
+      - name
+      - avatar_url
+      - verified
+      - kind
+    EventSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        title:
+          type: string
+        cover_url:
+          type: string
+          nullable: true
+        cover_blurhash:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+            enum:
+            - jdm
+            - euro
+            - exotic
+            - classic
+            - muscle
+            - truck
+            - ev
+            - bike
+            - all
+        recurring:
+          type: boolean
+        rrule_text:
+          type: string
+          nullable: true
+        host:
+          "$ref": "#/components/schemas/Host"
+        venue:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            city:
+              type: string
+              nullable: true
+            location:
+              type: object
+              properties:
+                lat:
+                  type: number
+                lng:
+                  type: number
+              required:
+              - lat
+              - lng
+          required:
+          - id
+          - name
+          - city
+          - location
+        next_occurrence:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              format: uuid
+            starts_at:
+              type: string
+              format: date-time
+            ends_at:
+              type: string
+              format: date-time
+            timezone:
+              type: string
+            going_count:
+              type: integer
+            status:
+              type: string
+              enum:
+              - scheduled
+              - cancelled
+              - completed
+          required:
+          - id
+          - starts_at
+          - ends_at
+          - timezone
+          - going_count
+          - status
+        distance_m:
+          type: integer
+          nullable: true
+          description: Meters from near, computed in PostGIS; null without near
+        source:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              nullable: true
+            url:
+              type: string
+          required:
+          - type
+          - url
+        claimed:
+          type: boolean
+        cadence:
+          type: string
+          enum:
+          - once
+          - weekly
+          - monthly
+          - seasonal
+          - announced
+        stale:
+          type: boolean
+          description: Unclaimed and not confirmed within 30 days (R-25)
+        last_confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+        sponsors_preview:
+          type: array
+          maxItems: 2
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              slug:
+                type: string
+              name:
+                type: string
+              logo_url:
+                type: string
+                nullable: true
+              role:
+                type: string
+                enum:
+                - presented_by
+                - coffee
+                - vendor
+                - partner
+            required:
+            - id
+            - slug
+            - name
+            - logo_url
+            - role
+      required:
+      - id
+      - slug
+      - title
+      - cover_url
+      - cover_blurhash
+      - tags
+      - recurring
+      - rrule_text
+      - host
+      - venue
+      - next_occurrence
+      - distance_m
+      - source
+      - claimed
+      - cadence
+      - stale
+      - last_confirmed_at
+      - sponsors_preview
+    MapPin:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The occurrence
+        event_id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        starts_at:
+          type: string
+          format: date-time
+        title:
+          type: string
+        going_count:
+          type: integer
+      required:
+      - id
+      - event_id
+      - slug
+      - lat
+      - lng
+      - starts_at
+      - title
+      - going_count
     Device:
       type: object
       properties:

@@ -13,6 +13,9 @@ export type ApiErrorBody = Schemas['Error'];
 export type Profile = Schemas['Profile'];
 export type User = Schemas['User'];
 export type Device = Schemas['Device'];
+export type Host = Schemas['Host'];
+export type EventSummary = Schemas['EventSummary'];
+export type MapPin = Schemas['MapPin'];
 
 type Operation<P extends ApiPath, M extends keyof paths[P]> = NonNullable<paths[P][M]>;
 
@@ -47,3 +50,12 @@ export type RegisterDeviceBody = JsonRequest<'/v1/devices', 'post'>;
 export type UpdateDeviceBody = JsonRequest<'/v1/devices/{anonymous_id}', 'patch'>;
 export type DeviceResponse = JsonResponse<'/v1/devices', 'post', 201>;
 export type HealthResponse = JsonResponse<'/v1/health', 'get', 200>;
+
+// The query string of one GET operation: QueryParams<'/v1/events', 'get'>.
+export type QueryParams<P extends ApiPath, M extends keyof paths[P]> =
+  Operation<P, M> extends { parameters: { query?: infer Q } } ? NonNullable<Q> : never;
+
+export type EventsListQuery = QueryParams<'/v1/events', 'get'>;
+export type EventsListResponse = JsonResponse<'/v1/events', 'get', 200>;
+export type EventsMapQuery = QueryParams<'/v1/events/map', 'get'>;
+export type EventsMapResponse = JsonResponse<'/v1/events/map', 'get', 200>;

@@ -359,6 +359,142 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v1/events/map": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Map pins in a viewport
+         * @description One MapPin per event (its earliest scheduled occurrence in the window) inside bbox, the soonest 500 by starts_at, with meta.truncated when the box held more. bbox is required and at most 5 degrees wide.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description w,s,e,n */
+                    bbox: string;
+                    from?: string;
+                    to?: string;
+                    "tags[]"?: ("jdm" | "euro" | "exotic" | "classic" | "muscle" | "truck" | "ev" | "bike" | "all")[];
+                    recurring?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-5: 501 occurrences give the soonest 500 pins and truncated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["MapPin"][];
+                            meta: {
+                                truncated: boolean;
+                            };
+                        };
+                    };
+                };
+                /** @description bbox missing or wider than 5 degrees */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List events
+         * @description EventSummary rows from indexed PostGIS queries. near or bbox selects the earliest scheduled occurrence per event in the window (default now to +14 days, at most 90); host, sponsor, or q without geo lists events directly, announced ones included with a null next_occurrence. With near, radius_km defaults to 32 (80 with q) and clamps at 160. bbox with near returns the box with distance_m from near.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description lat,lng */
+                    near?: string;
+                    radius_km?: number;
+                    /** @description w,s,e,n */
+                    bbox?: string;
+                    from?: string;
+                    to?: string;
+                    /** @description Any tag matches */
+                    "tags[]"?: ("jdm" | "euro" | "exotic" | "classic" | "muscle" | "truck" | "ev" | "bike" | "all")[];
+                    /** @description true keeps cadence other than once */
+                    recurring?: boolean;
+                    /** @description Trigram match on title and host name, ILIKE on venue name */
+                    q?: string;
+                    /** @description user:<id>, club:<id>, or sponsor:<id> */
+                    host?: string;
+                    /** @description Events the sponsor hosts or is attached to */
+                    sponsor?: string;
+                    /** @description distance needs near */
+                    sort?: "date" | "distance";
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: nearby meets from Lido, nearest first within a day */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["EventSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+                /** @description near with an unusable window, sort, or coordinates */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -596,6 +732,91 @@ export interface components {
                 [key: string]: unknown;
             };
             unread_notifications_count?: number;
+        };
+        /** @description One shape for every host type (ADR 0010); switch on type only for the link target. */
+        Host: {
+            /** @enum {string} */
+            type: "user" | "club" | "sponsor";
+            /** Format: uuid */
+            id: string;
+            slug: string | null;
+            name: string | null;
+            avatar_url: string | null;
+            verified: boolean;
+            /** @enum {string|null} */
+            kind: "brand" | "vendor" | "venue" | null;
+        };
+        EventSummary: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            title: string;
+            cover_url: string | null;
+            cover_blurhash: string | null;
+            tags: ("jdm" | "euro" | "exotic" | "classic" | "muscle" | "truck" | "ev" | "bike" | "all")[];
+            recurring: boolean;
+            rrule_text: string | null;
+            host: components["schemas"]["Host"];
+            venue: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                city: string | null;
+                location: {
+                    lat: number;
+                    lng: number;
+                };
+            };
+            next_occurrence: {
+                /** Format: uuid */
+                id: string;
+                /** Format: date-time */
+                starts_at: string;
+                /** Format: date-time */
+                ends_at: string;
+                timezone: string;
+                going_count: number;
+                /** @enum {string} */
+                status: "scheduled" | "cancelled" | "completed";
+            } | null;
+            /** @description Meters from near, computed in PostGIS; null without near */
+            distance_m: number | null;
+            source: {
+                type: string | null;
+                url: string;
+            } | null;
+            claimed: boolean;
+            /** @enum {string} */
+            cadence: "once" | "weekly" | "monthly" | "seasonal" | "announced";
+            /** @description Unclaimed and not confirmed within 30 days (R-25) */
+            stale: boolean;
+            /** Format: date-time */
+            last_confirmed_at: string | null;
+            sponsors_preview: {
+                /** Format: uuid */
+                id: string;
+                slug: string;
+                name: string;
+                logo_url: string | null;
+                /** @enum {string} */
+                role: "presented_by" | "coffee" | "vendor" | "partner";
+            }[];
+        };
+        MapPin: {
+            /**
+             * Format: uuid
+             * @description The occurrence
+             */
+            id: string;
+            /** Format: uuid */
+            event_id: string;
+            slug: string;
+            lat: number;
+            lng: number;
+            /** Format: date-time */
+            starts_at: string;
+            title: string;
+            going_count: number;
         };
         Device: {
             /** Format: uuid */
