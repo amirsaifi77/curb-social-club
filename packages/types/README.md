@@ -20,7 +20,7 @@ Turborepo's `generate` task depends on `^openapi`, so `pnpm generate` at the roo
 packages/types/
   src/
     generated.d.ts   # output, committed (prettier and eslint ignore it)
-    index.ts         # paths, components, schema aliases (User, Profile, Device, ApiErrorBody),
+    index.d.ts       # paths, components, schema aliases (User, Profile, Device, ApiErrorBody),
                      # JsonRequest<path, method> and JsonResponse<path, method, status>,
                      # and named bodies (SignInResponse, MeResponse, RegisterDeviceBody, ...)
     index.test.ts    # every Phase 0 path is present; alias shapes checked by tsc
@@ -28,7 +28,7 @@ packages/types/
   tsconfig.json
 ```
 
-Add an alias in `src/index.ts` when an endpoint gains a consumer; `@curb/api-client` builds its request functions on them.
+The package is types only: both files are declarations, `build` is a type check, and every consumer imports with `import type`, so nothing from it reaches a bundle. Add an alias in `src/index.d.ts` when an endpoint gains a consumer; `@curb/api-client` builds its request functions on them.
 
 ## Why commit the generated file
 

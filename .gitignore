@@ -78,3 +78,7 @@ pnpm-debug.log*
 
 # Propshaft output from assets:precompile (apps/api)
 apps/api/public/assets/
+
+# Emitted by hand-run tsc; the types package is declarations only
+packages/types/src/index.js
+packages/types/src/*.map
