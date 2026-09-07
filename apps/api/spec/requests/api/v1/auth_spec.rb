@@ -125,16 +125,22 @@ RSpec.describe "v1/auth" do
 
     it "creates users, identities, profiles, sessions and stores only the token digest (AC-1)" do
       nonce = apple_nonce
-      post "/v1/auth/apple", params: apple_params(nonce: nonce, sub: "apple-ac1").merge(full_name: { givenName: "Ada", familyName: "Lovelace" }), headers: headers, as: :json
+      params = apple_params(nonce: nonce, sub: "apple-ac1").merge(full_name: { givenName: "Ada", familyName: "Lovelace" })
+
+      expect { post "/v1/auth/apple", params: params, headers: headers, as: :json }
+        .to change(User, :count).by(1)
+        .and change(Identity, :count).by(1)
+        .and change(Profile, :count).by(1)
+        .and change(Session, :count).by(1)
 
       expect(response).to have_http_status(:created)
       token = json.dig("data", "token")
-      expect([ User.count, Identity.count, Profile.count, Session.count ]).to eq([ 1, 1, 1, 1 ])
-      session = Session.sole
+      identity = Identity.find_by!(provider: "apple", provider_uid: "apple-ac1")
+      session = identity.user.sessions.sole
       expect(session.token_digest).to eq(Digest::SHA256.hexdigest(token))
       expect(session.attributes.values.map(&:to_s)).not_to include(token)
-      expect(Identity.sole.provider_refresh_token).to eq("apple-refresh-test")
-      expect(Device.find_by(anonymous_id: device_id).user).to eq(User.sole)
+      expect(identity.provider_refresh_token).to eq("apple-refresh-test")
+      expect(Device.find_by(anonymous_id: device_id).user).to eq(identity.user)
     end
 
     it "keeps the display name and adds a session on a second sign-in (AC-2)" do
