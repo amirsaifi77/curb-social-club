@@ -2,10 +2,13 @@ module Api
   module V1
     class HealthController < ApplicationController
       # GET /v1/health
-      # { status: "ok", db: true, queue_lag_s: 3 } per docs/api.md.
+      # { status: "ok", db: true, queue_lag_s: 3 } per docs/api.md; 503 with
+      # status "degraded" when the database is unreachable, so a host health
+      # check (render.yaml) fails instead of reading a 200.
       def show
         db = database_reachable?
-        render json: { status: db ? "ok" : "degraded", db: db, queue_lag_s: queue_lag_s }
+        render json: { status: db ? "ok" : "degraded", db: db, queue_lag_s: queue_lag_s },
+               status: db ? :ok : :service_unavailable
       end
 
       private

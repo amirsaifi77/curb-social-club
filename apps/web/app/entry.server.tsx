@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react-router';
 import { handleRequest as vercelHandleRequest } from '@vercel/react-router/entry.server';
+import { isRouteErrorResponse } from 'react-router';
 import type { AppLoadContext, EntryContext, HandleErrorFunction } from 'react-router';
 
 // Server errors go to Sentry when SENTRY_DSN is set (per-tier DSN, ADR 0008).
@@ -31,8 +32,12 @@ export default function handleRequest(
   );
 }
 
+// Thrown Responses (404s for unknown addresses, bot probes included) are
+// expected traffic, not errors. The flush gives the serverless function a
+// moment to send before it is frozen.
 export const handleError: HandleErrorFunction = (error, { request }) => {
-  if (request.signal.aborted) return;
+  if (request.signal.aborted || isRouteErrorResponse(error)) return;
   Sentry.captureException(error);
   console.error(error);
+  void Sentry.flush(2_000);
 };

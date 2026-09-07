@@ -1,6 +1,6 @@
-// Server-side access to the Rails API. VITE_API_URL is inlined at build time
-// (Vite) and can be overridden at runtime through process.env, which is how
-// the Vercel project points a build at the Render staging API.
+// Server-side access to the Rails API. A runtime VITE_API_URL (process.env,
+// the Vercel project's environment) wins over the value Vite inlined at
+// build time, so a deployment can be repointed without a rebuild.
 export interface ApiHealth {
   ok: boolean;
   status?: number;
@@ -10,7 +10,7 @@ export interface ApiHealth {
 const DEFAULT_API_URL = 'http://localhost:3000';
 
 export function apiBaseUrl(
-  value: string | undefined = import.meta.env.VITE_API_URL ?? process.env.VITE_API_URL,
+  value: string | undefined = process.env.VITE_API_URL ?? import.meta.env.VITE_API_URL,
 ): string {
   return (value?.trim() || DEFAULT_API_URL).replace(/\/+$/, '');
 }

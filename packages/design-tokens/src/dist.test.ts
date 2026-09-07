@@ -15,7 +15,7 @@ const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(packageRoot, 'dist');
 
 describe('dist outputs (AC-1)', () => {
-  it('emits all three files', () => {
+  it('emits every file', () => {
     for (const file of ['tokens.ts', 'tokens.css', 'tailwind.theme.js', 'tailwind.theme.d.ts']) {
       expect(existsSync(join(dist, file)), file).toBe(true);
     }

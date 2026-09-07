@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "env": ["VITE_API_URL", "VITE_SENTRY_DSN"],
-      "outputs": ["build/**", ".react-router/**"]
+      "outputs": ["build/**", ".react-router/**", ".vercel/**"]
     },
     "typecheck": {
       "dependsOn": ["^build"],

@@ -54,5 +54,6 @@ function RootLayout() {
   );
 }
 
-// Sentry's wrapper adds touch and navigation breadcrumbs around the root.
+// Sentry's wrapper adds the touch event boundary and the profiler around
+// the root; navigation breadcrumbs need the navigation integration later.
 export default wrapWithSentry(RootLayout);

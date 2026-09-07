@@ -2,7 +2,7 @@
 
 Date: 2026-09-05. Status: Proposed (confirm with Amir).
 
-Status log: 2026-09-07 (session 0.8) committed `render.yaml` (web service, Solid Queue worker, Postgres 16 with the extensions created by the first migration, env var group `curb-staging`), `apps/api/bin/render-build.sh`, `apps/web/vercel.json` (Root Directory `apps/web`, React Router framework preset, Turborepo build), and Sentry on all three tiers. The API starts Puma directly (`bundle exec puma -C config/puma.rb`) rather than through Thruster, which Render's proxy makes redundant on the starter tier; Thruster stays available in `bin/thrust` if asset caching becomes worth it. Moves to Accepted once the first blueprint apply shows `/v1/health` green on Render and a PR shows a Vercel preview.
+Status log: 2026-09-07 (session 0.8) committed `render.yaml` (web service, Solid Queue worker, Postgres 16 with the extensions created by the first migration, env var group `curb-staging`), `apps/api/bin/render-build.sh`, `apps/web/vercel.json` (React Router framework preset and the Turborepo build; the project's Root Directory is set to `apps/web` in the dashboard), and Sentry on all three tiers. The API starts Puma directly (`bundle exec puma -C config/puma.rb`) rather than through Thruster, which Render's proxy makes redundant on the starter tier; Thruster stays available in `bin/thrust` if asset caching becomes worth it. Moves to Accepted once the first blueprint apply shows `/v1/health` green on Render and a PR shows a Vercel preview.
 
 ## Context
 

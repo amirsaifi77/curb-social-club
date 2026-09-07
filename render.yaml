@@ -8,6 +8,12 @@
 # citext; Render's managed Postgres allows CREATE EXTENSION for all of them.
 # Render hands out a postgres:// URL; config/database.yml rewrites the scheme
 # to postgis:// so the PostGIS adapter is selected.
+#
+# The web service migrates during its build; the worker builds in parallel
+# and may boot before the first migration lands, in which case it restarts
+# until the schema exists (first apply only). If request.remote_ip in the
+# first logs is Render's proxy rather than the client, set
+# config.action_dispatch.trusted_proxies so rack-attack keys on real IPs.
 
 envVarGroups:
   - name: curb-staging
