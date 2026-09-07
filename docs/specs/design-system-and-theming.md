@@ -30,7 +30,7 @@ Not in this phase: a web theme picker (web ships Marine Layer following system a
 
 - R-1 `packages/design-tokens/tokens.json` MUST be the only source of color, typography, spacing, radius, glass, and motion values; no app or package MAY declare a hex, font size, or duration outside a token. (US-1, US-6)
 - R-2 `pnpm --filter @curb/design-tokens build` MUST emit `dist/tokens.ts` (exports `themes`, `getTheme`, `typography`, `spacing`, `radius`, `glass`, `motion`, and the types `ThemeName`, `Scheme`, `Role`, `ThemeColors`), `dist/tokens.css`, and `dist/tailwind.theme.js`, and `dist/**` MUST be gitignored. (US-1)
-- R-3 The build MUST fail when any theme or scheme is missing one of the 22 color roles (the 21 in the package README plus `accentPressed`), when a text role on `bg`, `surface`, or `surfaceRaised` is under 4.5:1, when `accentInk` on `accent` is under 5.5:1, or when a `pin*` role on `bg` is under 3:1. (US-1)
+- R-3 The build MUST fail when any theme or scheme is missing one of the 22 color roles (the 21 in the package README plus `accentPressed`), when a text role (`textPrimary`, `textSecondary`, `link`) on `bg`, `surface`, or `surfaceRaised` is under 4.5:1, when `accentInk` on `accent` is under 5.5:1, when a pin fill role (`pinNow`, `pinToday`, `pinUpcoming`, `pinRecurring`, `pinPast`, `pinCluster`) on `bg` is under 3:1, or when `pinLabel` on any pin fill is under 3:1. `pinLabel` is the glyph drawn on pins, so it is checked against the pin fills, not against `bg` (brand guide section 5). (US-1)
 - R-4 Generated outputs (`dist/**`) and the hex values in `tokens.json` MUST NOT be hand-edited; hexes come from `brand-v2/work/palette.py`, and a PR that changes a hex without the matching brand guide table change SHOULD be rejected in review. (US-1)
 - R-5 `getTheme(name, scheme)` MUST fall back to `marine-layer` for an unknown name and to `light` for an unknown scheme. (US-2)
 
@@ -154,8 +154,8 @@ The four tab placeholders (S02, S03, S06, S07 skeletons) are Phase 0 screens for
 
 | Slice | Deliverable | Covers | Must pass |
 |---|---|---|---|
-| 1 (Phase 0) | `packages/design-tokens/build.ts` with validation, `dist/` outputs, Vitest file assertions, Turborepo wiring, `fonts` script and committed subsets | R-1 to R-5, R-24 | AC-1 to AC-4 |
-| 2 (Phase 0) | Mobile theme store (MMKV), Unistyles configure and `updateTheme` wiring, appearance override with `Appearance.setColorScheme`, `app.json` settings, font loading in the root layout | R-6 to R-11 | AC-5 to AC-7 (device) |
+| 1 (Phase 0) | `packages/design-tokens/build.ts` with validation, `dist/` outputs, Vitest file assertions, Turborepo wiring | R-1 to R-5, R-24 | AC-1 to AC-4 |
+| 2 (Phase 0) | `fonts` script and committed subsets (first consumer of the font files, R-11); mobile theme store (MMKV), Unistyles configure and `updateTheme` wiring, appearance override with `Appearance.setColorScheme`, `app.json` settings, font loading in the root layout | R-6 to R-11 | AC-5 to AC-7 (device) |
 | 3 (Phase 0) | `Text` and `Surface` primitives, ESLint import restriction, S27 Phase 0 skeleton with the Theme section and S38 | R-12 to R-15 | AC-5, AC-6, AC-13 |
 | 4 (Phase 0) | `useAsyncAction` in `packages/ui` with Jest timing tests; `PrimaryButton` on mobile with Reanimated, SVG ring and check, haptics, reduced motion; snapshot tests; `dev/gallery` | R-16 to R-19 | AC-8 to AC-12, AC-14, AC-15 |
 | 5 (Phase 0 for tokens and fonts, Phase 7 for the web button) | Web: `tokens.css` and `@font-face` in `root.tsx`, header glass, Playwright smoke ship in session 0.8; the web `PrimaryButton` waits for the first web write surface | R-20 to R-23 | AC-4, AC-16 (button part deferred) |

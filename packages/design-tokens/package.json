@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/tokens.ts",
+    "./tokens.css": "./dist/tokens.css",
+    "./tailwind.theme": "./dist/tailwind.theme.js",
+    "./tokens.json": "./tokens.json"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsx build.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -15,7 +18,9 @@
   },
   "devDependencies": {
     "@curb/config": "workspace:*",
+    "@types/node": "^24",
     "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
   }
