@@ -1,6 +1,8 @@
 require "swagger_helper"
 
 RSpec.describe "v1/health" do
+  it_behaves_like "anonymous-allowed", "/v1/health"
+
   path "/v1/health" do
     get "Service health" do
       description "Liveness check: database reachability and Solid Queue lag."

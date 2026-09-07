@@ -6,6 +6,265 @@ info:
   description: REST API for Curb Social Club. Public read endpoints work without a
     token.
 paths:
+  "/v1/auth/apple":
+    post:
+      summary: Sign in with Apple
+      description: Verifies the identity token against Apple's JWKS and returns an
+        opaque session token. full_name only arrives from Apple on first authorization.
+        201 when the account is new, 200 otherwise.
+      tags:
+      - Auth
+      parameters:
+      - name: X-Device-Id
+        in: header
+        schema:
+          type: string
+          format: uuid
+        required: false
+      responses:
+        '201':
+          description: new account created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        "$ref": "#/components/schemas/User"
+                      is_new:
+                        type: boolean
+                    required:
+                    - token
+                    - user
+                    - is_new
+                required:
+                - data
+        '401':
+          description: token could not be verified
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '403':
+          description: account suspended
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identity_token:
+                  type: string
+                authorization_code:
+                  type: string
+                nonce:
+                  type: string
+                  description: Raw nonce; its SHA256 must equal the token's nonce
+                    claim
+                full_name:
+                  type: object
+                  nullable: true
+                  properties:
+                    givenName:
+                      type: string
+                    familyName:
+                      type: string
+              required:
+              - identity_token
+              - authorization_code
+              - nonce
+  "/v1/auth/google":
+    post:
+      summary: Sign in with Google
+      description: Verifies the id token against Google's JWKS (iss accounts.google.com,
+        aud the iOS client id, email_verified).
+      tags:
+      - Auth
+      parameters:
+      - name: X-Device-Id
+        in: header
+        schema:
+          type: string
+          format: uuid
+        required: false
+      responses:
+        '201':
+          description: new account created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        "$ref": "#/components/schemas/User"
+                      is_new:
+                        type: boolean
+                    required:
+                    - token
+                    - user
+                    - is_new
+                required:
+                - data
+        '200':
+          description: existing account signed in
+        '401':
+          description: token could not be verified
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_token:
+                  type: string
+              required:
+              - id_token
+  "/v1/auth/session":
+    delete:
+      summary: Sign out this session
+      description: Deletes only the calling session row and unlinks its device.
+      tags:
+      - Auth
+      security:
+      - bearer: []
+      responses:
+        '204':
+          description: signed out
+        '401':
+          description: not signed in
+  "/v1/devices":
+    post:
+      summary: Register or update a device
+      description: Upserts on anonymous_id so push registration and the home area
+        survive until sign-in.
+      tags:
+      - Devices
+      parameters: []
+      responses:
+        '201':
+          description: device registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Device"
+                required:
+                - data
+        '200':
+          description: device updated
+        '422':
+          description: invalid platform
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                anonymous_id:
+                  type: string
+                  format: uuid
+                platform:
+                  type: string
+                  enum:
+                  - ios
+                  - android
+                  - web
+                push_token:
+                  type: string
+                  nullable: true
+                app_version:
+                  type: string
+                home_location:
+                  type: object
+                  nullable: true
+                  properties:
+                    lat:
+                      type: number
+                    lng:
+                      type: number
+                timezone:
+                  type: string
+              required:
+              - anonymous_id
+              - platform
+  "/v1/devices/{anonymous_id}":
+    parameters:
+    - name: anonymous_id
+      in: path
+      schema:
+        type: string
+        format: uuid
+      required: true
+    patch:
+      summary: Update push token, home location, or timezone
+      tags:
+      - Devices
+      parameters: []
+      responses:
+        '200':
+          description: device updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Device"
+                required:
+                - data
+        '404':
+          description: unknown device
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                push_token:
+                  type: string
+                  nullable: true
+                push_enabled:
+                  type: boolean
+                app_version:
+                  type: string
+                home_location:
+                  type: object
+                  nullable: true
+                  properties:
+                    lat:
+                      type: number
+                    lng:
+                      type: number
+                timezone:
+                  type: string
   "/v1/health":
     get:
       summary: Service health
@@ -34,8 +293,268 @@ paths:
                 - status
                 - db
                 - queue_lag_s
+  "/v1/me":
+    get:
+      summary: Current user
+      description: The signed-in user with profile, linked identities, and notification
+        preferences.
+      tags:
+      - Me
+      security:
+      - bearer: []
+      responses:
+        '200':
+          description: current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/User"
+                required:
+                - data
+        '401':
+          description: not signed in
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    patch:
+      summary: Update account fields
+      description: Phase 0 accepts profile.handle and profile.display_name only.
+      tags:
+      - Me
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/User"
+                required:
+                - data
+        '422':
+          description: handle taken or invalid
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                  properties:
+                    handle:
+                      type: string
+                    display_name:
+                      type: string
+              required:
+              - profile
+    delete:
+      summary: Delete account
+      description: Soft-deletes now (sessions revoked, devices unlinked) and purges
+        after 30 days; signing in again before then restores the account.
+      tags:
+      - Me
+      security:
+      - bearer: []
+      responses:
+        '202':
+          description: deletion scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      purge_after:
+                        type: string
+                        format: date-time
+                    required:
+                    - purge_after
+                required:
+                - data
 servers:
 - url: http://localhost:3000
   description: Development
 - url: https://api.curbsocial.club
   description: Production (domain unconfirmed)
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Opaque session token from POST /v1/auth/apple or /v1/auth/google
+  parameters:
+    deviceId:
+      name: X-Device-Id
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: Client-generated device UUID sent on every request from mobile
+        and web
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              nullable: true
+          required:
+          - code
+          - message
+      required:
+      - error
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        handle:
+          type: string
+        display_name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        home_label:
+          type: string
+          nullable: true
+        is_host:
+          type: boolean
+        links:
+          type: object
+        clubs:
+          type: array
+          items:
+            type: object
+        counts:
+          type: object
+        viewer:
+          type: object
+      required:
+      - id
+      - handle
+      - display_name
+      - is_host
+      - links
+      - clubs
+      - counts
+      - viewer
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum:
+          - member
+          - moderator
+          - admin
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          - deleted
+        created_at:
+          type: string
+          format: date-time
+        profile:
+          "$ref": "#/components/schemas/Profile"
+        identities:
+          type: array
+          items:
+            type: object
+            properties:
+              provider:
+                type: string
+              email:
+                type: string
+                nullable: true
+        notification_prefs:
+          type: object
+        unread_notifications_count:
+          type: integer
+      required:
+      - id
+      - role
+      - status
+      - created_at
+      - profile
+      - identities
+      - notification_prefs
+    Device:
+      type: object
+      properties:
+        anonymous_id:
+          type: string
+          format: uuid
+        platform:
+          type: string
+          enum:
+          - ios
+          - android
+          - web
+        push_enabled:
+          type: boolean
+        push_token_present:
+          type: boolean
+        app_version:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        home_location:
+          type: object
+          nullable: true
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - anonymous_id
+      - platform
+      - push_enabled
+      - push_token_present
