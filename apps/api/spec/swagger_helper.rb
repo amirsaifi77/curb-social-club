@@ -137,6 +137,102 @@ RSpec.configure do |config|
             },
             required: %w[id slug title cover_url cover_blurhash tags recurring rrule_text host venue next_occurrence distance_m source claimed cadence stale last_confirmed_at sponsors_preview]
           },
+          SponsorSummary: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, slug: { type: :string }, name: { type: :string },
+              kind: { type: :string, enum: Sponsor::KINDS }, logo_url: { type: :string, nullable: true },
+              verified: { type: :boolean }, tagline: { type: :string, nullable: true },
+              followers_count: { type: :integer }, home_label: { type: :string, nullable: true }
+            },
+            required: %w[id slug name kind logo_url verified tagline followers_count home_label]
+          },
+          Event: {
+            description: "Event detail: EventSummary plus the fields only the detail screen needs.",
+            allOf: [
+              { "$ref" => "#/components/schemas/EventSummary" },
+              {
+                type: :object,
+                properties: {
+                  description: { type: :string, nullable: true }, parking_note: { type: :string, nullable: true },
+                  rrule: { type: :string, nullable: true }, dtstart: { type: :string, format: "date-time", nullable: true },
+                  duration_minutes: { type: :integer }, rsvp_mode: { type: :string, enum: Event::RSVP_MODES },
+                  capacity: { type: :integer, nullable: true }, status: { type: :string, enum: Event::STATUSES },
+                  visibility: { type: :string, enum: Event::VISIBILITIES },
+                  dormant: { type: :boolean, description: "Out of lists and the map, page still served (R-27)" },
+                  hidden: { type: :boolean, description: "Only ever true for the host or an admin; the public gets 410" },
+                  external_host_name: { type: :string, nullable: true },
+                  venue: {
+                    type: :object,
+                    properties: {
+                      id: { type: :string, format: :uuid }, name: { type: :string },
+                      address_line1: { type: :string, nullable: true }, address_line2: { type: :string, nullable: true },
+                      city: { type: :string, nullable: true }, region: { type: :string, nullable: true },
+                      postal_code: { type: :string, nullable: true }, country: { type: :string }, timezone: { type: :string },
+                      location: { type: :object, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] }
+                    },
+                    required: %w[id name address_line1 address_line2 city region postal_code country timezone location]
+                  },
+                  upcoming_occurrences: {
+                    type: :array, maxItems: 4,
+                    items: {
+                      type: :object,
+                      properties: {
+                        id: { type: :string, format: :uuid }, starts_at: { type: :string, format: "date-time" },
+                        ends_at: { type: :string, format: "date-time" }, timezone: { type: :string },
+                        going_count: { type: :integer }, status: { type: :string, enum: EventOccurrence::STATUSES },
+                        override_note: { type: :string, nullable: true }
+                      },
+                      required: %w[id starts_at ends_at timezone going_count status override_note]
+                    }
+                  },
+                  sponsorships: {
+                    type: :array,
+                    items: {
+                      type: :object,
+                      properties: {
+                        sponsor: { "$ref" => "#/components/schemas/SponsorSummary" },
+                        role: { type: :string, enum: EventSponsorship::ROLES },
+                        note: { type: :string, nullable: true }, position: { type: :integer }
+                      },
+                      required: %w[sponsor role note position]
+                    }
+                  },
+                  viewer: {
+                    type: :object,
+                    properties: {
+                      following: { type: :boolean }, rsvp: { type: :string, enum: %w[going], nullable: true },
+                      can_edit: { type: :boolean }, can_claim: { type: :boolean },
+                      claim_status: { type: :string, enum: %w[pending], nullable: true }, reported: { type: :boolean }
+                    },
+                    required: %w[following rsvp can_edit can_claim claim_status reported]
+                  },
+                  photos_count: { type: :integer }, comments_count: { type: :integer }, followers_count: { type: :integer }
+                },
+                required: %w[description parking_note rrule dtstart duration_minutes rsvp_mode capacity status visibility
+                             dormant hidden external_host_name venue upcoming_occurrences sponsorships viewer
+                             photos_count comments_count followers_count]
+              }
+            ]
+          },
+          Occurrence: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, event: { "$ref" => "#/components/schemas/EventSummary" },
+              starts_at: { type: :string, format: "date-time" }, ends_at: { type: :string, format: "date-time" },
+              timezone: { type: :string }, status: { type: :string, enum: EventOccurrence::STATUSES },
+              override_note: { type: :string, nullable: true }, going_count: { type: :integer },
+              interested_count: { type: :integer }, check_in_count: { type: :integer },
+              going_preview: { type: :array, items: { type: :object, additionalProperties: true } },
+              viewer: {
+                type: :object,
+                properties: { rsvp: { type: :string, enum: %w[going], nullable: true }, checked_in: { type: :boolean } },
+                required: %w[rsvp checked_in]
+              }
+            },
+            required: %w[id event starts_at ends_at timezone status override_note going_count interested_count
+                         check_in_count going_preview viewer]
+          },
           MapPin: {
             type: :object,
             properties: {

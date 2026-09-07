@@ -18,6 +18,8 @@ class Event < ApplicationRecord
   SLUG_SUFFIX_LENGTH = 6
   # R-25: unclaimed and not confirmed (or published) within this long.
   STALE_AFTER = 30.days
+  # R-14: read-time re-materialization when the horizon is shorter than this.
+  MATERIALIZE_ON_READ_WITHIN = 60.days
   # A change to any of these on a published event re-materializes it.
   SCHEDULE_ATTRIBUTES = %w[cadence dtstart duration_minutes timezone rrule rrule_until venue_id status dormant_at].freeze
 
@@ -75,6 +77,8 @@ class Event < ApplicationRecord
   # Events the materializer expands (R-11): published, not dormant, with a
   # schedule (announced events get rows only from the host or an admin).
   scope :materializable, -> { published.where(dormant_at: nil).where.not(cadence: "announced") }
+  # Carries the R-25 flag on the row so a detail read computes it in SQL too.
+  scope :with_stale, -> { select("events.*", "#{stale_sql} AS stale_flag") }
 
   # R-25 as SQL, defined once, so every list computes stale in the query.
   # Takes the clock so specs under travel_to and the query agree. Never
@@ -94,6 +98,28 @@ class Event < ApplicationRecord
   def dormant? = dormant_at.present?
   def claimed? = claimed_at.present?
   def materializable? = published? && !dormant? && cadence != "announced"
+  def listed? = published? && visibility == "public" && hidden_at.nil? && dormant_at.nil?
+  def unlisted? = visibility == "unlisted"
+  def cancelled? = status == "cancelled"
+  def hidden? = hidden_at.present?
+  def gone? = cancelled? || hidden?
+
+  # R-25, always from SQL: the selected column when the row came from
+  # with_stale, otherwise one small query.
+  def stale?
+    return self[:stale_flag] if has_attribute?(:stale_flag)
+
+    self.class.where(id: id).pick(Arel.sql(self.class.stale_sql)) || false
+  end
+
+  # R-14: a recurring event whose materialized horizon has run short
+  # re-materializes on read, so a missed nightly run self-heals.
+  def horizon_short?
+    return false unless materializable? && recurring?
+
+    latest = occurrences.scheduled.maximum(:starts_at)
+    latest.nil? || latest < MATERIALIZE_ON_READ_WITHIN.from_now
+  end
 
   # R-15: "Every Saturday", "First Sunday of the month", ...; nil for once.
   def rrule_text

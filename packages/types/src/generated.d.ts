@@ -359,6 +359,76 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v1/events/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm the schedule is current
+         * @description The host (the user host, an owner or admin of the hosting club, or a platform admin) answers "Still happening?": last_confirmed_at moves to now, dormant_at clears, and a dormant event is re-materialized (R-24, R-28). Anyone else gets 403.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-18: an admin confirms a dormant event */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Event"];
+                        };
+                    };
+                };
+                /** @description anonymous */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description AC-18: a member with no role may not confirm */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description unknown event */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/events/map": {
         parameters: {
             query?: never;
@@ -402,6 +472,72 @@ export interface paths {
                 };
                 /** @description bbox missing or wider than 5 degrees */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/events/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event detail
+         * @description The Event shape. Anonymous by default. A draft is 404 unless the viewer can edit; an unlisted event needs its share token; a cancelled or hidden event is 410 gone with up to three nearby meets when near is sent; a dormant event is 200 with dormant true. A recurring event whose materialized horizon is under 60 days re-materializes on read (R-14).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Share token for an unlisted event */
+                    token?: string;
+                    /** @description lat,lng; fills nearby on a 410 */
+                    near?: string;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: published recurring event with sponsorships and six dates */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Event"];
+                        };
+                    };
+                };
+                /** @description AC-22: a draft is not readable by the public */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description AC-3: a cancelled event is gone, with nearby meets when near is sent */
+                410: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -674,6 +810,126 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v1/events/{id}/occurrences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Upcoming occurrences of an event
+         * @description Upcoming scheduled and cancelled dates, oldest first, cursor paginated (R-22).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-23: three scheduled and one cancelled upcoming date */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Occurrence"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+                /** @description a crafted or malformed cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description an event the viewer cannot see */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/occurrences/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One occurrence
+         * @description The Occurrence shape with its event summary, timezone, and override note.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-23: a cancelled occurrence carries its timezone and note */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Occurrence"];
+                        };
+                    };
+                };
+                /** @description unknown occurrence */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -802,6 +1058,113 @@ export interface components {
                 /** @enum {string} */
                 role: "presented_by" | "coffee" | "vendor" | "partner";
             }[];
+        };
+        SponsorSummary: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            /** @enum {string} */
+            kind: "brand" | "vendor" | "venue";
+            logo_url: string | null;
+            verified: boolean;
+            tagline: string | null;
+            followers_count: number;
+            home_label: string | null;
+        };
+        /** @description Event detail: EventSummary plus the fields only the detail screen needs. */
+        Event: components["schemas"]["EventSummary"] & {
+            description: string | null;
+            parking_note: string | null;
+            rrule: string | null;
+            /** Format: date-time */
+            dtstart: string | null;
+            duration_minutes: number;
+            /** @enum {string} */
+            rsvp_mode: "open" | "count_only" | "off";
+            capacity: number | null;
+            /** @enum {string} */
+            status: "draft" | "published" | "cancelled";
+            /** @enum {string} */
+            visibility: "public" | "unlisted";
+            /** @description Out of lists and the map, page still served (R-27) */
+            dormant: boolean;
+            /** @description Only ever true for the host or an admin; the public gets 410 */
+            hidden: boolean;
+            external_host_name: string | null;
+            venue: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                address_line1: string | null;
+                address_line2: string | null;
+                city: string | null;
+                region: string | null;
+                postal_code: string | null;
+                country: string;
+                timezone: string;
+                location: {
+                    lat: number;
+                    lng: number;
+                };
+            };
+            upcoming_occurrences: {
+                /** Format: uuid */
+                id: string;
+                /** Format: date-time */
+                starts_at: string;
+                /** Format: date-time */
+                ends_at: string;
+                timezone: string;
+                going_count: number;
+                /** @enum {string} */
+                status: "scheduled" | "cancelled" | "completed";
+                override_note: string | null;
+            }[];
+            sponsorships: {
+                sponsor: components["schemas"]["SponsorSummary"];
+                /** @enum {string} */
+                role: "presented_by" | "coffee" | "vendor" | "partner";
+                note: string | null;
+                position: number;
+            }[];
+            viewer: {
+                following: boolean;
+                /** @enum {string|null} */
+                rsvp: "going" | null;
+                can_edit: boolean;
+                can_claim: boolean;
+                /** @enum {string|null} */
+                claim_status: "pending" | null;
+                reported: boolean;
+            };
+            photos_count: number;
+            comments_count: number;
+            followers_count: number;
+        };
+        Occurrence: {
+            /** Format: uuid */
+            id: string;
+            event: components["schemas"]["EventSummary"];
+            /** Format: date-time */
+            starts_at: string;
+            /** Format: date-time */
+            ends_at: string;
+            timezone: string;
+            /** @enum {string} */
+            status: "scheduled" | "cancelled" | "completed";
+            override_note: string | null;
+            going_count: number;
+            interested_count: number;
+            check_in_count: number;
+            going_preview: {
+                [key: string]: unknown;
+            }[];
+            viewer: {
+                /** @enum {string|null} */
+                rsvp: "going" | null;
+                checked_in: boolean;
+            };
         };
         MapPin: {
             /**

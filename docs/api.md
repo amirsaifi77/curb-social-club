@@ -39,7 +39,7 @@ Status: planning draft v0.3, 2026-09-06 (v0.2 was 2026-09-05). The authoritative
 | 404 | `not_found` |
 | 409 | `conflict` |
 | 422 | `validation_failed` |
-| 410 | `gone` (hidden or deleted event; body carries `nearby: EventSummary[]`). Hidden posts, comments, and spots are 404. Dormant events are 200 with `dormant: true`. |
+| 410 | `gone` (hidden or deleted event; `error.details.nearby` carries up to three EventSummary rows, empty unless the request sent `near`). Hidden posts, comments, and spots are 404. Dormant events are 200 with `dormant: true`. |
 | 429 | `rate_limited` (with `Retry-After`) |
 | 500 | `internal_error` |
 | 503 | `service_unavailable` (an upstream such as oEmbed or the safety classifier is down; retry later) |

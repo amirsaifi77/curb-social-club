@@ -1,12 +1,17 @@
 import type {
   DeleteMeResponse,
   DeviceResponse,
+  EventOccurrencesQuery,
+  EventOccurrencesResponse,
+  EventQuery,
+  EventResponse,
   EventsListQuery,
   EventsListResponse,
   EventsMapQuery,
   EventsMapResponse,
   HealthResponse,
   MeResponse,
+  OccurrenceResponse,
   RegisterDeviceBody,
   SignInResponse,
   SignInWithAppleBody,
@@ -48,6 +53,22 @@ export const api = {
       unwrap(await client.GET('/v1/events', { params: { query } })),
     map: async (client: ApiClient, query: EventsMapQuery): Promise<EventsMapResponse> =>
       unwrap(await client.GET('/v1/events/map', { params: { query } })),
+    // Detail by slug; `token` unlocks an unlisted event and `near` fills
+    // the nearby list on a 410 (docs/api.md Events).
+    get: async (client: ApiClient, slug: string, query: EventQuery = {}): Promise<EventResponse> =>
+      unwrap(await client.GET('/v1/events/{slug}', { params: { path: { slug }, query } })),
+    confirm: async (client: ApiClient, id: string): Promise<EventResponse> =>
+      unwrap(await client.POST('/v1/events/{id}/confirm', { params: { path: { id } } })),
+    occurrences: async (
+      client: ApiClient,
+      id: string,
+      query: EventOccurrencesQuery = {},
+    ): Promise<EventOccurrencesResponse> =>
+      unwrap(await client.GET('/v1/events/{id}/occurrences', { params: { path: { id }, query } })),
+  },
+  occurrences: {
+    get: async (client: ApiClient, id: string): Promise<OccurrenceResponse> =>
+      unwrap(await client.GET('/v1/occurrences/{id}', { params: { path: { id } } })),
   },
   devices: {
     register: async (client: ApiClient, body: RegisterDeviceBody): Promise<DeviceResponse> =>
