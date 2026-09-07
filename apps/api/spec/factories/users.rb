@@ -30,7 +30,7 @@ FactoryBot.define do
       initialize_with { User.app_account || new }
 
       after(:create) do |user|
-        user.profile.update!(handle: "curb", display_name: "Curb Social Club", is_host: true)
+        user.profile.update!(handle: "curb", display_name: "Curb Social Club", is_host: true, system_account: true)
       end
     end
   end

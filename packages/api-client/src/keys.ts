@@ -10,6 +10,19 @@ export const queryKeys = {
   event: (slug: string) => ['curb', 'events', slug] as const,
   eventOccurrences: (eventId: string) => ['curb', 'events', eventId, 'occurrences'] as const,
   occurrence: (id: string) => ['curb', 'occurrences', id] as const,
+  clubs: (query: Record<string, unknown> = {}) => ['curb', 'clubs', query] as const,
+  club: (slug: string) => ['curb', 'clubs', slug] as const,
+  clubEvents: (slug: string, query: Record<string, unknown> = {}) =>
+    ['curb', 'clubs', slug, 'events', query] as const,
+  clubMembers: (slug: string) => ['curb', 'clubs', slug, 'members'] as const,
+  sponsors: (query: Record<string, unknown> = {}) => ['curb', 'sponsors', query] as const,
+  sponsor: (slug: string) => ['curb', 'sponsors', slug] as const,
+  sponsorEvents: (slug: string, query: Record<string, unknown> = {}) =>
+    ['curb', 'sponsors', slug, 'events', query] as const,
+  user: (handle: string) => ['curb', 'users', handle] as const,
+  userEvents: (handle: string, query: Record<string, unknown> = {}) =>
+    ['curb', 'users', handle, 'events', query] as const,
+  userClubs: (handle: string) => ['curb', 'users', handle, 'clubs'] as const,
 };
 
 export const mutationKeys = {
@@ -21,4 +34,6 @@ export const mutationKeys = {
   registerDevice: ['curb', 'devices', 'register'] as const,
   updateDevice: ['curb', 'devices', 'update'] as const,
   confirmEvent: ['curb', 'events', 'confirm'] as const,
+  joinClub: ['curb', 'clubs', 'join'] as const,
+  updateSponsor: ['curb', 'sponsors', 'update'] as const,
 };

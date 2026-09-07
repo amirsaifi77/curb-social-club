@@ -61,6 +61,39 @@ RSpec.describe EventPolicy do
     end
   end
 
+  describe "#host_allowed? and #sponsorships_allowed? (clubs AC-8, sponsors AC-9)" do
+    it "clubs AC-8: a user with no membership in a club may not host as that club (clubs R-13)" do
+      owner = create(:user)
+      club = create(:club, owner: owner)
+      club_admin = create(:club_membership, :admin, club: club).user
+      plain = create(:club_membership, club: club).user
+
+      expect(policy.new(owner, event).host_allowed?(club)).to be(true)
+      expect(policy.new(club_admin, event).host_allowed?(club)).to be(true)
+      expect(policy.new(plain, event).host_allowed?(club)).to be(false)
+      expect(policy.new(stranger, event).host_allowed?(club)).to be(false)
+      expect(policy.new(admin, event).host_allowed?(club)).to be(true)
+      expect(policy.new(nil, event).host_allowed?(club)).to be(false)
+    end
+
+    it "lets a user host as themself, and nobody host as a sponsor until Phase 7 (sponsors R-10)" do
+      expect(policy.new(host, event).host_allowed?(host)).to be(true)
+      expect(policy.new(stranger, event).host_allowed?(host)).to be(false)
+      expect(policy.new(admin, event).host_allowed?(host)).to be(true)
+
+      sponsor = create(:sponsor)
+      expect(policy.new(admin, event).host_allowed?(sponsor)).to be(false)
+      expect(policy.new(host, event).host_allowed?(sponsor)).to be(false)
+      expect(policy.new(admin, event).sponsor_host_enabled?).to be(false)
+    end
+
+    it "sponsors AC-9: only an admin may attach sponsorships at launch (sponsors R-10)" do
+      expect(policy.new(admin, event).sponsorships_allowed?).to be(true)
+      expect(policy.new(host, event).sponsorships_allowed?).to be(false)
+      expect(policy.new(nil, event).sponsorships_allowed?).to be(false)
+    end
+  end
+
   describe "#claim? and #claim_status" do
     it "offers the claim to a signed-in non-host of an unclaimed event, once" do
       expect(policy.new(nil, event).claim?).to be(false)

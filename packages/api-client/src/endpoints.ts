@@ -21,6 +21,18 @@ export const endpoints = {
   confirmEvent: { path: '/v1/events/{id}/confirm', method: 'post' },
   eventOccurrences: { path: '/v1/events/{id}/occurrences', method: 'get' },
   occurrence: { path: '/v1/occurrences/{id}', method: 'get' },
+  clubs: { path: '/v1/clubs', method: 'get' },
+  club: { path: '/v1/clubs/{slug}', method: 'get' },
+  clubEvents: { path: '/v1/clubs/{slug}/events', method: 'get' },
+  clubMembers: { path: '/v1/clubs/{slug}/members', method: 'get' },
+  joinClub: { path: '/v1/clubs/{id}/membership', method: 'put' },
+  sponsors: { path: '/v1/sponsors', method: 'get' },
+  sponsor: { path: '/v1/sponsors/{slug}', method: 'get' },
+  sponsorEvents: { path: '/v1/sponsors/{slug}/events', method: 'get' },
+  updateSponsor: { path: '/v1/sponsors/{id}', method: 'patch' },
+  user: { path: '/v1/users/{handle}', method: 'get' },
+  userEvents: { path: '/v1/users/{handle}/events', method: 'get' },
+  userClubs: { path: '/v1/users/{handle}/clubs', method: 'get' },
 } as const satisfies Record<string, { path: keyof paths; method: HttpMethod }>;
 
 export type EndpointName = keyof typeof endpoints;

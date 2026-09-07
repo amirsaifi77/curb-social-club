@@ -1,4 +1,11 @@
 import type {
+  ClubEventsQuery,
+  ClubEventsResponse,
+  ClubMembersQuery,
+  ClubMembersResponse,
+  ClubResponse,
+  ClubsQuery,
+  ClubsResponse,
   DeleteMeResponse,
   DeviceResponse,
   EventOccurrencesQuery,
@@ -13,6 +20,15 @@ import type {
   MeResponse,
   OccurrenceResponse,
   RegisterDeviceBody,
+  SponsorEventsQuery,
+  SponsorEventsResponse,
+  SponsorResponse,
+  SponsorsQuery,
+  SponsorsResponse,
+  UserClubsResponse,
+  UserEventsQuery,
+  UserEventsResponse,
+  UserResponse,
   SignInResponse,
   SignInWithAppleBody,
   SignInWithGoogleBody,
@@ -69,6 +85,59 @@ export const api = {
   occurrences: {
     get: async (client: ApiClient, id: string): Promise<OccurrenceResponse> =>
       unwrap(await client.GET('/v1/occurrences/{id}', { params: { path: { id } } })),
+  },
+  // Host pages (docs/api.md Clubs, Sponsors, Users and follows). The two
+  // write wrappers exist because the endpoints do; both answer 403
+  // not_enabled until their feature flag turns on in Phase 7.
+  clubs: {
+    list: async (client: ApiClient, query: ClubsQuery = {}): Promise<ClubsResponse> =>
+      unwrap(await client.GET('/v1/clubs', { params: { query } })),
+    get: async (client: ApiClient, slug: string): Promise<ClubResponse> =>
+      unwrap(await client.GET('/v1/clubs/{slug}', { params: { path: { slug } } })),
+    events: async (
+      client: ApiClient,
+      slug: string,
+      query: ClubEventsQuery = {},
+    ): Promise<ClubEventsResponse> =>
+      unwrap(await client.GET('/v1/clubs/{slug}/events', { params: { path: { slug }, query } })),
+    members: async (
+      client: ApiClient,
+      slug: string,
+      query: ClubMembersQuery = {},
+    ): Promise<ClubMembersResponse> =>
+      unwrap(await client.GET('/v1/clubs/{slug}/members', { params: { path: { slug }, query } })),
+    join: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.PUT('/v1/clubs/{id}/membership', { params: { path: { id } } }));
+    },
+  },
+  sponsors: {
+    list: async (client: ApiClient, query: SponsorsQuery = {}): Promise<SponsorsResponse> =>
+      unwrap(await client.GET('/v1/sponsors', { params: { query } })),
+    get: async (client: ApiClient, slug: string): Promise<SponsorResponse> =>
+      unwrap(await client.GET('/v1/sponsors/{slug}', { params: { path: { slug } } })),
+    events: async (
+      client: ApiClient,
+      slug: string,
+      query: SponsorEventsQuery = {},
+    ): Promise<SponsorEventsResponse> =>
+      unwrap(await client.GET('/v1/sponsors/{slug}/events', { params: { path: { slug }, query } })),
+    update: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.PATCH('/v1/sponsors/{id}', { params: { path: { id } } }));
+    },
+  },
+  users: {
+    get: async (client: ApiClient, handle: string): Promise<UserResponse> =>
+      unwrap(await client.GET('/v1/users/{handle}', { params: { path: { handle } } })),
+    events: async (
+      client: ApiClient,
+      handle: string,
+      query: UserEventsQuery = {},
+    ): Promise<UserEventsResponse> =>
+      unwrap(
+        await client.GET('/v1/users/{handle}/events', { params: { path: { handle }, query } }),
+      ),
+    clubs: async (client: ApiClient, handle: string): Promise<UserClubsResponse> =>
+      unwrap(await client.GET('/v1/users/{handle}/clubs', { params: { path: { handle } } })),
   },
   devices: {
     register: async (client: ApiClient, body: RegisterDeviceBody): Promise<DeviceResponse> =>

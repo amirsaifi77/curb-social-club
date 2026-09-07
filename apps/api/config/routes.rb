@@ -37,6 +37,34 @@ Rails.application.routes.draw do
       post "events/:id/confirm", to: "events#confirm"
       get "events/:id/occurrences", to: "occurrences#index"
       resources :occurrences, only: %i[show]
+
+      # Host pages (docs/api.md Clubs, Sponsors, Users and follows). Reads
+      # are anonymous; every write is a Phase 7 stub returning 403
+      # not_enabled while its feature flag is off.
+      resources :clubs, only: %i[index create], param: :slug do
+        member do
+          get :events
+          get :members
+        end
+      end
+      get "clubs/:slug", to: "clubs#show"
+      patch "clubs/:id", to: "clubs#update"
+      put "clubs/:id/membership", to: "clubs#join"
+      delete "clubs/:id/membership", to: "clubs#leave"
+      post "clubs/:id/invites", to: "clubs#invites"
+      post "clubs/:id/invite_code", to: "clubs#invite_code"
+      patch "clubs/:id/members/:user_id", to: "clubs#update_member"
+      delete "clubs/:id/members/:user_id", to: "clubs#remove_member"
+
+      resources :sponsors, only: %i[index], param: :slug do
+        member { get :events }
+      end
+      get "sponsors/:slug", to: "sponsors#show"
+      patch "sponsors/:id", to: "sponsors#update"
+
+      get "users/:handle", to: "users#show"
+      get "users/:handle/events", to: "users#events"
+      get "users/:handle/clubs", to: "users#clubs"
     end
   end
 end

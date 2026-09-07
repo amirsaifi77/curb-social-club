@@ -32,6 +32,25 @@ class EventPolicy < ApplicationPolicy
     member? && record.claimed_at.nil? && !edit?
   end
 
+  # clubs R-13: a club host needs an owner or admin membership. sponsors
+  # R-10: a sponsor host waits for Phase 7, so it is not_enabled rather
+  # than forbidden. Used by the Phase 2 POST /events and PATCH /events/:id.
+  def host_allowed?(host)
+    return false unless member?
+
+    case host
+    when User then host.id == user.id || admin?
+    when Club then admin? || ClubMembership.active.managers.exists?(club_id: host.id, user_id: user.id)
+    when Sponsor then false
+    else false
+    end
+  end
+
+  def sponsor_host_enabled? = Features.enabled?(:sponsors_self_service)
+
+  # sponsors R-10: attaching sponsorships is admin-only at launch.
+  def sponsorships_allowed? = admin?
+
   def claim_status
     return nil unless member?
 

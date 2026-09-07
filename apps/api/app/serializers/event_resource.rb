@@ -37,7 +37,8 @@ class EventResource < EventSummaryResource
 
   # Every sponsorship by position. The hidden-sponsor filter is 1.6.
   attribute :sponsorships do |hit|
-    hit.event.sponsorships.sort_by { |sponsorship| [ sponsorship.position, sponsorship.created_at ] }.map do |sponsorship|
+    hit.event.sponsorships.reject { |sponsorship| sponsorship.sponsor.hidden? }
+       .sort_by { |sponsorship| [ sponsorship.position, sponsorship.created_at ] }.map do |sponsorship|
       { sponsor: SponsorSummaryResource.new(sponsorship.sponsor).to_h, role: sponsorship.role,
         note: sponsorship.note, position: sponsorship.position }
     end

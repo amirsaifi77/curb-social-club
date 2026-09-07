@@ -109,7 +109,7 @@ Club: ClubSummary plus `description`, `banner_url`, `links`, `events_count`, `up
 
 ### SponsorSummary and Sponsor
 
-SponsorSummary: `id`, `slug`, `name`, `kind`, `logo_url`, `verified`, `tagline`, `followers_count`, `home_label`.
+SponsorSummary: `id`, `slug`, `name`, `kind`, `logo_url`, `verified`, `tagline`, `followers_count`, `home_label`, `distance_m` (when a `near` param is present, as on ClubSummary).
 
 Sponsor: SponsorSummary plus `description`, `banner_url`, `website`, `links`, `events_count`, `upcoming_events` (EventSummary, next 3, hosted or sponsored, each with `relation: "host" | "sponsor"`), `viewer` (`{ "following": bool }`).
 

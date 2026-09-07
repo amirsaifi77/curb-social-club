@@ -35,6 +35,9 @@ module Meets
   end
 
   def data_titles = json["data"].map { |row| row["title"] }
+
+  # Bearer header for a signed-in request.
+  def auth(user) = { "Authorization" => "Bearer #{Auth::SessionIssuer.issue(user).token}" }
 end
 
 RSpec.configure do |config|
