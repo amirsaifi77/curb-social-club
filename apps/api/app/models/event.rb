@@ -16,6 +16,8 @@ class Event < ApplicationRecord
   SLUG_LENGTH = 3..60
   SLUG_SUFFIX_ALPHABET = [ *"a".."z", *"0".."9" ].freeze
   SLUG_SUFFIX_LENGTH = 6
+  # R-25: unclaimed and not confirmed (or published) within this long.
+  STALE_AFTER = 30.days
   # A change to any of these on a published event re-materializes it.
   SCHEDULE_ATTRIBUTES = %w[cadence dtstart duration_minutes timezone rrule rrule_until venue_id status dormant_at].freeze
 
@@ -66,10 +68,25 @@ class Event < ApplicationRecord
   validates :rsvp_mode, inclusion: { in: RSVP_MODES }
 
   scope :published, -> { where(status: "published") }
+  # What public lists, the map, feed, and search may show (R-16, R-27, and
+  # hidden_at from docs/data-model.md).
+  scope :listed, -> { published.where(visibility: "public", hidden_at: nil, dormant_at: nil) }
   scope :hosted_by, ->(host) { where(host_type: host.class.name, host_id: host.id) }
   # Events the materializer expands (R-11): published, not dormant, with a
   # schedule (announced events get rows only from the host or an admin).
   scope :materializable, -> { published.where(dormant_at: nil).where.not(cadence: "announced") }
+
+  # R-25 as SQL, defined once, so every list computes stale in the query.
+  # Takes the clock so specs under travel_to and the query agree. Never
+  # NULL: created_at backstops a row written past the callbacks (the seed
+  # importer upserts), and a NULL here would drop the row from the keyset
+  # comparison that pages the list.
+  def self.stale_sql(now = Time.current)
+    sanitize_sql_array([
+      "COALESCE(events.claimed_at IS NULL AND COALESCE(events.last_confirmed_at, events.published_at, events.created_at) < ?, FALSE)",
+      now - STALE_AFTER
+    ])
+  end
 
   def published? = status == "published"
   def draft? = status == "draft"

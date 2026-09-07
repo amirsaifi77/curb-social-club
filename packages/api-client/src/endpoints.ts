@@ -15,6 +15,8 @@ export const endpoints = {
   deleteAccount: { path: '/v1/me', method: 'delete' },
   registerDevice: { path: '/v1/devices', method: 'post' },
   updateDevice: { path: '/v1/devices/{anonymous_id}', method: 'patch' },
+  listEvents: { path: '/v1/events', method: 'get' },
+  eventsMap: { path: '/v1/events/map', method: 'get' },
 } as const satisfies Record<string, { path: keyof paths; method: HttpMethod }>;
 
 export type EndpointName = keyof typeof endpoints;

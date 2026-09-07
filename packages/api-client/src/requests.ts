@@ -1,6 +1,10 @@
 import type {
   DeleteMeResponse,
   DeviceResponse,
+  EventsListQuery,
+  EventsListResponse,
+  EventsMapQuery,
+  EventsMapResponse,
   HealthResponse,
   MeResponse,
   RegisterDeviceBody,
@@ -36,6 +40,14 @@ export const api = {
       unwrap(await client.PATCH('/v1/me', { body })),
     destroy: async (client: ApiClient): Promise<DeleteMeResponse> =>
       unwrap(await client.DELETE('/v1/me')),
+  },
+  events: {
+    // Public lists (docs/api.md Events); the discovery hooks (1.11, 1.12)
+    // build on these.
+    list: async (client: ApiClient, query: EventsListQuery = {}): Promise<EventsListResponse> =>
+      unwrap(await client.GET('/v1/events', { params: { query } })),
+    map: async (client: ApiClient, query: EventsMapQuery): Promise<EventsMapResponse> =>
+      unwrap(await client.GET('/v1/events/map', { params: { query } })),
   },
   devices: {
     register: async (client: ApiClient, body: RegisterDeviceBody): Promise<DeviceResponse> =>

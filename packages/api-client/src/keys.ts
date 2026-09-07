@@ -5,6 +5,8 @@ export const queryKeys = {
   health: () => ['curb', 'health'] as const,
   me: () => ['curb', 'me'] as const,
   device: (anonymousId: string) => ['curb', 'devices', anonymousId] as const,
+  events: (query: Record<string, unknown> = {}) => ['curb', 'events', query] as const,
+  eventsMap: (query: Record<string, unknown>) => ['curb', 'events', 'map', query] as const,
 };
 
 export const mutationKeys = {

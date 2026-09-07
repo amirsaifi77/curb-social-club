@@ -24,6 +24,12 @@ Rails.application.routes.draw do
 
       resource :me, only: %i[show update destroy], controller: "me"
       resources :devices, only: %i[create update], param: :anonymous_id
+
+      # Public reads (docs/api.md Events); the collection routes come before
+      # /events/:slug (1.4) so "map" is never taken for a slug.
+      resources :events, only: %i[index] do
+        collection { get :map }
+      end
     end
   end
 end
