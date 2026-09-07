@@ -29,7 +29,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/design-tokens
       '@curb/ui':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/ui
       '@expo/ui':
         specifier: ~57.0.16
@@ -364,10 +364,10 @@ importers:
         specifier: ^27.0.0
         version: 27.4.0
       react:
-        specifier: ^19.1.1
+        specifier: 19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.1.1
+        specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
       typescript:
         specifier: ^5.7.2
