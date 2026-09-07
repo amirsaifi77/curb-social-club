@@ -18,6 +18,11 @@ class Event < ApplicationRecord
   SLUG_SUFFIX_LENGTH = 6
   # R-25: unclaimed and not confirmed (or published) within this long.
   STALE_AFTER = 30.days
+  # R-26: unclaimed and unconfirmed this long goes dormant.
+  DORMANT_AFTER = 90.days
+  # The confirmation clock both use. created_at backstops a row written
+  # past the publish callback, so neither expression can be NULL.
+  CONFIRMED_AT_SQL = "COALESCE(events.last_confirmed_at, events.published_at, events.created_at)".freeze
   # R-14: read-time re-materialization when the horizon is shorter than this.
   MATERIALIZE_ON_READ_WITHIN = 60.days
   # A change to any of these on a published event re-materializes it.
@@ -72,11 +77,18 @@ class Event < ApplicationRecord
   scope :published, -> { where(status: "published") }
   # What public lists, the map, feed, and search may show (R-16, R-27, and
   # hidden_at from docs/data-model.md).
-  scope :listed, -> { published.where(visibility: "public", hidden_at: nil, dormant_at: nil) }
+  scope :not_dormant, -> { where(dormant_at: nil) }
+  scope :unclaimed, -> { where(claimed_at: nil) }
+  scope :listed, -> { published.not_dormant.where(visibility: "public", hidden_at: nil) }
+  # R-25 and R-26 as scopes for the jobs and the admin dashboard.
+  scope :stale, ->(now = Time.current) { unclaimed.where("#{CONFIRMED_AT_SQL} < ?", now - STALE_AFTER) }
+  scope :decayable, lambda { |now = Time.current|
+    published.unclaimed.not_dormant.where("#{CONFIRMED_AT_SQL} < ?", now - DORMANT_AFTER)
+  }
   scope :hosted_by, ->(host) { where(host_type: host.class.name, host_id: host.id) }
   # Events the materializer expands (R-11): published, not dormant, with a
   # schedule (announced events get rows only from the host or an admin).
-  scope :materializable, -> { published.where(dormant_at: nil).where.not(cadence: "announced") }
+  scope :materializable, -> { published.not_dormant.where.not(cadence: "announced") }
   # Carries the R-25 flag on the row so a detail read computes it in SQL too.
   scope :with_stale, -> { select("events.*", "#{stale_sql} AS stale_flag") }
 
@@ -86,10 +98,7 @@ class Event < ApplicationRecord
   # importer upserts), and a NULL here would drop the row from the keyset
   # comparison that pages the list.
   def self.stale_sql(now = Time.current)
-    sanitize_sql_array([
-      "COALESCE(events.claimed_at IS NULL AND COALESCE(events.last_confirmed_at, events.published_at, events.created_at) < ?, FALSE)",
-      now - STALE_AFTER
-    ])
+    sanitize_sql_array([ "COALESCE(events.claimed_at IS NULL AND #{CONFIRMED_AT_SQL} < ?, FALSE)", now - STALE_AFTER ])
   end
 
   def published? = status == "published"

@@ -9,6 +9,12 @@ module Geo
     FACTORY.point(lng.to_f, lat.to_f)
   end
 
+  # The same point as a bound SQL fragment, for the queries that build
+  # their own SQL. Always sanitized, never interpolated by the caller.
+  def self.point_sql(lat, lng)
+    ActiveRecord::Base.sanitize_sql_array([ "ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography", lng.to_f, lat.to_f ])
+  end
+
   # True only for an IANA identifier such as America/Los_Angeles; Rails
   # display names ("Pacific Time (US & Canada)") are rejected because the
   # materializer hands this string to TZInfo.

@@ -62,8 +62,8 @@ Not in this phase: the write endpoints `POST /events`, `PATCH /events/:id`, `DEL
 
 **Confirmation and seed decay**
 
-- R-25 An event is `stale` when `claimed_at IS NULL AND COALESCE(last_confirmed_at, published_at) < now() - interval '30 days'`; `stale` MUST be exposed on EventSummary and computed in SQL. (US-5)
-- R-26 `SeedDecayJob` (nightly at 02:45 America/Los_Angeles) MUST set `dormant_at = now()` on events where `claimed_at IS NULL AND status = 'published' AND dormant_at IS NULL AND COALESCE(last_confirmed_at, published_at) < now() - interval '90 days'`, and MUST log the count and slugs. (US-5)
+- R-25 An event is `stale` when `claimed_at IS NULL AND COALESCE(last_confirmed_at, published_at, created_at) < now() - interval '30 days'`; `stale` MUST be exposed on EventSummary and computed in SQL, and MUST never be null (a row written past the publish callback, as the seed importer's upsert is, still has `created_at`). (US-5)
+- R-26 `SeedDecayJob` (nightly at 02:45 America/Los_Angeles) MUST set `dormant_at = now()` on events where `claimed_at IS NULL AND status = 'published' AND dormant_at IS NULL AND COALESCE(last_confirmed_at, published_at, created_at) < now() - interval '90 days'` (the same clock as R-25), and MUST log the count and slugs. (US-5)
 - R-27 A dormant event MUST be excluded from `GET /events`, `GET /events/map`, `GET /feed`, search, host page upcoming lists, and the web sitemap, MUST still return 200 on `GET /events/:slug` with `dormant: true`, and MUST keep its existing occurrences untouched (no cancellation, no notifications). (US-5)
 - R-28 `dormant_at` MUST be cleared by `POST /events/:id/confirm`, by claim approval (admin.md A09), and by an admin "Verify now" or schedule edit (admin.md A04); the seed importer MUST set `last_confirmed_at` and `verified_at` to `verified_date` and only ever move `last_confirmed_at` forward. (US-5, US-7)
 
@@ -71,7 +71,7 @@ Not in this phase: the write endpoints `POST /events`, `PATCH /events/:id`, `DEL
 
 - R-29 `Seeds::EventRowImporter` MUST accept the CSV format in Data, validate every row before writing any (dry run returns a per-row report with `action` in `create`, `update`, `skip`, `error`), upsert on `slug`, resolve `host_type` and `host_slug` (blank means the app account as `User`), dedupe the venue per R-6, create `event_sponsorships` from `sponsors`, and never overwrite `host_*` or `claimed_at` on a claimed event (report `skip` for those columns). (US-7)
 - R-30 Every seed row MUST have `verification_source_url` and `verified_date` (gaps item 6); rows without them MUST be rejected with a row-level error. (US-7)
-- R-31 `HostConsistencyJob` (nightly at 02:30 America/Los_Angeles) MUST report every published event whose host row is missing or whose club or sponsor is `hidden`, rewrite any `host_name` that differs from the host's current name, and expose the report to the admin dashboard (A02) and Sentry as a breadcrumb. (US-3)
+- R-31 `HostConsistencyJob` (nightly at 02:30 America/Los_Angeles) MUST report every published event whose host row is missing or whose club or sponsor is `hidden`, rewrite any `host_name` that differs from the host's current name, and expose the report to the admin dashboard (A02) and Sentry as a breadcrumb. The report is a hash of `generated_at`, `missing`, `hidden`, and `renamed` cached in Solid Cache under `host_consistency:latest` for 30 days, which is what A02 reads. It reports and never hides: a hidden club or sponsor keeps hosting its events (clubs.md R-5, sponsors.md R-5). (US-3)
 - R-32 `bin/rails seeds:import[path]` MUST run the same importer as A07 with `dry_run` off and print the report. (US-7)
 
 **Mobile**
