@@ -13,3 +13,30 @@ class Device < ApplicationRecord
     update!(user: nil, push_token: nil)
   end
 end
+
+# == Schema Information
+#
+# Table name: devices
+#
+#  id            :uuid             not null, primary key
+#  app_version   :text
+#  home_location :geography        point, 4326
+#  last_seen_at  :timestamptz
+#  platform      :text             not null
+#  push_enabled  :boolean          default(TRUE), not null
+#  push_token    :text
+#  timezone      :text
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  anonymous_id  :uuid             not null
+#  user_id       :uuid
+#
+# Indexes
+#
+#  index_devices_on_anonymous_id  (anonymous_id) UNIQUE
+#  index_devices_on_user_id       (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
+#
