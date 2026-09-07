@@ -16,6 +16,8 @@ class Event < ApplicationRecord
   SLUG_LENGTH = 3..60
   SLUG_SUFFIX_ALPHABET = [ *"a".."z", *"0".."9" ].freeze
   SLUG_SUFFIX_LENGTH = 6
+  # A change to any of these on a published event re-materializes it.
+  SCHEDULE_ATTRIBUTES = %w[cadence dtstart duration_minutes timezone rrule rrule_until venue_id status dormant_at].freeze
 
   belongs_to :host, polymorphic: true, optional: true
   belongs_to :created_by, class_name: "User"
@@ -32,12 +34,14 @@ class Event < ApplicationRecord
   before_destroy :remember_sponsor_ids, prepend: true
   before_validation :generate_slug, on: :create
   before_validation :copy_timezone_from_venue, on: :create
+  before_validation :truncate_dtstart
   before_validation :write_host_name
   before_validation :normalize_source_url
   before_save :stamp_published_at
   after_save :recount_hosts_after_save,
              if: -> { saved_change_to_status? || saved_change_to_host_type? || saved_change_to_host_id? }
   after_destroy :recount_hosts_after_destroy
+  after_commit :enqueue_materializer, on: [ :create, :update ], if: :materialize_after_commit?
 
   validates :host_type, inclusion: { in: HOST_TYPES }
   validates :host_id, presence: true
@@ -63,12 +67,21 @@ class Event < ApplicationRecord
 
   scope :published, -> { where(status: "published") }
   scope :hosted_by, ->(host) { where(host_type: host.class.name, host_id: host.id) }
+  # Events the materializer expands (R-11): published, not dormant, with a
+  # schedule (announced events get rows only from the host or an admin).
+  scope :materializable, -> { published.where(dormant_at: nil).where.not(cadence: "announced") }
 
   def published? = status == "published"
   def draft? = status == "draft"
   def recurring? = cadence != "once"
   def dormant? = dormant_at.present?
   def claimed? = claimed_at.present?
+  def materializable? = published? && !dormant? && cadence != "announced"
+
+  # R-15: "Every Saturday", "First Sunday of the month", ...; nil for once.
+  def rrule_text
+    Recurrence::Describer.call(self)
+  end
 
   # R-9: scheduled occurrences only. Bulk writers (the materializer's
   # upsert) call this after they finish since upsert_all skips callbacks.
@@ -171,6 +184,26 @@ class Event < ApplicationRecord
 
   def remember_sponsor_ids
     @sponsor_ids_before_destroy = sponsor_ids
+  end
+
+  # Occurrence starts are whole seconds (the materializer truncates ice_cube
+  # times), so dtstart is stored the same way and lookups by starts_at agree.
+  def truncate_dtstart
+    self.dtstart = dtstart.change(usec: 0) if dtstart && dtstart.usec.nonzero?
+  end
+
+  # R-10: after create or a schedule change of a published event. A draft
+  # that is published later fires then, since status is a schedule attribute.
+  def materialize_after_commit?
+    materializable? && (previously_new_record? || schedule_changed?)
+  end
+
+  def schedule_changed?
+    (saved_changes.keys & SCHEDULE_ATTRIBUTES).any?
+  end
+
+  def enqueue_materializer
+    MaterializeOccurrencesJob.perform_later(id)
   end
 
   # clubs.events_count and sponsors.events_count count published events by

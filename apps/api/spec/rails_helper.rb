@@ -27,6 +27,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ProviderTokens
   config.include ActiveJob::TestHelper
+  config.include ActiveSupport::Testing::TimeHelpers
 
   config.before do
     stub_provider_endpoints
