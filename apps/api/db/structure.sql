@@ -95,7 +95,7 @@ CREATE TABLE public.admin_audits (
     target_id uuid,
     changeset jsonb DEFAULT '{}'::jsonb NOT NULL,
     ip inet,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at timestamp(6) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 

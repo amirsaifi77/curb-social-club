@@ -32,7 +32,7 @@ Not in this spec: a JSON admin API (none; the admin has no OpenAPI contract); a 
 
 **Data**
 
-- R-1 Every non-GET admin request that changes a row MUST write an `admin_audits` row with `admin_id`, `action`, `target_type`, `target_id`, `changeset` (before and after for changed attributes, excluding blobs and bodies over 2,000 chars; the column is not called `changes` because Active Record reserves that name), and `ip`. Sign-in and sign-out are audited as `sign_in` and `sign_out` with the user as target. A non-GET request that completes without an explicit audit is recorded generically by `Admin::Auditable` as `controller#action` with its filtered params, so Mission Control's job actions are covered and a new write cannot ship unaudited. (US-7)
+- R-1 Every non-GET admin request that changes a row MUST write an `admin_audits` row with `admin_id`, `action`, `target_type`, `target_id`, `changeset` (before and after for changed attributes, excluding blobs and bodies over 2,000 chars; the column is not called `changes` because Active Record reserves that name), and `ip`. Sign-in and sign-out are audited as `sign_in` and `sign_out` with the user as target, and a verified token for a user who is not active staff as `sign_in_refused` with the Google `sub`; the credential itself is a filtered parameter and never lands in logs or audits. A non-GET request that completes without an explicit audit is recorded generically by `Admin::Auditable` as `controller#action` with its filtered params, so Mission Control's job actions are covered and a new write cannot ship unaudited. (US-7)
 - R-2 Admin edits of `events` MUST keep `host_name` in sync (events-and-occurrences.md R-2), MUST enqueue the materializer when `dtstart`, `duration_minutes`, `timezone`, `rrule`, `rrule_until`, `cadence`, `venue_id`, or `status` change, and MUST clear `dormant_at` on any such change or on Verify now. (US-2, US-4)
 - R-3 Suspending a user MUST set `users.status` `suspended` and delete every `sessions` row of that user in the same transaction; unsuspending sets `active`. (US-2)
 - R-4 Deleting a user from A08 MUST run the same path as `DELETE /me` (`AccountDeletionJob`), never a raw destroy. (US-2)
@@ -76,7 +76,7 @@ Not in this spec: a JSON admin API (none; the admin has no OpenAPI contract); a 
 
 **Admin and jobs**
 
-- R-30 A request spec MUST enumerate `Rails.application.routes` under `/admin` (including Mission Control's engine routes), substitute a UUID for every `:id`, and assert 302 to `/admin/sign_in` for anonymous and `member` sessions on every GET, and 302 or 422 (CSRF) on every non-GET, so a new route cannot ship unguarded. (US-8)
+- R-30 A request spec MUST enumerate `Rails.application.routes` under `/admin` (including Mission Control's engine routes; a route with no verb counts for every verb), substitute a UUID for every `:id`, and assert 302 to `/admin/sign_in` for anonymous and `member` sessions on every route (the test environment disables CSRF, so a non-GET reaches the session guard; the 422 case is proven separately), and 302 to `/admin` for a moderator on every Mission Control route, so a new route cannot ship unguarded. (US-8)
 - R-31 A request spec MUST assert that `GET /v1/health` and one `Api::V1` write endpoint respond without `Set-Cookie`. (US-8)
 
 ## Data
@@ -152,7 +152,7 @@ None in v1. Admin routes are Rails resources under `namespace :admin`: `GET /adm
 | AC-3 | Google id tokens signed by the test JWKS for an `admin` identity, then for a `member`, then with the wrong audience | `POST /admin/session` three times | 302 to `/admin` with a session cookie and a `sign_in` audit row; 302 to `/admin/sign_in` with the not-an-admin flash and no admin session; 302 with the invalid-token flash and no admin session | R-7, R-8, R-1 |
 | AC-4 | A signed-in moderator | Phase 0: `GET /admin`, then `GET /admin/jobs`. As each screen lands: `GET /admin/reports`, `GET /admin/claims`, `GET /admin/users`, then `GET /admin/venues` | 200, then 302 to `/admin` with the role flash. 200, 200, 200, then 302 to `/admin` with the role flash | R-9, R-12 |
 | AC-5 | A signed-in admin | `DELETE /admin/session` without the CSRF token, then with it | 422 (`InvalidAuthenticityToken`) and no audit row, then 302 to `/admin/sign_in` with a `sign_out` audit row carrying `admin_id` and `ip` | R-5, R-1 |
-| AC-6 | `GET /v1/health` and `PUT /v1/follows` with a token | Inspect headers | No `Set-Cookie` on either | R-5, R-31 |
+| AC-6 | `GET /v1/health` and one `Api::V1` write with a token (`POST /v1/devices` until follows exist) | Inspect headers | No `Set-Cookie` and no CSP header on either | R-5, R-31 |
 | AC-7 | An event hosted by a club, edited in A04 to a different `rrule` | The form is submitted | `host_name` unchanged, `MaterializeOccurrencesJob` enqueued once, `dormant_at` null, an audit row whose `changeset` contains `rrule` before and after | R-2, R-15 |
 | AC-8 | A dormant unclaimed event | Verify now is clicked | `verified_at` and `last_confirmed_at` are now, `dormant_at` null, audit row `action` `verify` | R-16, R-2 |
 | AC-9 | An `announced` event | An occurrence is added for next Saturday, then Re-materialize runs | One row with `overridden_at` set survives; a cancel with an empty note is rejected with a form error | R-17 |

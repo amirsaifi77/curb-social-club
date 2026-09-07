@@ -20,6 +20,12 @@ module Admin
       AdminAudit.record(admin: admin, action: action, target: target, changes: changes, ip: request.remote_ip)
     end
 
+    # For a non-GET request that changed nothing worth a row (a refused
+    # sign-in with a token that never verified), so the generic audit stays quiet.
+    def skip_audit
+      @audited = true
+    end
+
     def audit_unrecorded_write
       return if @audited || response.status >= 400 || current_admin.nil?
 

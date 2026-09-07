@@ -32,11 +32,17 @@ class Rack::Attack
     req.ip if req.path == "/admin" || req.path.start_with?("/admin/")
   end
 
+  # JSON envelope for /v1, plain text for the admin UI (A01's rate-limited state).
   self.throttled_responder = lambda do |request|
     match = request.env["rack.attack.match_data"]
     retry_after = match ? (match[:period] - (Time.now.to_i % match[:period])).to_s : "60"
-    body = { error: { code: "rate_limited", message: "Too many requests. Try again shortly." } }.to_json
-    [ 429, { "Content-Type" => "application/json", "Retry-After" => retry_after }, [ body ] ]
+    message = "Too many requests. Try again shortly."
+    if request.path == "/admin" || request.path.start_with?("/admin/")
+      [ 429, { "Content-Type" => "text/plain; charset=utf-8", "Retry-After" => retry_after }, [ message ] ]
+    else
+      body = { error: { code: "rate_limited", message: message } }.to_json
+      [ 429, { "Content-Type" => "application/json", "Retry-After" => retry_after }, [ body ] ]
+    end
   end
 end
 

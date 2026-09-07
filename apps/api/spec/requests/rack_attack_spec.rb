@@ -30,8 +30,16 @@ RSpec.describe "rack-attack", type: :request do
     expect(response.headers["Retry-After"]).to be_present
   end
 
-  it "leaves GET /admin under the broader 300 per minute limit" do
-    get "/admin/sign_in"
-    expect(response).to have_http_status(:ok)
+  it "answers a throttled admin request in plain text, not the JSON envelope" do
+    11.times { post "/admin/session", params: { credential: "x" } }
+    expect(response).to have_http_status(:too_many_requests)
+    expect(response.media_type).to eq("text/plain")
+    expect(response.body).to eq("Too many requests. Try again shortly.")
+  end
+
+  it "declares the /admin and seed upload limits from admin.md R-11" do
+    expect(Rack::Attack.throttles["admin/ip"]).to have_attributes(limit: 300, period: 60)
+    expect(Rack::Attack.throttles["admin/seeds/ip"]).to have_attributes(limit: 10, period: 3600)
+    expect(Rack::Attack.throttles["admin/session/ip"]).to have_attributes(limit: 10, period: 60)
   end
 end

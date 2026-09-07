@@ -15,7 +15,7 @@
     <% if current_admin %>
       <nav>
         <%= link_to "Dashboard", admin_root_path %>
-        <%= link_to "Jobs", "/admin/jobs" if current_admin.admin? %>
+        <%= link_to "Jobs", mission_control_jobs.root_path if current_admin.admin? %>
       </nav>
       <div class="who">
         <span><%= current_admin.email.presence || current_admin.profile&.handle %></span>

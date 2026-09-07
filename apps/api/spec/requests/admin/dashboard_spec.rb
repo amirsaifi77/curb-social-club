@@ -14,7 +14,7 @@ RSpec.describe "admin dashboard and jobs", type: :request do
     expect(response.body).to include("Users")
     expect(response.body).to include("Failed")
     expect(response.body).to include("Recurring tasks")
-    expect(response.body).to include('href="/admin/jobs"')
+    expect(response.body).to include('href="/admin/jobs/"')
     expect(response.body).to include("Sign out")
     expect(response.body).to include(admin.email)
   end
@@ -23,7 +23,8 @@ RSpec.describe "admin dashboard and jobs", type: :request do
     sign_in_moderator(moderator)
     get "/admin"
     expect(response).to have_http_status(:ok)
-    expect(response.body).not_to include('href="/admin/jobs"')
+    expect(response.body).not_to include("/admin/jobs")
+    expect(response.body).not_to include("Open Jobs")
 
     get "/admin/jobs"
     expect(response).to redirect_to("/admin")

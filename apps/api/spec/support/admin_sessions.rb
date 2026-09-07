@@ -23,7 +23,8 @@ module AdminSessions
 
   def set_admin_session(user)
     env_request = ActionDispatch::Request.new(Rails.application.env_config.deep_dup)
-    env_request.cookie_jar.encrypted[SESSION_COOKIE] = { "session_id" => SecureRandom.hex(16), "admin_user_id" => user.id }
+    # A bare Hash would be read as cookie options; the session data goes under :value.
+    env_request.cookie_jar.encrypted[SESSION_COOKIE] = { value: { "session_id" => SecureRandom.hex(16), "admin_user_id" => user.id } }
     cookies[SESSION_COOKIE] = env_request.cookie_jar[SESSION_COOKIE]
   end
 
@@ -47,8 +48,12 @@ module AdminSessions
     ActionController::Base.allow_forgery_protection = false
   end
 
+  ALL_VERBS = %w[GET POST PUT PATCH DELETE].freeze
+
   # Every route under /admin, engine routes included, as [verb, path] pairs
-  # with route parameters still symbolic (R-30).
+  # with route parameters still symbolic (R-30). A route with no verb (a
+  # `via: :all` match or a mounted Rack app) expands to every verb rather
+  # than vanishing from the sweep.
   def admin_routes(route_set = Rails.application.routes, prefix = "")
     route_set.routes.flat_map do |route|
       path = prefix + route.path.spec.to_s.sub("(.:format)", "")
@@ -56,7 +61,8 @@ module AdminSessions
       if app.is_a?(Class) && app < Rails::Engine
         admin_routes(app.routes, path.chomp("/"))
       elsif path.start_with?("/admin")
-        route.verb.to_s.split("|").map { |verb| [ verb, path ] }
+        verbs = route.verb.to_s.split("|").presence || ALL_VERBS
+        verbs.map { |verb| [ verb, path ] }
       else
         []
       end

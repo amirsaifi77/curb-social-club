@@ -9,7 +9,7 @@ class CreateAdminAudits < ActiveRecord::Migration[8.1]
       t.uuid :target_id
       t.jsonb :changeset, null: false, default: {}
       t.inet :ip
-      t.timestamp :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+      t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
     end
 
     add_index :admin_audits, %i[target_type target_id created_at], order: { created_at: :desc }

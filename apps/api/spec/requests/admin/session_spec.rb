@@ -52,6 +52,9 @@ RSpec.describe "admin session", type: :request do
       post "/admin/session", params: { credential: admin_google_token(member) }
       expect(response).to redirect_to("/admin/sign_in")
       expect(admin_session_user_id).to be_nil
+      refused = AdminAudit.where(action: "sign_in_refused").sole
+      expect(refused).to have_attributes(admin_id: nil, target_id: member.id)
+      expect(refused.changeset["sub"]).to eq(member.identities.sole.provider_uid)
       follow_redirect!
       expect(flash_text).to include("This Google account is not an admin.")
       get "/admin"
@@ -64,6 +67,19 @@ RSpec.describe "admin session", type: :request do
       follow_redirect!
       expect(flash_text).to include("Couldn't verify that sign-in. Try again.")
       expect(AdminAudit.where(action: "sign_in").count).to eq(1)
+      expect(AdminAudit.count).to eq(2)
+    end
+
+    it "never stores or logs the credential, even for a signed-in admin posting a bad one" do
+      sign_in_admin(admin)
+      post "/admin/session", params: { credential: "not-a-token" }
+      expect(response).to redirect_to("/admin/sign_in")
+      expect(AdminAudit.pluck(:changeset).to_json).not_to include("not-a-token")
+      expect(request.filtered_parameters["credential"]).to eq("[FILTERED]")
+
+      post "/admin/session", params: { credential: [ "x" ] }
+      expect(response).to redirect_to("/admin/sign_in")
+      expect(flash[:alert]).to eq("Couldn't verify that sign-in. Try again.")
     end
 
     it "refuses an unknown identity, a suspended admin, and a missing credential" do
@@ -98,7 +114,7 @@ RSpec.describe "admin session", type: :request do
       sign_in_admin(admin)
       with_forgery_protection do
         delete "/admin/session"
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(AdminAudit.where(action: "sign_out")).not_to exist
 
         get "/admin"
@@ -109,7 +125,9 @@ RSpec.describe "admin session", type: :request do
       end
       expect(admin_session_user_id).to be_nil
       expect(AdminAudit.where(action: "sign_out")).to exist
-      expect(AdminAudit.where(action: "sign_out").sole).to have_attributes(admin_id: admin.id, target_id: admin.id)
+      sign_out = AdminAudit.where(action: "sign_out").sole
+      expect(sign_out).to have_attributes(admin_id: admin.id, target_id: admin.id)
+      expect(sign_out.ip).to be_present
       follow_redirect!
       expect(flash_text).to include("Signed out.")
       get "/admin"

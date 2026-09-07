@@ -18,6 +18,7 @@ module Admin
 
     class_attribute :moderator_access, default: false
 
+    before_action :drop_stale_session
     before_action :require_admin_session
     before_action :require_admin_role
 
@@ -49,6 +50,13 @@ module Admin
 
       id = session[:admin_user_id]
       @current_admin = id.present? ? User.active.where(role: STAFF_ROLES).find_by(id: id) : nil
+    end
+
+    # A cookie naming a user who is not active staff (demoted, suspended,
+    # deleted, or never staff) is dropped on every admin request, the
+    # sign-in routes included, so no route leaves a member session behind.
+    def drop_stale_session
+      reset_session if session[:admin_user_id].present? && current_admin.nil?
     end
 
     def require_admin_session

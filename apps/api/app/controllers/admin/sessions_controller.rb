@@ -15,16 +15,23 @@ module Admin
       redirect_to admin_root_path if current_admin
     end
 
+    # A verified token for a user who is not active staff is audited as
+    # sign_in_refused with the Google sub (R-1); a token that never
+    # verified is not worth a row.
     def create
       claims = Auth::GoogleTokenVerifier.new(audience: Auth::Config.google_admin_client_id).verify(params[:credential])
       user = Identity.find_by(provider: "google", provider_uid: claims["sub"])&.user
-      return redirect_to admin_sign_in_path, alert: NOT_AN_ADMIN unless staff?(user)
+      unless staff?(user)
+        audit("sign_in_refused", target: user, changes: { "sub" => claims["sub"] })
+        return redirect_to admin_sign_in_path, alert: NOT_AN_ADMIN
+      end
 
       reset_session
       session[:admin_user_id] = user.id
       audit("sign_in", target: user, admin: user)
       redirect_to admin_root_path
     rescue Auth::InvalidToken
+      skip_audit
       redirect_to admin_sign_in_path, alert: INVALID_TOKEN
     end
 
