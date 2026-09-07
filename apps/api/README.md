@@ -99,6 +99,7 @@ apps/api/
 | `pnpm --filter @curb/api lint` | rubocop |
 | `pnpm --filter @curb/api openapi` | regenerate `swagger/v1/openapi.yaml` |
 | `bin/rails c` | console |
+| `bundle exec annotaterb models` | refresh the schema comment at the bottom of each model after a migration (`.annotaterb.yml`; models only) |
 | `bin/rails db:seed` | seed venues and meets |
 | `bin/rails "admin:grant[you@example.com]"` | give an existing user the admin role (`[email,moderator]` for moderator), then sign in at `/admin/sign_in` |
 | `bin/rails assets:precompile` | propshaft output for `/admin` and Mission Control in production (`public/assets`, gitignored) |

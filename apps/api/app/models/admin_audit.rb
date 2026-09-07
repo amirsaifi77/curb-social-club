@@ -31,3 +31,26 @@ class AdminAudit < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: admin_audits
+#
+#  id          :uuid             not null, primary key
+#  action      :text             not null
+#  changeset   :jsonb            not null
+#  ip          :inet
+#  target_type :text
+#  created_at  :datetime         not null
+#  admin_id    :uuid
+#  target_id   :uuid
+#
+# Indexes
+#
+#  index_admin_audits_on_admin_id_and_created_at                   (admin_id,created_at DESC)
+#  index_admin_audits_on_target_type_and_target_id_and_created_at  (target_type,target_id,created_at DESC)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (admin_id => users.id) ON DELETE => nullify
+#

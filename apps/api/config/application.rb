@@ -70,6 +70,9 @@ module CurbSocialClub
     # structure.sql, because PostGIS types do not round-trip through schema.rb.
     config.active_record.schema_format = :sql
 
+    # Feature flags (config/features.yml), read once here; see lib/features.rb.
+    config.x.features = config_for(:features)
+
     # UUID primary keys everywhere (docs/data-model.md).
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid

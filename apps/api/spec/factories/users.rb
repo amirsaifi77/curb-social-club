@@ -22,6 +22,17 @@ FactoryBot.define do
       status { "deleted" }
       deleted_at { 31.days.ago }
     end
+
+    # The seeded system account (handle curb). Reuses the row when it exists
+    # so a spec can call it more than once.
+    factory :app_account do
+      role { "admin" }
+      initialize_with { User.app_account || new }
+
+      after(:create) do |user|
+        user.profile.update!(handle: "curb", display_name: "Curb Social Club", is_host: true)
+      end
+    end
   end
 
   factory :profile do

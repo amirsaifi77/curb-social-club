@@ -191,7 +191,7 @@ Indexes: `GIST (location)`, `BTREE (external_source, external_place_id)`. Dedupe
 | host_name | text | Denormalized display name of the host, written on save and when the host renames. Used for search and list payloads. |
 | created_by_id | uuid FK users | The user who created the row. The app account for seeds and admin-created events. |
 | venue_id | uuid FK venues | |
-| import_id | uuid FK imports, nullable | Provenance. |
+| import_id | uuid, nullable | Provenance. Indexed; the FK to `imports` is added by the migration that creates that table (Phase 3), since the Phase 1 host migration lands first. |
 | title | text | |
 | slug | text, unique | `<kebab-title>-<6 char suffix>`. |
 | description | text | Markdown subset. |
@@ -223,7 +223,7 @@ Indexes: `GIST (location)`, `BTREE (external_source, external_place_id)`. Dedupe
 | followers_count | integer | Counter cache. |
 | comments_count | integer | Counter cache. |
 
-Indexes: `UNIQUE (slug)`, `GIN (tags)`, `BTREE (host_type, host_id, status)`, `UNIQUE (source_url) WHERE source_url IS NOT NULL`, `GIN (title gin_trgm_ops)` and `GIN (host_name gin_trgm_ops)` for search.
+Indexes: `UNIQUE (slug)`, `GIN (tags)`, `BTREE (host_type, host_id, status)`, `UNIQUE (source_url) WHERE source_url IS NOT NULL`, `GIN (title gin_trgm_ops)` and `GIN (host_name gin_trgm_ops)` for search, `BTREE (dormant_at) WHERE dormant_at IS NOT NULL` and `BTREE (claimed_at, last_confirmed_at)` for the decay job, `BTREE (import_id)`.
 
 ## Clubs and sponsors
 
@@ -261,7 +261,7 @@ Indexes: `UNIQUE (slug)`, `GIST (home_location)`, `GIN (name gin_trgm_ops)`, `BT
 | invited_by_id | uuid FK users, nullable | |
 | joined_at | timestamptz, nullable | Set when status becomes `active`. |
 
-Unique `(club_id, user_id)`. Index `(user_id, status)`. At launch, memberships are created only by admins (seed owners); join and invite flows are post-launch (see `docs/specs/clubs.md`).
+Unique `(club_id, user_id)`. Index `(user_id, status)`. Partial unique `(club_id) WHERE role = 'owner'` backs the one-owner rule at the database level (the model also rejects removing the last owner, which an index cannot). At launch, memberships are created only by admins (seed owners); join and invite flows are post-launch (see `docs/specs/clubs.md`).
 
 ### sponsors
 
@@ -335,7 +335,7 @@ Unique `(user_id, event_id) WHERE status = 'pending'`. Approval sets `events.hos
 | check_in_count | integer | Counter cache. |
 | photos_count | integer | Counter cache. |
 
-Indexes: `UNIQUE (event_id, starts_at)`, `GIST (location, starts_at)` with `btree_gist`, `BTREE (starts_at) WHERE status = 'scheduled'`.
+Indexes: `UNIQUE (event_id, starts_at)` (also the "upcoming dates" index from `docs/architecture.md` 3.3), `GIST (location, starts_at)` with `btree_gist`, `BTREE (starts_at) WHERE status = 'scheduled'`.
 
 ## Participation
 

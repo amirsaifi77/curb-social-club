@@ -1,0 +1,8 @@
+# Feature flags, read once at boot into Rails.configuration.x.features and
+# exposed through Features.enabled?(:name). Gated write endpoints return 403
+# not_enabled while a flag is false (docs/specs/clubs.md R-10 and Data,
+# docs/specs/sponsors.md Data). Flip a flag here and deploy; there is no
+# runtime toggle.
+shared:
+  clubs_self_service: false
+  sponsors_self_service: false
