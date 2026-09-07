@@ -1,0 +1,9 @@
+{
+  "extends": ["expo/tsconfig.base", "@curb/config/tsconfig.react-native.json"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["app", "src", "*.ts", "*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}
