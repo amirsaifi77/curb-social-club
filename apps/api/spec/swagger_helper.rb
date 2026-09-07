@@ -99,7 +99,8 @@ RSpec.configure do |config|
               cover_url: { type: :string, nullable: true }, cover_blurhash: { type: :string, nullable: true },
               tags: { type: :array, items: { type: :string, enum: Event::TAGS } },
               recurring: { type: :boolean }, rrule_text: { type: :string, nullable: true },
-              host: { "$ref" => "#/components/schemas/Host" },
+              host: { allOf: [ { "$ref" => "#/components/schemas/Host" } ], nullable: true,
+                      description: "Null only while the host row is missing; HostConsistencyJob reports the drift" },
               venue: {
                 type: :object,
                 properties: {

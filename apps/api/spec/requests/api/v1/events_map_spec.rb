@@ -97,6 +97,18 @@ RSpec.describe "v1/events/map" do
       end
     end
 
+    it "leaves draft, unlisted, hidden, and dormant events off the map (R-27)" do
+      shown = create_meet(:victoria_gardens, title: "Shown")
+      create_meet(:victoria_gardens, title: "Unlisted", visibility: "unlisted")
+      create_meet(:victoria_gardens, title: "Hidden", hidden_at: Time.current)
+      create_meet(:victoria_gardens, title: "Dormant", dormant_at: Time.current)
+      draft = create(:event, venue: shown.venue, title: "Draft")
+      create(:event_occurrence, event: draft)
+
+      get "/v1/events/map", params: { bbox: fontana_box }
+      expect(json["data"].map { |pin| pin["title"] }).to eq([ "Shown" ])
+    end
+
     it "requires bbox and rejects a malformed one" do
       get "/v1/events/map"
       expect(response).to have_http_status(:bad_request)

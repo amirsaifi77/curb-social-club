@@ -5,6 +5,7 @@ module Api
     # payload carries nothing viewer-specific in Phase 1.
     class EventsController < ApplicationController
       rescue_from Geo::ParamError do |e|
+        response.cache_control.replace(no_store: true)
         render_error :bad_request, e.message, status: :bad_request
       end
 

@@ -77,9 +77,15 @@ class Event < ApplicationRecord
   scope :materializable, -> { published.where(dormant_at: nil).where.not(cadence: "announced") }
 
   # R-25 as SQL, defined once, so every list computes stale in the query.
-  # Takes the clock so specs under travel_to and the query agree.
+  # Takes the clock so specs under travel_to and the query agree. Never
+  # NULL: created_at backstops a row written past the callbacks (the seed
+  # importer upserts), and a NULL here would drop the row from the keyset
+  # comparison that pages the list.
   def self.stale_sql(now = Time.current)
-    sanitize_sql_array([ "(events.claimed_at IS NULL AND COALESCE(events.last_confirmed_at, events.published_at) < ?)", now - STALE_AFTER ])
+    sanitize_sql_array([
+      "COALESCE(events.claimed_at IS NULL AND COALESCE(events.last_confirmed_at, events.published_at, events.created_at) < ?, FALSE)",
+      now - STALE_AFTER
+    ])
   end
 
   def published? = status == "published"

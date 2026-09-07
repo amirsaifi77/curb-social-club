@@ -923,7 +923,11 @@ components:
           type: string
           nullable: true
         host:
-          "$ref": "#/components/schemas/Host"
+          allOf:
+          - "$ref": "#/components/schemas/Host"
+          nullable: true
+          description: Null only while the host row is missing; HostConsistencyJob
+            reports the drift
         venue:
           type: object
           properties:

@@ -756,7 +756,8 @@ export interface components {
             tags: ("jdm" | "euro" | "exotic" | "classic" | "muscle" | "truck" | "ev" | "bike" | "all")[];
             recurring: boolean;
             rrule_text: string | null;
-            host: components["schemas"]["Host"];
+            /** @description Null only while the host row is missing; HostConsistencyJob reports the drift */
+            host: components["schemas"]["Host"] | null;
             venue: {
                 /** Format: uuid */
                 id: string;

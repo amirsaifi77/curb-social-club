@@ -1,11 +1,6 @@
 module Geo
-  # Query-string coordinate parsing for the list and map endpoints.
-  Origin = Data.define(:lat, :lng)
-  Bbox = Data.define(:west, :south, :east, :north) do
-    def width = east - west
-    def height = north - south
-  end
-
+  # Query-string coordinate parsing for the list and map endpoints; the
+  # shapes it returns are Geo::Origin and Geo::Bbox.
   module Coordinates
     NEAR_MESSAGE = "near must be lat,lng."
     BBOX_MESSAGE = "bbox must be w,s,e,n."

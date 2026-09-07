@@ -52,7 +52,7 @@ Not in this phase: the write endpoints `POST /events`, `PATCH /events/:id`, `DEL
 
 - R-16 `GET /events` with `near` MUST query `event_occurrences` with `ST_DWithin(location, origin, radius_m)` and `starts_at BETWEEN from AND to`, join `events` for `status = 'published'`, `visibility = 'public'`, `dormant_at IS NULL`, return one EventSummary per event with its earliest occurrence in the window as `next_occurrence`, include `distance_m` from `ST_Distance`, default `radius_km` 32 (80 when `q` is present), clamp to 160, default window now to +14 days, maximum window 90 days. (US-1)
 - R-17 `GET /events` with `bbox=w,s,e,n` MUST use `ST_Intersects(location, ST_MakeEnvelope(w, s, e, n, 4326)::geography)` with the same joins; with `near` as well, the box is the filter and `near` supplies `distance_m` and enables `sort=distance` (discovery.md R-8, the map sheet). `sort=distance` without `near` MUST return 400 `bad_request`. (US-2)
-- R-18 `GET /events` without `near` or `bbox` but with `host=<type>:<id>`, `sponsor=<id>`, or `q` MUST query `events` directly, include `announced` events with `next_occurrence` null, and order by `next_occurrence.starts_at` nulls last. (US-4)
+- R-18 `GET /events` without `near` or `bbox` but with `host=<type>:<id>`, `sponsor=<id>`, or `q` MUST query `events` directly, include `announced` events with `next_occurrence` null, and order by `next_occurrence.starts_at` nulls last. This path has no upper window bound unless `to` is sent, so a monthly or seasonal series still shows its next date on a host page. (US-4)
 - R-19 Filters MUST compose: `tags[]` matches any tag (`&&`), `recurring=true` means `cadence != 'once'`, `q` matches `events.title` or `events.host_name` by trigram similarity (`%` operator, threshold 0.3) or `venues.name` `ILIKE`; `sort=date` (default) orders by the local calendar day of `starts_at`, then `stale` (fresh first), then `starts_at`, then `distance_m`; `sort=distance` requires `near` and orders by `distance_m`. (US-1)
 - R-20 Ordering MUST place stale events after fresh ones within the same local calendar day of `starts_at` (see R-25), and the response MUST paginate by opaque cursor with `meta.next_cursor`. (US-5)
 - R-21 `GET /events/map` MUST require `bbox`, apply `from`, `to`, `tags[]`, return one MapPin per event (its earliest occurrence in the window), cap at 500 ordered by `starts_at`, and set `meta.truncated: true` when more matched. (US-2)
@@ -138,6 +138,16 @@ No screen is owned here. Copy below is the exact wording consumers must use for 
 | `GET /events` and `GET /events/map` 400, malformed bbox | bbox must be w,s,e,n. |
 | `GET /events/map` 400, no bbox | Send bbox as w,s,e,n. |
 | `GET /events/map` 400, bbox over 5 degrees | bbox can be at most 5 degrees wide. Zoom in. |
+| `GET /events` 400, window reversed | to must be after from. |
+| `GET /events` 400, malformed from or to | {from or to} must be an ISO 8601 timestamp. |
+| `GET /events` 400, malformed radius | radius_km must be a number. |
+| `GET /events` 400, unknown sort | sort must be date or distance. |
+| `GET /events` 400, unknown tag | tags must be from: {allowed tags}. |
+| `GET /events` 400, malformed host | host must be <type>:<id> with type user, club, or sponsor. |
+| `GET /events` 400, malformed sponsor | sponsor must be a UUID. |
+| `GET /events` 400, long q | q can be at most 100 characters. |
+| `GET /events` 400, bad limit | limit must be an integer between 1 and 50. |
+| `GET /events` 400, bad cursor | cursor is invalid. |
 | `GET /events` 400, window | The window can be at most 90 days. |
 | Importer row error, missing verification | Row {n}: verification_source_url and verified_date are required. |
 | Importer row error, unknown host | Row {n}: no {host_type} with slug {host_slug}. |

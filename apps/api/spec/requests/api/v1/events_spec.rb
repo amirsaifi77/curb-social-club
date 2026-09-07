@@ -81,6 +81,11 @@ RSpec.describe "v1/events" do
   describe "GET /v1/events with near (R-16, R-19, R-23)" do
     it "AC-2: 80 km sorted by distance puts San Clemente sixth and Victoria Gardens seventh, and 500 km clamps to 160" do
       coastal_fixtures!
+      # Bakersfield, about 195 km from Lido: inside 500 km, outside the clamp.
+      far = create(:venue, location: Geo.point(35.3733, -119.0187), name: "Bakersfield")
+      far_event = create(:event, :published, venue: far, title: "Too far", dtstart: GeoFixtures.next_saturday_0730)
+      create(:event_occurrence, event: far_event, starts_at: far_event.dtstart)
+
       get "/v1/events", params: { near: lido, radius_km: 80, sort: "distance" }
       expect(response).to have_http_status(:ok)
       expect(data_titles.size).to eq(7)
@@ -91,6 +96,7 @@ RSpec.describe "v1/events" do
       expect(response).to have_http_status(:ok)
       expect(data_titles.size).to eq(7)
       expect(data_titles[6]).to eq("Victoria Gardens Cars and Coffee")
+      expect(data_titles).not_to include("Too far")
     end
 
     it "AC-3: from Fontana returns the four Inland Empire meets by starts_at then distance, without Irvine or Lido" do
@@ -183,6 +189,27 @@ RSpec.describe "v1/events" do
       expect(response).to have_http_status(:bad_request)
       get "/v1/events", params: { near: lido, limit: 500 }
       expect(data_titles.size).to eq(5)
+      get "/v1/events?near=#{lido}&limit[]=1"
+      expect(response).to have_http_status(:bad_request)
+      expect(json.dig("error", "message")).to eq("limit must be an integer between 1 and 50.")
+      get "/v1/events", params: { near: lido, limit: "many" }
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "pages every row when published_at is null, which SQL would otherwise make stale NULL (R-25)" do
+      saturday = GeoFixtures.next_saturday_0730
+      %w[A B C].each_with_index { |name, i| create_meet(:corona_del_mar, title: name, starts_at: saturday + i.minutes) }
+      # The seed importer upserts on slug and skips the publish callback.
+      Event.find_by(title: "B").update_columns(published_at: nil, last_confirmed_at: nil)
+
+      seen = []
+      cursor = nil
+      3.times do
+        get "/v1/events", params: { near: lido, limit: 1, cursor: cursor }.compact
+        seen.concat(data_titles)
+        cursor = json.dig("meta", "next_cursor")
+      end
+      expect(seen).to eq(%w[A B C])
     end
 
     it "returns 400 with the spec messages for a bad near, sort=distance without near, and a wrong sort" do

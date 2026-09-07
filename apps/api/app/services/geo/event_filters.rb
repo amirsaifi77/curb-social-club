@@ -80,8 +80,10 @@ module Geo
     end
 
     # R-19: trigram similarity (the % operator at pg_trgm's default 0.3
-    # threshold, served by the GIN indexes) on title and host_name, ILIKE on
-    # the venue name.
+    # threshold) on title and host_name, ILIKE on the venue name. The OR
+    # spans two tables, so the planner scans events rather than using the
+    # trigram GINs; that is fine at seed scale and is the search path to
+    # revisit first when it is not.
     def search_sql
       "(events.title % :q OR events.host_name % :q OR venues.name ILIKE :like)"
     end
