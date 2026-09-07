@@ -1,6 +1,6 @@
 # Spec: Auth and accounts
 
-Status: draft. Phase: 0 (sign-in, sessions, devices, deletion, Settings skeleton), 2 (remaining Settings sections). Last updated: 2026-09-06.
+Status: ready. Phase: 0 (sign-in, sessions, devices, deletion, Settings skeleton), 2 (remaining Settings sections). Last updated: 2026-09-07.
 Depends on: design-system-and-theming.md (S26 and S27 chrome, PrimaryButton). Related decisions: ADR 0006, `docs/architecture.md` section 3.8, gaps items 2 and 3, App Store guidelines 4.8 and 5.1.1(v).
 
 ## Summary

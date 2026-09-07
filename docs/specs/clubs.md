@@ -1,6 +1,6 @@
 # Spec: Clubs
 
-Status: draft. Phase: 1 (pages, club as host), 2 (follow), 7 (membership and management). Last updated: 2026-09-06.
+Status: ready. Phase: 1 (pages, club as host), 2 (follow), 7 (membership and management). Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md, profiles-and-follow.md (follow), admin.md (club CRUD at launch). Related decisions: ADR 0010, gaps items 5 and 29.
 
 ## Summary

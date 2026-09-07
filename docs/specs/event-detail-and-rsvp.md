@@ -1,6 +1,6 @@
 # Spec: Event detail and RSVP
 
-Status: draft. Phase: 1 (detail, directions, share sheet), 2 (RSVP, going list, occurrence detail, story card), 4 (photos and comments light up). Last updated: 2026-09-06.
+Status: ready. Phase: 1 (detail, directions, share sheet), 2 (RSVP, going list, occurrence detail, story card), 4 (photos and comments light up). Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md (Event and Occurrence shapes, confirmation), discovery.md (cards that open S08), sponsors.md (sponsorship data rules), profiles-and-follow.md (Follow, blocks), create-and-host-tools.md (claim, host controls), design-system-and-theming.md (primary CTA). Related decisions: ADR 0010, ADR 0011, gaps items 2, 4, 5, 29.
 
 ## Summary

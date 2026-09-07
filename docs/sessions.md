@@ -1,6 +1,6 @@
 # Claude Code Sessions
 
-Status: v0.1, 2026-09-06. The session prompts for Phase 0 and Phase 1, written out in full, plus the template Sunday planning uses to write the next ones. Each session is one scoped slice of one spec in `docs/specs/`, sized for one weeknight (two to three hours), and ends in a PR. `docs/development-plan.md` holds the phases and dates; this file holds the work.
+Status: v0.2, 2026-09-07 (v0.1 was 2026-09-06; v0.2 adds the commit-as-you-go rule and the usage limit note). The session prompts for Phase 0 and Phase 1, written out in full, plus the template Sunday planning uses to write the next ones. Each session is one scoped slice of one spec in `docs/specs/`, sized for one weeknight (two to three hours), and ends in a PR. `docs/development-plan.md` holds the phases and dates; this file holds the work.
 
 ## How to run a session
 
@@ -11,10 +11,14 @@ Status: v0.1, 2026-09-06. The session prompts for Phase 0 and Phase 1, written o
 
 Rules that keep this honest: one branch at a time; a session that runs out of time ends with a stopping note in the PR description, never with an unpushed branch; a spec that turns out wrong is fixed in the same PR and the fix is called out; nothing outside the slice, even when it is tempting.
 
+### If a usage limit stops the session
+
+Check `/usage` before starting, so a two to three hour session is not opened with less than half of the five hour window left. When a limit does hit mid-task, Claude Code (v2.1.234 or later, signed in with the claude.ai subscription) keeps the conversation and every file already written, stops the in-flight tool call, and waits in the open terminal to continue on its own at the reset (`Usage limit reached, continuing automatically at 3:45pm`). Leave the terminal open; if the Mac slept for more than about 30 minutes, press Enter when it asks. If the terminal was closed, or the reset is more than 24 hours out (a weekly limit), reopen from the repo root after the reset with `claude --resume` (or `claude -c` for the most recent session in this directory) and say "continue". Usage credits (`/usage-credits`, Settings > Usage on claude.ai) let a session keep going at API rates, at the cost of a shorter prompt cache. Because the preamble commits and pushes after each deliverable, nothing is lost either way; if the weeknight is over, finish by hand: push, open the PR with the given title, and write the stopping note.
+
 ## Preamble (paste first, every time)
 
 ```
-You are working in the Curb Social Club monorepo (Rails 8 API, Expo mobile, React Router web). Read CLAUDE.md, then docs/specs/README.md, then the files listed under "Read first" in the session block below, before writing any code. Build only the slice named in the block. Every acceptance criterion listed under "Must pass" has to pass before you open the PR; run the commands under "Verify" and paste their tail into the PR description. If the spec is wrong or silent about something you need, make the smallest reasonable decision, edit the spec in the same PR, and list the edit under "Spec changes" in the PR description. Do not touch anything listed under "Out of scope". Commit with Conventional Commits, no em dashes anywhere, no emoji. End by opening a PR with the title given in the block and a description with these headings: Summary, Acceptance criteria (each id and how it was checked), Spec changes, Verify output, Stopping note (only if unfinished).
+You are working in the Curb Social Club monorepo (Rails 8 API, Expo mobile, React Router web). Read CLAUDE.md, then docs/specs/README.md, then the files listed under "Read first" in the session block below, before writing any code. Build only the slice named in the block. Every acceptance criterion listed under "Must pass" has to pass before you open the PR; run the commands under "Verify" and paste their tail into the PR description. If the spec is wrong or silent about something you need, make the smallest reasonable decision, edit the spec in the same PR, and list the edit under "Spec changes" in the PR description. Do not touch anything listed under "Out of scope". Commit with Conventional Commits after each deliverable and push the branch as you go, not only at the end, so an interrupted session loses nothing; no em dashes anywhere, no emoji. End by opening a PR with the title given in the block and a description with these headings: Summary, Acceptance criteria (each id and how it was checked), Spec changes, Verify output, Stopping note (only if unfinished).
 ```
 
 ## Session block template (Sunday planning writes these)

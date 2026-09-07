@@ -1,6 +1,6 @@
 # Spec: Discovery
 
-Status: draft. Phase: 1 (onboarding, feed, map, list, search), 4 (spots layer, `recent_photos` and `spots_nearby` feed sections). Last updated: 2026-09-06.
+Status: ready. Phase: 1 (onboarding, feed, map, list, search), 4 (spots layer, `recent_photos` and `spots_nearby` feed sections). Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md (occurrences, materializer), clubs.md and sponsors.md (feed sections), spots.md (layer and section, Phase 4), design-system-and-theming.md (glass rules, pins). Related decisions: ADR 0003, ADR 0010, gaps items 8, 21, 26, 29, 30.
 
 ## Summary

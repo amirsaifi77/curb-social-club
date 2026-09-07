@@ -1,6 +1,6 @@
 # Spec: Events and occurrences
 
-Status: draft. Phase: 1. Last updated: 2026-09-06.
+Status: ready. Phase: 1. Last updated: 2026-09-07.
 Depends on: auth-and-accounts.md (app account, roles), admin.md (A04, A07 consume this spec's model and CSV format). Related decisions: ADR 0003, ADR 0010, `docs/architecture.md` sections 3.4 and 3.5, gaps items 4, 5, 6, 7, 8, 9.
 
 ## Summary

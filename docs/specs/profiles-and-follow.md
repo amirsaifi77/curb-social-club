@@ -1,6 +1,6 @@
 # Spec: Profiles and follow
 
-Status: draft. Phase: 2 (the public profile is read-only in Phase 1 as the user host page). Last updated: 2026-09-06.
+Status: ready. Phase: 2 (the public profile is read-only in Phase 1 as the user host page). Last updated: 2026-09-07.
 Depends on: auth-and-accounts.md (S26, S27, default handle at sign-up, device linking), clubs.md (ClubSummary, `GET /users/:handle/clubs`), sponsors.md and event-detail-and-rsvp.md (Follow button placement), moderation-and-safety.md (Report sheet, blocked users list in S27), notifications.md (`new_follower`), photos-and-posts.md (Posts tab, Phase 4), web.md (W06). Related decisions: ADR 0010, gaps item 29.
 
 ## Summary

@@ -1,6 +1,6 @@
 # Spec: Moderation and safety
 
-Status: draft. Phase: 2 (report, block, admin queue, legal pages), 4 (image safety filter, photo, comment, and spot moderation, venue permission flag). Last updated: 2026-09-06.
+Status: ready. Phase: 2 (report, block, admin queue, legal pages), 4 (image safety filter, photo, comment, and spot moderation, venue permission flag). Last updated: 2026-09-07.
 Depends on: auth-and-accounts.md (S26, S27, roles), profiles-and-follow.md (block mechanics), admin.md (A01, A02, A08, A10), photos-and-posts.md (`safety_status`), spots.md, create-and-host-tools.md (S20, S23), web.md (W16), notifications.md. Related decisions: gaps items 3, 11, 12; App Store Review Guideline 1.2.
 
 ## Summary

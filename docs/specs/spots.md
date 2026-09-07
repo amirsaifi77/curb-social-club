@@ -1,6 +1,6 @@
 # Spec: Spots
 
-Status: draft. Phase: 4. Last updated: 2026-09-06.
+Status: ready. Phase: 4. Last updated: 2026-09-07.
 Depends on: photos-and-posts.md (composer S17, `photos.spot_id`, `external_media.spot_id`), discovery.md (Map S03, feed sections, pin conventions), moderation-and-safety.md (reports, auto-hide), admin.md (A11), web.md (OG cards, sitemap). Related decisions: ADR 0011 (spot on external media), gaps item 11.
 
 ## Summary

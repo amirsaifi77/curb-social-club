@@ -1,6 +1,6 @@
 # Spec: Create and host tools
 
-Status: draft. Phase: 2. Last updated: 2026-09-06.
+Status: ready. Phase: 2. Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md (models, materializer), event-detail-and-rsvp.md (S08 layout, S10), clubs.md (club as host), admin.md (A09 claim review), notifications.md (`event_cancelled`, `claim_approved`, `claim_rejected`), auth-and-accounts.md (S26). Related decisions: ADR 0010, gaps items 4, 5, 7, 11.
 
 ## Summary

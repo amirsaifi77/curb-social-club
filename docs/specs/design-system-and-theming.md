@@ -1,6 +1,6 @@
 # Spec: Design system and theming
 
-Status: draft. Phase: 0. Last updated: 2026-09-06.
+Status: ready. Phase: 0. Last updated: 2026-09-07.
 Depends on: none (every other spec depends on this one). Related decisions: ADR 0004, ADR 0009, gaps items 26, 27, 28, 30, 31; `brand/brand-guide.md` sections 4 to 8; `docs/mobile-liquid-glass.md` sections 3 to 6; `docs/components/primary-cta.md`.
 
 ## Summary

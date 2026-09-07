@@ -1,6 +1,6 @@
 # Spec: Notifications
 
-Status: draft. Phase: 2 (push registration, reminders, cancellations, claim results), 3 (`import_ready`), 4 (follow-based kinds, weekly digest, inbox), 7 (`club_invite`). Last updated: 2026-09-06.
+Status: ready. Phase: 2 (push registration, reminders, cancellations, claim results), 3 (`import_ready`), 4 (follow-based kinds, weekly digest, inbox), 7 (`club_invite`). Last updated: 2026-09-07.
 Depends on: auth-and-accounts.md (S27, device linking on sign-in), event-detail-and-rsvp.md (RSVP), create-and-host-tools.md (cancel, claims), import-from-link.md, profiles-and-follow.md (follows), photos-and-posts.md (comments), clubs.md (invites). Related decisions: gaps item 23, `docs/architecture.md` section 3.9.
 
 ## Summary

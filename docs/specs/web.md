@@ -1,6 +1,6 @@
 # Spec: Public web
 
-Status: draft. Phase: 1 (W01 to W09, W12, W14, W15), 2 (W16 legal, story format on W14), 4 (W10, W11, W13). Last updated: 2026-09-06.
+Status: ready. Phase: 1 (W01 to W09, W12, W14, W15), 2 (W16 legal, story format on W14), 4 (W10, W11, W13). Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md, discovery.md (feed sections, cluster wrapper), event-detail-and-rsvp.md (detail blocks, story layout), clubs.md, sponsors.md, spots.md and photos-and-posts.md (Phase 4 pages), design-system-and-theming.md (tokens CSS). Related decisions: ADR 0005, ADR 0011, gaps items 2, 10, 18.
 
 ## Summary

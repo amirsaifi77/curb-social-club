@@ -1,6 +1,6 @@
 # Spec: Import from link
 
-Status: draft. Phase: 3. Last updated: 2026-09-06.
+Status: ready. Phase: 3. Last updated: 2026-09-07.
 Depends on: create-and-host-tools.md (S20 controls, `POST /events`, duplicate rules), events-and-occurrences.md, event-detail-and-rsvp.md (source attribution block), notifications.md (`import_ready`), photos-and-posts.md (S19 routing for Instagram post URLs), auth-and-accounts.md (S26). Related decisions: ADR 0007, ADR 0011, gaps items 13 to 17.
 
 ## Summary

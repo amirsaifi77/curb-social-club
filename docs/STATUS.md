@@ -1,6 +1,6 @@
-# Curb Social Club: Planning Status (2026-09-06)
+# Curb Social Club: Planning Status (2026-09-07)
 
-Read this first in any new session. It records what exists, where it lives, and what was decided. Updated 2026-09-06 (evening) for the execution-ready doc set: feature specs, screen inventory, session prompts, and the scope decisions in ADR 0010 and 0011.
+Read this first in any new session. It records what exists, where it lives, and what was decided. Updated 2026-09-06 (evening) for the execution-ready doc set: feature specs, screen inventory, session prompts, and the scope decisions in ADR 0010 and 0011. Updated 2026-09-07: the doc set is merged to `main` and pushed (PR #1 and #2, clean tree), the Vercel, Render, and npm CLIs are signed in, the Render connector is attached to the Claude project, and the GitHub token used during planning is revoked.
 
 ## Naming, in one table
 
@@ -33,6 +33,7 @@ Brand (2026-09-05): quiet coastal classic luxury. Beachhead persona is the young
 | Plans, research, open questions | `docs/` in the repo; mirrored in the claude.ai project |
 | Brand guide, tokens, logos, icons, canvas, previews | `brand/` in the repo (`brand-guide.md`, `tokens.json`, `logos/`, `icons/`, `canvas/`, `previews/`, `work/`, `brand-sheet.png`); tokens consumed by apps from `packages/design-tokens/tokens.json` |
 | Session output | Always inside the repo clone, so it can be committed. The parent folder `~/Documents/Curb/` holds only the repo clone (loose drafts and superseded exports were removed 2026-09-06); nothing is written there |
+| Accounts and CLIs | Signed in on the Mac as of 2026-09-07: Vercel CLI, Render CLI, npm. Render connector attached to the Claude project. Still to set up before the sessions that need them: Apple Developer Program and a Google OAuth client (0.5 to 0.7), Sentry (0.8), EAS (0.4) |
 | Figma file "Curb Social Club" | https://www.figma.com/design/aRyM1JhTPCIhMpPLX051T9 (Figma Professional). Pages: Cover, Brand Guide (8 frames), Foundations (Theme collection with 6 modes: Marine Layer, Harbor, Olive and Ivory, each Light and Dark), Components, iOS Screens (5 screens plus Feed in each theme), Web, Assets. The old amber file (https://www.figma.com/design/68kmmZuZQ2jrAWYu7vtVIe) is superseded |
 | Design canvas "Curb Social Club Design Canvas" | https://claude.ai/code/artifact/b3bc82aa-c60f-4cef-91e4-e28b1c51ab9a (Feed, Map, List, Event detail, Create from link, Theme comparison, Web landing, Brand board). The amber-era canvas (https://claude.ai/code/artifact/00be4ff6-39cc-4033-aaa0-df0f21debb3e) is superseded |
 | Open decisions | `docs/gaps-and-open-questions.md` (items 1, 10, 14, 31 resolved; 4, 5, 11, 23 adopted into specs; 26 to 29 are the open brand decisions; 35 to 39 added 2026-09-06) |
@@ -61,16 +62,15 @@ Mobile: Expo SDK 57 now, SDK 58 as soon as it is stable (Xcode 27 requirement); 
 
 Architecture: ADRs 0001 to 0011 in the repo; React Router v7 (Proposed) and Render (Proposed) are the two still open and are accepted or replaced in sessions 0.8 and 1.16. Data model v0.3 and API v0.3 carry the polymorphic host, clubs, memberships, sponsors, sponsorships, claim requests, spots, external media, admin audits, cadence, decay, and the sectioned feed.
 
-Execution docs (2026-09-06): 16 feature specs in `docs/specs/` following one template (user stories, numbered requirements, data and API references, screens and states, copy, acceptance criteria, verification, session slices); `docs/screens.md`; `docs/sessions.md` with 27 fully written prompts for Phases 0 and 1; `CLAUDE.md` rewritten with the session workflow and the new rules. Every spec is `draft` until Amir reviews it.
+Execution docs (2026-09-06): 16 feature specs in `docs/specs/` following one template (user stories, numbered requirements, data and API references, screens and states, copy, acceptance criteria, verification, session slices); `docs/screens.md`; `docs/sessions.md` with 27 fully written prompts for Phases 0 and 1; `CLAUDE.md` rewritten with the session workflow and the new rules. All 16 specs were moved from `draft` to `ready` by Amir on 2026-09-07.
 
 Brand: rebranded to Curb Social Club with the coastal classic direction above. The amber "cup on wheels" identity is retired. The Curb namespace was checked (Curb Mobility taxi app with a live class 009 CURB mark, Curb Records, Curb energy monitor, Curbed); none block a composite CURB SOCIAL CLUB mark, details in the business plan risk table.
 
 ## Next steps
 
-1. Review the 2026-09-06 doc set and commit it: read `docs/specs/README.md`, skim two or three specs, then `docs/sessions.md`. Move each spec from `draft` to `ready` as it is reviewed. Judgment calls to confirm or change are listed at the end of `docs/gaps-and-open-questions.md`.
-2. Start Phase 0 with session 0.1 in `docs/sessions.md` (paste the preamble, then the session block).
+1. Specs are `ready` (2026-09-07). Judgment calls to confirm or change are listed at the end of `docs/gaps-and-open-questions.md`; a spec that turns out wrong is fixed in the same PR as the code, per `CLAUDE.md`.
+2. Start Phase 0 with session 0.1 in `docs/sessions.md`: open Claude Code in the repo root on the session's branch, paste the preamble, then the session block. Check `/usage` first so a two to three hour session is not started with less than half of the five hour window left.
 3. Decide the open brand items 26 to 29 and the two architecture items 18 and 19 in `docs/gaps-and-open-questions.md`; items 18 and 19 close in sessions 0.8 and 1.16.
 4. Check domain availability for `curbsocial.club`, `curb.social`, and `curbsocialclub.com`; claim `@curbsocialclub` handles; reserve the App Store name. Universal Links sessions (1.14, 1.17) are blocked on the domain.
 5. Run the CURB SOCIAL CLUB clearance search and file the intent-to-use application in classes 009 and 042.
 6. Create the Meta app and request the oEmbed Read feature at the start of Phase 3 (gaps item 36).
-7. Revoke the GitHub token used during planning; it was pasted in chat and is no longer needed.

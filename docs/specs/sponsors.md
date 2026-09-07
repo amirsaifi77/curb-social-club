@@ -1,6 +1,6 @@
 # Spec: Sponsors
 
-Status: draft. Phase: 1 (entity, sponsor as host, sponsorships, pages, feed section, search), 2 (follow), 7 (self-service). Last updated: 2026-09-06.
+Status: ready. Phase: 1 (entity, sponsor as host, sponsorships, pages, feed section, search), 2 (follow), 7 (self-service). Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md (polymorphic host), event-detail-and-rsvp.md (sponsors block layout on S08), profiles-and-follow.md (follow), admin.md (A04, A06, A07), web.md (W09). Related decisions: ADR 0010, gaps items 9, 29; business plan section 12 (monetization deferred).
 
 ## Summary

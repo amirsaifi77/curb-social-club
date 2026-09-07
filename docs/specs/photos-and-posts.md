@@ -1,6 +1,6 @@
 # Spec: Photos and posts
 
-Status: draft. Phase: 4. Last updated: 2026-09-06.
+Status: ready. Phase: 4. Last updated: 2026-09-07.
 Depends on: events-and-occurrences.md, event-detail-and-rsvp.md, profiles-and-follow.md (blocks, garage), spots.md (spot picker S18, `spot_id` on photos), moderation-and-safety.md (image safety policy, report and block), notifications.md (`comment` kind), import-from-link.md (share intake routing). Related decisions: ADR 0011, gaps items 3, 12, 14.
 
 ## Summary

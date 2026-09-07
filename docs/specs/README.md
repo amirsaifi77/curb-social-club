@@ -25,22 +25,22 @@ Phases are from `docs/development-plan.md`. "Launch" means TestFlight beta and A
 
 | Spec | Covers | Phase | Status |
 |---|---|---|---|
-| [design-system-and-theming.md](design-system-and-theming.md) | Design tokens package, three themes in light and dark, theme switching, Liquid Glass chrome rules, flat rendering QA, primary CTA states | 0 | draft |
-| [auth-and-accounts.md](auth-and-accounts.md) | Sign in with Apple and Google, anonymous sessions and devices, account deletion, settings screen | 0 | draft |
-| [events-and-occurrences.md](events-and-occurrences.md) | Event, Venue, Occurrence, recurrence and materializer, polymorphic host, host name denormalization, confirmation and seed decay | 1 | draft |
-| [discovery.md](discovery.md) | Onboarding, Feed sections, Map with layers, List, Search | 1 (spots layer 4) | draft |
-| [event-detail-and-rsvp.md](event-detail-and-rsvp.md) | Event detail, occurrence detail, directions, share and story card, RSVP, going list, sponsor block, source attribution | 1 (RSVP 2) | draft |
-| [clubs.md](clubs.md) | Club pages, members, club as host, follow a club; membership, invites, and management post-launch | 1 (management 7) | draft |
-| [sponsors.md](sponsors.md) | Sponsor pages, sponsor as host, event sponsorships, follow a sponsor; self-service post-launch | 1 (self-service 7) | draft |
-| [admin.md](admin.md) | Admin sign-in, CRUD for venues, events, clubs, sponsors, spots, users; CSV seed import; claim review; moderation queue | 1 (queue 2) | draft |
-| [web.md](web.md) | Public web: home, city, event, profile, club, sponsor, spot, post pages; OG cards; sitemap; AASA; legal pages | 1 | draft |
-| [profiles-and-follow.md](profiles-and-follow.md) | Public profiles with connected socials, garage, clubs section; edit profile; follow users, clubs, sponsors, events; block | 2 | draft |
-| [create-and-host-tools.md](create-and-host-tools.md) | Manual create and edit, recurrence and exceptions, cancel an occurrence, claim a meet, host controls | 2 | draft |
-| [import-from-link.md](import-from-link.md) | Paste a link or share it, adapters, LLM extraction, draft editor with confidence, publish, eval set | 3 | draft |
-| [photos-and-posts.md](photos-and-posts.md) | Photo posts from the Photos picker, Instagram posts from the share sheet via oEmbed, post detail, comments, event photo grid | 4 | draft |
-| [spots.md](spots.md) | Photo locations: tag a spot on a photo, create or pick a spot, spot page, spots layer on the map, spot directory on web | 4 | draft |
-| [notifications.md](notifications.md) | Push registration, RSVP reminders, cancellations, follow-based notifications, weekly digest, inbox, preferences | 2 (inbox and digest 4) | draft |
-| [moderation-and-safety.md](moderation-and-safety.md) | Report on every content type, block, auto-hide, image safety filter, community guidelines, App Review requirements | 2 (image filter 4) | draft |
+| [design-system-and-theming.md](design-system-and-theming.md) | Design tokens package, three themes in light and dark, theme switching, Liquid Glass chrome rules, flat rendering QA, primary CTA states | 0 | ready |
+| [auth-and-accounts.md](auth-and-accounts.md) | Sign in with Apple and Google, anonymous sessions and devices, account deletion, settings screen | 0 | ready |
+| [events-and-occurrences.md](events-and-occurrences.md) | Event, Venue, Occurrence, recurrence and materializer, polymorphic host, host name denormalization, confirmation and seed decay | 1 | ready |
+| [discovery.md](discovery.md) | Onboarding, Feed sections, Map with layers, List, Search | 1 (spots layer 4) | ready |
+| [event-detail-and-rsvp.md](event-detail-and-rsvp.md) | Event detail, occurrence detail, directions, share and story card, RSVP, going list, sponsor block, source attribution | 1 (RSVP 2) | ready |
+| [clubs.md](clubs.md) | Club pages, members, club as host, follow a club; membership, invites, and management post-launch | 1 (management 7) | ready |
+| [sponsors.md](sponsors.md) | Sponsor pages, sponsor as host, event sponsorships, follow a sponsor; self-service post-launch | 1 (self-service 7) | ready |
+| [admin.md](admin.md) | Admin sign-in, CRUD for venues, events, clubs, sponsors, spots, users; CSV seed import; claim review; moderation queue | 1 (queue 2) | ready |
+| [web.md](web.md) | Public web: home, city, event, profile, club, sponsor, spot, post pages; OG cards; sitemap; AASA; legal pages | 1 | ready |
+| [profiles-and-follow.md](profiles-and-follow.md) | Public profiles with connected socials, garage, clubs section; edit profile; follow users, clubs, sponsors, events; block | 2 | ready |
+| [create-and-host-tools.md](create-and-host-tools.md) | Manual create and edit, recurrence and exceptions, cancel an occurrence, claim a meet, host controls | 2 | ready |
+| [import-from-link.md](import-from-link.md) | Paste a link or share it, adapters, LLM extraction, draft editor with confidence, publish, eval set | 3 | ready |
+| [photos-and-posts.md](photos-and-posts.md) | Photo posts from the Photos picker, Instagram posts from the share sheet via oEmbed, post detail, comments, event photo grid | 4 | ready |
+| [spots.md](spots.md) | Photo locations: tag a spot on a photo, create or pick a spot, spot page, spots layer on the map, spot directory on web | 4 | ready |
+| [notifications.md](notifications.md) | Push registration, RSVP reminders, cancellations, follow-based notifications, weekly digest, inbox, preferences | 2 (inbox and digest 4) | ready |
+| [moderation-and-safety.md](moderation-and-safety.md) | Report on every content type, block, auto-hide, image safety filter, community guidelines, App Review requirements | 2 (image filter 4) | ready |
 
 ## Conventions shared by every spec
 

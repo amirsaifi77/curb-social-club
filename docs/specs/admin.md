@@ -1,6 +1,6 @@
 # Spec: Admin
 
-Status: draft. Phase: 0 (namespace, sign-in, jobs), 1 (dashboard, CRUD, CSV seeds), 2 (claim review, moderation queue), 4 (spots). Last updated: 2026-09-06.
+Status: ready. Phase: 0 (namespace, sign-in, jobs), 1 (dashboard, CRUD, CSV seeds), 2 (claim review, moderation queue), 4 (spots). Last updated: 2026-09-07.
 Depends on: auth-and-accounts.md (`Auth::GoogleTokenVerifier`, roles), events-and-occurrences.md (models, `Seeds::EventRowImporter`, CSV format), clubs.md, sponsors.md, moderation-and-safety.md (queue policy), spots.md. Related decisions: ADR 0002, ADR 0006, ADR 0010, `apps/api/README.md` (planned structure), gaps items 5, 6, 12.
 
 ## Summary
