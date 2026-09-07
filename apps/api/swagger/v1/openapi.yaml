@@ -218,6 +218,15 @@ paths:
                 - data
         '200':
           description: device updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Device"
+                required:
+                - data
         '422':
           description: invalid platform
           content:
@@ -252,6 +261,9 @@ paths:
                       type: number
                     lng:
                       type: number
+                  required:
+                  - lat
+                  - lng
                 timezone:
                   type: string
               required:
@@ -310,6 +322,9 @@ paths:
                       type: number
                     lng:
                       type: number
+                  required:
+                  - lat
+                  - lng
                 timezone:
                   type: string
         required: true
@@ -493,6 +508,7 @@ components:
             details:
               type: object
               nullable: true
+              additionalProperties: true
           required:
           - code
           - message
@@ -646,6 +662,9 @@ components:
               type: number
             lng:
               type: number
+          required:
+          - lat
+          - lng
         last_seen_at:
           type: string
           format: date-time

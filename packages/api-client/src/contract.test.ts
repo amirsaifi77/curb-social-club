@@ -31,9 +31,14 @@ describe('client and spec agree', () => {
     );
   });
 
-  it('lists every path the spec declares, so a new endpoint gets a wrapper', () => {
-    const declared = [...generated.matchAll(/^ {4}"(\/v1[^"]*)": \{$/gm)].map((m) => m[1]);
-    const wrapped = new Set<string>(Object.values(endpoints).map((e) => e.path));
-    expect(declared.filter((path) => !wrapped.has(path))).toEqual([]);
+  it('lists every operation the spec declares, so a new endpoint or method gets a wrapper', () => {
+    const declared = [...generated.matchAll(/^ {4}"(\/v1[^"]*)": \{$/gm)].flatMap((m) => {
+      const methods = [
+        ...operationBlock(m[1]!)!.matchAll(/^ {8}(get|post|put|patch|delete): \{/gm),
+      ];
+      return methods.map((method) => `${method[1]} ${m[1]}`);
+    });
+    const wrapped = new Set<string>(Object.values(endpoints).map((e) => `${e.method} ${e.path}`));
+    expect(declared.filter((operation) => !wrapped.has(operation))).toEqual([]);
   });
 });

@@ -14,10 +14,11 @@ import { api } from './requests';
 // Option factories: usable with useQuery on the client and with
 // queryClient.ensureQueryData in React Router loaders on the server.
 
-// A 4xx answer is final; only network and 5xx failures retry.
+// A 4xx answer is final; a network or 5xx failure retries once (the same
+// as the app-level QueryClient default, so the two never disagree).
 function retryUnlessClientError(failureCount: number, error: unknown): boolean {
   if (error instanceof ApiError && error.status < 500) return false;
-  return failureCount < 2;
+  return failureCount < 1;
 }
 
 export function healthQuery(client: ApiClient) {

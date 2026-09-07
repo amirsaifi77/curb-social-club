@@ -30,9 +30,11 @@ export type JsonResponse<P extends ApiPath, M extends keyof paths[P], S extends 
 // The JSON request body of one operation: JsonRequest<'/v1/devices', 'post'>.
 export type JsonRequest<P extends ApiPath, M extends keyof paths[P]> =
   Operation<P, M> extends { requestBody?: infer Request }
-    ? NonNullable<Request> extends { content: { 'application/json': infer Body } }
-      ? Body
-      : never
+    ? [NonNullable<Request>] extends [never]
+      ? never
+      : NonNullable<Request> extends { content: { 'application/json': infer Body } }
+        ? Body
+        : never
     : never;
 
 export type SignInWithAppleBody = JsonRequest<'/v1/auth/apple', 'post'>;

@@ -37,7 +37,7 @@ RSpec.configure do |config|
             properties: {
               error: {
                 type: :object,
-                properties: { code: { type: :string }, message: { type: :string }, details: { type: :object, nullable: true } },
+                properties: { code: { type: :string }, message: { type: :string }, details: { type: :object, nullable: true, additionalProperties: true } },
                 required: %w[code message]
               }
             },
@@ -88,7 +88,7 @@ RSpec.configure do |config|
               push_enabled: { type: :boolean }, push_token_present: { type: :boolean },
               app_version: { type: :string, nullable: true }, timezone: { type: :string, nullable: true },
               user_id: { type: :string, format: :uuid, nullable: true },
-              home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } } },
+              home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] },
               last_seen_at: { type: :string, format: "date-time", nullable: true }
             },
             required: %w[anonymous_id platform push_enabled push_token_present]

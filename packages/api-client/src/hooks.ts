@@ -15,7 +15,10 @@ import {
 } from './queries';
 
 // Client-side hooks over the option factories. Sign-in and profile writes
-// update the me cache in place; sign-out and delete drop it.
+// update the me cache in place; sign-out and delete drop it. A mounted
+// useMe observer refetches after the drop and gets a 401 (which the client
+// reports through onUnauthorized), so screens that stay mounted across a
+// sign-out pass useMe({ enabled: signedIn }).
 
 export function useHealth() {
   return useQuery(healthQuery(useApiClient()));

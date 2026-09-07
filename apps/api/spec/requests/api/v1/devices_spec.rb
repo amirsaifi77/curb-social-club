@@ -16,7 +16,7 @@ RSpec.describe "v1/devices" do
           platform: { type: :string, enum: %w[ios android web] },
           push_token: { type: :string, nullable: true },
           app_version: { type: :string },
-          home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } } },
+          home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] },
           timezone: { type: :string }
         },
         required: %w[anonymous_id platform]
@@ -31,6 +31,7 @@ RSpec.describe "v1/devices" do
       end
 
       response "200", "device updated" do
+        schema type: :object, properties: { data: { "$ref" => "#/components/schemas/Device" } }, required: %w[data]
         let!(:device) { create(:device, anonymous_id: anonymous_id, app_version: "0.0.9") }
         let(:body) { { anonymous_id: anonymous_id, platform: "ios", app_version: "0.1.0" } }
         run_test! do
@@ -57,7 +58,7 @@ RSpec.describe "v1/devices" do
         type: :object,
         properties: {
           push_token: { type: :string, nullable: true }, push_enabled: { type: :boolean }, app_version: { type: :string },
-          home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } } },
+          home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] },
           timezone: { type: :string }
         }
       }

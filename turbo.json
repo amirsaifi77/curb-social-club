@@ -25,7 +25,7 @@
       "outputs": ["swagger/**"]
     },
     "generate": {
-      "dependsOn": ["^openapi"],
+      "dependsOn": ["@curb/api#openapi"],
       "outputs": ["src/generated.d.ts", "dist/**"]
     },
     "clean": {

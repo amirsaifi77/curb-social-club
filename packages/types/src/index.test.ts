@@ -4,12 +4,20 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import type {
   ApiErrorBody,
+  DeleteMeResponse,
+  Device,
   DeviceResponse,
   HealthResponse,
   JsonRequest,
   JsonResponse,
   MeResponse,
+  Profile,
+  RegisterDeviceBody,
   SignInResponse,
+  SignInWithAppleBody,
+  SignInWithGoogleBody,
+  UpdateDeviceBody,
+  UpdateMeBody,
   User,
 } from './index';
 
@@ -41,5 +49,20 @@ describe('@curb/types', () => {
     expectTypeOf<HealthResponse['status']>().toEqualTypeOf<'ok' | 'degraded'>();
     expectTypeOf<JsonRequest<'/v1/auth/google', 'post'>['id_token']>().toEqualTypeOf<string>();
     expectTypeOf<JsonResponse<'/v1/health', 'get', 503>['db']>().toEqualTypeOf<boolean>();
+    expectTypeOf<JsonRequest<'/v1/me', 'get'>>().toEqualTypeOf<never>();
+    expectTypeOf<ApiErrorBody['error']['details']>().toEqualTypeOf<
+      { [key: string]: unknown } | null | undefined
+    >();
+    expectTypeOf<Profile['viewer']['is_self']>().toEqualTypeOf<boolean>();
+    expectTypeOf<Device['home_location']>().toEqualTypeOf<
+      { lat: number; lng: number } | null | undefined
+    >();
+    expectTypeOf<DeleteMeResponse['data']['purge_after']>().toEqualTypeOf<string>();
+    expectTypeOf<RegisterDeviceBody['anonymous_id']>().toEqualTypeOf<string>();
+    expectTypeOf<UpdateDeviceBody['push_enabled']>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<UpdateMeBody['profile']['handle']>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<SignInWithAppleBody['nonce']>().toEqualTypeOf<string>();
+    expectTypeOf<SignInWithGoogleBody['id_token']>().toEqualTypeOf<string>();
+    expectTypeOf<JsonResponse<'/v1/devices', 'post', 200>>().toEqualTypeOf<DeviceResponse>();
   });
 });

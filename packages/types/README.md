@@ -9,7 +9,7 @@ apps/api rswag request specs
   -> pnpm --filter @curb/api openapi      (bundle exec rake rswag:specs:swaggerize)
   -> apps/api/swagger/v1/openapi.yaml    (committed)
   -> pnpm --filter @curb/types generate   (openapi-typescript openapi.yaml -o src/generated.d.ts)
-  -> src/index.ts re-exports paths, components, and friendly aliases
+  -> src/index.d.ts re-exports paths, components, and friendly aliases
 ```
 
 Turborepo's `generate` task depends on `^openapi`, so `pnpm generate` at the root runs both in order. CI fails if the committed output is stale.
@@ -28,7 +28,7 @@ packages/types/
   tsconfig.json
 ```
 
-The package is types only: both files are declarations, `build` is a type check, and every consumer imports with `import type`, so nothing from it reaches a bundle. Add an alias in `src/index.d.ts` when an endpoint gains a consumer; `@curb/api-client` builds its request functions on them.
+The package is types only: both files are declarations, `build` and `typecheck` run tsc with `skipLibCheck` off so the aliases themselves are checked, and every consumer imports with `import type`, so nothing from it reaches a bundle. Add an alias in `src/index.d.ts` when an endpoint gains a consumer; `@curb/api-client` builds its request functions on them.
 
 ## Why commit the generated file
 

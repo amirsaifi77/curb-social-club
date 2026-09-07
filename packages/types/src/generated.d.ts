@@ -248,8 +248,8 @@ export interface paths {
                         push_token?: string | null;
                         app_version?: string;
                         home_location?: {
-                            lat?: number;
-                            lng?: number;
+                            lat: number;
+                            lng: number;
                         } | null;
                         timezone?: string;
                     };
@@ -261,7 +261,11 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Device"];
+                        };
+                    };
                 };
                 /** @description device registered */
                 201: {
@@ -323,8 +327,8 @@ export interface paths {
                         push_enabled?: boolean;
                         app_version?: string;
                         home_location?: {
-                            lat?: number;
-                            lng?: number;
+                            lat: number;
+                            lng: number;
                         } | null;
                         timezone?: string;
                     };
@@ -542,7 +546,9 @@ export interface components {
             error: {
                 code: string;
                 message: string;
-                details?: Record<string, never> | null;
+                details?: {
+                    [key: string]: unknown;
+                } | null;
             };
         };
         Profile: {
@@ -603,8 +609,8 @@ export interface components {
             /** Format: uuid */
             user_id?: string | null;
             home_location?: {
-                lat?: number;
-                lng?: number;
+                lat: number;
+                lng: number;
             } | null;
             /** Format: date-time */
             last_seen_at?: string | null;
