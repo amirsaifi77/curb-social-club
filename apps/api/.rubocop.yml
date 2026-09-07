@@ -1,17 +1,33 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
-
 plugins:
   - rubocop-rspec
+
+AllCops:
+  NewCops: enable
 
 # rswag's path/response DSL defines examples via run_test!, which this cop
 # cannot see; every file under spec/requests uses it.
 RSpec/EmptyExampleGroup:
+  Exclude:
+    - "spec/requests/**/*"
+
+# Acceptance-criteria scenarios walk several requests and assert each step;
+# splitting them would hide the story the spec tells.
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+
+# rswag binds request parameters to let names such as Authorization and
+# X-Device-Id, and documents setup records with let!.
+RSpec/VariableName:
+  Exclude:
+    - "spec/requests/**/*"
+RSpec/LetSetup:
+  Exclude:
+    - "spec/requests/**/*"
+RSpec/MultipleMemoizedHelpers:
   Exclude:
     - "spec/requests/**/*"

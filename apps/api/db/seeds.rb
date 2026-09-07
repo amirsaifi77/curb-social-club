@@ -1,9 +1,9 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# The app account: host of record for unclaimed events and owner of seeded
+# clubs (docs/data-model.md, gaps item 5). It has no identity and cannot sign
+# in. Seeded venues and meets arrive with Phase 1 (docs/local-development.md).
+app_account = User.app_account || User.transaction do
+  user = User.create!(role: "admin", status: "active", terms_accepted_at: Time.current)
+  Profile.create!(user: user, handle: "curb", display_name: "Curb Social Club", is_host: true)
+  user
+end
+puts "App account: #{app_account.id} (@curb)"

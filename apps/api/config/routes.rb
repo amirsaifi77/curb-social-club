@@ -8,6 +8,13 @@ Rails.application.routes.draw do
   scope module: :api do
     namespace :v1 do
       get "health", to: "health#show"
+
+      post "auth/apple", to: "auth#apple"
+      post "auth/google", to: "auth#google"
+      delete "auth/session", to: "auth#destroy"
+
+      resource :me, only: %i[show update destroy], controller: "me"
+      resources :devices, only: %i[create update], param: :anonymous_id
     end
   end
 end

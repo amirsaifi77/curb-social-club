@@ -22,7 +22,65 @@ RSpec.configure do |config|
       servers: [
         { url: "http://localhost:3000", description: "Development" },
         { url: "https://api.curbsocial.club", description: "Production (domain unconfirmed)" }
-      ]
+      ],
+      components: {
+        securitySchemes: {
+          bearer: { type: :http, scheme: :bearer, description: "Opaque session token from POST /v1/auth/apple or /v1/auth/google" }
+        },
+        parameters: {
+          deviceId: { name: "X-Device-Id", in: :header, required: false, schema: { type: :string, format: :uuid },
+                      description: "Client-generated device UUID sent on every request from mobile and web" }
+        },
+        schemas: {
+          Error: {
+            type: :object,
+            properties: {
+              error: {
+                type: :object,
+                properties: { code: { type: :string }, message: { type: :string }, details: { type: :object, nullable: true } },
+                required: %w[code message]
+              }
+            },
+            required: %w[error]
+          },
+          Profile: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, handle: { type: :string }, display_name: { type: :string },
+              bio: { type: :string, nullable: true }, avatar_url: { type: :string, nullable: true },
+              home_label: { type: :string, nullable: true }, is_host: { type: :boolean }, links: { type: :object },
+              clubs: { type: :array, items: { type: :object } }, counts: { type: :object }, viewer: { type: :object }
+            },
+            required: %w[id handle display_name is_host links clubs counts viewer]
+          },
+          User: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, email: { type: :string, nullable: true },
+              role: { type: :string, enum: %w[member moderator admin] },
+              status: { type: :string, enum: %w[active suspended deleted] },
+              created_at: { type: :string, format: "date-time" },
+              profile: { "$ref" => "#/components/schemas/Profile" },
+              identities: { type: :array, items: { type: :object, properties: { provider: { type: :string }, email: { type: :string, nullable: true } } } },
+              notification_prefs: { type: :object },
+              unread_notifications_count: { type: :integer }
+            },
+            required: %w[id role status created_at profile identities notification_prefs]
+          },
+          Device: {
+            type: :object,
+            properties: {
+              anonymous_id: { type: :string, format: :uuid }, platform: { type: :string, enum: %w[ios android web] },
+              push_enabled: { type: :boolean }, push_token_present: { type: :boolean },
+              app_version: { type: :string, nullable: true }, timezone: { type: :string, nullable: true },
+              user_id: { type: :string, format: :uuid, nullable: true },
+              home_location: { type: :object, nullable: true, properties: { lat: { type: :number }, lng: { type: :number } } },
+              last_seen_at: { type: :string, format: "date-time", nullable: true }
+            },
+            required: %w[anonymous_id platform push_enabled push_token_present]
+          }
+        }
+      }
     }
   }
 

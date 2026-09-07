@@ -61,8 +61,9 @@ Seeds create a moderator user, a few venues in Newport Beach, Corona del Mar, Sa
 |---|---|
 | `DATABASE_URL` | Postgres |
 | `RAILS_MASTER_KEY` | Not used; kept unset |
+| `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | Active Record encryption for `identities.provider_refresh_token`; required in production, fixed non-secret fallbacks in development and test |
 | `APPLE_BUNDLE_ID`, `APPLE_SERVICE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` | Sign in with Apple verification and token revocation |
-| `GOOGLE_CLIENT_IDS` | Comma separated iOS and web client ids |
+| `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_ADMIN_CLIENT_ID` | Google id token audiences for the iOS app and the admin sign-in (auth-and-accounts.md Risks) |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_HOST` | Active Storage |
 | `EXPO_ACCESS_TOKEN` | Push |
 | `RESEND_API_KEY` | Email |

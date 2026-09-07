@@ -36,6 +36,9 @@ gem "mission_control-jobs", require: false
 # Media (from rails new; the rest of the media group arrives with uploads)
 gem "image_processing", "~> 1.2"
 
+# Auth (Apple and Google id token verification, Apple client secret)
+gem "jwt"
+
 # Docs (rswag-specs is test-only below; rswag-ui is development-only)
 gem "rswag-api"
 
