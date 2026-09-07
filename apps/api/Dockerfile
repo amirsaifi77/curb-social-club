@@ -51,6 +51,10 @@ COPY . .
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
+# Propshaft output for /admin and Mission Control (docs/specs/admin.md R-6),
+# without requiring the real SECRET_KEY_BASE at build time.
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+
 
 
 
