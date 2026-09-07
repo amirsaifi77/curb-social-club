@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+apps/api/
+packages/design-tokens/tokens.json
+packages/types/src/generated.d.ts
+dist/
+build/
+coverage/
+.turbo/

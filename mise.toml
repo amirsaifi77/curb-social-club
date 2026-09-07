@@ -1,0 +1,4 @@
+# Tool versions come from .nvmrc (Node) and .ruby-version (Ruby). Newer mise
+# releases require opting in before idiomatic version files are read.
+[settings]
+idiomatic_version_file_enable_tools = ["node", "ruby"]

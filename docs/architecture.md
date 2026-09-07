@@ -95,7 +95,7 @@ curb-social-club/
     workflows/
       ci.yml
   .gitignore
-  .nvmrc                      # 22
+  .nvmrc                      # 24
   .ruby-version               # 3.3.x
   CLAUDE.md                   # conventions for Claude Code sessions
   CONTRIBUTING.md
