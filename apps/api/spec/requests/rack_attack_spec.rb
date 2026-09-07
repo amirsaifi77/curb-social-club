@@ -19,4 +19,19 @@ RSpec.describe "rack-attack", type: :request do
     expect(response.headers["Retry-After"]).to be_present
     expect(JSON.parse(response.body).dig("error", "code")).to eq("rate_limited")
   end
+
+  it "throttles POST /admin/session at 10 per minute per IP (admin.md AC-20)" do
+    statuses = Array.new(11) do
+      post "/admin/session", params: { credential: "x" }
+      response.status
+    end
+    expect(statuses.first(10)).to all(eq(302))
+    expect(statuses.last).to eq(429)
+    expect(response.headers["Retry-After"]).to be_present
+  end
+
+  it "leaves GET /admin under the broader 300 per minute limit" do
+    get "/admin/sign_in"
+    expect(response).to have_http_status(:ok)
+  end
 end

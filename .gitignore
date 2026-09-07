@@ -75,3 +75,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .claude/
+
+# Propshaft output from assets:precompile (apps/api)
+apps/api/public/assets/

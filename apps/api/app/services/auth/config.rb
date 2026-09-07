@@ -11,5 +11,7 @@ module Auth
     def apple_private_key = ENV["APPLE_PRIVATE_KEY"]&.gsub("\\n", "\n")
     def apple_configured? = [ apple_team_id, apple_key_id, apple_private_key ].all?(&:present?)
     def google_ios_client_id = ENV["GOOGLE_IOS_CLIENT_ID"]
+    # Separate OAuth web client for the admin origin (admin.md R-7, Risks).
+    def google_admin_client_id = ENV["GOOGLE_ADMIN_CLIENT_ID"]
   end
 end

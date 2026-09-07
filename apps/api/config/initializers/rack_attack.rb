@@ -1,6 +1,7 @@
 # Rate limits from docs/api.md: anonymous 60/min per IP, authenticated
-# 300/min per token, /auth/* 10/min per IP (R-19). Backed by Rails.cache
-# (Solid Cache in production). Disabled in test except the rack_attack spec.
+# 300/min per token, /auth/* 10/min per IP (R-19), and the /admin limits
+# (admin.md R-11). Backed by Rails.cache (Solid Cache in production).
+# Disabled in test except the rack_attack spec.
 class Rack::Attack
   AUTH_PATH = %r{\A/v1/auth/}
 
@@ -15,6 +16,20 @@ class Rack::Attack
 
   throttle("v1/ip", limit: 60, period: 60) do |req|
     req.ip if req.path.start_with?("/v1/") && !req.get_header("HTTP_AUTHORIZATION").to_s.start_with?("Bearer ")
+  end
+
+  # Admin UI (docs/specs/admin.md R-11): sign-in 10/min, seed uploads
+  # 10/hour, everything under /admin 300/min, all per IP.
+  throttle("admin/session/ip", limit: 10, period: 60) do |req|
+    req.ip if req.post? && req.path == "/admin/session"
+  end
+
+  throttle("admin/seeds/ip", limit: 10, period: 1.hour.to_i) do |req|
+    req.ip if req.post? && req.path == "/admin/seeds"
+  end
+
+  throttle("admin/ip", limit: 300, period: 60) do |req|
+    req.ip if req.path == "/admin" || req.path.start_with?("/admin/")
   end
 
   self.throttled_responder = lambda do |request|

@@ -1,0 +1,21 @@
+<% content_for :title, "Sign in" %>
+<section class="sign-in">
+  <h1>curb admin</h1>
+  <p>Sign in with the Google account that holds your admin or moderator role.</p>
+  <% if Auth::Config.google_admin_client_id.present? %>
+    <%= content_for :head do %>
+      <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <% end %>
+    <div id="g_id_onload"
+         data-client_id="<%= Auth::Config.google_admin_client_id %>"
+         data-callback="curbAdminCredential"
+         data-auto_prompt="false"
+         data-ux_mode="popup"></div>
+    <div class="g_id_signin" data-type="standard" data-theme="outline" data-text="signin_with" data-size="large"></div>
+    <%= form_with url: admin_session_path, method: :post, id: "admin-session-form", data: { turbo: false } do |form| %>
+      <%= form.hidden_field :credential %>
+    <% end %>
+  <% else %>
+    <p class="flash flash-alert">Set GOOGLE_ADMIN_CLIENT_ID to enable sign-in (docs/local-development.md).</p>
+  <% end %>
+</section>

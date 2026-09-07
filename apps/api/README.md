@@ -49,6 +49,10 @@ apps/api/
       admin/                  # hand-written ERB views (no admin gem): sign-in, dashboard, CRUD for venues,
                               # events, occurrences, sponsorships, clubs, memberships, sponsors, users, spots,
                               # CSV seeds, claim review, moderation queue; cookie sessions; docs/specs/admin.md
+      concerns/admin/         # Auditable: every admin write lands in admin_audits
+    views/
+      layouts/admin.html.erb  # the one admin layout (nav, flash); admin/** holds the screens
+    assets/                   # propshaft, admin only: stylesheets/admin.css and javascripts/admin.js
     models/
     serializers/              # Alba resources: EventSummaryResource, EventResource, ...
     policies/                 # Pundit
@@ -96,6 +100,8 @@ apps/api/
 | `pnpm --filter @curb/api openapi` | regenerate `swagger/v1/openapi.yaml` |
 | `bin/rails c` | console |
 | `bin/rails db:seed` | seed venues and meets |
+| `bin/rails "admin:grant[you@example.com]"` | give an existing user the admin role (`[email,moderator]` for moderator), then sign in at `/admin/sign_in` |
+| `bin/rails assets:precompile` | propshaft output for `/admin` and Mission Control in production (`public/assets`, gitignored) |
 
 ## Conventions
 

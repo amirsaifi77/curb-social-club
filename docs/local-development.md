@@ -40,6 +40,7 @@ pnpm dev                         # turbo runs api, web, and mobile dev servers
 | api | `pnpm --filter @curb/api lint` | rubocop |
 | api | `pnpm --filter @curb/api openapi` | Regenerates `swagger/v1/openapi.yaml` |
 | api | `cd apps/api && bin/rails c` | Console |
+| api | `cd apps/api && bin/rails "admin:grant[you@example.com]"` | Make an existing user an admin (`admin:grant[email,moderator]` for the moderator role); then sign in at `/admin/sign_in` |
 | web | `pnpm --filter @curb/web dev` | React Router dev server on 5173, proxies `/v1` to 3000 |
 | mobile | `pnpm --filter @curb/mobile dev` | `expo start --dev-client` |
 | mobile | `pnpm --filter @curb/mobile ios` | Build and run a development build on the simulator (`expo run:ios`) |
@@ -61,9 +62,10 @@ Seeds create a moderator user, a few venues in Newport Beach, Corona del Mar, Sa
 |---|---|
 | `DATABASE_URL` | Postgres |
 | `RAILS_MASTER_KEY` | Not used; kept unset |
+| `SECRET_KEY_BASE` | Signs the `/admin` cookie session (docs/specs/admin.md R-6). Required in production (`bin/rails secret`); development and test use the generated `tmp/local_secret.txt` |
 | `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`, `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | Active Record encryption for `identities.provider_refresh_token`; required in production, fixed non-secret fallbacks in development and test |
 | `APPLE_BUNDLE_ID`, `APPLE_SERVICE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` | Sign in with Apple verification and token revocation |
-| `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_ADMIN_CLIENT_ID` | Google id token audiences for the iOS app and the admin sign-in (auth-and-accounts.md Risks) |
+| `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_ADMIN_CLIENT_ID` | Google id token audiences for the iOS app and the admin sign-in (auth-and-accounts.md Risks). The admin id is an OAuth web client whose authorized JavaScript origins include the API host (`http://localhost:3000` locally); `/admin/sign_in` shows a notice instead of the button while it is unset |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_HOST` | Active Storage |
 | `EXPO_ACCESS_TOKEN` | Push |
 | `RESEND_API_KEY` | Email |

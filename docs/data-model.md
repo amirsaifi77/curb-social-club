@@ -531,11 +531,11 @@ Every write made through the admin UI (`docs/specs/admin.md`). `moderation_actio
 
 | Column | Type | Notes |
 |---|---|---|
-| admin_id | uuid FK users, nullable | Null after the admin account is purged. |
+| admin_id | uuid FK users, nullable, `on delete set null` | Null after the admin account is purged, and for `bin/rails admin:grant`. |
 | action | text | `create`, `update`, `destroy`, `hide`, `verify`, `merge`, `import_csv`, `approve_claim`, `reject_claim`. |
 | target_type | text | |
 | target_id | uuid, nullable | Null for batch actions such as CSV import. |
-| changes | jsonb | Before and after for updated attributes; row counts for imports. |
+| changeset | jsonb, not null, default `{}` | Before and after for updated attributes; row counts for imports; filtered params for generically audited writes. Named `changeset` because Active Record reserves `changes`. |
 | ip | inet | |
 
 Index `(target_type, target_id, created_at DESC)`, `(admin_id, created_at DESC)`. No `updated_at`.

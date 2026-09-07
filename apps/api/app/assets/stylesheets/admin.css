@@ -1,0 +1,123 @@
+/* curb admin (docs/specs/admin.md): flat, hairline rules, one stylesheet.
+   Geist when installed, the system sans otherwise; no webfont is served. */
+:root {
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --ink: #1b1f24;
+  --muted: #6b7280;
+  --border: #d9dcd6;
+  --accent: #1f4e5f;
+  --accent-ink: #ffffff;
+  --danger: #8a2d2d;
+  --danger-bg: #fbeeee;
+  --ok-bg: #edf3ef;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; margin: 0 0 0.5rem; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.125rem; margin-top: 2rem; }
+h3 { font-size: 1rem; margin-top: 1.5rem; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.wordmark { font-weight: 600; color: var(--ink); }
+
+.topbar nav { display: flex; gap: 1rem; }
+
+.who {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.who form { margin: 0; }
+
+.button-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+.button-link:hover { text-decoration: underline; }
+
+main { max-width: 64rem; margin: 0 auto; padding: 1.5rem; }
+
+.flash {
+  max-width: 64rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+}
+main .flash { margin: 1rem 0; }
+.flash-alert { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
+.flash-notice { background: var(--ok-bg); }
+
+.muted { color: var(--muted); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin: 0.5rem 0 1rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+thead th { font-weight: 600; color: var(--muted); font-size: 0.875rem; }
+tbody th { font-weight: 500; }
+tr:last-child td, tr:last-child th { border-bottom: 0; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; width: 8rem; }
+
+.sign-in {
+  max-width: 24rem;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.sign-in h1 { margin-bottom: 1rem; }
+.sign-in p { margin: 0 0 1.5rem; color: var(--muted); }
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 0;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+button.danger { background: var(--danger); }
