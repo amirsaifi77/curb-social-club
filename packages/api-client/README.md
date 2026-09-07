@@ -1,6 +1,6 @@
 # @curb/api-client
 
-Typed client for the Curb Social Club API, shared by web and mobile. Not implemented yet.
+Typed client for the Curb Social Club API, shared by web and mobile. `createClient`, `ApiError`, and `unwrap` shipped in session 0.6 over a hand-written `src/paths.ts` for the Phase 0 endpoints; session 0.9 replaces those types with the `@curb/types` output and adds the TanStack Query hooks.
 
 ## Design
 

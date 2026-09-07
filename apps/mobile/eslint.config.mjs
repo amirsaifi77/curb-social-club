@@ -7,7 +7,7 @@ export default [
   },
   {
     // Expo Router route files must default-export their screen.
-    files: ['app/**/*.{ts,tsx}', '*.config.{js,mjs}'],
+    files: ['app/**/*.{ts,tsx}', '*.config.{js,mjs,ts}'],
     rules: { 'import-x/no-default-export': 'off' },
   },
   {

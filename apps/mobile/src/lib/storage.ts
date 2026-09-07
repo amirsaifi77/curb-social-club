@@ -6,4 +6,5 @@ export const storage: MMKV = createMMKV();
 export interface KeyValueStore {
   set(key: string, value: string): void;
   getString(key: string): string | undefined;
+  remove(key: string): void;
 }

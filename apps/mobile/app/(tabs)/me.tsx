@@ -1,26 +1,46 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { useAuth } from '@/lib/auth';
 import { Text } from '@/ui/Text';
 
-// S07 Me, Phase 0 signed-out skeleton: sign-in and settings only
-// (docs/screens.md). Sign in with Apple and Google arrive in session 0.6.
+// S07 Me. Signed out: sign in (opens S26 with no pending action) and
+// Settings. Signed in: the profile header; garage and follows arrive in
+// Phase 2 (profiles-and-follow.md).
 export default function MeScreen() {
+  const { status, user, stale } = useAuth();
+  // A stored token means signed in, even while GET /me refreshes (R-25).
+  const signedIn = status !== 'signedOut';
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text variant="title">Me</Text>
-      <View style={styles.card}>
-        <Text>Sign in to RSVP, follow, and post.</Text>
-        <Pressable accessibilityRole="button" disabled style={styles.signIn}>
-          <Text variant="subhead" style={styles.signInLabel}>
-            Sign in
+      <Text variant="title">{signedIn && user ? user.profile.display_name : 'Me'}</Text>
+
+      {signedIn ? (
+        <View style={styles.card}>
+          <Text>{user ? `@${user.profile.handle}` : 'Signed in'}</Text>
+          <Text variant="caption" color="secondary">
+            {stale
+              ? 'Showing what this phone remembers. Reconnect to refresh.'
+              : 'Your garage and follows arrive soon.'}
           </Text>
-        </Pressable>
-        <Text variant="caption" color="secondary">
-          Sign in arrives with the next build.
-        </Text>
-      </View>
+        </View>
+      ) : (
+        <View style={styles.card}>
+          <Text>Sign in to RSVP, follow, and post.</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/sign-in')}
+            style={styles.signIn}
+          >
+            <Text variant="subhead" style={styles.signInLabel}>
+              Sign in
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       <Link href="/settings" asChild>
         <Pressable accessibilityRole="button" style={styles.row}>
           <Text>Settings</Text>

@@ -5,6 +5,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { auth } from '@/lib/auth';
+import { getDeviceId } from '@/lib/device-id';
+import { registerDevice } from '@/lib/devices';
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -21,12 +25,28 @@ export default function RootLayout() {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
 
+  // Once per launch: hydrate the session (R-25) and register the device.
+  useEffect(() => {
+    void auth.hydrate();
+    void registerDevice(auth.client, getDeviceId());
+  }, []);
+
   if (!fontsLoaded) return null;
 
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
+      <Stack.Screen name="settings/delete-account" options={{ title: 'Delete account' }} />
+      <Stack.Screen
+        name="sign-in"
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          headerShown: false,
+        }}
+      />
       <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
     </Stack>
   );
