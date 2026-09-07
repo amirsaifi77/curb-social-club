@@ -1,6 +1,6 @@
 # @curb/api
 
-Rails 8 API-only backend for Curb Social Club. Not generated yet. This README is the spec for the `rails new` PR.
+Rails 8 API-only backend for Curb Social Club. Generated in session 0.2 with the command below; this README remains the spec for the app's structure.
 
 ## Names
 
@@ -17,7 +17,7 @@ Rails 8 API-only backend for Curb Social Club. Not generated yet. This README is
 
 ```sh
 cd apps
-rails new api --name=curb_social_club --api --database=postgresql --skip-test --skip-action-mailbox --skip-action-text --skip-action-cable --skip-jbuilder
+rails new api --name=curb_social_club --api --database=postgresql --skip-test --skip-action-mailbox --skip-action-text --skip-action-cable --skip-jbuilder --skip-git
 ```
 
 Then add the gems below, switch to `structure.sql` (`config.active_record.schema_format = :sql`), and install rspec.
