@@ -1,8 +1,14 @@
 import type { User } from '@curb/api-client';
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { createAuthStore, isSuspendedError, type AppleCredential } from './auth-store';
+import {
+  createAuthStore,
+  isSuspendedError,
+  USER_CACHE_KEY,
+  type AppleCredential,
+} from './auth-store';
 import type { TokenStore } from './session-token';
+import type { KeyValueStore } from './storage';
 
 const user: User = {
   id: 'u1',
@@ -41,6 +47,18 @@ function fakeTokenStore(initial: string | null = null): TokenStore & { token: st
   return store;
 }
 
+function fakeCache(
+  initial: Record<string, string> = {},
+): KeyValueStore & { map: Map<string, string> } {
+  const map = new Map(Object.entries(initial));
+  return {
+    map,
+    set: (k, v) => void map.set(k, v),
+    getString: (k) => map.get(k),
+    remove: (k) => void map.delete(k),
+  };
+}
+
 type Route = (request: Request) => Response | Promise<Response>;
 
 function json(status: number, body: unknown): Response {
@@ -64,19 +82,23 @@ function fakeFetch(routes: Record<string, Route>) {
 }
 
 const signInBody = (isNew: boolean) => ({ data: { token: 'tok-1', user, is_new: isNew } });
+const unauthenticated = () => json(401, { error: { code: 'unauthenticated', message: 'x' } });
 
 function makeStore(overrides: {
   routes?: Record<string, Route>;
   token?: string | null;
+  cache?: ReturnType<typeof fakeCache>;
   apple?: () => Promise<AppleCredential | null>;
   google?: () => Promise<string | null>;
 }) {
   const tokenStore = fakeTokenStore(overrides.token ?? null);
+  const cache = overrides.cache ?? fakeCache();
   const { fetchImpl, calls } = fakeFetch(overrides.routes ?? {});
   const openSignIn = jest.fn();
   const store = createAuthStore({
     baseUrl: 'https://api.example',
     tokenStore,
+    cache,
     deviceId: () => 'device-1',
     providers: {
       apple: overrides.apple ?? (async () => null),
@@ -85,11 +107,11 @@ function makeStore(overrides: {
     openSignIn,
     fetch: fetchImpl,
   });
-  return { store, tokenStore, calls, openSignIn };
+  return { store, tokenStore, cache, calls, openSignIn };
 }
 
 describe('pending action (R-21)', () => {
-  it('opens the sheet, then runs the action exactly once after sign-in', async () => {
+  it('opens the sheet, then runs the action exactly once after the sheet closes', async () => {
     const { store, openSignIn } = makeStore({
       routes: { 'POST /v1/auth/google': () => json(201, signInBody(true)) },
     });
@@ -97,24 +119,35 @@ describe('pending action (R-21)', () => {
 
     expect(store.requireSignIn(action)).toBe(false);
     expect(openSignIn).toHaveBeenCalledTimes(1);
-    expect(action).not.toHaveBeenCalled();
 
     const outcome = await store.signInWithGoogle();
     expect(outcome).toMatchObject({ cancelled: false, isNew: true });
-    expect(action).toHaveBeenCalledTimes(1);
+    expect(action).not.toHaveBeenCalled();
 
-    await store.signInWithGoogle();
+    await store.runPendingAction();
+    expect(action).toHaveBeenCalledTimes(1);
+    await store.runPendingAction();
     expect(action).toHaveBeenCalledTimes(1);
     expect(store.hasPendingAction()).toBe(false);
   });
 
-  it('runs immediately when already signed in', async () => {
+  it('opens the sheet once for repeated taps while signed out', () => {
+    const { store, openSignIn } = makeStore({});
+    store.requireSignIn(jest.fn<() => void>());
+    store.requireSignIn(jest.fn<() => void>());
+    expect(openSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs immediately when already signed in and keeps a failing action from throwing', async () => {
     const { store } = makeStore({
       routes: { 'POST /v1/auth/google': () => json(200, signInBody(false)) },
     });
     await store.signInWithGoogle();
-    const action = jest.fn<() => void>();
+    const action = jest.fn<() => Promise<void>>(async () => {
+      throw new Error('rsvp failed');
+    });
     expect(store.requireSignIn(action)).toBe(true);
+    await store.runPendingAction();
     expect(action).toHaveBeenCalledTimes(1);
   });
 
@@ -126,7 +159,36 @@ describe('pending action (R-21)', () => {
     store.requireSignIn(action);
     store.cancelSignIn();
     await store.signInWithGoogle();
+    await store.runPendingAction();
     expect(action).not.toHaveBeenCalled();
+  });
+
+  it('runs an action queued during hydration once after hydrate succeeds', async () => {
+    const { store, openSignIn } = makeStore({
+      token: 'stored',
+      routes: { 'GET /v1/me': () => json(200, { data: user }) },
+    });
+    const action = jest.fn<() => void>();
+    const hydrating = store.hydrate();
+    expect(store.requireSignIn(action)).toBe(false);
+    expect(openSignIn).not.toHaveBeenCalled();
+    await hydrating;
+    expect(action).toHaveBeenCalledTimes(1);
+    expect(store.getState().status).toBe('signedIn');
+  });
+
+  it('opens the sheet for an action queued during hydration when the token turns out dead', async () => {
+    const { store, openSignIn } = makeStore({
+      token: 'dead',
+      routes: { 'GET /v1/me': unauthenticated },
+    });
+    const action = jest.fn<() => void>();
+    const hydrating = store.hydrate();
+    store.requireSignIn(action);
+    await hydrating;
+    expect(openSignIn).toHaveBeenCalledTimes(1);
+    expect(action).not.toHaveBeenCalled();
+    expect(store.hasPendingAction()).toBe(true);
   });
 
   it('reports a provider cancel without calling the API', async () => {
@@ -145,8 +207,8 @@ describe('hydrate (R-25)', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('loads the user once with a stored token', async () => {
-    const { store, calls } = makeStore({
+  it('loads the user once with a stored token and caches it', async () => {
+    const { store, calls, cache } = makeStore({
       token: 'stored',
       routes: { 'GET /v1/me': () => json(200, { data: user }) },
     });
@@ -160,41 +222,69 @@ describe('hydrate (R-25)', () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]?.headers.get('Authorization')).toBe('Bearer stored');
     expect(calls[0]?.headers.get('X-Device-Id')).toBe('device-1');
+    expect(JSON.parse(cache.map.get(USER_CACHE_KEY) ?? 'null')).toMatchObject({ id: 'u1' });
   });
 
-  it('clears the token and signs out on 401', async () => {
+  it('clears the token and the cached user on 401', async () => {
+    const cache = fakeCache({ [USER_CACHE_KEY]: JSON.stringify(user) });
     const { store, tokenStore } = makeStore({
       token: 'stale',
-      routes: {
-        'GET /v1/me': () => json(401, { error: { code: 'unauthenticated', message: 'x' } }),
-      },
+      cache,
+      routes: { 'GET /v1/me': unauthenticated },
     });
     await store.hydrate();
     expect(tokenStore.token).toBeNull();
-    expect(store.getState().status).toBe('signedOut');
+    expect(cache.map.has(USER_CACHE_KEY)).toBe(false);
+    expect(store.getState()).toMatchObject({ status: 'signedOut', user: null });
   });
 
-  it('keeps the token and treats the person as signed in with stale data on a network failure', async () => {
+  it('shows the cached user immediately and keeps it with the token on a network failure (AC-17)', async () => {
+    const cache = fakeCache({ [USER_CACHE_KEY]: JSON.stringify(user) });
     const { store, tokenStore } = makeStore({
       token: 'kept',
+      cache,
       routes: {
         'GET /v1/me': () => {
           throw new TypeError('Network request failed');
         },
       },
     });
+    const seen: string[] = [];
+    store.subscribe(() =>
+      seen.push(`${store.getState().status}:${store.getState().user?.profile.handle ?? '-'}`),
+    );
     await store.hydrate();
+    expect(seen[0]).toBe('hydrating:ada');
     expect(tokenStore.token).toBe('kept');
-    expect(store.getState()).toMatchObject({ status: 'signedIn', stale: true });
+    expect(store.getState()).toMatchObject({
+      status: 'signedIn',
+      stale: true,
+      user: { profile: { handle: 'ada' } },
+    });
+  });
+
+  it('signs out a suspended account instead of keeping it stale', async () => {
+    const { store, tokenStore } = makeStore({
+      token: 'suspended',
+      routes: {
+        'GET /v1/me': () =>
+          json(403, {
+            error: { code: 'forbidden', message: 'x', details: { reason: 'suspended' } },
+          }),
+      },
+    });
+    await store.hydrate();
+    expect(tokenStore.token).toBeNull();
+    expect(store.getState().status).toBe('signedOut');
   });
 });
 
 describe('token handling (R-24)', () => {
-  it('stores the token on sign-in and clears it on any later 401', async () => {
-    const { store, tokenStore } = makeStore({
+  it('stores the token and user on sign-in and clears both on any later 401', async () => {
+    const { store, tokenStore, cache } = makeStore({
       routes: {
         'POST /v1/auth/apple': () => json(201, signInBody(true)),
-        'GET /v1/me': () => json(401, { error: { code: 'unauthenticated', message: 'x' } }),
+        'GET /v1/me': unauthenticated,
       },
       apple: async () => ({
         identityToken: 'id',
@@ -205,9 +295,11 @@ describe('token handling (R-24)', () => {
     });
     await store.signInWithApple();
     expect(tokenStore.token).toBe('tok-1');
+    expect(cache.map.has(USER_CACHE_KEY)).toBe(true);
 
     await store.client.GET('/v1/me');
     expect(tokenStore.token).toBeNull();
+    expect(cache.map.has(USER_CACHE_KEY)).toBe(false);
     expect(store.getState().status).toBe('signedOut');
   });
 

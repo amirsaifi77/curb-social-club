@@ -15,7 +15,7 @@
     "clean": "rm -rf .expo .turbo dist coverage"
   },
   "dependencies": {
-    "@curb/api-client": "workspace:^",
+    "@curb/api-client": "workspace:*",
     "@curb/design-tokens": "workspace:*",
     "@expo/ui": "~57.0.16",
     "@react-native-google-signin/google-signin": "^16.1.5",

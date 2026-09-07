@@ -5,7 +5,12 @@ import type { KeyValueStore } from './storage';
 
 function fakeStore(): KeyValueStore & { map: Map<string, string> } {
   const map = new Map<string, string>();
-  return { map, set: (k, v) => void map.set(k, v), getString: (k) => map.get(k) };
+  return {
+    map,
+    set: (k, v) => void map.set(k, v),
+    getString: (k) => map.get(k),
+    remove: (k) => void map.delete(k),
+  };
 }
 
 describe('getDeviceId (R-24)', () => {

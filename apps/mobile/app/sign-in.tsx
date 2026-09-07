@@ -3,7 +3,7 @@ import { useNetworkState } from 'expo-network';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { auth } from '@/lib/auth';
 import { isSuspendedError, type SignInOutcome } from '@/lib/auth-store';
@@ -27,6 +27,7 @@ export default function SignInScreen() {
   const completed = useRef(false);
   const network = useNetworkState();
   const offline = network.isInternetReachable === false;
+  const { rt } = useUnistyles();
 
   useEffect(
     () => () => {
@@ -43,6 +44,9 @@ export default function SignInScreen() {
       if (outcome.cancelled) return;
       completed.current = true;
       router.back();
+      // The gated action runs once the sheet is gone (R-21); its own screen
+      // handles any failure.
+      void auth.runPendingAction();
     } catch (error) {
       setMessage(isSuspendedError(error) ? 'suspended' : 'error');
     } finally {
@@ -70,7 +74,7 @@ export default function SignInScreen() {
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
           buttonStyle={
-            UnistylesRuntime.themeName === 'dark'
+            rt.themeName === 'dark'
               ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
               : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
           }

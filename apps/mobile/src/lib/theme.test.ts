@@ -14,6 +14,7 @@ function fakeStore(initial: Record<string, string> = {}): KeyValueStore {
   return {
     set: (key, value) => void map.set(key, value),
     getString: (key) => map.get(key),
+    remove: (key) => void map.delete(key),
   };
 }
 

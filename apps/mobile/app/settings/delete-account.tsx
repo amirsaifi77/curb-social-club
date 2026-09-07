@@ -36,7 +36,11 @@ export default function DeleteAccountScreen() {
   }
 
   const disabled = offline || phase === 'deleting' || phase === 'done';
-  const keepBy = purgeAfter?.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  const keepBy = purgeAfter?.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

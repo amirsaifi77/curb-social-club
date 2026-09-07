@@ -2,7 +2,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // Google Sign-In's config plugin needs the reversed iOS client id as a URL
 // scheme; the plugin is added only when the value is set so prebuild works
-// before the Google OAuth client exists (docs/local-development.md).
+// before the Google OAuth client exists (see .env.example).
 const googleUrlScheme = process.env.GOOGLE_IOS_URL_SCHEME;
 
 const plugins: NonNullable<ExpoConfig['plugins']> = [

@@ -116,11 +116,11 @@ export default function SettingsScreen() {
         Account
       </Text>
       <View style={styles.group}>
-        {status === 'signedIn' ? (
+        {status !== 'signedOut' ? (
           <>
             <View style={styles.row}>
               <View style={styles.rowText}>
-                <Text>{user?.email ?? 'Email hidden by Apple'}</Text>
+                <Text>{user ? (user.email ?? 'Email hidden by Apple') : 'Signed in'}</Text>
                 {user ? (
                   <Text variant="caption" color="secondary">
                     {user.identities.map((i) => PROVIDER_LABELS[i.provider]).join(', ')}

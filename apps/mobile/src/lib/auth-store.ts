@@ -5,13 +5,16 @@ import { ApiError, createClient, unwrap, type ApiClient, type User } from '@curb
 import { useSyncExternalStore } from 'react';
 
 import type { TokenStore } from './session-token';
+import type { KeyValueStore } from './storage';
 
 export type AuthStatus = 'signedOut' | 'hydrating' | 'signedIn';
 
 export interface AuthState {
   status: AuthStatus;
+  // The last user this phone saw; kept across launches so the app works
+  // offline (R-25, AC-17). Null only when no sign-in has completed.
   user: User | null;
-  // Signed in with a stored token but GET /me could not be refreshed (R-25).
+  // Signed in with a stored token but GET /me could not be refreshed.
   stale: boolean;
 }
 
@@ -34,6 +37,8 @@ export interface AuthProviders {
 export interface AuthStoreDeps {
   baseUrl: string;
   tokenStore: TokenStore;
+  // Persists the cached user under USER_CACHE_KEY.
+  cache: KeyValueStore;
   deviceId: () => string;
   providers: AuthProviders;
   openSignIn?: () => void;
@@ -42,14 +47,28 @@ export interface AuthStoreDeps {
 
 export type SignInOutcome = { cancelled: true } | { cancelled: false; isNew: boolean; user: User };
 
+export const USER_CACHE_KEY = 'curb.me';
+
 export function isSuspendedError(error: unknown): boolean {
   return error instanceof ApiError && error.status === 403 && error.details?.reason === 'suspended';
+}
+
+function readCachedUser(cache: KeyValueStore): User | null {
+  try {
+    const raw = cache.getString(USER_CACHE_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function createAuthStore(deps: AuthStoreDeps) {
   let state: AuthState = { status: 'signedOut', user: null, stale: false };
   let pending: PendingAction | null = null;
   let hydrated = false;
+  let hydrating = false;
+  // In-memory copy so the Keychain is read once per launch, not per request.
+  let token: string | null | undefined;
   const listeners = new Set<() => void>();
 
   const emit = () => listeners.forEach((listener) => listener());
@@ -58,55 +77,95 @@ export function createAuthStore(deps: AuthStoreDeps) {
     emit();
   };
 
-  // Any 401 clears the token and resets to signed out (R-24).
+  async function readToken(): Promise<string | null> {
+    if (token === undefined) token = await deps.tokenStore.get();
+    return token;
+  }
+
+  function rememberUser(user: User): void {
+    deps.cache.set(USER_CACHE_KEY, JSON.stringify(user));
+  }
+
+  // Any 401 clears the token, the cached user, and resets to signed out (R-24).
   async function signOutLocally(): Promise<void> {
+    token = null;
     await deps.tokenStore.clear();
+    deps.cache.remove(USER_CACHE_KEY);
     setState({ status: 'signedOut', user: null, stale: false });
   }
 
   const client: ApiClient = createClient({
     baseUrl: deps.baseUrl,
     fetch: deps.fetch,
-    getToken: () => deps.tokenStore.get(),
+    getToken: readToken,
     getDeviceId: deps.deviceId,
     onUnauthorized: signOutLocally,
   });
 
-  async function runPending(): Promise<void> {
+  // Runs the queued gated action once, after the sheet has closed or hydrate
+  // has confirmed the session. Its failures belong to the action's own UI,
+  // never to the sign-in flow.
+  async function runPendingAction(): Promise<void> {
     const action = pending;
     pending = null;
-    if (action) await action();
+    if (!action) return;
+    try {
+      await action();
+    } catch {
+      // The action's own screen reports its error.
+    }
   }
 
-  async function completeSignIn(token: string, user: User): Promise<void> {
-    await deps.tokenStore.set(token);
+  async function completeSignIn(nextToken: string, user: User): Promise<void> {
+    token = nextToken;
+    await deps.tokenStore.set(nextToken);
+    rememberUser(user);
     setState({ status: 'signedIn', user, stale: false });
-    await runPending();
   }
 
-  // Once per launch: refresh the user when a token is stored. A 401 signs
-  // out (through the client middleware); any other failure keeps the token
-  // and treats the person as signed in with stale data (R-25).
+  // Once per launch (R-25): with a stored token the cached user shows at
+  // once, then GET /me refreshes it. A 401 signs out (client middleware); a
+  // suspended 403 signs out too; any other failure keeps the token and
+  // marks the user stale. A gated action queued meanwhile runs after
+  // success or opens the sheet after sign-out.
   async function hydrate(): Promise<void> {
     if (hydrated) return;
     hydrated = true;
-    const token = await deps.tokenStore.get();
-    if (!token) {
+    // Set before the first await so an action queued while the token is
+    // being read is deferred rather than opening the sheet.
+    hydrating = true;
+    let stored: string | null = null;
+    try {
+      stored = await readToken();
+    } catch {
+      stored = null;
+    }
+    if (!stored) {
+      hydrating = false;
       setState({ status: 'signedOut', user: null, stale: false });
+      if (pending) deps.openSignIn?.();
       return;
     }
-    setState({ status: 'hydrating' });
+    setState({ status: 'hydrating', user: readCachedUser(deps.cache) });
     try {
       const result = await client.GET('/v1/me');
-      if (result.response.status === 401) return; // middleware already signed out
-      if (result.data) {
+      if (result.response.status === 401) {
+        // Middleware already signed out.
+      } else if (result.data) {
+        rememberUser(result.data.data);
         setState({ status: 'signedIn', user: result.data.data, stale: false });
+      } else if (isSuspendedError(ApiError.fromResponse(result.response.status, result.error))) {
+        await signOutLocally();
       } else {
         setState({ status: 'signedIn', stale: true });
       }
     } catch {
       setState({ status: 'signedIn', stale: true });
+    } finally {
+      hydrating = false;
     }
+    if (state.status === 'signedIn') await runPendingAction();
+    else if (pending) deps.openSignIn?.();
   }
 
   async function signInWithApple(): Promise<SignInOutcome> {
@@ -153,15 +212,18 @@ export function createAuthStore(deps: AuthStoreDeps) {
     return body.data.purge_after;
   }
 
-  // A gated action runs now when signed in; otherwise it waits for the next
-  // successful sign-in and the sheet opens (R-21). Returns whether it ran.
+  // A gated action runs now when signed in. Otherwise it waits: during
+  // hydration for the outcome, when signed out for the next successful
+  // sign-in, with the sheet opened once (R-21). Returns whether it ran.
   function requireSignIn(action: PendingAction): boolean {
     if (state.status === 'signedIn') {
-      void action();
+      pending = action;
+      void runPendingAction();
       return true;
     }
+    const alreadyWaiting = pending !== null;
     pending = action;
-    deps.openSignIn?.();
+    if (!hydrating && !alreadyWaiting) deps.openSignIn?.();
     return false;
   }
 
@@ -187,6 +249,7 @@ export function createAuthStore(deps: AuthStoreDeps) {
     signOut,
     deleteAccount,
     requireSignIn,
+    runPendingAction,
     cancelSignIn,
     useAuth(): AuthState {
       return useSyncExternalStore(subscribe, getState, getState);

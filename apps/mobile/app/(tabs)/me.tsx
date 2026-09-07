@@ -10,7 +10,8 @@ import { Text } from '@/ui/Text';
 // Phase 2 (profiles-and-follow.md).
 export default function MeScreen() {
   const { status, user, stale } = useAuth();
-  const signedIn = status === 'signedIn';
+  // A stored token means signed in, even while GET /me refreshes (R-25).
+  const signedIn = status !== 'signedOut';
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
