@@ -55,7 +55,7 @@ module Geo
     end
 
     def origin_sql
-      Event.sanitize_sql_array([ "ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography", origin.lng, origin.lat ])
+      Geo.point_sql(origin.lat, origin.lng)
     end
 
     def order_sql

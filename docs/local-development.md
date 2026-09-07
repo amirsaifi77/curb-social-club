@@ -41,6 +41,9 @@ pnpm dev                         # turbo runs api, web, and mobile dev servers
 | api | `pnpm --filter @curb/api openapi` | Regenerates `swagger/v1/openapi.yaml` |
 | api | `cd apps/api && bin/rails c` | Console |
 | api | `cd apps/api && bin/rails "admin:grant[you@example.com]"` | Make an existing user an admin (`admin:grant[email,moderator]` for the moderator role); then sign in at `/admin/sign_in` |
+| api | `cd apps/api && bin/rails runner 'MaterializeOccurrencesJob.perform_now'` | Expand every published event's schedule 90 days ahead (nightly at 02:00 Pacific) |
+| api | `cd apps/api && bin/rails runner 'HostConsistencyJob.perform_now'` | Report events whose host is missing or hidden and rewrite drifted `host_name` (02:30). Prints a summary line; the report is cached for the admin dashboard |
+| api | `cd apps/api && bin/rails runner 'SeedDecayJob.perform_now'` | Send unclaimed events unconfirmed for 90 days dormant (02:45). Prints the count and slugs. All three jobs are idempotent, so running them by hand is safe |
 | web | `pnpm --filter @curb/web dev` | React Router dev server on 5173, proxies `/v1` to 3000 |
 | mobile | `pnpm --filter @curb/mobile dev` | `expo start --dev-client` |
 | mobile | `pnpm --filter @curb/mobile ios` | Build and run a development build on the simulator (`expo run:ios`) |
