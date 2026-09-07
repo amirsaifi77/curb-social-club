@@ -158,6 +158,11 @@ jobs:
           # Optional Turborepo remote cache. Leave unset to run without it.
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      - name: Playwright smoke test (web)
+        if: steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
+        run: |
+          pnpm --filter @curb/web exec playwright install --with-deps chromium
+          pnpm --filter @curb/web test:e2e
       - name: Generated types are up to date
         if: steps.exists.outputs.present == 'true' && hashFiles('apps/api/swagger/v1/openapi.yaml') != ''
         run: |

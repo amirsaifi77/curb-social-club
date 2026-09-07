@@ -1,15 +1,21 @@
 # @curb/web
 
-React Router v7 (framework mode, SSR) web app for Curb Social Club. Not generated yet. See ADR 0005 for why React Router over Next.js.
+React Router v7 (framework mode, SSR) web app for Curb Social Club, generated in session 0.8. See ADR 0005 for why React Router over Next.js.
 
-## Generate
+## How it was generated
+
+The planned command was `pnpm dlx create-react-router@latest web --template remix-run/react-router-templates/vercel`. That template was removed upstream on 2025-09-26 and the templates repo now targets React Router 8, so the app was generated from the template's last revision instead:
 
 ```sh
-cd apps
-pnpm dlx create-react-router@latest web --template remix-run/react-router-templates/vercel
+git clone https://github.com/remix-run/react-router-templates && git -C react-router-templates checkout 29ac272
+cd apps && pnpm dlx create-react-router@latest web --template ../react-router-templates/vercel --no-install --no-git-init
 ```
 
-Then wire `@curb/config` (eslint, prettier, tsconfig), `@curb/api-client`, `@curb/design-tokens`, and set `VITE_API_URL`.
+Then bumped to React Router 7.18 and `@vercel/react-router` 1.3 (which still targets v7), wired to `@curb/config` (eslint, prettier, tsconfig), `@curb/design-tokens` (`tokens.css`, the subset fonts, and `tailwind.theme` through `tailwind.config.ts`), Sentry (`@sentry/react-router`), vitest, and Playwright. `@curb/api-client` joins in session 0.9 when the generated types exist; until then `app/lib/api.server.ts` reads `VITE_API_URL` and calls `/v1/health` with plain fetch.
+
+## Deployment
+
+Vercel project `curb-social-club` (Hobby, Node 24) linked to the GitHub repo. It needs Root Directory set to `apps/web` in the project settings once; `apps/web/vercel.json` then supplies the framework preset and the Turborepo build command, and every push gets a preview (production on `main`). Until that setting exists the root `vercel.json` keeps git deployments off, because a build from the repo root has no app to build. Environment variables on the project: `VITE_API_URL` (the Render staging API), `VITE_SENTRY_DSN`, `SENTRY_DSN`; see `.env.example`.
 
 ## Planned structure
 
@@ -17,8 +23,13 @@ Then wire `@curb/config` (eslint, prettier, tsconfig), `@curb/api-client`, `@cur
 apps/web/
   app/
     routes.ts
-    root.tsx                  # tokens CSS, theme, error boundary
+    root.tsx                  # tokens CSS, subset fonts, error boundary
+    entry.client.tsx          # hydration plus Sentry browser init (VITE_SENTRY_DSN)
+    entry.server.tsx          # Vercel request handler plus Sentry server init (SENTRY_DSN)
+    app.css                   # Tailwind v4 with @config tailwind.config.ts (token theme)
     routes/
+      home.tsx                # placeholder until W01: wordmark, copy, API reachability from the loader
+      sentry-test.tsx         # throws when SENTRY_TEST_ENABLED=1, otherwise 404
       _index.tsx              # W01 nearby upcoming, IP geolocation fallback to coastal Orange County
       meets._index.tsx        # W02 search and list
       meets.$slug.tsx         # W03 event detail, meta + JSON-LD Event, primary SEO page
@@ -40,13 +51,16 @@ apps/web/
       terms.tsx, privacy.tsx, guidelines.tsx, bot.tsx, unsubscribe.$token.tsx   # W16
       # Phase 7 (W17): sign-in.tsx, new.tsx, imports.$id.tsx, clubs.$slug.manage.tsx
     lib/
-      api.server.ts           # createClient for loaders, forwards session cookie as Bearer
+      api.server.ts           # VITE_API_URL and /v1/health today; createClient for loaders from 0.9, forwards session cookie as Bearer
       session.server.ts       # cookie session storage for the API token
       seo.ts                  # meta helpers, JSON-LD builders
     components/
-  public/
+  e2e/home.spec.ts            # Playwright smoke test against the dev server
+  public/favicon.png
   react-router.config.ts      # ssr: true, vercel preset
-  vite.config.ts
+  vite.config.ts, vitest.config.ts, playwright.config.ts, tailwind.config.ts
+  vercel.json                 # framework react-router, turbo build command (Root Directory apps/web)
+  turbo.json                  # build env: VITE_API_URL, VITE_SENTRY_DSN
   package.json
 ```
 
@@ -68,4 +82,6 @@ apps/web/
 | `pnpm --filter @curb/web dev` | dev server on 5173 |
 | `pnpm --filter @curb/web build` | production build |
 | `pnpm --filter @curb/web typecheck` | `react-router typegen && tsc` |
-| `pnpm --filter @curb/web test` | vitest |
+| `pnpm --filter @curb/web test` | vitest (`app/**/*.test.ts`) |
+| `pnpm --filter @curb/web test:e2e` | Playwright smoke test; starts the dev server on 5173. CI installs Chromium first; locally set `PLAYWRIGHT_CHROMIUM_PATH` to reuse an installed Chromium or run `pnpm --filter @curb/web exec playwright install chromium` |
+| `pnpm --filter @curb/web lint` | eslint |

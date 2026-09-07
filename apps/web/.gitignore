@@ -1,0 +1,14 @@
+.DS_Store
+.env
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
+
+# Vercel
+/.vercel/
+
+# Playwright
+/test-results/
+/playwright-report/

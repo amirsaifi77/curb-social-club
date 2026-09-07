@@ -23,6 +23,19 @@ if (googleUrlScheme) {
   plugins.push(['@react-native-google-signin/google-signin', { iosUrlScheme: googleUrlScheme }]);
 }
 
+// Sentry's config plugin uploads source maps and dSYMs during native builds
+// and needs SENTRY_AUTH_TOKEN (an EAS secret); events report without it, so
+// the plugin joins only when the token is present.
+if (process.env.SENTRY_AUTH_TOKEN) {
+  plugins.push([
+    '@sentry/react-native/expo',
+    {
+      organization: process.env.SENTRY_ORG ?? 'amir-saifi',
+      project: process.env.SENTRY_PROJECT ?? 'curb-mobile',
+    },
+  ]);
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'curb',

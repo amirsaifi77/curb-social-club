@@ -30,6 +30,9 @@ test:
   database: curb_social_club_test
 
 # Production connects through DATABASE_URL (postgis:// scheme) set by the host.
+# Hosts hand out postgres:// URLs (Render, docs/adr/0008-hosting.md); the
+# scheme is rewritten to postgis:// so the URL does not override the adapter.
 production:
   <<: *default
   database: curb_social_club_production
+  url: <%= ENV["DATABASE_URL"]&.sub(/\Apostgres(ql)?:\/\//, "postgis://") %>

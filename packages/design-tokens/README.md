@@ -86,7 +86,7 @@ Implemented in session 0.3: `build.ts` (run with `tsx`) validates the schema and
 |---|---|
 | `dist/tokens.ts` | `themes`, `getTheme`, `typography`, `spacing`, `radius`, `glass` for mobile and web components |
 | `dist/tokens.css` | Web custom properties per theme and scheme, plus `--font-display`, `--font-ui`, spacing and radius |
-| `dist/tailwind.theme.js` | NativeWind and web Tailwind config mapping role names to `var(--color-<role>)` |
+| `dist/tailwind.theme.js` (+ `.d.ts`) | NativeWind and web Tailwind config mapping role names to `var(--color-<role>)`; `apps/web/tailwind.config.ts` extends it |
 
 Outputs are generated and gitignored; the `build` task runs before dependents via Turborepo.
 

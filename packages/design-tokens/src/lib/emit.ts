@@ -134,3 +134,19 @@ export function emitTailwindTheme(tokens: TokensSource): string {
   };
   return `// ${HEADER}\nexport default ${JSON.stringify(theme, null, 2)};\n`;
 }
+
+// Declaration next to tailwind.theme.js so a TypeScript tailwind.config can
+// import it under strict settings.
+export function emitTailwindThemeDts(): string {
+  return [
+    `// ${HEADER}`,
+    'declare const theme: {',
+    '  colors: Record<string, string>;',
+    '  fontFamily: { display: string[]; ui: string[] };',
+    '  spacing: Record<string, string>;',
+    '  borderRadius: Record<string, string>;',
+    '};',
+    'export default theme;',
+    '',
+  ].join('\n');
+}

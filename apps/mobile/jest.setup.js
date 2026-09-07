@@ -16,6 +16,13 @@ jest.mock('expo-secure-store', () => {
   };
 });
 
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  wrap: (component) => component,
+  captureMessage: jest.fn(() => 'test-event-id'),
+  captureException: jest.fn(),
+}));
+
 jest.mock('expo-crypto', () => {
   const nodeCrypto = require('node:crypto');
   return {

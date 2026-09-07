@@ -1,6 +1,6 @@
 # Local Development
 
-Status: planned setup, 2026-09-05. Nothing here works yet because the apps have not been generated. This is the target so the scaffolding PRs can be checked against it.
+Status: live as of session 0.8 (2026-09-07). The API, mobile, and web apps are generated; the staging pieces below need their one-time dashboard steps (see Staging).
 
 ## Prerequisites (macOS)
 
@@ -69,13 +69,37 @@ Seeds create a moderator user, a few venues in Newport Beach, Corona del Mar, Sa
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_HOST` | Active Storage |
 | `EXPO_ACCESS_TOKEN` | Push |
 | `RESEND_API_KEY` | Email |
-| `SENTRY_DSN` | |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT` | Sentry; the environment tag defaults to `RAILS_ENV`, `render.yaml` sets `staging` |
 | `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL` | Importer fallback |
 | `EVENTBRITE_TOKEN` | Eventbrite adapter |
 | `GEOCODER_APPLE_KEY`, `GEOCODER_GOOGLE_KEY` | Geocoding |
 | `WEB_ORIGIN` | CORS |
 
-Mobile and web use `EXPO_PUBLIC_API_URL` and `VITE_API_URL` respectively; nothing secret lives in client bundles.
+Mobile and web use `EXPO_PUBLIC_API_URL` and `VITE_API_URL` respectively (plus `EXPO_PUBLIC_SENTRY_DSN` and `VITE_SENTRY_DSN`, which are public keys); nothing secret lives in client bundles. The web server reads `SENTRY_DSN` and `SENTRY_TEST_ENABLED` (see `apps/web/.env.example`).
+
+## Staging
+
+| Tier | Where | URL |
+|---|---|---|
+| API | Render web service `curb-api-staging` plus worker `curb-jobs-staging` and Postgres `curb-postgres-staging` (`render.yaml`, ADR 0008), deployed from `main` after CI passes | `https://curb-api-staging.onrender.com` (`/v1/health`, `/admin/sign_in`) |
+| Web | Vercel project `curb-social-club`, production from `main`, a preview per branch and PR | `https://curb-social-club-amirsaifi77.vercel.app`; previews at `curb-social-club-git-<branch>-amirsaifi77.vercel.app` |
+| Mobile | EAS `development` and `preview` profiles (`apps/mobile/eas.json`) point `EXPO_PUBLIC_API_URL` at the staging API | TestFlight or internal distribution |
+
+One-time setup, in this order (secrets live in the dashboards, never in the repo):
+
+1. Render: Blueprints, New Blueprint Instance, this repo, branch `main`. It creates the database, the env var group `curb-staging` (prompting for the `sync: false` values: `SENTRY_DSN`, the Google client ids, the Apple keys; leave blank what does not exist yet), the web service, and the worker. `bin/render-build.sh` runs `assets:precompile` and `db:prepare` on the web service. Check `curl -s https://curb-api-staging.onrender.com/v1/health`.
+2. Vercel: project settings, Root Directory `apps/web`, and the environment variables `VITE_API_URL=https://curb-api-staging.onrender.com`, `VITE_SENTRY_DSN`, `SENTRY_DSN`. Then delete the root `vercel.json` (it only disables git deployments) in a follow-up PR; that PR gets the first preview.
+3. Sentry (org `amir-saifi`): create projects `curb-api` (Rails), `curb-web` (React Router), `curb-mobile` (React Native), and paste each DSN into Render, Vercel, and an EAS environment variable `EXPO_PUBLIC_SENTRY_DSN`. `SENTRY_AUTH_TOKEN` as an EAS secret turns on source map and dSYM upload through the config plugin.
+
+Test events, one per tier:
+
+| Tier | How |
+|---|---|
+| API | Render shell (or locally with `SENTRY_DSN` set): `bin/rails sentry:test_event` |
+| Web | Set `SENTRY_TEST_ENABLED=1` on the deployment, open `/sentry-test` (it throws a server error), unset it |
+| Mobile | Dev gallery (`/dev/gallery` in a development build), "Send Sentry test event" |
+
+Pointing a dev build at staging: set `EXPO_PUBLIC_API_URL=https://curb-api-staging.onrender.com` in `apps/mobile/.env` for `expo run:ios`, or build with `eas build --profile development`, whose env already has it.
 
 ## Mobile dev build
 

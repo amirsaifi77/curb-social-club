@@ -1,0 +1,15 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "env": ["VITE_API_URL", "VITE_SENTRY_DSN"],
+      "outputs": ["build/**", ".react-router/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [".react-router/**"]
+    }
+  }
+}
