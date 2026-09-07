@@ -26,12 +26,13 @@ gem "rgeo-geojson"
 gem "geocoder"
 
 # Jobs and cache (both on the primary database, docs/data-model.md).
-# mission_control-jobs is not loaded yet: its engine requires an asset
-# pipeline that an API-only app lacks. Session 0.7 mounts the dashboard
-# under /admin and adds propshaft alongside the require.
+# mission_control-jobs mounts at /admin/jobs behind the admin session
+# (docs/specs/admin.md R-12); it needs an asset pipeline, so propshaft
+# serves its assets plus admin.css and admin.js (R-6).
 gem "solid_queue"
 gem "solid_cache"
-gem "mission_control-jobs", require: false
+gem "mission_control-jobs"
+gem "propshaft"
 
 # Media (from rails new; the rest of the media group arrives with uploads)
 gem "image_processing", "~> 1.2"

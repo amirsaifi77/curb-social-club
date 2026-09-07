@@ -22,7 +22,7 @@ The admin UI is the builder's tool for seeding and keeping the schedule true: ha
 
 ## Scope
 
-In Phase 0: the `Admin` namespace wiring (ActionView, cookies, session, flash, CSRF, Propshaft for one stylesheet and one small script), A01 sign-in and sign-out, A12 Mission Control at `/admin/jobs`, the route sweep spec, the `admin_audits` table and the `Admin::Auditable` concern.
+In Phase 0: the `Admin` namespace wiring (ActionView, cookies, session, flash, CSRF, Propshaft for one stylesheet and one small script), A01 sign-in and sign-out, an A02 skeleton (user counts and Solid Queue health; the rest of R-13 lands in slice 4), A12 Mission Control at `/admin/jobs`, the route sweep spec, the `admin_audits` table and the `Admin::Auditable` concern.
 
 In Phase 1: A02 dashboard; A03 venues; A04 events with occurrences and sponsorships; A05 clubs with memberships; A06 sponsors; A07 CSV seed import; A08 users. In Phase 2: A09 claim review; A10 moderation queue and actions (screens and actions here, policy in moderation-and-safety.md). In Phase 4: A11 spots CRUD and merge.
 
@@ -32,7 +32,7 @@ Not in this spec: a JSON admin API (none; the admin has no OpenAPI contract); a 
 
 **Data**
 
-- R-1 Every non-GET admin request that changes a row MUST write an `admin_audits` row with `admin_id`, `action`, `target_type`, `target_id`, `changes` (before and after for changed attributes, excluding blobs and bodies over 2,000 chars), and `ip`. (US-7)
+- R-1 Every non-GET admin request that changes a row MUST write an `admin_audits` row with `admin_id`, `action`, `target_type`, `target_id`, `changeset` (before and after for changed attributes, excluding blobs and bodies over 2,000 chars; the column is not called `changes` because Active Record reserves that name), and `ip`. Sign-in and sign-out are audited as `sign_in` and `sign_out` with the user as target, and a verified token for a user who is not active staff as `sign_in_refused` with the Google `sub`; the credential itself is a filtered parameter and never lands in logs or audits. A non-GET request that completes without an explicit audit is recorded generically by `Admin::Auditable` as `controller#action` with its filtered params, so Mission Control's job actions are covered and a new write cannot ship unaudited. (US-7)
 - R-2 Admin edits of `events` MUST keep `host_name` in sync (events-and-occurrences.md R-2), MUST enqueue the materializer when `dtstart`, `duration_minutes`, `timezone`, `rrule`, `rrule_until`, `cadence`, `venue_id`, or `status` change, and MUST clear `dormant_at` on any such change or on Verify now. (US-2, US-4)
 - R-3 Suspending a user MUST set `users.status` `suspended` and delete every `sessions` row of that user in the same transaction; unsuspending sets `active`. (US-2)
 - R-4 Deleting a user from A08 MUST run the same path as `DELETE /me` (`AccountDeletionJob`), never a raw destroy. (US-2)
@@ -40,9 +40,9 @@ Not in this spec: a JSON admin API (none; the admin has no OpenAPI contract); a 
 **Namespace and auth**
 
 - R-5 Admin controllers MUST inherit from `Admin::BaseController < ActionController::Base` with `protect_from_forgery with: :exception`, a `before_action :require_admin_session`, and `layout "admin"`; `Api::V1` controllers MUST stay on `ActionController::API` and MUST never set a cookie. (US-8)
-- R-6 `config/application.rb` MUST keep `config.api_only = true` and add `ActionDispatch::Cookies`, `ActionDispatch::Session::CookieStore` (key `_curb_admin`, `same_site: :lax`, `secure` outside development and test, `expire_after: 12.hours`), and `ActionDispatch::Flash`; Propshaft MUST serve only `app/assets/stylesheets/admin.css` and `app/assets/javascripts/admin.js`. (US-1)
-- R-7 A01 MUST render the Google Identity Services button (script from `https://accounts.google.com/gsi/client`, allowed by CSP for `/admin` only) which posts `credential` to `POST /admin/session`; the controller MUST verify it with `Auth::GoogleTokenVerifier` using `GOOGLE_ADMIN_CLIENT_ID` as audience, look up `identities` by `(provider: "google", provider_uid: sub)`, and start a session only when the user's `role` is `admin` or `moderator` and `status` is `active`, after `reset_session`. (US-1)
-- R-8 A non-admin identity, an unknown identity, or an invalid token on `POST /admin/session` MUST redirect to `/admin/sign_in` with the flash in Copy and MUST NOT set a session; `DELETE /admin/session` MUST `reset_session` and redirect to `/admin/sign_in`. (US-1, US-8)
+- R-6 `config/application.rb` MUST keep `config.api_only = true` and add `ActionDispatch::Cookies`, `ActionDispatch::Session::CookieStore` (key `_curb_admin`, `same_site: :lax`, `secure` outside development and test, `expire_after: 12.hours`), `ActionDispatch::Flash`, `Rack::MethodOverride` (the sign-out form posts `_method=delete`), and `ActionDispatch::ContentSecurityPolicy::Middleware` (API-only stacks omit it; it writes the header only where a controller sets a policy); the Mission Control settings (`base_controller_class`, `http_basic_auth_enabled = false`, `adapters = [:solid_queue]`) live in the same file because the engine copies them before initializers run. Propshaft MUST serve only `app/assets/stylesheets/admin.css` and `app/assets/javascripts/admin.js` from the app (Mission Control's assets come from its engine). (US-1)
+- R-7 A01 MUST render the Google Identity Services button (script from `https://accounts.google.com/gsi/client`, allowed by CSP for `/admin` only) in callback mode: `admin.js` receives the credential, writes it into a form that carries the Rails CSRF token, and submits it to `POST /admin/session`, so forgery protection stays on for every admin write; the controller MUST verify it with `Auth::GoogleTokenVerifier` using `GOOGLE_ADMIN_CLIENT_ID` as audience, look up `identities` by `(provider: "google", provider_uid: sub)`, and start a session only when the user's `role` is `admin` or `moderator` and `status` is `active`, after `reset_session`. (US-1)
+- R-8 A non-admin identity, an unknown identity, a suspended user, or an invalid token on `POST /admin/session` MUST redirect to `/admin/sign_in` with the flash in Copy and MUST NOT set an admin session (the flash rides in the otherwise empty session cookie); `DELETE /admin/session` MUST `reset_session` and redirect to `/admin/sign_in`. (US-1, US-8)
 - R-9 Every route under `/admin` except `GET /admin/sign_in` and `POST /admin/session` MUST redirect anonymous and `member` sessions to `/admin/sign_in` with 302; a `moderator` MUST see A02, A08 (list, show, suspend only), A09, A10, and MUST get 302 to `/admin` with the flash in Copy on everything else; `admin` sees everything. (US-8)
 - R-10 The first admin MUST be granted by `bin/rails admin:grant[email]`, which sets `users.role` for an existing user; there is no self-service path to `admin`. (US-1)
 - R-11 rack-attack MUST throttle `POST /admin/session` to 10 per minute per IP, `POST /admin/seeds` to 10 per hour per IP, and all of `/admin` to 300 per minute per IP. (US-8)
@@ -76,7 +76,7 @@ Not in this spec: a JSON admin API (none; the admin has no OpenAPI contract); a 
 
 **Admin and jobs**
 
-- R-30 A request spec MUST enumerate `Rails.application.routes` under `/admin` (including Mission Control's engine routes), substitute a UUID for every `:id`, and assert 302 to `/admin/sign_in` for anonymous and `member` sessions on every GET, and 302 or 422 (CSRF) on every non-GET, so a new route cannot ship unguarded. (US-8)
+- R-30 A request spec MUST enumerate `Rails.application.routes` under `/admin` (including Mission Control's engine routes; a route with no verb counts for every verb), substitute a UUID for every `:id`, and assert 302 to `/admin/sign_in` for anonymous and `member` sessions on every route (the test environment disables CSRF, so a non-GET reaches the session guard; the 422 case is proven separately), and 302 to `/admin` for a moderator on every Mission Control route, so a new route cannot ship unguarded. (US-8)
 - R-31 A request spec MUST assert that `GET /v1/health` and one `Api::V1` write endpoint respond without `Set-Cookie`. (US-8)
 
 ## Data
@@ -149,11 +149,11 @@ None in v1. Admin routes are Rails resources under `namespace :admin`: `GET /adm
 |---|---|---|---|---|
 | AC-1 | No session | Every GET route under `/admin` (route sweep) | 302 to `/admin/sign_in`; `GET /admin/sign_in` is 200 | R-9, R-30 |
 | AC-2 | A session for a `member` user set directly in the test | The same sweep | 302 to `/admin/sign_in` on every route | R-9, R-30 |
-| AC-3 | `Auth::GoogleTokenVerifier` stubbed to return claims for an `admin` identity, then for a `member`, then raising | `POST /admin/session` three times | 302 to `/admin` with a session cookie; 302 to `/admin/sign_in` with the not-an-admin flash and no cookie; 302 with the invalid-token flash and no cookie | R-7, R-8 |
-| AC-4 | A signed-in moderator | `GET /admin/reports`, `GET /admin/claims`, `GET /admin/users`, then `GET /admin/venues` and `GET /admin/jobs` | 200, 200, 200, then 302 to `/admin` with the role flash twice | R-9, R-12 |
-| AC-5 | A signed-in admin | `POST /admin/venues` without the CSRF token, then with it | 422 (`InvalidAuthenticityToken`), then 302 to the venue and one `admin_audits` row with `action` `create` and `changes.name` | R-5, R-1 |
-| AC-6 | `GET /v1/health` and `PUT /v1/follows` with a token | Inspect headers | No `Set-Cookie` on either | R-5, R-31 |
-| AC-7 | An event hosted by a club, edited in A04 to a different `rrule` | The form is submitted | `host_name` unchanged, `MaterializeOccurrencesJob` enqueued once, `dormant_at` null, an audit row whose `changes` contains `rrule` before and after | R-2, R-15 |
+| AC-3 | Google id tokens signed by the test JWKS for an `admin` identity, then for a `member`, then with the wrong audience | `POST /admin/session` three times | 302 to `/admin` with a session cookie and a `sign_in` audit row; 302 to `/admin/sign_in` with the not-an-admin flash and no admin session; 302 with the invalid-token flash and no admin session | R-7, R-8, R-1 |
+| AC-4 | A signed-in moderator | Phase 0: `GET /admin`, then `GET /admin/jobs`. As each screen lands: `GET /admin/reports`, `GET /admin/claims`, `GET /admin/users`, then `GET /admin/venues` | 200, then 302 to `/admin` with the role flash. 200, 200, 200, then 302 to `/admin` with the role flash | R-9, R-12 |
+| AC-5 | A signed-in admin | `DELETE /admin/session` without the CSRF token, then with it | 422 (`InvalidAuthenticityToken`) and no audit row, then 302 to `/admin/sign_in` with a `sign_out` audit row carrying `admin_id` and `ip` | R-5, R-1 |
+| AC-6 | `GET /v1/health` and one `Api::V1` write with a token (`POST /v1/devices` until follows exist) | Inspect headers | No `Set-Cookie` and no CSP header on either | R-5, R-31 |
+| AC-7 | An event hosted by a club, edited in A04 to a different `rrule` | The form is submitted | `host_name` unchanged, `MaterializeOccurrencesJob` enqueued once, `dormant_at` null, an audit row whose `changeset` contains `rrule` before and after | R-2, R-15 |
 | AC-8 | A dormant unclaimed event | Verify now is clicked | `verified_at` and `last_confirmed_at` are now, `dormant_at` null, audit row `action` `verify` | R-16, R-2 |
 | AC-9 | An `announced` event | An occurrence is added for next Saturday, then Re-materialize runs | One row with `overridden_at` set survives; a cancel with an empty note is rejected with a form error | R-17 |
 | AC-10 | A claimed event | The edit form is rendered | `host_type` and host picker are disabled with the claimed copy; a crafted POST changing `host_id` is ignored and audited as `skipped_locked_fields` | R-15 |
@@ -169,27 +169,28 @@ None in v1. Admin routes are Rails resources under `namespace :admin`: `GET /adm
 | AC-20 | One IP | 11 `POST /admin/session` in a minute | The 11th is 429 | R-11 |
 | AC-21 | A fresh database with seeds applied | `GET /admin` as admin | Counts match `Event.published.count` and friends, the three job rows show a last run, and the stale row links to `/admin/events?stale=1` | R-13 |
 | AC-22 | An event at Victoria Gardens with `starts_at` `2026-11-07T15:30:00Z` | The occurrence list renders | The row shows `Sat Nov 7, 7:30 am PST` | R-27 |
+| AC-23 | A signed-in admin | `POST /admin/venues` with the CSRF token | 302 to the venue and one `admin_audits` row with `action` `create` and `changeset.name` | R-1, R-14 |
 
 ## Verification
 
 | Check | How |
 |---|---|
-| API | `pnpm --filter @curb/api test spec/requests/admin/` (`route_guard_spec.rb` for AC-1 and AC-2, `session_spec.rb`, `venues_spec.rb`, `events_spec.rb`, `occurrences_spec.rb`, `clubs_spec.rb`, `sponsors_spec.rb`, `seeds_spec.rb`, `users_spec.rb`, `claims_spec.rb`, `reports_spec.rb`, `spots_spec.rb`, `no_cookies_spec.rb`) with `sign_in_admin(user)` and `sign_in_moderator(user)` helpers that stub the verifier; `spec/models/admin_audit_spec.rb` |
+| API | `pnpm --filter @curb/api test spec/requests/admin/` (`route_guard_spec.rb` for AC-1 and AC-2, `session_spec.rb`, `dashboard_spec.rb`, `venues_spec.rb`, `events_spec.rb`, `occurrences_spec.rb`, `clubs_spec.rb`, `sponsors_spec.rb`, `seeds_spec.rb`, `users_spec.rb`, `claims_spec.rb`, `reports_spec.rb`, `spots_spec.rb`, `no_cookies_spec.rb`) with `sign_in_admin(user)` and `sign_in_moderator(user)` helpers that post a Google token signed by the test JWKS, and `set_admin_session(user)` which writes the encrypted cookie directly for the member sweep (`spec/support/admin_sessions.rb`); `spec/models/admin_audit_spec.rb`; `spec/tasks/admin_grant_spec.rb` for R-10 |
 | Rate limit | `spec/requests/rack_attack_spec.rb` (shared with auth-and-accounts.md) for AC-20 |
 | Views | Request specs assert on rendered HTML with Capybara matchers (`have_button`, `have_select`); no system tests at launch. AC-5 sets `ActionController::Base.allow_forgery_protection = true` for its example, since the test environment disables it by default |
 | Manual | On a laptop in Safari: sign in with the real Google client id on staging, upload `db/seeds/events.csv` in preview, apply, open Mission Control, sign out |
-| Design | None; the admin uses `admin.css` (Geist, `border` hairlines, no brand review required) |
+| Design | None; the admin uses `admin.css` (Geist when installed, the system sans otherwise, no webfont served; `border` hairlines; no brand review required) |
 
 ## Risks and open questions
 
-- Adopted 2026-09-06 into docs/data-model.md: add `admin_audits` (`admin_id uuid FK users`, `action text`, `target_type text`, `target_id uuid`, `changes jsonb`, `ip inet`, `created_at`; index `(target_type, target_id, created_at DESC)` and `(admin_id, created_at DESC)`). `moderation_actions` covers moderation only; CRUD needs its own trail.
+- Adopted 2026-09-06 into docs/data-model.md: add `admin_audits` (`admin_id uuid FK users`, `action text`, `target_type text`, `target_id uuid`, `changeset jsonb`, `ip inet`, `created_at`; index `(target_type, target_id, created_at DESC)` and `(admin_id, created_at DESC)`). `moderation_actions` covers moderation only; CRUD needs its own trail.
 - Adopted 2026-09-06 into docs/screens.md: A01 moves to Phase 0, because A12 (`/admin/jobs`, Phase 0) needs a signed-in admin.
 - Adopted 2026-09-06 into docs/api.md rate limits: add the three `/admin` limits in R-11.
 - Gaps item 12 (moderation backup): a trusted host with the `moderator` role can work A09 and A10 without touching CRUD; R-9 keeps that boundary.
 - Google Identity Services needs a separate OAuth web client id for the admin origin (`GOOGLE_ADMIN_CLIENT_ID`) and the API host's origin in the Google console; on `localhost:3000` use the same client with the localhost origin allowed.
 - Mission Control's assets ship with the gem and expect Propshaft or Sprockets; Propshaft is enabled for this reason and must not be removed when trimming middleware.
-- CSP: the admin layout allows `script-src` from self and `accounts.google.com`, `frame-src accounts.google.com`, and nothing inline; the API responses keep the strict default. If GIS One Tap misbehaves under CSP, fall back to the redirect-mode button.
-- Audit `changes` for `description` and other long text are truncated at 2,000 chars; full history is not a goal.
+- CSP: the admin layout allows `script-src` from self and `accounts.google.com`, `frame-src accounts.google.com`, `style-src` and `connect-src` for `accounts.google.com/gsi/` as Google's CSP guide lists, and nothing inline; Mission Control's importmap tags carry a per-request nonce on `script-src`; the API responses carry no policy. If GIS One Tap misbehaves under CSP, fall back to the redirect-mode button.
+- Audit `changeset` values for `description` and other long text are truncated at 2,000 chars; full history is not a goal.
 - Deleting a venue with events is refused (FK); the form shows the events instead. Venue merge is not built; use A04 to repoint events by hand until it hurts.
 - Uploads for A07 sit in R2 as ordinary blobs; purge them nightly after 24 hours with a small job so seed files do not accumulate.
 
@@ -197,8 +198,8 @@ None in v1. Admin routes are Rails resources under `namespace :admin`: `GET /adm
 
 | Slice | Deliverable | Covers | Must pass |
 |---|---|---|---|
-| 1 (Phase 0) | `Admin::BaseController`, middleware and Propshaft wiring, layout with nav and flash, `admin.css`, `admin.js`, A01 with GIS, `POST|DELETE /admin/session`, `admin:grant` task, rack-attack rules, Mission Control mount, `admin_audits` migration and `Admin::Auditable`, route sweep and no-cookie specs | R-1, R-5 to R-12, R-30, R-31 | AC-1 to AC-6, AC-20 |
-| 2 (Phase 1) | Shared `_table`, `_form_errors`, `_field` partials, Pagy, A03 venues, A08 users (search, role, suspend, delete) | R-3, R-4, R-14, R-22, R-26, R-27 | AC-14, AC-15 |
+| 1 (Phase 0) | `Admin::BaseController`, middleware and Propshaft wiring, layout with nav and flash, `admin.css`, `admin.js`, A01 with GIS, `POST|DELETE /admin/session`, A02 skeleton, `admin:grant` task, rack-attack rules, Mission Control mount, `admin_audits` migration and `Admin::Auditable`, route sweep and no-cookie specs | R-1, R-5 to R-12, R-30, R-31 | AC-1 to AC-6, AC-20 |
+| 2 (Phase 1) | Shared `_table`, `_form_errors`, `_field` partials, Pagy, A03 venues, A08 users (search, role, suspend, delete) | R-3, R-4, R-14, R-22, R-26, R-27 | AC-14, AC-15, AC-23 |
 | 3 (Phase 1) | A04 events form with host and venue pickers, sponsorships, Verify, Confirm, Re-materialize, claimed lock | R-2, R-15, R-16 | AC-7, AC-8, AC-10 |
 | 4 (Phase 1) | A04 occurrences list and actions, A02 dashboard with counts, job health, and the consistency report | R-13, R-17 | AC-9, AC-21, AC-22 |
 | 5 (Phase 1) | A05 clubs and memberships, A06 sponsors (clubs.md slice 3 and sponsors.md's admin slice) | R-18, R-19 | AC-11 |

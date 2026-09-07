@@ -14,7 +14,7 @@ module Auth
 
     # Returns the verified claims as a Hash with string keys.
     def verify(token)
-      raise InvalidToken, MESSAGE if token.blank? || @audience.blank?
+      raise InvalidToken, MESSAGE if !token.is_a?(String) || token.blank? || @audience.blank?
 
       claims, _header = JWT.decode(
         token, nil, true,

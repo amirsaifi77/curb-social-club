@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= content_for?(:title) ? "#{yield(:title)} | curb admin" : "curb admin" %></title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag "admin" %>
+  <%= javascript_include_tag "admin", defer: true %>
+  <%= yield :head %>
+</head>
+<body>
+  <header class="topbar">
+    <%= link_to "curb admin", admin_root_path, class: "wordmark" %>
+    <% if current_admin %>
+      <nav>
+        <%= link_to "Dashboard", admin_root_path %>
+        <%= link_to "Jobs", mission_control_jobs.root_path if current_admin.admin? %>
+      </nav>
+      <div class="who">
+        <span><%= current_admin.email.presence || current_admin.profile&.handle %></span>
+        <%= button_to "Sign out", admin_session_path, method: :delete, class: "button-link" %>
+      </div>
+    <% end %>
+  </header>
+  <% flash.each do |kind, message| %>
+    <p class="flash flash-<%= kind %>" role="status"><%= message %></p>
+  <% end %>
+  <main>
+    <%= yield %>
+  </main>
+</body>
+</html>

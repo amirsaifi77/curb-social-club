@@ -96,7 +96,7 @@ Server-rendered Rails views on the API host, cookie sessions, `admin` and `moder
 | Id | Screen | Path | Phase | Spec |
 |---|---|---|---|---|
 | A01 | Admin sign-in (Google Identity Services, same verifier as the API) | `/admin/sign_in` | 0 | admin |
-| A02 | Dashboard (counts, job health, open reports and claims) | `/admin` | 1 | admin |
+| A02 | Dashboard (counts, job health, open reports and claims) | `/admin` | 0 (skeleton), 1 | admin |
 | A03 | Venues CRUD | `/admin/venues` | 1 | admin |
 | A04 | Events CRUD with occurrences and sponsorships | `/admin/events`, `/admin/events/:id/occurrences` | 1 | admin |
 | A05 | Clubs CRUD with memberships | `/admin/clubs`, `/admin/clubs/:id/memberships` | 1 | admin |

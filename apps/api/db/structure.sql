@@ -84,6 +84,22 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: admin_audits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.admin_audits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    admin_id uuid,
+    action text NOT NULL,
+    target_type text,
+    target_id uuid,
+    changeset jsonb DEFAULT '{}'::jsonb NOT NULL,
+    ip inet,
+    created_at timestamp(6) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -774,6 +790,14 @@ ALTER TABLE ONLY public.solid_queue_semaphores ALTER COLUMN id SET DEFAULT nextv
 
 
 --
+-- Name: admin_audits admin_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.admin_audits
+    ADD CONSTRAINT admin_audits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -939,6 +963,20 @@ ALTER TABLE ONLY public.solid_queue_semaphores
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_admin_audits_on_admin_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_admin_audits_on_admin_id_and_created_at ON public.admin_audits USING btree (admin_id, created_at DESC);
+
+
+--
+-- Name: index_admin_audits_on_target_type_and_target_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_admin_audits_on_target_type_and_target_id_and_created_at ON public.admin_audits USING btree (target_type, target_id, created_at DESC);
 
 
 --
@@ -1374,6 +1412,14 @@ ALTER TABLE ONLY public.solid_queue_scheduled_executions
 
 
 --
+-- Name: admin_audits fk_rails_db8c98eb24; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.admin_audits
+    ADD CONSTRAINT fk_rails_db8c98eb24 FOREIGN KEY (admin_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
 -- Name: profiles fk_rails_e424190865; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1388,6 +1434,7 @@ ALTER TABLE ONLY public.profiles
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260908090000'),
 ('20260907170000'),
 ('20260907090002'),
 ('20260907090001'),

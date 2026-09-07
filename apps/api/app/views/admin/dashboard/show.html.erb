@@ -1,0 +1,52 @@
+<% content_for :title, "Dashboard" %>
+<h1>Dashboard</h1>
+
+<section>
+  <h2>Counts</h2>
+  <table>
+    <tbody>
+      <% @counts.each do |label, count| %>
+        <tr><th scope="row"><%= label %></th><td class="num"><%= count %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="muted">Events, occurrences, venues, clubs, sponsors, reports, and claims join this table as their screens land.</p>
+</section>
+
+<section>
+  <h2>Jobs</h2>
+  <% if @jobs.failed.positive? %>
+    <p class="flash flash-alert"><%= pluralize(@jobs.failed, "failed job") %>. <%= link_to "Open Jobs", mission_control_jobs.root_path %></p>
+  <% end %>
+  <table>
+    <tbody>
+      <tr><th scope="row">Failed</th><td class="num"><%= @jobs.failed %></td></tr>
+      <tr><th scope="row">Ready</th><td class="num"><%= @jobs.ready %></td></tr>
+      <tr><th scope="row">Scheduled</th><td class="num"><%= @jobs.scheduled %></td></tr>
+      <tr><th scope="row">In progress</th><td class="num"><%= @jobs.in_progress %></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Recurring tasks</h3>
+  <% tasks = @jobs.tasks %>
+  <% if tasks.empty? %>
+    <p class="muted">Nothing here yet. The scheduler loads config/recurring.yml when it starts.</p>
+  <% else %>
+    <table>
+      <thead><tr><th>Task</th><th>Schedule</th><th>Last run</th><th>Status</th></tr></thead>
+      <tbody>
+        <% tasks.each do |task| %>
+          <tr>
+            <td><%= task.key %> <span class="muted"><%= task.class_name %></span></td>
+            <td><%= task.schedule %></td>
+            <td><%= task.last_run_at ? task.last_run_at.in_time_zone("America/Los_Angeles").strftime("%a %b %-d, %-l:%M %p %Z") : "never" %></td>
+            <td><%= task.last_status || "no run yet" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+  <% if current_admin.admin? %>
+    <p><%= link_to "Open Jobs", mission_control_jobs.root_path %></p>
+  <% end %>
+</section>
