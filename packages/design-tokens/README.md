@@ -80,7 +80,7 @@ On mobile, resolve the scheme from `useColorScheme()` and the theme from the use
 pnpm --filter @curb/design-tokens build
 ```
 
-Planned implementation: a short custom script (`build.ts`) emitting:
+Implemented in session 0.3: `build.ts` (run with `tsx`) validates the schema and the contrast gate, checks the `brand/tokens.json` mirror, and emits:
 
 | Output | Consumer |
 |---|---|
