@@ -15,7 +15,7 @@ class AccountDeletionJob < ApplicationJob
     revoke_apple_tokens(user)
     user.sessions.delete_all
     user.devices.find_each(&:unlink!)
-    release_club_memberships(user)
+    ClubMembership.release_for(user, successor: app_account) if user.club_memberships.exists?
     reject_claim_requests(user)
     hand_over_hosted_events(user)
   end
@@ -28,23 +28,6 @@ class AccountDeletionJob < ApplicationJob
       next if identity.provider_refresh_token.blank?
 
       identity.update!(provider_refresh_token: nil) if client.revoke(identity.provider_refresh_token)
-    end
-  end
-
-  # The one-owner rules in ClubMembership block both a second owner and the
-  # owner's removal, so the transfer steps around them: demote by column,
-  # then seat the app account, then drop the row.
-  def release_club_memberships(user)
-    user.club_memberships.find_each do |membership|
-      ClubMembership.transaction do
-        if membership.owner?
-          membership.update_columns(role: "member")
-          seat = ClubMembership.find_or_initialize_by(club_id: membership.club_id, user_id: app_account.id)
-          seat.assign_attributes(role: "owner", status: "active")
-          seat.save!
-        end
-        membership.destroy!
-      end
     end
   end
 

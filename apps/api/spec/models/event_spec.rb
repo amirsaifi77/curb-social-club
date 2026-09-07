@@ -136,15 +136,24 @@ RSpec.describe Event do
       expect(build(:event, duration_minutes: 10)).not_to be_valid
       expect(build(:event, duration_minutes: 721)).not_to be_valid
       expect(build(:event, timezone: "Mars/Olympus")).not_to be_valid
+      expect(build(:event, timezone: "Eastern Time (US & Canada)")).not_to be_valid
       expect(build(:event, status: "live")).not_to be_valid
       expect(build(:event, visibility: "private")).not_to be_valid
       expect(build(:event, rsvp_mode: "closed")).not_to be_valid
       expect(build(:event, parking_note: "x" * 201)).not_to be_valid
     end
 
-    it "keeps source_url unique and stamps published_at on publish" do
+    it "copies the venue timezone at create unless one is given" do
+      venue = create(:venue, timezone: "America/New_York")
+      expect(create(:event, venue: venue, timezone: nil).timezone).to eq("America/New_York")
+      expect(create(:event, venue: venue, timezone: "America/Denver").timezone).to eq("America/Denver")
+    end
+
+    it "keeps source_url unique, stores a blank one as null, and stamps published_at on publish" do
       create(:event, source_url: "https://www.evite.com/event/abc")
       expect(build(:event, source_url: "https://www.evite.com/event/abc")).not_to be_valid
+      create(:event, source_url: "")
+      expect(create(:event, source_url: "").source_url).to be_nil
 
       event = create(:event)
       expect(event.published_at).to be_nil

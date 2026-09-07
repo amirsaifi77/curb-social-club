@@ -25,6 +25,17 @@ RSpec.describe EventSponsorship do
     end.to raise_error(ActiveRecord::RecordNotUnique)
   end
 
+  it "recounts both sponsors when a row moves to another sponsor" do
+    sponsorship = create(:event_sponsorship, event: create(:event, :published))
+    old_sponsor = sponsorship.sponsor
+    new_sponsor = create(:sponsor)
+    expect(old_sponsor.reload.events_count).to eq(1)
+
+    sponsorship.update!(sponsor: new_sponsor)
+    expect(old_sponsor.reload.events_count).to eq(0)
+    expect(new_sponsor.reload.events_count).to eq(1)
+  end
+
   it "validates role, note, and position, and orders by position" do
     expect(build(:event_sponsorship, role: "title")).not_to be_valid
     expect(build(:event_sponsorship, note: "x" * 201)).not_to be_valid

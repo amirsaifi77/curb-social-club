@@ -7,6 +7,8 @@ RSpec.describe Venue do
     expect(build(:venue, country: "USA")).not_to be_valid
     expect(build(:venue, country: "us")).not_to be_valid
     expect(build(:venue, timezone: "Pacific Time")).not_to be_valid
+    expect(build(:venue, timezone: "Pacific Time (US & Canada)")).not_to be_valid
+    expect(build(:venue, timezone: "America/New_York")).to be_valid
     expect(build(:venue, external_source: "yelp")).not_to be_valid
     expect(described_class.new.timezone).to eq("America/Los_Angeles")
   end

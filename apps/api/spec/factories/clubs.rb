@@ -33,13 +33,14 @@ FactoryBot.define do
   end
 
   factory :club_membership do
-    club { association :club, owner: nil }
+    club
     user
     role { "member" }
     status { "active" }
 
     trait :owner do
       role { "owner" }
+      club { association :club, owner: nil }
     end
 
     trait :admin do

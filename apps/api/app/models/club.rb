@@ -8,12 +8,13 @@ class Club < ApplicationRecord
   STATUSES = %w[active hidden].freeze
 
   belongs_to :created_by, class_name: "User"
+  # Declared first so the restrict check aborts before memberships go.
+  has_many :events, as: :host, dependent: :restrict_with_error
   has_many :memberships, class_name: "ClubMembership", dependent: :destroy, inverse_of: :club
   has_many :active_memberships, -> { active }, class_name: "ClubMembership", inverse_of: :club
   has_many :members, through: :active_memberships, source: :user
   has_one :owner_membership, -> { where(role: "owner") }, class_name: "ClubMembership", inverse_of: :club
   has_one :owner, through: :owner_membership, source: :user
-  has_many :events, as: :host, dependent: :restrict_with_error
   has_one_attached :avatar
   has_one_attached :banner
 
@@ -47,7 +48,7 @@ class Club < ApplicationRecord
   private
 
   def generate_slug
-    self.slug = name.to_s.parameterize.first(40) if slug.blank?
+    self.slug = name.to_s.parameterize.first(40).sub(/-+\z/, "") if slug.blank?
   end
 
   def rewrite_host_names

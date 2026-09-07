@@ -43,7 +43,7 @@ class Sponsor < ApplicationRecord
   private
 
   def generate_slug
-    self.slug = name.to_s.parameterize.first(40) if slug.blank?
+    self.slug = name.to_s.parameterize.first(40).sub(/-+\z/, "") if slug.blank?
   end
 
   def rewrite_host_names

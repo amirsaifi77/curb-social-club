@@ -29,7 +29,7 @@ class Venue < ApplicationRecord
   def timezone_is_iana
     return if timezone.blank?
 
-    errors.add(:timezone, "must be an IANA zone name") if ActiveSupport::TimeZone[timezone].nil?
+    errors.add(:timezone, "must be an IANA zone name") unless Geo.iana_timezone?(timezone)
   end
 
   # R-8: every scheduled occurrence still ahead of now follows the venue.

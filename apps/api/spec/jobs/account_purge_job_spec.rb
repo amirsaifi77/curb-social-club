@@ -19,16 +19,25 @@ RSpec.describe AccountPurgeJob do
     expect(User.where(id: [ recent.id, active.id ]).count).to eq(2)
   end
 
-  it "reassigns created_by on events and venues to the app account before the row goes (R-16, AC-9 venue part)" do
+  it "reassigns created_by on events, venues, and clubs and releases memberships before the row goes (R-16, AC-9 venue part)" do
     app_account = create(:app_account)
     old = create(:user, :purgeable)
     venue = create(:venue, created_by: old)
     event = create(:event, created_by: old, venue: venue, host: create(:club))
+    created_club = create(:club, created_by: old)
+    owned_club = create(:club, owner: old)
+    joined_club = create(:club)
+    create(:club_membership, club: joined_club, user: old)
 
     described_class.perform_now
 
     expect(User.find_by(id: old.id)).to be_nil
     expect(venue.reload.created_by).to eq(app_account)
     expect(event.reload.created_by).to eq(app_account)
+    expect(created_club.reload.created_by).to eq(app_account)
+    expect(owned_club.reload.owner).to eq(app_account)
+    expect(owned_club.members_count).to eq(1)
+    expect(joined_club.reload.members_count).to eq(1)
+    expect(ClubMembership.where(user_id: old.id)).to be_empty
   end
 end

@@ -31,7 +31,9 @@ class Event < ApplicationRecord
   # recounted once their rows are gone.
   before_destroy :remember_sponsor_ids, prepend: true
   before_validation :generate_slug, on: :create
+  before_validation :copy_timezone_from_venue, on: :create
   before_validation :write_host_name
+  before_validation :normalize_source_url
   before_save :stamp_published_at
   after_save :recount_hosts_after_save,
              if: -> { saved_change_to_status? || saved_change_to_host_type? || saved_change_to_host_id? }
@@ -96,9 +98,21 @@ class Event < ApplicationRecord
     self.slug = "#{base}-#{Array.new(SLUG_SUFFIX_LENGTH) { SLUG_SUFFIX_ALPHABET.sample(random: SecureRandom) }.join}"
   end
 
+  # "Copied from venue at create; editable" (docs/data-model.md): an
+  # explicit value wins, otherwise the venue's zone replaces the column default.
+  def copy_timezone_from_venue
+    self.timezone = venue.timezone if venue && (timezone.blank? || !timezone_changed?)
+  end
+
   def write_host_name
     name = host_display_name
     self.host_name = name if name.present?
+  end
+
+  # The partial unique index and the uniqueness validation treat "" as a
+  # value, so a blank source is stored as null.
+  def normalize_source_url
+    self.source_url = nil if source_url.blank?
   end
 
   def stamp_published_at
@@ -121,7 +135,7 @@ class Event < ApplicationRecord
   def timezone_is_iana
     return if timezone.blank?
 
-    errors.add(:timezone, "must be an IANA zone name") if ActiveSupport::TimeZone[timezone].nil?
+    errors.add(:timezone, "must be an IANA zone name") unless Geo.iana_timezone?(timezone)
   end
 
   # R-3. A cadence that needs a rule reports the same bad-rrule message as

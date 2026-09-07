@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :hosted_events, class_name: "Event", as: :host
   has_many :created_events, class_name: "Event", foreign_key: :created_by_id, inverse_of: :created_by, dependent: :restrict_with_error
   has_many :created_venues, class_name: "Venue", foreign_key: :created_by_id, inverse_of: :created_by, dependent: :restrict_with_error
+  has_many :created_clubs, class_name: "Club", foreign_key: :created_by_id, inverse_of: :created_by, dependent: :restrict_with_error
   has_many :club_memberships, dependent: :destroy
   has_many :clubs, through: :club_memberships
   has_many :sent_club_invitations, class_name: "ClubMembership", foreign_key: :invited_by_id, inverse_of: :invited_by, dependent: :nullify

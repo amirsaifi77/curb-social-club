@@ -72,5 +72,11 @@ RSpec.describe Club do
     hosting = create(:club)
     create(:event, host: hosting)
     expect(hosting.destroy).to be(false)
+    expect(hosting.memberships.count).to eq(1)
+  end
+
+  it "trims a generated slug that truncation leaves ending in a hyphen" do
+    club = create(:club, name: "#{'x' * 39} y", slug: nil)
+    expect(club.slug).to eq("x" * 39)
   end
 end

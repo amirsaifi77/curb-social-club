@@ -15,6 +15,7 @@ class EventSponsorship < ApplicationRecord
   validate :at_most_six_per_event, on: :create
 
   after_save :recount_sponsor
+  after_save :recount_previous_sponsor, if: :saved_change_to_sponsor_id?
   after_destroy :recount_sponsor
 
   # Omits sponsorships whose sponsor is hidden (sponsors spec R-5).
@@ -23,6 +24,8 @@ class EventSponsorship < ApplicationRecord
 
   private
 
+  # Model-only by design (docs/data-model.md): a count then insert with no
+  # database guard, which is fine for admin-written rows.
   def at_most_six_per_event
     return if event.nil? || event.sponsorships.count < Event::MAX_SPONSORSHIPS
 
@@ -33,6 +36,10 @@ class EventSponsorship < ApplicationRecord
     return if destroyed_by_association
 
     sponsor.recount_events!
+  end
+
+  def recount_previous_sponsor
+    Sponsor.find_by(id: sponsor_id_before_last_save)&.recount_events!
   end
 end
 

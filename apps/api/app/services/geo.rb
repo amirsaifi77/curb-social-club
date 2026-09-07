@@ -8,4 +8,16 @@ module Geo
   def self.point(lat, lng)
     FACTORY.point(lng.to_f, lat.to_f)
   end
+
+  # True only for an IANA identifier such as America/Los_Angeles; Rails
+  # display names ("Pacific Time (US & Canada)") are rejected because the
+  # materializer hands this string to TZInfo.
+  def self.iana_timezone?(name)
+    return false unless name.is_a?(String)
+
+    TZInfo::Timezone.get(name)
+    true
+  rescue TZInfo::InvalidTimezoneIdentifier
+    false
+  end
 end

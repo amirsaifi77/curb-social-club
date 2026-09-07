@@ -47,6 +47,22 @@ RSpec.describe ClubMembership do
     expect(build(:club_membership, status: "banned")).not_to be_valid
   end
 
+  it "keeps the owner and the counter when a user is destroyed, and pins club_id" do
+    club = create(:club)
+    member = create(:club_membership, club: club)
+    expect(club.reload.members_count).to eq(2)
+
+    member.user.destroy!
+    expect(club.reload.members_count).to eq(1)
+
+    expect { club.owner.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+    expect(club.reload.owner_membership).to be_present
+
+    moved = create(:club_membership, club: club)
+    expect(moved.update(club: create(:club))).to be(false)
+    expect(moved.errors[:club_id]).to eq([ "cannot change" ])
+  end
+
   it "stamps joined_at when a membership becomes active" do
     invited = create(:club_membership, :invited)
     expect(invited.joined_at).to be_nil
