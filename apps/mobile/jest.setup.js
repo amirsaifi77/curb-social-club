@@ -25,6 +25,34 @@ jest.mock('expo-haptics', () => ({
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
 }));
 
+// expo-image and expo-router's Link both reach for native views; the cards
+// only care about the props they pass, so both render as plain hosts.
+jest.mock('expo-image', () => {
+  const { View } = require('react-native');
+  return { Image: View };
+});
+
+jest.mock('expo-router', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  // A test double, not a component the app ships: asChild hands the child
+  // straight through so a card keeps its own accessibility role.
+  /* eslint-disable react/prop-types */
+  const Link = (props) => {
+    const { children, asChild } = props;
+    return asChild
+      ? React.Children.only(children)
+      : React.createElement(View, { accessibilityRole: 'link' }, children);
+  };
+  /* eslint-enable react/prop-types */
+  return {
+    Link,
+    router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
+    useFocusEffect: jest.fn(),
+    useLocalSearchParams: () => ({}),
+  };
+});
+
 jest.mock('@sentry/react-native', () => ({
   init: jest.fn(),
   wrap: (component) => component,

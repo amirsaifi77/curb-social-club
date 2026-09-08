@@ -1,4 +1,5 @@
 import type {
+  FeedQuery,
   RegisterDeviceBody,
   SignInWithAppleBody,
   SignInWithGoogleBody,
@@ -34,6 +35,18 @@ export function meQuery(client: ApiClient) {
   return queryOptions({
     queryKey: queryKeys.me(),
     queryFn: async () => (await api.me.get(client)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// The sectioned home feed (discovery R-5, R-12). Kept fresh for a minute:
+// a section is a window on the next 90 days, so it does not move often, and
+// the mobile persister replays the last one offline.
+export function feedQuery(client: ApiClient, query: FeedQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.feed(query),
+    queryFn: async () => (await api.feed.get(client, query)).data,
     staleTime: 60_000,
     retry: retryUnlessClientError,
   });

@@ -1,7 +1,7 @@
 import '@/lib/unistyles';
 
 import { ApiClientProvider } from '@curb/api-client';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -10,11 +10,16 @@ import { useEffect } from 'react';
 import { auth } from '@/lib/auth';
 import { getDeviceId } from '@/lib/device-id';
 import { registerDevice } from '@/lib/devices';
+import { createMmkvPersister, MAX_AGE } from '@/lib/persister';
 import { queryClient } from '@/lib/query-client';
 import { initSentry, wrapWithSentry } from '@/lib/sentry';
 
 initSentry();
 SplashScreen.preventAutoHideAsync();
+
+// The last successful feed and list responses live in MMKV, so the app
+// opens on saved results in airplane mode (discovery R-14).
+const persister = createMmkvPersister();
 
 function RootLayout() {
   // The four subset families from packages/design-tokens/fonts (R-11).
@@ -41,7 +46,10 @@ function RootLayout() {
   // The shared client feeds both the auth store and the TanStack hooks from
   // @curb/api-client, so screens share one cache and one token source.
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister, maxAge: MAX_AGE }}
+    >
       <ApiClientProvider client={auth.client}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -56,10 +64,14 @@ function RootLayout() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="onboarding"
+            options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }}
+          />
           <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
         </Stack>
       </ApiClientProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
 
