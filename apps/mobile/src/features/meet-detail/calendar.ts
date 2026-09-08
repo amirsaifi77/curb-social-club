@@ -1,4 +1,9 @@
-import * as Calendar from 'expo-calendar';
+// The bare 'expo-calendar' entry is SDK 57's new class-based API, where
+// every function used here is a stub that throws by design. The legacy
+// entry is the supported path for these calls; migrating to the new API is
+// its own change. Importing the wrong one is invisible from a test, because
+// a mock stands in for the module either way.
+import * as Calendar from 'expo-calendar/legacy';
 
 // R-12: one calendar event, with the recurrence rule when the meet is a
 // series, written after permission. The rrule comes from the API rather

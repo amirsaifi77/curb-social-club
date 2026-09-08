@@ -1,7 +1,7 @@
 import type { ClubSummary, SponsorSummary } from '@curb/api-client';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { Text } from '@/ui/Text';
@@ -47,8 +47,10 @@ export function HostRowCard({
   layout = 'card',
 }: HostRowCardProps) {
   return (
+    // Link asChild clones its child with onPress, and a View has no such
+    // prop: every club and sponsor row was a dead tap.
     <Link href={kind === 'club' ? `/clubs/${slug}` : `/sponsors/${slug}`} asChild>
-      <View
+      <Pressable
         style={[styles.card, layout === 'list' && styles.list]}
         accessibilityRole="link"
         accessibilityLabel={name}
@@ -66,7 +68,7 @@ export function HostRowCard({
             {label}
           </Text>
         ) : null}
-      </View>
+      </Pressable>
     </Link>
   );
 }

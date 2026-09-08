@@ -32,17 +32,35 @@ jest.mock('expo-image', () => {
   return { Image: View };
 });
 
+// Records where a Link would have gone, so a test can assert a tap that
+// navigates rather than only that a label is on screen.
+const mockNavigate = jest.fn();
+global.__linkNavigations = mockNavigate;
+
 jest.mock('expo-router', () => {
   const React = require('react');
   const { View } = require('react-native');
-  // A test double, not a component the app ships: asChild hands the child
-  // straight through so a card keeps its own accessibility role.
+  // A test double, not a component the app ships. asChild clones the child
+  // with an onPress, the way expo-router's Slot does: handing the child
+  // straight through instead would hide a child that cannot take one, which
+  // is a dead tap on device and invisible here.
   /* eslint-disable react/prop-types */
   const Link = (props) => {
-    const { children, asChild } = props;
-    return asChild
-      ? React.Children.only(children)
-      : React.createElement(View, { accessibilityRole: 'link' }, children);
+    const { children, asChild, href } = props;
+    if (!asChild) {
+      return React.createElement(View, { accessibilityRole: 'link' }, children);
+    }
+    const child = React.Children.only(children);
+    // React Native ignores onPress on a plain View, so a Link wrapping one
+    // is a dead tap on device. The double drops it too, otherwise the test
+    // would fire a handler the runtime never would.
+    if (child.type === View) return child;
+    return React.cloneElement(child, {
+      onPress: (...args) => {
+        child.props.onPress?.(...args);
+        mockNavigate(href);
+      },
+    });
   };
   /* eslint-enable react/prop-types */
   // Screens declare their header through <Stack.Screen options>. The double
@@ -81,9 +99,27 @@ jest.mock('expo-glass-effect', () => {
   };
 });
 
+// react-native-maps is a native view. The double keeps the tree shape so a
+// screen that draws a map still renders its other blocks; MapScreen's own
+// suite overrides this with one that records animateToRegion.
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  /* eslint-disable react/prop-types */
+  const MapView = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({ animateToRegion: jest.fn() }));
+    return React.createElement(View, { testID: 'map' }, props.children);
+  });
+  MapView.displayName = 'MapView';
+  const Marker = (props) =>
+    React.createElement(View, { accessibilityLabel: props.accessibilityLabel }, props.children);
+  /* eslint-enable react/prop-types */
+  return { __esModule: true, default: MapView, MapView, Marker, PROVIDER_DEFAULT: undefined };
+});
+
 // SF Symbols are a native view; a pin's glyph is asserted by its name.
 // expo-calendar is native; the rrule translation is what is under test.
-jest.mock('expo-calendar', () => ({
+jest.mock('expo-calendar/legacy', () => ({
   requestCalendarPermissionsAsync: jest.fn(async () => ({ granted: true })),
   getDefaultCalendarAsync: jest.fn(async () => ({ id: 'cal-1' })),
   createEventAsync: jest.fn(async () => 'event-1'),

@@ -29,6 +29,15 @@ const plugins: NonNullable<ExpoConfig['plugins']> = [
       isAndroidBackgroundLocationEnabled: false,
     },
   ],
+  // R-12: Add to calendar needs the usage descriptions in Info.plist, which
+  // this plugin injects. Without them iOS terminates the app the moment the
+  // event store is touched, which no JavaScript catch can soften.
+  [
+    'expo-calendar',
+    {
+      calendarPermission: 'curb adds a meet to your calendar when you ask it to.',
+    },
+  ],
 ];
 if (googleUrlScheme) {
   plugins.push(['@react-native-google-signin/google-signin', { iosUrlScheme: googleUrlScheme }]);

@@ -105,6 +105,8 @@ describe('S08 meet detail', () => {
     expect(screen.getByText('Sat, Oct 24, 7:30 am')).toBeTruthy();
     // One occurrence, so no "Next dates" list above a single repeated row.
     expect(screen.queryByText(DETAIL_COPY.nextDatesHeader)).toBeNull();
+    // R-13: the where block leads with a still map of the venue.
+    expect(screen.getByTestId('map')).toBeTruthy();
     expect(screen.getByText('Lido Marina Village')).toBeTruthy();
     expect(screen.getByText('Parking: lot behind the bakery')).toBeTruthy();
     expect(screen.getByText(DETAIL_COPY.hostUnclaimed)).toBeTruthy();
@@ -223,6 +225,48 @@ describe('S08 meet detail', () => {
       fireEvent.press(screen.getByText(DETAIL_COPY.errorAction));
     });
     expect(refetch).toHaveBeenCalled();
+  });
+
+  it('R-12 and R-15: the date and sponsor rows are tappable, not just labelled', async () => {
+    const navigations = (globalThis as { __linkNavigations?: jest.Mock }).__linkNavigations;
+    navigations?.mockClear();
+    wire(
+      detail({
+        upcoming_occurrences: [
+          {
+            id: 'occ-1',
+            starts_at: '2026-10-24T14:30:00Z',
+            ends_at: '2026-10-24T17:00:00Z',
+            timezone: 'America/Los_Angeles',
+            going_count: 0,
+            status: 'scheduled',
+            override_note: null,
+          },
+          {
+            id: 'occ-2',
+            starts_at: '2026-10-31T14:30:00Z',
+            ends_at: '2026-10-31T17:00:00Z',
+            timezone: 'America/Los_Angeles',
+            going_count: 0,
+            status: 'scheduled',
+            override_note: null,
+          },
+        ],
+      }),
+    );
+    await render(<MeetDetailScreen />);
+
+    // A View cannot take the onPress a Link hands its child, so a row built
+    // from one is a dead tap: pressing has to actually go somewhere.
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Sat, Oct 31, 7:30 am'));
+    });
+    expect(navigations).toHaveBeenCalledWith('/occurrences/occ-2');
+
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Bear Coast Coffee'));
+    });
+    expect(navigations).toHaveBeenCalledWith('/sponsors/bear-coast');
   });
 
   it('R-12: several dates list the ones after the next, each opening S09', async () => {

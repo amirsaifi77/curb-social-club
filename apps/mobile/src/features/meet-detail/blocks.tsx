@@ -2,6 +2,7 @@ import type { EventDetail } from '@curb/api-client';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
@@ -87,14 +88,16 @@ export function WhenBlock({
         <View style={styles.dates}>
           <Text variant="subhead">{DETAIL_COPY.nextDatesHeader}</Text>
           {dates.map((occurrence) => (
+            // Link asChild clones its child with onPress, and a View has no
+            // such prop, so the tap is dropped. Pressable is what takes it.
             <Link key={occurrence.id} href={`/occurrences/${occurrence.id}`} asChild>
-              <View
+              <Pressable
                 style={styles.dateRow}
                 accessibilityRole="link"
                 accessibilityLabel={dayAndTime(occurrence.starts_at, occurrence.timezone)}
               >
                 <Text variant="body">{dayAndTime(occurrence.starts_at, occurrence.timezone)}</Text>
-              </View>
+              </Pressable>
             </Link>
           ))}
         </View>
@@ -114,12 +117,36 @@ export function WhenBlock({
 
 export function WhereBlock({ event, onDirections }: { event: EventDetail; onDirections: () => void }) {
   const venue = event.venue;
+  const region = {
+    latitude: venue.location.lat,
+    longitude: venue.location.lng,
+    latitudeDelta: SNIPPET_SPAN / 2,
+    longitudeDelta: SNIPPET_SPAN,
+  };
   const address = [venue.address_line1, venue.address_line2, venue.city, venue.region]
     .filter(Boolean)
     .join(', ');
 
   return (
     <Block>
+      {/* R-13: a still map of the venue, not an interactive one. Panning it
+          would fight the page's own scroll, and Directions is the control
+          for going anywhere. */}
+      <MapView
+        style={styles.snippet}
+        provider={PROVIDER_DEFAULT}
+        region={region}
+        scrollEnabled={false}
+        zoomEnabled={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Marker coordinate={{ latitude: venue.location.lat, longitude: venue.location.lng }} />
+      </MapView>
+
       <Text variant="title">{venue.name}</Text>
       {address ? (
         <Text variant="body" color="secondary">
@@ -170,7 +197,7 @@ export function SponsorsBlock({ event }: { event: EventDetail }) {
     <Block title={DETAIL_COPY.sponsorsHeader}>
       {event.sponsorships.map((sponsorship) => (
         <Link key={sponsorship.sponsor.id} href={`/sponsors/${sponsorship.sponsor.slug}`} asChild>
-          <View
+          <Pressable
             style={styles.row}
             accessibilityRole="link"
             accessibilityLabel={sponsorship.sponsor.name}
@@ -188,7 +215,7 @@ export function SponsorsBlock({ event }: { event: EventDetail }) {
                 </Text>
               ) : null}
             </View>
-          </View>
+          </Pressable>
         </Link>
       ))}
     </Block>
@@ -289,6 +316,9 @@ export function ShareRow({ onShare }: { onShare: () => void }) {
   );
 }
 
+// The still map shows the block, not the city: about a quarter mile.
+export const SNIPPET_SPAN = 0.008;
+
 // R-18 uses the same 30 day clock as `stale`.
 export const STALE_DAYS = 30;
 
@@ -338,6 +368,13 @@ const styles = StyleSheet.create((theme) => ({
   logo: {
     width: 40,
     height: 24,
+  },
+  snippet: {
+    width: '100%',
+    height: 140,
+    borderRadius: theme.radius.card,
+    borderWidth: theme.radius.hairline,
+    borderColor: theme.colors.border,
   },
   hero: {
     position: 'relative',
