@@ -31,7 +31,10 @@ export function dayAndTime(startsAt: string, timezone: string): string {
   return `${day}, ${time}`;
 }
 
-export function shortDate(value: string, timezone?: string): string {
+// Always pinned, never the reader's zone: a confirmation date that shifts
+// when you fly east is a different string for the same fact. Falls back to
+// UTC, which is how the API stores the instant.
+export function shortDate(value: string, timezone = 'UTC'): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
@@ -45,7 +48,7 @@ export function confirmationChip(event: EventSummary): string | null {
   const confirmed = event.last_confirmed_at;
   if (event.claimed) return null;
   if (!confirmed) return null;
-  const date = shortDate(confirmed);
+  const date = shortDate(confirmed, event.next_occurrence?.timezone);
   return event.stale ? `Check. Last confirmed ${date}.` : `Unclaimed. Last confirmed ${date}.`;
 }
 

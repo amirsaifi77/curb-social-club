@@ -47,10 +47,10 @@ Not in this spec: event cards' tap target and the detail screen (event-detail-an
 **Mobile**
 
 - R-10 S01 MUST show three cards (what curb is, pick your area, optional interests), each with Skip, MUST request location only from card two after an in-app explainer, and MUST request reduced accuracy (`Location.Accuracy.Lowest` with the iOS reduced-accuracy purpose key). (US-1)
-- R-11 When location is denied or skipped, S01 MUST offer a city search (MapKit geocoding) and a drop-a-pin map, and MUST let the user continue with the default region (coastal Orange County, 33.62, -117.93) when offline or when geocoding fails. Until the map lands in slice 5, Drop a pin commits the default region, which is what the offline copy already promises. (US-6)
+- R-11 When location is denied or skipped, S01 MUST offer a city search (MapKit geocoding) and a drop-a-pin map, and MUST let the user continue with the default region (coastal Orange County, 33.62, -117.93) when offline or when geocoding fails. Until the map lands in slice 5, Drop a pin commits the default region and says so with its own line, rather than advancing as though a pin had been placed. A geocoder that cannot be reached shows the offline line, not the geocode-failure line: they are different facts. (US-6)
 - R-12 S02 MUST render each feed section as a titled group in API order, MUST hide a section when it is absent or empty, and MUST show the widen-radius empty state only when the response holds no sections at all. A section whose kind the build cannot draw yet (`following`, `recent_photos`, `spots_nearby` in Phase 1) MUST render as nothing rather than as an empty titled group, so the API can ship a section before the client can. (US-2)
 - R-13 The event card MUST show cover (or the flat placeholder), title in the serif, day and time in the venue timezone, venue name and `distance_m` in miles, the host chip built from the one `Host` shape, a recurring badge with `rrule_text`, `going_count` when above zero, a source pill when `source` is present, up to two `sponsors_preview` logos, and a confirmation chip from `stale` and `claimed` using the exact strings in events-and-occurrences.md: "Check. Last confirmed <date>." when `stale` is true, "Unclaimed. Last confirmed <date>." when `claimed` is false and `stale` is false, nothing when claimed. (US-2)
-- R-14 S02 MUST support pull to refresh, MUST persist the last successful feed and list responses to MMKV through the TanStack Query persister, and MUST show the saved-results banner when rendering from cache while offline. (US-6)
+- R-14 S02 MUST support pull to refresh, MUST persist the last successful feed and list responses to MMKV through the TanStack Query persister, and MUST show the saved-results banner when rendering from cache while offline. MMKV is not encrypted, so only public browse responses are persisted: account-scoped responses (the signed-in profile, the device row) MUST stay in memory, otherwise a sign-out leaves the previous account's profile on disk. (US-6)
 - R-15 S03 MUST fetch `GET /events/map` for the visible bbox 300 ms after the region settles on first load and on tap of the "search this area" pill, MUST show the pill after the map moves more than 20 percent of the viewport or one zoom level from the last fetched box, and MUST cluster pins client-side with supercluster (radius 56 px, max zoom 16). (US-3)
 - R-16 Tapping a cluster MUST zoom to its expansion zoom; tapping a pin MUST select it (1.2x, ring `textPrimary`) and scroll its card into view in the sheet; tapping a card MUST recenter the map on its pin and select it. (US-3)
 - R-17 S03 MUST float four filter chips (This weekend, Distance, Theme, Recurring only) in one `GlassContainer` and a locate-me control in another, capability-gated with a blur or solid fallback, and MUST apply the same filters to the pins and the sheet list. (US-4)
@@ -101,12 +101,13 @@ Deltas adopted into docs/api.md on 2026-09-06 (see Risks): the section time boun
 | S01 denied | Location is off. Pick a city or drop a pin and we sort from there. |
 | S01 geocode failure | We couldn't find that city. Drop a pin instead. |
 | S01 offline | You're offline. We'll start you in coastal Orange County and ask again later. |
+| S01 drop a pin, before the map lands | The map lands soon. We'll start you in coastal Orange County. |
 | S02 section titles | This weekend, From people you follow, Recent photos, Clubs near you, Sponsors near you, Spots near you, Next week, Later |
 | S02 empty, headline | Nothing listed within 20 miles yet. |
 | S02 empty, actions | Widen to 50 miles, Add a meet |
 | S02 empty after widening | Nothing listed within 50 miles yet. Add the one you know about. |
 | S02 offline banner | Showing saved results. |
-| S02 error | Couldn't load the feed. Try again. |
+| S02 error | Couldn't load the feed. Try again. ("Try again" is the retry control, per the Standard states rule that an error is an inline message with a retry.) |
 | Card chip, stale | Check. Last confirmed Jul 12. |
 | Card chip, unclaimed and fresh | Unclaimed. Last confirmed Aug 30. |
 | Card, source pill | Instagram, Evite, Eventbrite, Meetup, Host |

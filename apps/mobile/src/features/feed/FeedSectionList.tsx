@@ -28,6 +28,8 @@ export function FeedSectionList({
       keyExtractor={(section) => section.kind}
       ListHeaderComponent={header}
       contentContainerStyle={styles.content}
+      // Lets the native large title collapse as the feed scrolls.
+      contentInsetAdjustmentBehavior="automatic"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => <FeedSectionGroup section={item} />}
     />
@@ -36,8 +38,12 @@ export function FeedSectionList({
 
 function FeedSectionGroup({ section }: { section: RenderableSection }) {
   return (
-    <View style={styles.section} accessibilityRole="summary" accessibilityLabel={section.title}>
-      <Text variant="headline">{section.title}</Text>
+    <View style={styles.section}>
+      {/* The title is the section's heading, so VoiceOver's rotor can jump
+          between sections while the cards inside stay individually reachable. */}
+      <Text variant="headline" accessibilityRole="header">
+        {section.title}
+      </Text>
 
       {section.layout === 'events' ? (
         <View style={styles.cards}>

@@ -1,7 +1,7 @@
 import type { FeedSection } from '@curb/api-client';
 import { describe, expect, it } from '@jest/globals';
 
-import { SECTION_TITLES, renderableSections } from './sections';
+import { SECTION_TITLES, UNDRAWN_TITLES, renderableSections } from './sections';
 
 import { clubSummary, eventSummary, sponsorSummary } from '@/components/fixtures';
 
@@ -9,7 +9,7 @@ import { clubSummary, eventSummary, sponsorSummary } from '@/components/fixtures
 function section(kind: string, items: unknown[]): FeedSection {
   return {
     kind,
-    title: SECTION_TITLES[kind] ?? kind,
+    title: { ...SECTION_TITLES, ...UNDRAWN_TITLES }[kind as keyof typeof SECTION_TITLES] ?? kind,
     items,
     more: { path: '/events', params: {} },
   } as FeedSection;
@@ -59,11 +59,24 @@ describe('renderableSections', () => {
     expect(sections[1].title).toBe('Sponsors near you');
   });
 
-  it('falls back to the API title for a kind the client has no copy for', () => {
+  it('R-12: the client copy wins over the title the API sent', () => {
     const sections = renderableSections([
       { ...section('this_weekend', [eventSummary()]), title: 'Server said this' },
     ]);
-    // The client's copy wins where it has one, so the Copy table is the truth.
+
     expect(sections[0].title).toBe('This weekend');
+  });
+
+  it('drops a row the card cannot draw rather than taking the screen down', () => {
+    const sections = renderableSections([
+      // A response that moved under the client: a club row in an events
+      // section, and a section whose items are not a list at all.
+      section('this_weekend', [clubSummary(), eventSummary()]),
+      { ...section('next_week', []), items: null as unknown as [] },
+      section('clubs_nearby', [{ id: 'no-name' }]),
+    ]);
+
+    expect(sections.map((row) => row.kind)).toEqual(['this_weekend']);
+    expect(sections[0].items).toHaveLength(1);
   });
 });

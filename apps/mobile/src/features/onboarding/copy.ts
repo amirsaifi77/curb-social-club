@@ -9,6 +9,7 @@ export const ONBOARDING_COPY = {
   denied: 'Location is off. Pick a city or drop a pin and we sort from there.',
   geocodeFailure: "We couldn't find that city. Drop a pin instead.",
   offline: "You're offline. We'll start you in coastal Orange County and ask again later.",
+  pinLater: "The map lands soon. We'll start you in coastal Orange County.",
   useMyLocation: 'Use my location',
   pickACity: 'Pick a city',
   dropAPin: 'Drop a pin',

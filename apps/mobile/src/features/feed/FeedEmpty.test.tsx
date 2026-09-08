@@ -21,7 +21,7 @@ describe('FeedEmpty', () => {
     expect(screen.getByLabelText(WIDEN_ACTION)).toBeTruthy();
     expect(screen.getByLabelText(ADD_ACTION)).toBeTruthy();
 
-    fireEvent.press(screen.getByLabelText(WIDEN_ACTION));
+    await fireEvent.press(screen.getByLabelText(WIDEN_ACTION));
     expect(onWiden).toHaveBeenCalledTimes(1);
   });
 

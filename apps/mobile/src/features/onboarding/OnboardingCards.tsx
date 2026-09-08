@@ -43,12 +43,15 @@ export function OnboardingCards({
   }
 
   async function findCity() {
-    const found = await geocodeCity(city);
-    if (!found) {
-      setNotice(ONBOARDING_COPY.geocodeFailure);
+    const outcome = await geocodeCity(city);
+    if (outcome.status !== 'ok') {
+      // Not found and could not reach the geocoder read differently.
+      setNotice(
+        outcome.status === 'failed' ? ONBOARDING_COPY.offline : ONBOARDING_COPY.geocodeFailure,
+      );
       return;
     }
-    setArea(found);
+    setArea(outcome.area);
     setNotice(null);
     next();
   }
@@ -103,13 +106,14 @@ export function OnboardingCards({
             </View>
           ) : null}
 
-          {/* Drop a pin is the map fallback; the map screen lands in 1.12,
-              so here it commits the default region the copy promises. */}
+          {/* Drop a pin is the map fallback and the map lands in 1.12. Until
+              then it commits the default region and says so, rather than
+              advancing silently as though a pin had been placed. */}
           <TextButton
             label={ONBOARDING_COPY.dropAPin}
             onPress={() => {
               setArea(toBrowseArea(defaultArea().lat, defaultArea().lng, 'Dropped pin', 'pin'));
-              next();
+              setNotice(ONBOARDING_COPY.pinLater);
             }}
           />
           <TextButton label={ONBOARDING_COPY.skip} onPress={next} />

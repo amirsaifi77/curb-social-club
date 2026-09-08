@@ -32,18 +32,25 @@ export async function locateDevice(): Promise<LocateOutcome> {
   }
 }
 
+export type GeocodeOutcome =
+  | { status: 'ok'; area: BrowseArea }
+  | { status: 'not_found' }
+  | { status: 'failed' };
+
 // R-11: city search through the on-device geocoder. A failure is a message,
-// not a dead end: the caller offers the pin instead.
-export async function geocodeCity(query: string): Promise<BrowseArea | null> {
+// not a dead end: the caller offers the pin instead. "We could not find that
+// city" and "the geocoder could not be reached" are different messages, so
+// they are different outcomes here.
+export async function geocodeCity(query: string): Promise<GeocodeOutcome> {
   const text = query.trim();
-  if (!text) return null;
+  if (!text) return { status: 'not_found' };
 
   try {
     const [match] = await Location.geocodeAsync(text);
-    if (!match) return null;
-    return toBrowseArea(match.latitude, match.longitude, text, 'city');
+    if (!match) return { status: 'not_found' };
+    return { status: 'ok', area: toBrowseArea(match.latitude, match.longitude, text, 'city') };
   } catch {
-    return null;
+    return { status: 'failed' };
   }
 }
 

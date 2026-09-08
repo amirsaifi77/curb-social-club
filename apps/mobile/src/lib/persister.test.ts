@@ -1,8 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
 
-import { PERSIST_KEY, createMmkvPersister } from './persister';
+import { CACHE_BUSTER, PERSIST_KEY, createMmkvPersister, shouldPersistQuery } from './persister';
 import type { KeyValueStore } from './storage';
+
+function query(queryKey: unknown[], status = 'success') {
+  return { queryKey, state: { status } } as unknown as Parameters<typeof shouldPersistQuery>[0];
+}
 
 function memoryStore(): KeyValueStore & { data: Map<string, string> } {
   const data = new Map<string, string>();
@@ -16,7 +20,7 @@ function memoryStore(): KeyValueStore & { data: Map<string, string> } {
 
 const client = {
   timestamp: 1,
-  buster: '',
+  buster: CACHE_BUSTER,
   clientState: { mutations: [], queries: [] },
 } as PersistedClient;
 
@@ -44,6 +48,13 @@ describe('the MMKV persister', () => {
     expect(await createMmkvPersister(store).restoreClient()).toBeUndefined();
   });
 
+  it('drops a snapshot written by a build with other response shapes', async () => {
+    const store = memoryStore();
+    store.set(PERSIST_KEY, JSON.stringify({ ...client, buster: 'v0' }));
+
+    expect(await createMmkvPersister(store).restoreClient()).toBeUndefined();
+  });
+
   it('a cache that cannot be written does not take the screen down', async () => {
     const failing: KeyValueStore = {
       set: () => {
@@ -54,5 +65,20 @@ describe('the MMKV persister', () => {
     };
 
     expect(await createMmkvPersister(failing).persistClient(client)).toBeUndefined();
+  });
+
+  it('R-14: persists browse responses and leaves account data in memory', () => {
+    expect(shouldPersistQuery(query(['curb', 'feed', { near: '33.62,-117.93' }]))).toBe(true);
+    expect(shouldPersistQuery(query(['curb', 'events', 'lido-saturday']))).toBe(true);
+
+    // MMKV is not encrypted, and a sign-out must not leave a profile on disk.
+    expect(shouldPersistQuery(query(['curb', 'me']))).toBe(false);
+    expect(shouldPersistQuery(query(['curb', 'devices', 'abc']))).toBe(false);
+    // Anything named later is out until it is named here.
+    expect(shouldPersistQuery(query(['curb', 'notifications']))).toBe(false);
+  });
+
+  it('R-14: an errored query is not what airplane mode should show', () => {
+    expect(shouldPersistQuery(query(['curb', 'feed', {}], 'error'))).toBe(false);
   });
 });

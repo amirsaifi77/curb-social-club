@@ -48,7 +48,9 @@ describe('EventCard', () => {
   it('R-13: shows the venue and the distance in miles', async () => {
     await render(<EventCard event={eventSummary()} />);
 
-    expect(screen.getByText('Lido Marina Village · 3.0 mi')).toBeTruthy();
+    expect(screen.getByText('Lido Marina Village')).toBeTruthy();
+    // The distance is its own `plate` run, which uppercases in rendering.
+    expect(screen.getByText('3.0 mi')).toBeTruthy();
   });
 
   it('R-13: shows a going count above zero', async () => {

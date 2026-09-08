@@ -6,7 +6,7 @@ import { PlatformColor } from 'react-native';
 export default function TabLayout() {
   return (
     <NativeTabs minimizeBehavior="onScrollDown" tintColor={PlatformColor('label')}>
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="(home)">
         <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

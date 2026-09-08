@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { auth } from '@/lib/auth';
 import { getDeviceId } from '@/lib/device-id';
 import { registerDevice } from '@/lib/devices';
-import { createMmkvPersister, MAX_AGE } from '@/lib/persister';
+import { createMmkvPersister, MAX_AGE, shouldPersistQuery } from '@/lib/persister';
 import { queryClient } from '@/lib/query-client';
 import { initSentry, wrapWithSentry } from '@/lib/sentry';
 
@@ -48,7 +48,11 @@ function RootLayout() {
   return (
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister, maxAge: MAX_AGE }}
+      persistOptions={{
+        persister,
+        maxAge: MAX_AGE,
+        dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery },
+      }}
     >
       <ApiClientProvider client={auth.client}>
         <Stack>

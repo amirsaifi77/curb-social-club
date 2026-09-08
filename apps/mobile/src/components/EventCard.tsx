@@ -37,12 +37,15 @@ export function EventCard({ event }: { event: EventSummary }) {
         )}
 
         <View style={styles.body}>
-          <Text variant="title" numberOfLines={2}>
+          {/* Card title, not a detail title: `headline` is the role the
+              tokens give card titles and section headers. */}
+          <Text variant="headline" numberOfLines={2}>
             {event.title}
           </Text>
 
           {occurrence ? (
-            <Text variant="body" color="secondary">
+            // `plate` is the tokens' role for times, distances and dates.
+            <Text variant="plate" color="secondary">
               {dayAndTime(occurrence.starts_at, occurrence.timezone)}
             </Text>
           ) : (
@@ -51,9 +54,16 @@ export function EventCard({ event }: { event: EventSummary }) {
             </Text>
           )}
 
-          <Text variant="body" color="secondary" numberOfLines={1}>
-            {[event.venue.name, distance].filter(Boolean).join(' · ')}
-          </Text>
+          <View style={styles.place}>
+            <Text variant="body" color="secondary" numberOfLines={1} style={styles.placeName}>
+              {event.venue.name}
+            </Text>
+            {distance ? (
+              <Text variant="plate" color="secondary">
+                {distance}
+              </Text>
+            ) : null}
+          </View>
 
           {event.host ? <HostChip host={event.host} /> : null}
 
@@ -124,6 +134,14 @@ const styles = StyleSheet.create((theme) => ({
   body: {
     padding: theme.spacing['4'],
     gap: theme.spacing['2'],
+  },
+  place: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: theme.spacing['2'],
+  },
+  placeName: {
+    flexShrink: 1,
   },
   meta: {
     flexDirection: 'row',
