@@ -250,6 +250,7 @@ RSpec.describe "v1/auth" do
       expect(json.dig("error", "details", "reason")).to eq("suspended")
     end
   end
+
   describe "sign-up handles and names (R-1, R-3, R-4)" do
     it "signs up a person whose name is a reserved handle, and truncates a long display name" do
       post "/v1/auth/google", params: { id_token: google_token(email: "support@example.com", name: "Support") },
@@ -266,5 +267,4 @@ RSpec.describe "v1/auth" do
       expect(json.dig("data", "user", "profile", "display_name")).to eq(long.first(40))
     end
   end
-
 end
