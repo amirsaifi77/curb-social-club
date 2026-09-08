@@ -48,6 +48,31 @@ function route(url: URL): { status: number; body: string } {
     return json({ data: [] });
   }
 
+  // A minimal MapLibre style, so the map test does not depend on
+  // OpenFreeMap being up or reachable. No sources and no sprites: the test
+  // is about the pins and the requests, not about tiles.
+  if (path === '/map-style.json') {
+    return json({ version: 8, name: 'fixture', sources: {}, layers: [] });
+  }
+
+  // AC-11: forty pins in one box.
+  if (path === '/v1/events/map') {
+    const pins = Array.from({ length: 40 }, (_, index) => ({
+      id: `pin-${index}`,
+      event_id: `event-${index}`,
+      slug: index === 0 ? 'lido-saturday' : `meet-${index}`,
+      title: index === 0 ? 'Lido Saturday' : `Meet ${index}`,
+      // Inside the default viewport and spread across it, so they neither
+      // fall outside the box nor collapse into a single cluster.
+      lat: 33.52 + index * 0.005,
+      lng: -118.1 + index * 0.009,
+      starts_at: '2026-10-24T14:30:00Z',
+      going_count: index,
+      recurring: index % 2 === 0,
+    }));
+    return json({ data: pins, meta: { truncated: false } });
+  }
+
   if (path === '/v1/health') return json({ data: { status: 'ok' } });
 
   if (path === '/v1/feed') return json({ data: FEED, meta: { generated_at: new Date().toISOString() } });
@@ -137,7 +162,20 @@ const server = createServer((request, response) => {
     seen.push({ path: url.pathname, query: Object.fromEntries(url.searchParams) });
   }
   const { status, body } = route(url);
-  response.writeHead(status, { 'Content-Type': 'application/json' });
+  // W05 is the first surface that calls the API from the browser rather
+  // than from a loader, so the fixture answers preflight the way the real
+  // API does through rack-cors (apps/api/config/initializers/cors.rb).
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+  };
+  if (request.method === 'OPTIONS') {
+    response.writeHead(204, cors);
+    response.end();
+    return;
+  }
+  response.writeHead(status, { 'Content-Type': 'application/json', ...cors });
   response.end(body);
 });
 

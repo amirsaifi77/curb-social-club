@@ -6,7 +6,6 @@ import {
   movedEnough,
   regionFromBbox,
   type Bbox,
-  type MapFeature,
   type MapPinInput,
 } from '@curb/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -63,6 +62,7 @@ export default function MapPage({ loaderData }: Route.ComponentProps) {
   const lastBbox = useRef<Bbox | null>(null);
   const [pins, setPins] = useState<MapPinInput[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'too_wide'>('idle');
+  const [map, setMap] = useState<import('maplibre-gl').Map | null>(null);
 
   const load = useCallback(
     async (bbox: Bbox) => {
@@ -126,28 +126,66 @@ export default function MapPage({ loaderData }: Route.ComponentProps) {
 
       map.on('load', onMoveEnd);
       map.on('moveend', onMoveEnd);
+      setMap(map);
     })();
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      setMap(null);
       map?.remove();
     };
   }, [styleUrl, load]);
 
   // The same wrapper the mobile map uses, so a cluster on the web is the
-  // same cluster on the phone. The side list is the pins in view, which is
-  // what R-15 asks for: a cluster is a count, not a row.
-  const features: MapFeature[] =
-    pins.length > 0
-      ? createPinIndex(pins).featuresIn(
-          lastBbox.current ?? { west: -180, south: -85, east: 180, north: 85 },
-          Math.round(DEFAULT_ZOOM),
-        )
-      : [];
-  const inView = features.filter(
-    (feature): feature is Extract<MapFeature, { type: 'pin' }> => feature.type === 'pin',
-  );
+  // same cluster on the phone: one marker per pin, one plate per cluster.
+  useEffect(() => {
+    if (!map || pins.length === 0) return;
+    let cancelled = false;
+    const markers: import('maplibre-gl').Marker[] = [];
+
+    void (async () => {
+      const maplibre = await import('maplibre-gl');
+      if (cancelled) return;
+      const bounds = map.getBounds();
+      const features = createPinIndex(pins).featuresIn(
+        {
+          west: bounds.getWest(),
+          south: bounds.getSouth(),
+          east: bounds.getEast(),
+          north: bounds.getNorth(),
+        },
+        map.getZoom(),
+      );
+
+      for (const feature of features) {
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.className = 'rounded-full border border-border bg-surfaceRaised px-2 py-1 text-xs';
+        element.textContent =
+          feature.type === 'cluster' ? String(feature.count) : feature.pin.title;
+        element.setAttribute(
+          'aria-label',
+          feature.type === 'cluster' ? `${feature.count} meets` : feature.pin.title,
+        );
+        element.dataset.mapFeature = feature.type;
+        markers.push(
+          new maplibre.Marker({ element }).setLngLat([feature.lng, feature.lat]).addTo(map),
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      for (const marker of markers) marker.remove();
+    };
+  }, [map, pins]);
+
+  // R-15 asks for the events in view beside the map. That is every pin the
+  // API returned for this box, not only the ones that happened not to
+  // cluster: clustering is how the map draws forty pins, not a reason to
+  // hide thirty-nine of them from the list.
+  const inView = pins;
 
   return (
     <main className="mx-auto flex max-w-pageMax flex-col gap-4 px-gutter py-6 lg:flex-row">
@@ -163,16 +201,16 @@ export default function MapPage({ loaderData }: Route.ComponentProps) {
         ) : null}
 
         <ul className="flex flex-col gap-3">
-          {inView.map((feature) => (
-            <li key={feature.pin.id} className="border border-border bg-surface p-3">
-              <Link to={`/meets/${feature.pin.slug}`} className="font-display text-xl">
-                {feature.pin.title}
+          {inView.map((pin) => (
+            <li key={pin.id} className="border border-border bg-surface p-3">
+              <Link to={`/meets/${pin.slug}`} className="font-display text-xl">
+                {pin.title}
               </Link>
               <p className="text-sm text-textSecondary">
-                {/* MapPin carries no timezone (discovery R-16), so the
-                    web reads the time in the reader's own zone, which on a
-                    map of meets near them is the venue's zone too. */}
-                {dayAndTime(feature.pin.starts_at, VIEWER_TIMEZONE)}
+                {/* A MapPin carries no timezone (discovery R-16), so the web
+                    reads the time in the reader's own zone, which on a map
+                    of meets near them is the venue's zone too. */}
+                {dayAndTime(pin.starts_at, VIEWER_TIMEZONE)}
               </p>
             </li>
           ))}

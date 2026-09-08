@@ -8,7 +8,8 @@ export const WEB_COPY = {
   homeCityPicker: 'Pick a city',
   homeNearMe: 'Near me',
   homeEmpty: 'Nothing listed near here yet. Pick a city or get the app to add one.',
-  sectionTitles: { this_weekend: 'This weekend', next_week: 'Next week', later: 'Later' },
+  // The three section titles come from the feed's own `title` field, so
+  // the API is the one place they are written (discovery.md R-5).
   searchPlaceholder: 'Search meets, clubs, places',
   // web.md names no empty line for W02 without a query. W01's sentence
   // offers a city picker that W02 also has, so it is the same offer without
@@ -51,8 +52,11 @@ export const HOST_COPY = {
   seeAll: 'See all meets',
   members: 'Members',
   membersEmpty: 'No members listed yet.',
-  clubHidden: 'This club is no longer listed.',
-  sponsorHidden: 'This sponsor is no longer listed.',
+  // A hidden club or sponsor is a 404 on every public endpoint
+  // (clubs.md R-5), so the web cannot tell one from a slug nobody ever
+  // had, and the 404 page is the only honest answer. The "no longer
+  // listed" lines belong to the mobile pages, which get the same 404 but
+  // know which page they were on.
   sponsorFooter: 'Run this business? Email hello@curbsocial.club to update the page.',
   website: 'Website',
   // web.md Copy, "W08 and W09 follow": following is an app surface, so the
