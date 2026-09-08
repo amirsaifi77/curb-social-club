@@ -2161,6 +2161,11 @@ export interface components {
             rrule: string | null;
             /** Format: date-time */
             dtstart: string | null;
+            /**
+             * Format: date
+             * @description Last date a seasonal series runs; JSON-LD Schedule endDate (web.md R-6)
+             */
+            rrule_until: string | null;
             duration_minutes: number;
             /** @enum {string} */
             rsvp_mode: "open" | "count_only" | "off";
@@ -2239,6 +2244,11 @@ export interface components {
             going_count: number;
             interested_count: number;
             check_in_count: number;
+            /**
+             * Format: date-time
+             * @description Set when a host edits this date; W04 is self-canonical when present
+             */
+            overridden_at: string | null;
             going_preview: {
                 [key: string]: unknown;
             }[];

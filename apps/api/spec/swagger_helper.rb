@@ -233,6 +233,8 @@ RSpec.configure do |config|
                 properties: {
                   description: { type: :string, nullable: true }, parking_note: { type: :string, nullable: true },
                   rrule: { type: :string, nullable: true }, dtstart: { type: :string, format: "date-time", nullable: true },
+                  rrule_until: { type: :string, format: :date, nullable: true,
+                                 description: "Last date a seasonal series runs; JSON-LD Schedule endDate (web.md R-6)" },
                   duration_minutes: { type: :integer }, rsvp_mode: { type: :string, enum: Event::RSVP_MODES },
                   capacity: { type: :integer, nullable: true }, status: { type: :string, enum: Event::STATUSES },
                   visibility: { type: :string, enum: Event::VISIBILITIES },
@@ -286,7 +288,7 @@ RSpec.configure do |config|
                   },
                   photos_count: { type: :integer }, comments_count: { type: :integer }, followers_count: { type: :integer }
                 },
-                required: %w[description parking_note rrule dtstart duration_minutes rsvp_mode capacity status visibility
+                required: %w[description parking_note rrule rrule_until dtstart duration_minutes rsvp_mode capacity status visibility
                              dormant hidden external_host_name venue upcoming_occurrences sponsorships viewer
                              photos_count comments_count followers_count]
               }
@@ -300,6 +302,8 @@ RSpec.configure do |config|
               timezone: { type: :string }, status: { type: :string, enum: EventOccurrence::STATUSES },
               override_note: { type: :string, nullable: true }, going_count: { type: :integer },
               interested_count: { type: :integer }, check_in_count: { type: :integer },
+              overridden_at: { type: :string, format: "date-time", nullable: true,
+                               description: "Set when a host edits this date; W04 is self-canonical when present" },
               going_preview: { type: :array, items: { type: :object, additionalProperties: true } },
               viewer: {
                 type: :object,
@@ -308,7 +312,7 @@ RSpec.configure do |config|
               }
             },
             required: %w[id event starts_at ends_at timezone status override_note going_count interested_count
-                         check_in_count going_preview viewer]
+                         check_in_count overridden_at going_preview viewer]
           },
           MapPin: {
             type: :object,

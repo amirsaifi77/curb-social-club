@@ -1,3 +1,7 @@
+import { createClient, type ApiClient } from '@curb/api-client';
+
+import { apiUrl } from './env.server';
+
 // Server-side access to the Rails API. A runtime VITE_API_URL (process.env,
 // the Vercel project's environment) wins over the value Vite inlined at
 // build time, so a deployment can be repointed without a rebuild.
@@ -31,4 +35,56 @@ export async function fetchApiHealth(
   } catch (error) {
     return { ok: false, detail: error instanceof Error ? error.name : 'unreachable' };
   }
+}
+
+// R-1: every loader calls the API anonymously, with the device cookie as
+// X-Device-Id and no token. One client per request, because the device id
+// belongs to the request rather than to the process.
+// Every read is bounded. A page that waits forever on the API is a page
+// that holds a Vercel function open until it is killed, and /og/meets is
+// the route every link preview hits.
+export const API_TIMEOUT_MS = 5_000;
+
+export function serverClient(deviceId: string | null, timeoutMs = API_TIMEOUT_MS): ApiClient {
+  return createClient({
+    baseUrl: apiUrl(),
+    ...(deviceId ? { getDeviceId: () => deviceId } : {}),
+    fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+      fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(timeoutMs) }),
+  });
+}
+
+// R-2: IP geolocation from Vercel's headers, rounded to two decimals before
+// it is sent and never persisted. Coastal Orange County when the headers
+// are absent (R-13).
+export const FALLBACK_NEAR = { lat: 33.62, lng: -117.93 };
+
+export function nearFromRequest(request: Request): string {
+  const rawLat = request.headers.get('x-vercel-ip-latitude');
+  const rawLng = request.headers.get('x-vercel-ip-longitude');
+  const lat = Number(rawLat);
+  const lng = Number(rawLng);
+  // Both or neither: a missing header parses as 0, and one header alone put
+  // the reader in the Gulf of Guinea.
+  const usable = rawLat !== null && rawLng !== null && Number.isFinite(lat) && Number.isFinite(lng);
+  const point = usable ? { lat, lng } : FALLBACK_NEAR;
+  return roundNear(point.lat, point.lng);
+}
+
+// A `near` a page put in its own URL ("Near me" on W01). Re-rounded here
+// rather than trusted: the query string is the reader's to edit, and a
+// six-decimal value in a server log is the thing R-2 exists to prevent.
+export function parseNear(value: string | null): string | null {
+  if (!value) return null;
+  const [lat, lng] = value.split(',').map(Number);
+  if (lat === undefined || lng === undefined) return null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return roundNear(lat, lng);
+}
+
+// Two decimals is about a kilometre, which is all the API needs to sort by
+// distance and all a log should ever hold (location privacy, CLAUDE.md).
+export function roundNear(lat: number, lng: number): string {
+  return `${lat.toFixed(2)},${lng.toFixed(2)}`;
 }
