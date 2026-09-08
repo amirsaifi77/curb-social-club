@@ -20,7 +20,38 @@ Then add `@curb/config`, `@curb/api-client`, `@curb/design-tokens`, `@curb/ui` a
 | `expo.scheme` | `curb` | Decided |
 | `ios.bundleIdentifier` | `club.curbsocial.app` | Placeholder until the domain is confirmed |
 | `ios.associatedDomains` | `applinks:curbsocial.club` | Placeholder, domain unconfirmed (see gaps item 2) |
-| App icon | `assets/icons/Curb.icon` (Icon Composer bundle, curb-profile monogram) | Pending brand decision | If Metro has trouble with pnpm symlinks, add `apps/mobile/.npmrc` with `node-linker=hoisted` and set `config.resolver.unstable_enableSymlinks = true` in `metro.config.js` with the monorepo `watchFolders`.
+| App icon | `assets/icons/Curb.icon` (Icon Composer bundle, curb-profile monogram) | Pending brand decision |
+
+If Metro has trouble with pnpm symlinks, add `apps/mobile/.npmrc` with `node-linker=hoisted` and set `config.resolver.unstable_enableSymlinks = true` in `metro.config.js` with the monorepo `watchFolders`.
+
+## Run on the iOS Simulator
+
+Full recipe, including the database and the API, is in `docs/local-development.md`. The short version, on macOS with Xcode:
+
+From the repo root, once:
+
+```sh
+docker compose up -d                       # Postgres 16 with PostGIS
+pnpm install
+pnpm --filter @curb/api build              # bundle install, then db:prepare
+cp apps/mobile/.env.example apps/mobile/.env
+cd apps/api && bin/rails db:seed && bin/rails seeds:dev
+```
+
+Then two terminals, both from the repo root:
+
+```sh
+pnpm --filter @curb/api dev                # Puma plus a Solid Queue worker
+pnpm --filter @curb/mobile ios             # expo run:ios, then Metro
+```
+
+`bin/rails seeds:dev` is what puts meets on the screens: seven fabricated meets across the seven launch cities, two clubs, two sponsors, two people. `bin/rails seeds:dev:clear` removes them again. Nothing in `db/seeds/` is real data yet.
+
+Expo Go cannot run this app: `react-native-mmkv`, `react-native-unistyles`, and `@react-native-google-signin/google-signin` are installed and are not in the Expo Go runtime. A dev build is what `expo run:ios` produces locally. `eas build --profile simulator --platform ios` produces the same thing on EAS, but needs `eas login` and `eas init` first: this app has no EAS project yet.
+
+`EXPO_PUBLIC_API_URL` defaults to `http://localhost:3000`, which the simulator reaches on the host. Metro inlines it at bundle time, so restart Metro after changing it.
+
+Sign in with Apple, universal links, and push do not work on the simulator; `docs/local-development.md` says why and what to use instead.
 
 ## Planned structure
 
@@ -56,7 +87,7 @@ apps/mobile/
     ui/                       # glass components, tokens-driven styles
     lib/                      # location, share, secure store, push registration
   app.config.ts               # bundle id, universal links, plugins
-  eas.json                    # development, preview, production profiles
+  eas.json                    # development, simulator, preview, production profiles
   package.json
 ```
 
@@ -87,4 +118,5 @@ apps/mobile/
 | `pnpm --filter @curb/mobile typecheck` | tsc |
 | `pnpm --filter @curb/mobile test` | jest-expo |
 | `pnpm --filter @curb/mobile lint` | eslint |
+| `eas build --profile simulator --platform ios` | dev client built on EAS for the iOS Simulator (needs `eas init` first) |
 | `eas build --profile production --platform ios` | release build (CI runs this on `mobile-v*` tags) |

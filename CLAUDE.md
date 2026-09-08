@@ -84,4 +84,6 @@ Curb Social Club (Curb Social in prose, "curb" in the app; formerly the working 
 
 ## Current state
 
-Planning complete as of 2026-09-06; apps are not generated yet. The first implementation sessions are `docs/sessions.md` 0.1 (workspace scaffold), 0.2 (`rails new` for `apps/api`), 0.4 (`create-expo-app` for `apps/mobile`), and 0.8 (`create-react-router` for `apps/web`), each matching the README in that folder.
+Phase 0 and Phase 1 are merged: all four workspaces are generated, and the API, mobile, and web apps are code complete for Phase 1. The next session block is Phase 2 in `docs/sessions.md`.
+
+Nothing is deployed. Staging does not exist, the domain is unconfirmed, and `db/seeds/` holds no verified rows. To run anything locally, follow `docs/local-development.md`; `bin/rails seeds:dev` writes fabricated rows so the screens have content, and `bin/rails seeds:dev:clear` removes them. Those rows are never seed data: see `apps/api/db/seeds/dev/README.md`.

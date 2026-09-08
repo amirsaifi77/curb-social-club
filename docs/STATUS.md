@@ -68,8 +68,9 @@ Brand: rebranded to Curb Social Club with the coastal classic direction above. T
 
 ## Next steps
 
+0. Run the app on the iOS Simulator. This needs a Mac with Xcode and nothing else: no staging, no domain, no EAS project, no verified seed rows. `docs/local-development.md` is the recipe and `bin/rails seeds:dev` fills a local database with fabricated meets so the screens are not empty. It is not the device verification the row above describes, which still waits on staging and the verified rows; Sign in with Apple, universal links, and push are the parts a simulator cannot settle.
 1. Specs are `ready` (2026-09-07). Judgment calls to confirm or change are listed at the end of `docs/gaps-and-open-questions.md`; a spec that turns out wrong is fixed in the same PR as the code, per `CLAUDE.md`.
-2. Start Phase 0 with session 0.1 in `docs/sessions.md`: open Claude Code in the repo root on the session's branch, paste the preamble, then the session block. Check `/usage` first so a two to three hour session is not started with less than half of the five hour window left.
+2. Phase 0 and Phase 1 are merged. The next session block is Phase 2 in `docs/sessions.md`: open Claude Code in the repo root on the session's branch, paste the preamble, then the session block. Check `/usage` first so a two to three hour session is not started with less than half of the five hour window left.
 3. Decide the open brand items 26 to 29 and the two architecture items 18 and 19 in `docs/gaps-and-open-questions.md`; items 18 and 19 close in sessions 0.8 and 1.16.
 4. Check domain availability for `curbsocial.club`, `curb.social`, and `curbsocialclub.com`; claim `@curbsocialclub` handles; reserve the App Store name. Universal Links sessions (1.14, 1.17) are blocked on the domain.
 5. Run the CURB SOCIAL CLUB clearance search and file the intent-to-use application in classes 009 and 042.

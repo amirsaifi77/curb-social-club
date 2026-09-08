@@ -255,4 +255,40 @@ RSpec.describe Seeds::EventRowImporter, type: :service do
       expect { described_class.call(file.path, dry_run: true) }.not_to raise_error
     end
   end
+
+  # end_of_day carries nanoseconds; the column stores microseconds. Without
+  # the floor the value written is never the value read back, so a seasonal
+  # row reported `update` and rewrote itself on every run. No committed
+  # fixture carries an rrule_until, which is why AC-21's re-run test read
+  # clean while this did not.
+  describe "a seasonal row's rrule_until" do
+    # Held in a let, not inlined: nothing else references the Tempfile, and a
+    # collected one unlinks itself before the re-run opens the same path.
+    let(:file) { seasonal_events_csv }
+    let(:path) { file.path }
+    let(:dry_run) { false }
+
+    def seasonal_events_csv
+      template = File.readlines(seed_fixture("events_12.csv"))
+      header = template.first.split(",").map(&:strip)
+      row = template[1].split(",")
+      row[header.index("cadence")] = "seasonal"
+      row[header.index("rrule_until")] = 12.weeks.from_now.to_date.iso8601
+      file = Tempfile.new([ "events_seasonal", ".csv" ])
+      file.write(template.first)
+      file.write(row.join(","))
+      file.flush
+      file
+    end
+
+    # Only the re-run can catch this. Reading the row back and inspecting its
+    # precision passes either way, because Postgres truncates on the way in;
+    # the bug was that the importer's in-memory value never matched what came
+    # back out, which only `changed?` on a second pass can see.
+    it "stores a value the column can hold, so a re-run reports skip" do
+      expect(report.counts).to include(create: 1, error: 0)
+
+      expect(described_class.call(path).counts).to include(skip: 1, update: 0)
+    end
+  end
 end
