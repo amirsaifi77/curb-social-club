@@ -8,10 +8,16 @@ module Admin
     PER_PAGE = 50
     EVENTS_LIMIT = 20
     ROLE_LOCKED = "You can't change your own role.".freeze
+    SELF_LOCKED = "You can't suspend or delete your own account here.".freeze
+    STAFF_LOCKED = "Only an admin can suspend staff.".freeze
 
     before_action :load_user, only: %i[show role suspend unsuspend destroy]
     before_action :require_admin_role!, only: %i[role destroy]
     before_action :require_live_user!, only: %i[role suspend unsuspend destroy]
+    # In a before_action, so a refusal halts the chain and writes no audit
+    # row for a change that did not happen.
+    before_action :require_other_user!, only: %i[role suspend destroy]
+    before_action :require_admin_for_staff!, only: %i[suspend unsuspend]
 
     def index
       @query = params[:q].to_s.strip
@@ -27,8 +33,6 @@ module Admin
 
     # R-22: never on oneself, whatever the form was made to send.
     def role
-      return redirect_to admin_user_path(@user), alert: ROLE_LOCKED if @user.id == current_admin.id
-
       before = @user.role
       if @user.update(role: role_param)
         audit("role", target: @user, changes: { "role" => { "before" => before, "after" => @user.role } })
@@ -87,6 +91,23 @@ module Admin
     # only push its purge date back.
     def require_live_user!
       redirect_to admin_user_path(@user), alert: "That account is already deleted." if @user.deleted?
+    end
+
+    # Nobody locks themselves out of the admin, and nobody changes their own
+    # role (R-22). The role page shows the reason rather than the button.
+    def require_other_user!
+      return unless @user.id == current_admin.id
+
+      redirect_to admin_user_path(@user), alert: action_name == "role" ? ROLE_LOCKED : SELF_LOCKED
+    end
+
+    # R-9 gives a moderator suspend so the moderation backup can work
+    # without CRUD; it does not make them able to suspend the admin who
+    # granted them the role.
+    def require_admin_for_staff!
+      return if current_admin.admin? || @user.role == "member"
+
+      redirect_to admin_user_path(@user), alert: STAFF_LOCKED
     end
 
     def role_param

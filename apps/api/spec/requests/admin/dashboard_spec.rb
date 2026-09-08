@@ -59,10 +59,27 @@ RSpec.describe "admin dashboard and jobs", type: :request do
 
     expect(response.body).to include("2 unclaimed meets not confirmed in 30 days")
     expect(response.body).to include("1 hidden after 90")
+    # The Copy table says "hidden", not "hiddens", at every count.
+    expect(response.body).not_to include("hiddens")
     expect(stale_link).to include("stale=1")
 
     expect(response.body).to include("Host consistency")
     expect(response.body).not_to include("No run yet")
+  end
+
+  it "AC-21: the three nightly tasks show their last run" do
+    now = Time.utc(2026, 9, 7, 9, 0)
+    %w[materialize_occurrences host_consistency seed_decay].each do |key|
+      SolidQueue::RecurringTask.create!(key: key, schedule: "0 2 * * *", class_name: key.camelize + "Job", static: true)
+    end
+    sign_in_admin(admin)
+    travel_to(now) { get "/admin" }
+
+    rows = Nokogiri::HTML(response.body).css("table.list tbody tr").map(&:text)
+    expect(rows.size).to eq(3)
+    expect(rows.join).to include("materialize_occurrences", "host_consistency", "seed_decay")
+    # No execution rows yet, so every task reads the same way rather than blank.
+    expect(rows.map { |row| row.include?("No run yet") }).to all(be(true))
   end
 
   it "says No run yet rather than failing when the consistency job has not run" do

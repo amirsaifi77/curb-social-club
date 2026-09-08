@@ -20,7 +20,7 @@
     <p>
       <%= link_to "#{pluralize(@decay[:stale], 'unclaimed meet')} not confirmed in 30 days",
                   admin_events_path(stale: 1, claimed: "no") %>.
-      <%= pluralize(@decay[:dormant], 'hidden') %> after 90.
+      <%= @decay[:dormant] %> hidden after 90.
     </p>
   <% end %>
 </section>
@@ -44,7 +44,7 @@
              columns: [ "Task", "Schedule", "Last run", "Status" ],
              empty: "Nothing here yet. The scheduler loads config/recurring.yml when it starts.",
              rows: @jobs.tasks.map { |task| [
-               "#{task.key} #{tag.span(task.class_name, class: 'muted')}".html_safe,
+               safe_join([ task.key, tag.span(task.class_name, class: "muted") ], " "),
                task.schedule,
                task.last_run_at ? admin_time(task.last_run_at) : "No run yet",
                task.last_status || "No run yet"

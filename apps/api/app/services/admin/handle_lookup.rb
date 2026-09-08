@@ -4,6 +4,8 @@ module Admin
   # anything that is not an active user's handle is nil, so the caller
   # surfaces a form error rather than a 404.
   module HandleLookup
+    UNKNOWN = "No active user with that handle.".freeze
+
     def self.call(handle)
       normalized = handle.to_s.strip.delete_prefix("@").downcase
       return nil if normalized.blank?

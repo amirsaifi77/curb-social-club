@@ -27,10 +27,10 @@ module Admin
     def create
       @club = Club.new(created_by: current_admin)
       assign(@club)
-      owner = Admin::HandleLookup.call(params[:owner_handle]) || User.app_account
-      return render_new_without_owner if owner.nil?
+      owner = resolve_owner
+      return render :new, status: :unprocessable_content if owner.nil?
 
-      if save_with_owner(@club, owner)
+      if @problems.blank? && save_with_owner(@club, owner)
         audit("create", target: @club, changes: changeset(@club).merge("owner_handle" => owner.profile&.handle))
         redirect_to admin_club_path(@club), notice: "Club created."
       else
@@ -40,7 +40,7 @@ module Admin
 
     def update
       assign(@club)
-      if @club.save
+      if persist(@club)
         audit("update", target: @club, changes: changeset(@club))
         redirect_to admin_club_path(@club), notice: "Club saved."
       else
@@ -82,19 +82,36 @@ module Admin
       false
     end
 
-    def render_new_without_owner
-      @club.errors.add(:base, "No owner. Give a handle, or seed the app account first.")
-      render :new, status: :unprocessable_content
+    # A blank field means the app account on purpose. A handle that does not
+    # resolve is a typo, and must not quietly become the app account: the
+    # one-owner rule makes a wrong owner unfixable from this screen.
+    def resolve_owner
+      handle = params[:owner_handle].to_s.strip
+      if handle.present?
+        owner = Admin::HandleLookup.call(handle)
+        @club.errors.add(:base, Admin::HandleLookup::UNKNOWN) if owner.nil?
+        return owner
+      end
+
+      User.app_account.tap do |app_account|
+        @club.errors.add(:base, "No owner. Give a handle, or seed the app account first.") if app_account.nil?
+      end
     end
 
-    # links only when the form sent them: a PATCH that leaves the key out
-    # is not a request to clear all six.
+    # The problems come back rather than going onto the record, because
+    # `save` clears the errors collection before validating.
     def assign(club)
-      attributes = club_params
-      club.assign_attributes(attributes.except(:home_lat, :home_lng, :links))
-      club.links = attributes[:links].to_h if attributes.key?(:links)
-      point = Geo::Coordinates.point(attributes[:home_lat], attributes[:home_lng])
-      club.home_location = point if point
+      @problems = Admin::RecordFields.apply(club, club_params)
+    end
+
+    # False when a form field could not be shaped at all, so the record is
+    # never saved half-changed.
+    def persist(club)
+      return club.save if @problems.blank?
+
+      club.validate
+      @problems.each { |problem| club.errors.add(problem.attribute, problem.message) }
+      false
     end
 
     def club_params

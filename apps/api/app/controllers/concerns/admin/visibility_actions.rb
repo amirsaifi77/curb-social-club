@@ -17,9 +17,17 @@ module Admin
 
     private
 
+    # update, not update!: a row that fails an unrelated validation (a link
+    # that predates the rules, say) must not turn a one-click button into a
+    # bare error page with no way back to the form.
     def flip(attributes)
-      @record.update!(attributes)
-      audit(action_name, target: @record, changes: attributes.transform_keys(&:to_s).transform_values(&:to_s))
+      changes = attributes.to_h { |key, value| [ key.to_s, { "before" => @record.public_send(key).to_s, "after" => value.to_s } ] }
+      unless @record.update(attributes)
+        return redirect_to record_path(@record),
+                           alert: "Could not save: #{@record.errors.full_messages.to_sentence}. Fix it on the edit form."
+      end
+
+      audit(action_name, target: @record, changes: changes)
       redirect_back_or_to record_path(@record), notice: t_flash(action_name, @record)
     end
 

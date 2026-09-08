@@ -66,6 +66,27 @@ RSpec.describe "admin clubs and memberships", type: :request do
         expect(Club.order(:created_at).last.owner).to eq(owner)
       end
 
+      it "refuses a handle that does not resolve rather than quietly seating the app account" do
+        create(:app_account)
+        suspended = create(:user, status: "suspended")
+        suspended.profile.update!(handle: "gone_quiet")
+
+        [ "no_such_handle", "gone_quiet" ].each do |handle|
+          expect { post "/admin/clubs", params: { club: attributes, owner_handle: handle } }.not_to change(Club, :count)
+          expect(response).to have_http_status(:unprocessable_content), handle
+          expect(response.body).to include(Admin::HandleLookup::UNKNOWN)
+        end
+      end
+
+      it "drops a crafted links value instead of raising" do
+        create(:app_account)
+        # permit(links: LINK_KEYS) lets an array of hashes through, and
+        # Array#to_h on it used to be a 500.
+        post "/admin/clubs", params: { club: attributes.merge(links: [ { instagram: "x" } ]) }
+        expect(response).to redirect_to(%r{/admin/clubs/})
+        expect(Club.order(:created_at).last.links).to eq({})
+      end
+
       it "writes nothing when the club is invalid" do
         create(:app_account)
         expect { post "/admin/clubs", params: { club: attributes.merge(name: "") } }.not_to change(Club, :count)
@@ -111,6 +132,18 @@ RSpec.describe "admin clubs and memberships", type: :request do
       expect(club.reload.links).to eq("instagram" => "backbay")
     end
 
+    it "clears the home point when both coordinates are blank and refuses a half-filled pair" do
+      club = create(:club)
+      base = { name: club.name, slug: club.slug, join_policy: club.join_policy, status: club.status }
+
+      patch "/admin/clubs/#{club.id}", params: { club: base.merge(home_lat: "", home_lng: "") }
+      expect(club.reload.home_location).to be_nil
+
+      patch "/admin/clubs/#{club.id}", params: { club: base.merge(home_lat: "abc", home_lng: "999") }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include(Admin::RecordFields::BAD_POINT)
+    end
+
     describe "the hide and verify buttons (R-18)" do
       it "hides, unhides, verifies, and unverifies, each with its own audit row" do
         club = create(:club, name: "Coast Collective")
@@ -134,6 +167,18 @@ RSpec.describe "admin clubs and memberships", type: :request do
         expect(club.status).to eq("active")
         expect(club.verified).to be(false)
         expect(AdminAudit.where(target_id: club.id).pluck(:action)).to include("hide", "unhide", "verify", "unverify")
+      end
+
+      it "says why rather than showing a bare error page when the row will not save" do
+        club = create(:club)
+        # A link value that predates the rules this session added.
+        club.update_columns(links: { "website" => "not-a-url" })
+
+        post "/admin/clubs/#{club.id}/hide"
+        expect(response).to redirect_to("/admin/clubs/#{club.id}")
+        follow_redirect!
+        expect(flash_text).to include("Could not save", "Fix it on the edit form")
+        expect(club.reload.status).to eq("active")
       end
 
       it "keeps a hidden club hosting its events (clubs R-5)" do
@@ -163,6 +208,24 @@ RSpec.describe "admin clubs and memberships", type: :request do
           .to change { club.memberships.count }.by(-1)
         expect(AdminAudit.where(target_id: club.id).pluck(:action))
           .to include("membership_create", "membership_update", "membership_destroy")
+      end
+
+      it "transfers ownership when a member is changed to owner, which is what the owner error advises" do
+        club = create(:club)
+        sitting = club.owner_membership
+        heir = create(:user)
+        heir.profile.update!(handle: "heir")
+        membership = club.memberships.create!(user: heir, role: "member", status: "active")
+
+        patch "/admin/clubs/#{club.id}/memberships/#{membership.id}", params: { club_membership: { role: "owner" } }
+
+        expect(response).to redirect_to("/admin/clubs/#{club.id}/memberships")
+        expect(membership.reload.role).to eq("owner")
+        # The previous owner keeps managing the club rather than dropping out.
+        expect(sitting.reload.role).to eq("admin")
+        expect(club.reload.owner).to eq(heir)
+        actions = AdminAudit.where(target_id: club.id).pluck(:action)
+        expect(actions).to include("membership_update", "membership_demote")
       end
 
       it "AC-11: a second owner re-renders with the owner error and writes no row" do

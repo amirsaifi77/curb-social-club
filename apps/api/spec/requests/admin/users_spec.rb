@@ -87,6 +87,24 @@ RSpec.describe "admin users", type: :request do
       expect(user.deleted_at).to eq(was)
     end
 
+    it "does not let staff suspend or delete their own account" do
+      get "/admin/users/#{admin.id}"
+      expect(response.body).not_to have_button("Suspend")
+      expect(response.body).not_to have_button("Delete account")
+      expect(response.body).to include("This is your own account.")
+
+      post "/admin/users/#{admin.id}/suspend"
+      follow_redirect!
+      expect(flash_text).to include(Admin::UsersController::SELF_LOCKED)
+      expect(admin.reload.status).to eq("active")
+
+      delete "/admin/users/#{admin.id}"
+      expect(admin.reload.status).to eq("active")
+      # A refused action halts before the body, so only the sign_in row from
+      # signing in exists against this user.
+      expect(AdminAudit.where(target_id: admin.id).pluck(:action)).to eq([ "sign_in" ])
+    end
+
     it "AC-15: delete runs the DELETE /me path, never a raw destroy (R-4)" do
       user = handled(create(:user), "quiet_one")
       create_list(:session, 2, user: user)
@@ -134,6 +152,22 @@ RSpec.describe "admin users", type: :request do
       expect(response.body).to have_button("Unsuspend")
       post "/admin/users/#{user.id}/unsuspend"
       expect(user.reload.status).to eq("active")
+    end
+
+    it "cannot suspend staff: that stays an admin's call (R-9, gaps item 12)" do
+      other_moderator = handled(create(:user, role: "moderator"), "other_mod")
+      the_admin = handled(create(:user, role: "admin"), "the_admin")
+
+      get "/admin/users/#{the_admin.id}"
+      expect(response.body).not_to have_button("Suspend")
+      expect(response.body).to include("Only an admin can suspend staff.")
+
+      [ the_admin, other_moderator ].each do |staff|
+        post "/admin/users/#{staff.id}/suspend"
+        follow_redirect!
+        expect(flash_text).to include(Admin::UsersController::STAFF_LOCKED)
+        expect(staff.reload.status).to eq("active")
+      end
     end
 
     it "cannot change a role or delete, and is sent back with the role flash" do

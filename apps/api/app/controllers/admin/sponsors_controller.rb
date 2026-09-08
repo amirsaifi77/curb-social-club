@@ -27,7 +27,7 @@ module Admin
     def create
       @sponsor = Sponsor.new
       assign(@sponsor)
-      if @sponsor.save
+      if persist(@sponsor)
         audit("create", target: @sponsor, changes: changeset(@sponsor))
         redirect_to admin_sponsor_path(@sponsor), notice: "Sponsor created."
       else
@@ -37,7 +37,7 @@ module Admin
 
     def update
       assign(@sponsor)
-      if @sponsor.save
+      if persist(@sponsor)
         audit("update", target: @sponsor, changes: changeset(@sponsor))
         redirect_to admin_sponsor_path(@sponsor), notice: "Sponsor saved."
       else
@@ -67,14 +67,20 @@ module Admin
       scope.where("sponsors.name ILIKE :q OR sponsors.slug ILIKE :q", q: "%#{Sponsor.sanitize_sql_like(@query)}%")
     end
 
-    # links only when the form sent them: a PATCH that leaves the key out
-    # is not a request to clear all six.
+    # The problems come back rather than going onto the record, because
+    # `save` clears the errors collection before validating.
     def assign(sponsor)
-      attributes = sponsor_params
-      sponsor.assign_attributes(attributes.except(:home_lat, :home_lng, :links))
-      sponsor.links = attributes[:links].to_h if attributes.key?(:links)
-      point = Geo::Coordinates.point(attributes[:home_lat], attributes[:home_lng])
-      sponsor.home_location = point if point
+      @problems = Admin::RecordFields.apply(sponsor, sponsor_params)
+    end
+
+    # False when a form field could not be shaped at all, so the record is
+    # never saved half-changed.
+    def persist(sponsor)
+      return sponsor.save if @problems.blank?
+
+      sponsor.validate
+      @problems.each { |problem| sponsor.errors.add(problem.attribute, problem.message) }
+      false
     end
 
     def sponsor_params

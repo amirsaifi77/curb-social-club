@@ -19,19 +19,26 @@
   </tbody>
 </table>
 
+<% self_page = @user.id == current_admin.id %>
+<% may_suspend = !self_page && (current_admin.admin? || @user.role == "member") %>
 <section class="row-actions">
-  <% if @user.suspended? %>
+  <% if @user.suspended? && may_suspend %>
     <%= button_to "Unsuspend", unsuspend_admin_user_path(@user),
                   data: { confirm: "Let #{handle} sign in again?" } %>
-  <% elsif @user.active? %>
+  <% elsif @user.active? && may_suspend %>
     <%= button_to "Suspend", suspend_admin_user_path(@user), class: "button-danger",
                   data: { confirm: "Suspend #{handle}? Their sessions end now and they can't sign in." } %>
   <% end %>
-  <% if current_admin.admin? && !@user.deleted? %>
+  <% if current_admin.admin? && !@user.deleted? && !self_page %>
     <%= button_to "Delete account", admin_user_path(@user), method: :delete, class: "button-danger",
                   data: { confirm: "Delete #{handle}? This runs the same path as the app's own delete." } %>
   <% end %>
 </section>
+<% if self_page %>
+  <p class="muted">This is your own account. Suspend and delete are somebody else's job.</p>
+<% elsif !may_suspend %>
+  <p class="muted">Only an admin can suspend staff.</p>
+<% end %>
 
 <% if current_admin.admin? %>
   <h2>Role</h2>
