@@ -1,4 +1,4 @@
-import { createClient, type ApiClient } from '@curb/api-client';
+import { api, createClient, type ApiClient } from '@curb/api-client';
 
 import { apiUrl } from './env.server';
 
@@ -59,16 +59,35 @@ export function serverClient(deviceId: string | null, timeoutMs = API_TIMEOUT_MS
 // are absent (R-13).
 export const FALLBACK_NEAR = { lat: 33.62, lng: -117.93 };
 
-export function nearFromRequest(request: Request): string {
+// The reader's coarse location, or nothing. A caller that must have one
+// uses nearFromRequest; a caller whose query means something different
+// without one (the club directory, R-22) needs to tell them apart.
+export function vercelNear(request: Request): string | null {
   const rawLat = request.headers.get('x-vercel-ip-latitude');
   const rawLng = request.headers.get('x-vercel-ip-longitude');
+  if (rawLat === null || rawLng === null) return null;
   const lat = Number(rawLat);
   const lng = Number(rawLng);
-  // Both or neither: a missing header parses as 0, and one header alone put
-  // the reader in the Gulf of Guinea.
-  const usable = rawLat !== null && rawLng !== null && Number.isFinite(lat) && Number.isFinite(lng);
-  const point = usable ? { lat, lng } : FALLBACK_NEAR;
-  return roundNear(point.lat, point.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return roundNear(lat, lng);
+}
+
+export function nearFromRequest(request: Request): string {
+  return vercelNear(request) ?? roundNear(FALLBACK_NEAR.lat, FALLBACK_NEAR.lng);
+}
+
+// R-21: the three meets a 404 offers instead of a dead end. A 410 comes
+// with its own `nearby` from the API; a 404 has nothing but the reader's
+// approximate location, so it reads the same feed the home page does.
+export async function nearbyMeets(client: ApiClient, request: Request): Promise<unknown[]> {
+  try {
+    const feed = await api.feed.get(client, { near: nearFromRequest(request) });
+    return feed.data.sections.find((section) => section.kind === 'this_weekend')?.items ?? [];
+  } catch {
+    // A not-found page that cannot load its suggestions is still a
+    // not-found page, and this one is already answering an error.
+    return [];
+  }
 }
 
 // A `near` a page put in its own URL ("Near me" on W01). Re-rounded here

@@ -6,7 +6,7 @@ import type { Route } from './+types/meets.$slug';
 import { AppLink } from '~/components/AppLink';
 import { CopyLink } from '~/components/CopyLink';
 import { OpenInAppBar } from '~/components/OpenInAppBar';
-import { nearFromRequest, serverClient } from '~/lib/api.server';
+import { nearFromRequest, nearbyMeets, serverClient } from '~/lib/api.server';
 import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY, cancelledBanner, goingCounts, lastConfirmed, sourceCard } from '~/lib/copy';
 import { isInAppBrowser, isIos } from '~/lib/deep-link';
@@ -55,8 +55,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     // renders them with the right status for a crawler. The pages with
     // nearby cards land in 1.17; the statuses are what this slice owes.
     if (status === 404 || status === 410) {
+      // R-21: a 410 comes with the API's own nearby rows; a 404 has none,
+      // so the page falls back to the feed near the reader.
+      const nearby = errorDetails(error)?.nearby;
       throw data(
-        { nearby: errorDetails(error)?.nearby ?? [] },
+        { nearby: Array.isArray(nearby) ? nearby : await nearbyMeets(client, request) },
         { status, statusText: status === 410 ? 'Gone' : 'Not Found' },
       );
     }

@@ -31,6 +31,14 @@ export function shareBaseUrl(): string | null {
   return value ? value.replace(/\/+$/, '') : null;
 }
 
+// R-15: the tile style. OpenFreeMap has no SLA (web.md Risks), so the URL
+// is a variable and the MapTiler swap is one line rather than a deploy.
+export const DEFAULT_MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+
+export function mapStyleUrl(): string {
+  return read('MAP_STYLE_URL') ?? read('VITE_MAP_STYLE_URL') ?? DEFAULT_MAP_STYLE_URL;
+}
+
 // R-11: the smart banner and the App Store fallback render only when App
 // Store Connect has reserved an id.
 export function appStoreId(): string | null {

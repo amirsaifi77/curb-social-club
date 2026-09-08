@@ -31,11 +31,20 @@ export async function loader({ request }: Route.LoaderArgs) {
   const city = findCity(url.searchParams.get('city'));
   const from = url.searchParams.get('from');
   const tags = url.searchParams.getAll('tags').filter(isTag);
+  // The "See all meets" links on W06, W08 and W09 arrive here. Without
+  // these the page answers with every meet near the reader, presented as
+  // that host's meets.
+  const host = url.searchParams.get('host');
+  const sponsor = url.searchParams.get('sponsor');
   const near = city ? cityNear(city) : (parseNear(url.searchParams.get('near')) ?? nearFromRequest(request));
   const deviceId = deviceIdForRequest(request.headers.get('cookie'));
 
   const response = await api.events.list(serverClient(deviceId), {
-    near,
+    // A host's meets are a list, not a viewport: sending `near` as well
+    // would drop the ones outside the browse radius.
+    ...(host || sponsor ? {} : { near }),
+    ...(host ? { host } : {}),
+    ...(sponsor ? { sponsor } : {}),
     ...(q ? { q } : {}),
     ...(from ? { from } : {}),
     ...(tags.length > 0 ? { 'tags[]': tags } : {}),
@@ -47,6 +56,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     city,
     tags,
     from,
+    host,
+    sponsor,
     baseUrl: shareBaseUrl(),
     appStoreId: appStoreId(),
   };
@@ -59,7 +70,9 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
 
   // R-14: canonical is /meets?city=<slug> when city is the ONLY filter, and
   // /meets otherwise, so a tag or a date does not mint a new address.
-  const onlyCity = Boolean(city) && !q && (loaderData?.tags.length ?? 0) === 0 && !loaderData?.from;
+  const filtered = Boolean(loaderData?.host || loaderData?.sponsor);
+  const onlyCity =
+    Boolean(city) && !q && !filtered && (loaderData?.tags.length ?? 0) === 0 && !loaderData?.from;
   const canonical = canonicalUrl(baseUrl, onlyCity && city ? `/meets?city=${city.slug}` : '/meets');
 
   return pageMeta({
@@ -69,7 +82,9 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
       : 'Car meets in Southern California, with times, lots, and who runs them.',
     canonical,
     appStoreId: loaderData?.appStoreId ?? null,
-    noindex: Boolean(q),
+    // A host's own page is the address that should rank, not a filtered
+    // view of the same meets.
+    noindex: Boolean(q) || filtered,
   });
 }
 

@@ -6,7 +6,7 @@ import type { Route } from './+types/meets.$slug.$occurrenceId';
 import { AppLink } from '~/components/AppLink';
 import { CopyLink } from '~/components/CopyLink';
 import { OpenInAppBar } from '~/components/OpenInAppBar';
-import { serverClient } from '~/lib/api.server';
+import { nearbyMeets, serverClient } from '~/lib/api.server';
 import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY, cancelledBanner, goingCounts } from '~/lib/copy';
 import { isInAppBrowser, isIos } from '~/lib/deep-link';
@@ -50,7 +50,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   } catch (error) {
     const status = errorStatus(error);
     if (status === 404 || status === 410) {
-      throw data({}, { status, statusText: status === 410 ? 'Gone' : 'Not Found' });
+      throw data(
+        { nearby: await nearbyMeets(client, request) },
+        { status, statusText: status === 410 ? 'Gone' : 'Not Found' },
+      );
     }
     throw error;
   }

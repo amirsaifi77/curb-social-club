@@ -119,6 +119,11 @@ Read only: the endpoints in R-3 plus `GET /sitemap` (R-4). Web-served resources:
 | W03 photos placeholder | Photos go here after the meet. |
 | W05 truncated | Zoom in to see all meets here. |
 | W05 empty | No meets here. Zoom out, or add the one you know about in the app. |
+| W05 loading | Loading the map. |
+| W05 error | Couldn't load this area. |
+| W07 empty | No clubs listed yet. |
+| W08 members header | Members |
+| W08 members count | 24 members. |
 | W07 title | Clubs in Southern California |
 | W08 and W09 follow | Follow in the app |
 | W09 kind labels | Sponsor, Vendor, Venue partner |
@@ -178,6 +183,10 @@ Read only: the endpoints in R-3 plus `GET /sitemap` (R-4). Web-served resources:
 - Adopted 2026-09-08 (session 1.16) into docs/api.md: the Occurrence shape gains `overridden_at`. R-8 makes W04 self-canonical for a date a host edited, and the shape carried `override_note` but not the flag itself, so a date edited without a note was indistinguishable from one the materializer wrote.
 - Adopted 2026-09-08 (session 1.16) into this spec: W03's "Add to calendar" is served from `/calendar/meets/:slug.ics` rather than a segment under the slug, where it would sit beside W04's `:occurrenceId` and depend on static segments winning the match.
 - Adopted 2026-09-08 (session 1.16) into this spec: Verification says the Playwright suite runs "against MSW-mocked API fixtures". Every loader here runs in Node, so both `page.route` and an in-process MSW handler sit on the wrong side of the boundary: the requests to intercept are the web server's, not the browser's. The suite starts a small fixture API on its own port and points `API_URL` at it, which is the same idea at the only place the interception can happen, and it also lets AC-9 assert the `near` parameter the browser never sees.
+- Adopted 2026-09-08 (session 1.17) into this spec: robots.txt also disallows `/calendar/`, which R-17's list predates. It serves the .ics downloads 1.16 added, and a calendar file is machinery rather than a page, like `/og/`. The AASA excludes the same path for the same reason.
+- Adopted 2026-09-08 (session 1.17) into this spec: the Copy table gains five rows the web pages render and it did not name, "W05 loading", "W05 error", "W07 empty", "W08 members header" and "W08 members count". The last two are the web half of clubs.md S12's members row; the web has no roles to name because `GET /clubs/:slug/members` is a second request the page does not make.
+- Adopted 2026-09-08 (session 1.17) into this spec: R-18 names `applinks.details[0].appID`, which is the legacy key that pairs with `paths`. iOS 13 and later read `appIDs` alongside `components`, so the served file carries both until R-18 is updated to `appIDs`.
+- Adopted 2026-09-08 (session 1.17): AC-14 requires the W16 legal pages in the sitemap. They are Phase 2 (slice 8), so the sitemap lists them when they exist; the clause is not met until then.
 - Gaps item 2: domain unconfirmed. Default: `SHARE_BASE_URL` and the AASA are environment-driven; nothing hardcodes `curbsocial.club` outside `.env.example`.
 - Gaps item 18: ADR 0005 is Proposed. Default: React Router v7; if it flips to Next.js, routes and loaders are rewritten and everything else here stands.
 - The launch city list is seven slugs from the two rings. Default: extend `cities.ts` when a ring gets hosts; a city page with no meets stays live with its empty copy rather than 404, to keep the URL indexable.

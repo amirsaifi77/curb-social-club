@@ -46,6 +46,10 @@ export default defineConfig({
         // (web.md Risks), so the suite sets a fake one to exercise R-11.
         APP_STORE_ID: '6740000000',
         TEAM_ID: 'ABCDE12345',
+        // A local style, so the map test does not depend on OpenFreeMap
+        // being up or reachable from CI.
+        VITE_MAP_STYLE_URL: `http://localhost:${apiPort}/map-style.json`,
+        VITE_API_URL: `http://localhost:${apiPort}`,
       },
     },
   ],

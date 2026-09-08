@@ -216,3 +216,39 @@ test.describe('W14 OG card', () => {
     expect(body.readUInt32BE(20)).toBe(630);
   });
 });
+
+// The links W06, W08 and W09 draw. They pointed at filters this page never
+// read, so a host's "See all meets" answered with every meet near the
+// reader, presented as that host's.
+test.describe('W02 filtered to one host', () => {
+  test('clubs R-15: a club list asks the API by host', async ({ page, request }) => {
+    await request.get(`${FIXTURE_API}/__requests/reset`);
+    await page.goto('/meets?host=club:22222222-2222-4222-8222-222222222222');
+
+    const seen = await (await request.get(`${FIXTURE_API}/__requests`)).json();
+    const events = (seen.data as { path: string; query: Record<string, string> }[]).find(
+      (row) => row.path === '/v1/events',
+    );
+    expect(events?.query.host).toBe('club:22222222-2222-4222-8222-222222222222');
+    // A host's meets are a list, not a viewport: a `near` would drop the
+    // ones outside the browse radius.
+    expect(events?.query.near).toBeUndefined();
+  });
+
+  test('sponsors AC-14: a sponsor list asks the API by sponsor', async ({ page, request }) => {
+    await request.get(`${FIXTURE_API}/__requests/reset`);
+    await page.goto('/meets?sponsor=55555555-5555-4555-8555-555555555555');
+
+    const seen = await (await request.get(`${FIXTURE_API}/__requests`)).json();
+    const events = (seen.data as { path: string; query: Record<string, string> }[]).find(
+      (row) => row.path === '/v1/events',
+    );
+    expect(events?.query.sponsor).toBe('55555555-5555-4555-8555-555555555555');
+  });
+
+  test('a filtered list is not an address to index: the host page is', async ({ page }) => {
+    await page.goto('/meets?host=club:22222222-2222-4222-8222-222222222222');
+
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  });
+});
