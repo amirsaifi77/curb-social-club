@@ -32,8 +32,14 @@ export function bboxHeight(bbox: Bbox): number {
 }
 
 // A box the API would refuse is not worth sending. The caller shows the
-// zoom-in notice instead of spending a request on a 400.
+// zoom-in notice instead of spending a request on a 400. A box that has run
+// off the edge of the world (past a pole, or across the antimeridian, where
+// west stops being less than east) is refused for the same reason: the
+// envelope it would build is not the box the map is showing.
 export function isRequestableBbox(bbox: Bbox): boolean {
+  if (bbox.west >= bbox.east || bbox.south >= bbox.north) return false;
+  if (Math.abs(bbox.west) > 180 || Math.abs(bbox.east) > 180) return false;
+  if (Math.abs(bbox.south) > 90 || Math.abs(bbox.north) > 90) return false;
   return bboxWidth(bbox) <= MAX_BBOX_DEGREES && bboxHeight(bbox) <= MAX_BBOX_DEGREES;
 }
 
@@ -50,12 +56,13 @@ export function zoomFromRegion(region: Region, viewportWidth: number): number {
 export const MOVE_FRACTION = 0.2;
 
 export function movedEnough(fetched: Region, current: Region): boolean {
-  const zoomChange = Math.abs(
-    Math.log2(fetched.longitudeDelta / Math.max(current.longitudeDelta, Number.EPSILON)),
-  );
+  const width = Math.max(current.longitudeDelta, Number.EPSILON);
+  const height = Math.max(current.latitudeDelta, Number.EPSILON);
+
+  const zoomChange = Math.abs(Math.log2(fetched.longitudeDelta / width));
   if (zoomChange >= 1) return true;
 
-  const movedX = Math.abs(current.longitude - fetched.longitude) / current.longitudeDelta;
-  const movedY = Math.abs(current.latitude - fetched.latitude) / current.latitudeDelta;
+  const movedX = Math.abs(current.longitude - fetched.longitude) / width;
+  const movedY = Math.abs(current.latitude - fetched.latitude) / height;
   return Math.max(movedX, movedY) > MOVE_FRACTION;
 }

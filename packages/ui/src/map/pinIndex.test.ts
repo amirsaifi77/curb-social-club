@@ -102,13 +102,14 @@ describe('the pin index', () => {
     expect(index.featuresIn(AROUND_LIDO, 12).map((feature) => feature.id)).toEqual(['a']);
   });
 
-  it('lists every pin soonest first for the sheet, whatever the viewport', () => {
-    const index = createPinIndex([
-      pin({ id: 'late', starts_at: '2026-10-25T14:30:00Z' }),
-      pin({ id: 'early', starts_at: '2026-10-24T14:30:00Z' }),
-    ]);
+  it('draws nothing, and does not throw, for an empty response', () => {
+    expect(createPinIndex([]).featuresIn(AROUND_LIDO, 12)).toEqual([]);
+  });
 
-    expect(index.all().map((row) => row.id)).toEqual(['early', 'late']);
+  it('clusters pins that share a coordinate exactly', () => {
+    const index = createPinIndex([pin({ id: 'a' }), pin({ id: 'b' })]);
+
+    expect(index.featuresIn(AROUND_LIDO, 12)).toMatchObject([{ type: 'cluster', count: 2 }]);
   });
 });
 
@@ -122,6 +123,16 @@ describe('bbox helpers', () => {
     });
 
     expect(bboxParam(bbox)).toBe('-118.13,33.52,-117.73,33.72');
+  });
+
+  it('refuses a box that has run off the edge of the world', () => {
+    // Across the antimeridian, where west stops being less than east.
+    expect(isRequestableBbox({ west: 178, south: 33, east: -178, north: 34 })).toBe(false);
+    // Past a pole, and past 180 degrees of longitude.
+    expect(isRequestableBbox({ west: -118, south: 88, east: -117, north: 92 })).toBe(false);
+    expect(isRequestableBbox({ west: 178, south: 33, east: 182, north: 34 })).toBe(false);
+    // A map that has collapsed to nothing is not a viewport.
+    expect(isRequestableBbox({ west: -118, south: 33, east: -118, north: 34 })).toBe(false);
   });
 
   it('refuses a box the API would answer with a 400', () => {

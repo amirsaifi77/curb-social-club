@@ -16,8 +16,6 @@ export interface PinIndex {
   expansionZoom(clusterId: number): number;
   /** The pins inside a cluster, for the sheet. */
   leaves(clusterId: number, limit?: number): MapPinInput[];
-  /** Every pin the index holds, soonest first, for the sheet's list. */
-  all(): MapPinInput[];
 }
 
 type PinProperties = { pin: MapPinInput };
@@ -40,8 +38,6 @@ export function createPinIndex(pins: readonly MapPinInput[]): PinIndex {
       geometry: { type: 'Point' as const, coordinates: [pin.lng, pin.lat] },
     })),
   );
-
-  const sorted = [...pins].sort((a, b) => a.starts_at.localeCompare(b.starts_at));
 
   return {
     featuresIn(bbox, zoom) {
@@ -75,10 +71,6 @@ export function createPinIndex(pins: readonly MapPinInput[]): PinIndex {
       return index
         .getLeaves(clusterId, limit)
         .map((feature) => (feature.properties as PinProperties).pin);
-    },
-
-    all() {
-      return sorted;
     },
   };
 }
