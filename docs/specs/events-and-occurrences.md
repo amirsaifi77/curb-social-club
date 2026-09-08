@@ -69,10 +69,10 @@ Not in this phase: the write endpoints `POST /events`, `PATCH /events/:id`, `DEL
 
 **Seeds and jobs**
 
-- R-29 `Seeds::EventRowImporter` MUST accept the CSV format in Data, validate every row before writing any (dry run returns a per-row report with `action` in `create`, `update`, `skip`, `error`), upsert on `slug`, resolve `host_type` and `host_slug` (blank means the app account as `User`), dedupe the venue per R-6, create `event_sponsorships` from `sponsors`, and never overwrite `host_*` or `claimed_at` on a claimed event (report `skip` for those columns). (US-7)
+- R-29 `Seeds::EventRowImporter` MUST accept the CSV format in Data, validate every row before writing any (dry run returns a per-row report with `action` in `create`, `update`, `skip`, `error`), upsert on `slug`, resolve `host_type` and `host_slug` (blank means the app account as `User`), dedupe the venue per R-6, create `event_sponsorships` from `sponsors`, and never overwrite `host_*` or `claimed_at` on a claimed event (report `skip` for those columns). A row that fails validation is reported and left out; the rows around it are still written, so one bad row never blocks a file. The `sponsors` column is the whole truth for a row: a sponsor dropped from it is detached on the next run. (US-7)
 - R-30 Every seed row MUST have `verification_source_url` and `verified_date` (gaps item 6); rows without them MUST be rejected with a row-level error. (US-7)
 - R-31 `HostConsistencyJob` (nightly at 02:30 America/Los_Angeles) MUST report every published event whose host row is missing or whose club or sponsor is `hidden`, rewrite any `host_name` that differs from the host's current name, and expose the report to the admin dashboard (A02) and Sentry as a breadcrumb. The report is a hash of `generated_at`, `missing`, `hidden`, and `renamed` cached in Solid Cache under `host_consistency:latest` for 30 days, which is what A02 reads. It reports and never hides: a hidden club or sponsor keeps hosting its events (clubs.md R-5, sponsors.md R-5). (US-3)
-- R-32 `bin/rails seeds:import[path]` MUST run the same importer as A07 with `dry_run` off and print the report. (US-7)
+- R-32 `bin/rails seeds:import[path,kind]` MUST run the same importer as A07 with `dry_run` off and print the report, choosing the importer from `kind` or, when it is omitted, from the file name; `bin/rails seeds:all` and `db/seeds.rb` MUST run every file present in `db/seeds` in the order venues, sponsors, clubs, events, skipping the ones that are not there. (US-7)
 
 **Mobile**
 

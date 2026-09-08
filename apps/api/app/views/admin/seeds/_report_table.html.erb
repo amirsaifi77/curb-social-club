@@ -1,0 +1,11 @@
+<%# The preview and results columns admin.md R-20 names: row number, the
+    natural key, the action, and any errors. %>
+<%= render "admin/shared/table",
+           columns: [ "Row", "Key", "Action", "Notes" ],
+           empty: "The file has no rows.",
+           rows: report.rows.map { |row| [
+             row.number,
+             row.key,
+             row.action,
+             (row.errors + row.notes).join(" ")
+           ] } %>

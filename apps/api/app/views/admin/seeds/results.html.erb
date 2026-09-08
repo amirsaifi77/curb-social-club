@@ -1,0 +1,12 @@
+<% content_for :title, "Applied" %>
+<h1>Applied: <%= @kind %></h1>
+
+<% if @too_many %>
+  <p class="form-errors" role="alert"><%= @too_many %></p>
+<% else %>
+  <% counts = @report.counts %>
+  <p><%= "Applied. #{counts[:create]} created, #{counts[:update]} updated, #{counts[:skip]} unchanged." %></p>
+  <%= render "report_table", report: @report %>
+<% end %>
+
+<p><%= link_to "Import another file", admin_seeds_path %></p>

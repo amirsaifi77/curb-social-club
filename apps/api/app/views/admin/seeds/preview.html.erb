@@ -1,0 +1,26 @@
+<% content_for :title, "Preview" %>
+<h1>Preview: <%= @kind %></h1>
+
+<% if @too_many %>
+  <p class="form-errors" role="alert"><%= @too_many %></p>
+  <p><%= link_to "Back", admin_seeds_path %></p>
+<% else %>
+  <% counts = @report.counts %>
+  <p><%= "Preview: #{counts[:create]} to create, #{counts[:update]} to update, #{counts[:skip]} unchanged, #{counts[:error]} errors. Nothing has been written." %></p>
+
+  <%= render "report_table", report: @report %>
+
+  <%= form_with url: apply_admin_seeds_path, method: :post, class: "record-form" do |form| %>
+    <%= hidden_field_tag :kind, @kind %>
+    <%= hidden_field_tag :blob_id, @blob_id %>
+    <div class="actions">
+      <% if @report.applicable.positive? %>
+        <%= form.submit "Apply #{pluralize(@report.applicable, 'change')}",
+                        data: { confirm: "Write #{@report.applicable} rows from this file?" } %>
+      <% else %>
+        <p class="muted">Nothing to apply.</p>
+      <% end %>
+      <%= link_to "Start over", admin_seeds_path %>
+    </div>
+  <% end %>
+<% end %>
