@@ -41,26 +41,47 @@ export async function addToCalendar(event: CalendarEvent): Promise<CalendarOutco
   }
 }
 
-// expo-calendar takes a structured rule, not an RRULE string. Only the
-// parts a meet uses are translated; anything else writes a single event
-// rather than a wrong repeat.
+// expo-calendar takes a structured rule, not an RRULE string, and it cannot
+// express the BY* parts at all. A rule whose meaning depends on one of them
+// is therefore not translated: writing it without the part would put the
+// meet on the wrong days, which is worse than putting it on the calendar
+// once. "First Saturday of the month" would become "the 3rd of every
+// month"; "Saturday and Sunday" would quietly lose Sunday.
+//
+// The one exception is a weekly rule with a single BYDAY, which repeats on
+// the same day the meet starts and so is already what a plain weekly rule
+// means.
 export function toRecurrenceRule(rrule: string): Calendar.RecurrenceRule | undefined {
-  const parts = Object.fromEntries(
-    rrule
-      .replace(/^RRULE:/i, '')
-      .split(';')
-      .map((pair) => pair.split('=') as [string, string]),
-  );
+  const parts: Record<string, string> = {};
+  for (const pair of rrule.replace(/^RRULE:/i, '').split(';')) {
+    const [key, value] = pair.split('=');
+    if (key && value) parts[key.trim().toUpperCase()] = value.trim();
+  }
+
   const frequency = FREQUENCIES[parts.FREQ?.toUpperCase() ?? ''];
   if (!frequency) return undefined;
+  if (!expressible(parts, frequency)) return undefined;
 
   const interval = Number(parts.INTERVAL ?? 1);
+  const count = Number(parts.COUNT);
   return {
     frequency,
     ...(Number.isFinite(interval) && interval > 1 ? { interval } : {}),
-    ...(parts.COUNT ? { occurrence: Number(parts.COUNT) } : {}),
+    ...(Number.isFinite(count) && count > 0 ? { occurrence: count } : {}),
     ...(parts.UNTIL ? { endDate: parseUntil(parts.UNTIL) } : {}),
   };
+}
+
+function expressible(parts: Record<string, string>, frequency: Calendar.Frequency): boolean {
+  const byParts = Object.keys(parts).filter((key) => key.startsWith('BY'));
+  if (byParts.length === 0) return true;
+  // A weekly rule on one weekday is the weekday the meet starts on.
+  return (
+    frequency === FREQUENCIES.WEEKLY &&
+    byParts.length === 1 &&
+    byParts[0] === 'BYDAY' &&
+    !parts.BYDAY.includes(',')
+  );
 }
 
 const FREQUENCIES: Record<string, Calendar.Frequency> = {

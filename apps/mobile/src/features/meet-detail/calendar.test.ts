@@ -77,5 +77,31 @@ describe('add to calendar', () => {
   it('writes a single event rather than a wrong repeat for a rule it cannot read', () => {
     expect(toRecurrenceRule('FREQ=FORTNIGHTLY')).toBeUndefined();
     expect(toRecurrenceRule('nonsense')).toBeUndefined();
+    expect(toRecurrenceRule('')).toBeUndefined();
+  });
+
+  it('R-12: refuses a rule whose meaning lives in a part it cannot express', () => {
+    // "First Saturday of the month" would otherwise become "the 3rd of
+    // every month", and "Saturday and Sunday" would lose Sunday.
+    expect(toRecurrenceRule('FREQ=MONTHLY;BYDAY=1SA')).toBeUndefined();
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA,SU')).toBeUndefined();
+    expect(toRecurrenceRule('FREQ=MONTHLY;BYMONTHDAY=15')).toBeUndefined();
+    expect(toRecurrenceRule('FREQ=YEARLY;BYMONTH=6')).toBeUndefined();
+  });
+
+  it('R-12: a weekly rule on the day it starts is a plain weekly rule', () => {
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA')).toEqual({ frequency: 'weekly' });
+  });
+
+  it('reads a rule whatever its case and spacing', () => {
+    expect(toRecurrenceRule('freq=weekly; interval=2')).toEqual({
+      frequency: 'weekly',
+      interval: 2,
+    });
+  });
+
+  it('drops a count that would schedule nothing', () => {
+    expect(toRecurrenceRule('FREQ=WEEKLY;COUNT=0')).toEqual({ frequency: 'weekly' });
+    expect(toRecurrenceRule('FREQ=WEEKLY;INTERVAL=0')).toEqual({ frequency: 'weekly' });
   });
 });
