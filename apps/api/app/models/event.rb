@@ -35,6 +35,14 @@ class Event < ApplicationRecord
   has_many :sponsorships, -> { order(:position, :created_at) }, class_name: "EventSponsorship",
            dependent: :destroy, inverse_of: :event
   has_many :sponsors, through: :sponsorships
+  # A04 edits sponsorships inline (admin.md R-15); a row with no sponsor
+  # picked is an empty slot in the form, not a validation error.
+  # An empty new row is a spare slot in the form. An existing row whose
+  # sponsor was cleared is a mistake worth an error, not a silent no-op.
+  accepts_nested_attributes_for :sponsorships, allow_destroy: true,
+                                               reject_if: lambda { |attributes|
+                                                 attributes["id"].blank? && attributes["sponsor_id"].blank?
+                                               }
   has_many :claim_requests, dependent: :destroy
   has_one_attached :cover
 
@@ -68,6 +76,7 @@ class Event < ApplicationRecord
   validate :cadence_rules
   validates :parking_note, length: { maximum: 200 }, allow_nil: true
   validate :tags_allowed
+  validate :sponsorships_within_limit
   validates :status, inclusion: { in: STATUSES }
   validates :visibility, inclusion: { in: VISIBILITIES }
   validates :source_url, uniqueness: true, allow_nil: true
@@ -224,6 +233,15 @@ class Event < ApplicationRecord
     return if errors.of_kind?(:rrule, :invalid_rrule)
 
     errors.add(:rrule, :invalid_rrule, message: Recurrence::RruleValidator::MESSAGE)
+  end
+
+  # EventSponsorship checks the cap against the rows already in the table,
+  # which a nested form writing several at once would slip past.
+  def sponsorships_within_limit
+    live = sponsorships.reject(&:marked_for_destruction?)
+    return if live.size <= MAX_SPONSORSHIPS
+
+    errors.add(:sponsorships, "are limited to #{MAX_SPONSORSHIPS} per event")
   end
 
   def tags_allowed

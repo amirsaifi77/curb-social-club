@@ -39,6 +39,19 @@ module Geo
       raise ParamError, "radius_km must be a number."
     end
 
+    # A point from two separate form fields (admin A03, A05, A06, A11), or
+    # nil when either is blank or out of range, so a half-filled form is a
+    # validation error on `location` rather than a 500 or a point at 0,0.
+    def self.point(lat, lng)
+      latitude = Float(lat.to_s.strip)
+      longitude = Float(lng.to_s.strip)
+      return nil unless latitude.between?(-90, 90) && longitude.between?(-180, 180)
+
+      Geo.point(latitude, longitude)
+    rescue ArgumentError, TypeError
+      nil
+    end
+
     def self.numbers(value, count, message)
       parts = value.to_s.split(",")
       raise ParamError, message unless parts.size == count

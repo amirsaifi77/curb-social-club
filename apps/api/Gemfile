@@ -75,4 +75,7 @@ group :test do
   gem "shoulda-matchers"
   gem "webmock"
   gem "vcr"
+  # Matchers for the admin's rendered HTML (docs/specs/admin.md Verification).
+  # No driver and no system tests: request specs assert on response.body.
+  gem "capybara"
 end

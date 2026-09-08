@@ -1,0 +1,17 @@
+<% content_for :title, "Edit date" %>
+<h1>Edit date</h1>
+<p class="muted">Times are read in <%= @event.timezone %>. Saving marks this date an override, so the materializer leaves it alone.</p>
+
+<%= form_with model: @occurrence, url: admin_event_occurrence_path(@event, @occurrence), method: :patch, class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: @occurrence %>
+  <%= render "admin/shared/field", form: form, name: :starts_at_local, label: "Starts (local)",
+             control: form.datetime_field(:starts_at_local, value: local_input_value(@occurrence.starts_at, @event.timezone)) %>
+  <%= render "admin/shared/field", form: form, name: :ends_at_local, label: "Ends (local)",
+             control: form.datetime_field(:ends_at_local, value: local_input_value(@occurrence.ends_at, @event.timezone)) %>
+  <%= render "admin/shared/field", form: form, name: :status, control: form.select(:status, EventOccurrence::STATUSES) %>
+  <%= render "admin/shared/field", form: form, name: :override_note %>
+  <div class="actions">
+    <%= form.submit "Save date" %>
+    <%= link_to "Cancel", admin_event_occurrences_path(@event) %>
+  </div>
+<% end %>

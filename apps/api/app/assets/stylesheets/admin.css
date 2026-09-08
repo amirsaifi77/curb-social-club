@@ -121,3 +121,40 @@ button.primary {
   cursor: pointer;
 }
 button.danger { background: var(--danger); }
+
+/* Lists, forms, and the shared partials (R-26). */
+.page-head { display: flex; align-items: baseline; gap: 1rem; }
+.page-head h1 { margin-right: auto; }
+
+.search, .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 1rem 0; }
+.filters label { color: var(--muted); }
+
+table.list { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+table.list th, table.list td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.list thead th { color: var(--muted); font-weight: 500; }
+table.detail th { text-align: left; padding-right: 1rem; color: var(--muted); font-weight: 500; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.record-form { max-width: 44rem; }
+.record-form h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+.field { margin: 0.75rem 0; }
+.field label, .field .label { display: block; color: var(--muted); margin-bottom: 0.25rem; }
+.field input[type="text"], .field input[type="search"], .field input[type="number"],
+.field input[type="datetime-local"], .field select, .field textarea { width: 100%; }
+.field-locked input, .field-locked select { background: var(--bg); color: var(--muted); }
+.checks { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.checks label { display: inline; color: var(--ink); }
+.hint { color: var(--muted); margin: 0.25rem 0 0; }
+
+input, select, textarea { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+
+.actions, .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 1rem 0; }
+.row-actions form.inline { display: flex; gap: 0.35rem; margin: 0; }
+
+.button, input[type="submit"] { display: inline-block; padding: 0.35rem 0.75rem; border: 1px solid var(--border); background: var(--surface); color: var(--accent); cursor: pointer; }
+.button-danger { color: var(--danger); border-color: var(--danger); }
+
+.form-errors { border: 1px solid var(--danger); background: var(--danger-bg); padding: 0.75rem 1rem; margin: 1rem 0; }
+.form-errors p { margin: 0 0 0.25rem; }
+.notice { border: 1px solid var(--border); background: var(--ok-bg); padding: 0.75rem 1rem; }
+.pager { display: flex; gap: 1rem; align-items: center; color: var(--muted); margin: 1rem 0; }

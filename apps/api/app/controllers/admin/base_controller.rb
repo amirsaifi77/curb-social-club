@@ -9,6 +9,7 @@ module Admin
   # inherit the default, so /admin/jobs is admin-only (R-12).
   class BaseController < ActionController::Base
     include Admin::Auditable
+    include Pagy::Method
 
     STAFF_ROLES = %w[admin moderator].freeze
     ROLE_FLASH = "That page needs the admin role.".freeze

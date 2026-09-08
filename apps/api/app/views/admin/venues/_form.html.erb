@@ -1,0 +1,24 @@
+<%= form_with model: [ :admin, venue ], class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: venue %>
+
+  <%= render "admin/shared/field", form: form, name: :name %>
+  <%= render "admin/shared/field", form: form, name: :address_line1, label: "Address line 1" %>
+  <%= render "admin/shared/field", form: form, name: :address_line2, label: "Address line 2" %>
+  <%= render "admin/shared/field", form: form, name: :city %>
+  <%= render "admin/shared/field", form: form, name: :region %>
+  <%= render "admin/shared/field", form: form, name: :postal_code %>
+  <%= render "admin/shared/field", form: form, name: :country, hint: "ISO 3166-1 alpha-2, such as US." %>
+  <%= render "admin/shared/field", form: form, name: :lat, label: "Latitude",
+             control: form.number_field(:lat, step: "any", value: venue.location&.y) %>
+  <%= render "admin/shared/field", form: form, name: :lng, label: "Longitude",
+             control: form.number_field(:lng, step: "any", value: venue.location&.x) %>
+  <%= render "admin/shared/field", form: form, name: :timezone, hint: "IANA zone name, such as America/Los_Angeles." %>
+  <%= render "admin/shared/field", form: form, name: :external_source,
+             control: form.select(:external_source, Venue::EXTERNAL_SOURCES) %>
+  <%= render "admin/shared/field", form: form, name: :external_place_id %>
+
+  <div class="actions">
+    <%= form.submit venue.new_record? ? "Create venue" : "Save venue" %>
+    <%= link_to "Cancel", venue.new_record? ? admin_venues_path : admin_venue_path(venue) %>
+  </div>
+<% end %>

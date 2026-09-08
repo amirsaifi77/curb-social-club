@@ -1,0 +1,16 @@
+<%# One labelled control (admin.md R-26). Pass `control` for anything that
+    is not a plain text input; `hint` and `locked` are optional. `value` is
+    only forwarded when given, so the default read from the record stands. %>
+<% options = { disabled: local_assigns[:locked] } %>
+<% options[:value] = local_assigns[:value] if local_assigns.key?(:value) %>
+<div class="field<%= " field-locked" if local_assigns[:locked] %>">
+  <%= form.label(name, local_assigns[:label]) %>
+  <% if local_assigns[:control] %>
+    <%= control %>
+  <% else %>
+    <%= form.text_field(name, **options) %>
+  <% end %>
+  <% if local_assigns[:hint].present? %>
+    <p class="hint"><%= hint %></p>
+  <% end %>
+</div>

@@ -1,0 +1,35 @@
+<% content_for :title, "Events" %>
+<div class="page-head">
+  <h1>Events</h1>
+  <%= link_to "New event", new_admin_event_path, class: "button" %>
+</div>
+
+<%= form_with url: admin_events_path, method: :get, class: "search filters" do |form| %>
+  <%= form.label :q, "Search" %>
+  <%= form.search_field :q, value: @filters.q %>
+  <%= form.label :status, "Status" %>
+  <%= form.select :status, Event::STATUSES, { include_blank: "any", selected: @filters.status } %>
+  <%= form.label :host_type, "Host type" %>
+  <%= form.select :host_type, Event::HOST_TYPES, { include_blank: "any", selected: @filters.host_type } %>
+  <%= form.label :claimed, "Claimed" %>
+  <%= form.select :claimed, Admin::EventFilters::CLAIMED, { include_blank: "any", selected: @filters.claimed } %>
+  <label><%= form.check_box :stale, { checked: @filters.stale? }, "1", nil %> Stale</label>
+  <label><%= form.check_box :dormant, { checked: @filters.dormant? }, "1", nil %> Dormant</label>
+  <%= form.submit "Filter" %>
+<% end %>
+
+<%= render "admin/shared/table",
+           columns: [ "Title", "Host", "Venue", "Cadence", "Status", "Flags", "Next date", "" ],
+           empty: "Nothing here yet.",
+           rows: @events.map { |event| [
+             link_to(event.title, edit_admin_event_path(event)),
+             "#{event.host_name} (#{event.host_type.downcase})",
+             event.venue.name,
+             event.cadence,
+             event.status,
+             [ ("stale" if event.stale?), ("dormant" if event.dormant?), ("claimed" if event.claimed?) ].compact.join(", "),
+             @next_dates[event.id] ? admin_time(@next_dates[event.id], zone: event.timezone) : "none",
+             link_to("Dates", admin_event_occurrences_path(event))
+           ] } %>
+
+<%= render "admin/shared/pager", pagy: @pagy, filters: @filters.to_params %>

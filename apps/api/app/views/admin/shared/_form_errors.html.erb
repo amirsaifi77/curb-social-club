@@ -1,0 +1,11 @@
+<%# Validation summary above a form (admin.md R-26). %>
+<% if record.errors.any? %>
+  <div class="form-errors" role="alert">
+    <p><%= pluralize(record.errors.size, "problem") %> stopped this from saving.</p>
+    <ul>
+      <% record.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

@@ -1,0 +1,17 @@
+<%# One list table for every admin screen (admin.md R-26). `columns` are
+    headers, `rows` are arrays of already-escaped cells, `empty` overrides
+    the generic copy. %>
+<% if rows.empty? %>
+  <p class="muted"><%= local_assigns.fetch(:empty, "Nothing here yet.") %></p>
+<% else %>
+  <table class="list">
+    <thead>
+      <tr><% columns.each do |column| %><th scope="col"><%= column %></th><% end %></tr>
+    </thead>
+    <tbody>
+      <% rows.each do |cells| %>
+        <tr><% cells.each do |cell| %><td><%= cell %></td><% end %></tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
