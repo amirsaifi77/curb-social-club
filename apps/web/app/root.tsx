@@ -4,16 +4,22 @@ import geistSemiBold from '@curb/design-tokens/fonts/Geist-SemiBold.woff2?url';
 import instrumentSerif from '@curb/design-tokens/fonts/InstrumentSerif-Regular.woff2?url';
 import tokensHref from '@curb/design-tokens/tokens.css?url';
 import {
+  data,
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from 'react-router';
 
 import type { Route } from './+types/root';
 import './app.css';
+
+import { deviceCookie, readDeviceId, readTheme, DEFAULT_THEME } from '~/lib/cookies.server';
+import { publicEnv } from '~/lib/env.server';
 
 // The subset families from packages/design-tokens/fonts; Instrument Serif
 // Italic deliberately never ships (design-system-and-theming.md R-11).
@@ -41,22 +47,78 @@ export const links: Route.LinksFunction = () => [
   })),
 ];
 
+// R-22: the theme comes from a cookie and the scheme from the reader's own
+// system. tokens.css paints Marine Layer on bare `:root` with a
+// prefers-color-scheme block, so the default theme needs no attributes at
+// all and works with scripting off. The other two are addressed as
+// [data-theme][data-scheme], and only the browser knows the scheme, so this
+// sets it before first paint and keeps it in sync.
+const SCHEME_SCRIPT = `(function(){var r=document.documentElement;if(!r.dataset.theme)return;var m=window.matchMedia('(prefers-color-scheme: dark)');var set=function(){r.dataset.scheme=m.matches?'dark':'light'};set();m.addEventListener('change',set)})()`;
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const cookie = request.headers.get('cookie');
+  const { deviceId, minted } = readDeviceId(cookie);
+  const theme = readTheme(cookie);
+  const headers = minted ? { 'Set-Cookie': deviceCookie(deviceId) } : undefined;
+  return data({ theme, env: publicEnv() }, headers ? { headers } : undefined);
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const rootData = useRouteLoaderData<typeof loader>('root');
+  const theme = rootData?.theme ?? DEFAULT_THEME;
+  // Marine Layer is what tokens.css already paints; naming it would demand
+  // a data-scheme the server cannot know.
+  const themed = theme === DEFAULT_THEME ? {} : { 'data-theme': theme, 'data-scheme': 'light' };
+
   return (
-    <html lang="en">
+    <html lang="en" {...themed}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
         <style dangerouslySetInnerHTML={{ __html: fontFaceCss }} />
+        {theme === DEFAULT_THEME ? null : (
+          <script dangerouslySetInnerHTML={{ __html: SCHEME_SCRIPT }} />
+        )}
       </head>
-      <body>
+      <body className="min-h-screen">
+        <SiteHeader />
         {children}
+        <SiteFooter />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
+  );
+}
+
+// R-23: the one glass surface on the web. Everything below it is flat, with
+// hairlines and solid fills (brand-guide section 4).
+function SiteHeader() {
+  return (
+    <header className="sticky top-0 z-10 border-b border-border bg-glassTint backdrop-blur-[20px] backdrop-saturate-[1.1]">
+      <div className="mx-auto flex max-w-pageMax items-center justify-between px-gutter py-3">
+        <Link to="/" className="font-display text-2xl leading-none">
+          curb
+        </Link>
+        <nav>
+          <Link to="/meets" className="text-sm text-textSecondary hover:text-textPrimary">
+            Meets
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+// web.md Copy, "Footer". The legal pages are Phase 2 (W16), so the line
+// carries the address that works today and no links to routes that 404.
+function SiteFooter() {
+  return (
+    <footer className="mx-auto max-w-pageMax px-gutter py-10 text-sm text-textSecondary">
+      <a href="mailto:hello@curbsocial.club">hello@curbsocial.club</a>
+    </footer>
   );
 }
 

@@ -1,0 +1,119 @@
+import type { EventDetail, Occurrence } from '@curb/api-client';
+
+// The API shapes straight from the generated types, so a page test fails
+// when the contract moves rather than when a hand-written stub drifts.
+
+export function eventDetail(overrides: Partial<EventDetail> = {}): EventDetail {
+  return {
+    id: '11111111-1111-4111-8111-111111111111',
+    slug: 'lido-saturday',
+    title: 'Lido Saturday',
+    cover_url: 'https://cdn.example/covers/lido.jpg',
+    cover_blurhash: null,
+    tags: ['all'],
+    recurring: true,
+    rrule_text: 'Every Saturday',
+    host: {
+      type: 'club',
+      id: '22222222-2222-4222-8222-222222222222',
+      slug: 'back-bay-air-cooled',
+      name: 'Back Bay Air-Cooled',
+      avatar_url: null,
+      verified: false,
+      kind: null,
+    },
+    venue: {
+      id: '33333333-3333-4333-8333-333333333333',
+      name: 'Lido Marina Village',
+      address_line1: '3434 Via Lido',
+      address_line2: null,
+      city: 'Newport Beach',
+      region: 'CA',
+      postal_code: '92663',
+      country: 'US',
+      timezone: 'America/Los_Angeles',
+      location: { lat: 33.62, lng: -117.93 },
+    },
+    next_occurrence: null,
+    distance_m: null,
+    source: { type: 'instagram', url: 'https://instagram.com/p/abc' },
+    claimed: false,
+    cadence: 'weekly',
+    stale: false,
+    last_confirmed_at: '2026-07-12T12:00:00Z',
+    sponsors_preview: [],
+    description: 'Coffee is inside, parking is wherever there is room.',
+    parking_note: 'lot behind the bakery',
+    rrule: 'FREQ=WEEKLY;BYDAY=SA',
+    dtstart: '2026-10-24T14:30:00Z',
+    duration_minutes: 150,
+    rsvp_mode: 'count_only',
+    capacity: null,
+    status: 'published',
+    visibility: 'public',
+    dormant: false,
+    hidden: false,
+    external_host_name: null,
+    upcoming_occurrences: [
+      {
+        id: '44444444-4444-4444-8444-444444444444',
+        starts_at: '2026-10-24T14:30:00Z',
+        ends_at: '2026-10-24T17:00:00Z',
+        timezone: 'America/Los_Angeles',
+        going_count: 12,
+        status: 'scheduled',
+        override_note: null,
+      },
+    ],
+    sponsorships: [
+      {
+        sponsor: {
+          id: '55555555-5555-4555-8555-555555555555',
+          slug: 'bear-coast',
+          name: 'Bear Coast Coffee',
+          kind: 'vendor',
+          logo_url: null,
+          verified: false,
+          tagline: null,
+          followers_count: 8,
+          home_label: null,
+          distance_m: null,
+        },
+        role: 'coffee',
+        note: 'Pour-over from the cart',
+        position: 0,
+      },
+    ],
+    viewer: {
+      following: false,
+      rsvp: null,
+      can_edit: false,
+      can_claim: true,
+      claim_status: null,
+      reported: false,
+    },
+    photos_count: 0,
+    comments_count: 0,
+    followers_count: 3,
+    ...overrides,
+  } as EventDetail;
+}
+
+export function occurrence(overrides: Partial<Occurrence> = {}): Occurrence {
+  const event = eventDetail();
+  return {
+    id: '44444444-4444-4444-8444-444444444444',
+    event,
+    starts_at: '2026-10-24T14:30:00Z',
+    ends_at: '2026-10-24T17:00:00Z',
+    timezone: 'America/Los_Angeles',
+    status: 'scheduled',
+    override_note: null,
+    going_count: 12,
+    interested_count: 3,
+    check_in_count: 0,
+    going_preview: [],
+    viewer: { rsvp: null, checked_in: false },
+    ...overrides,
+  } as Occurrence;
+}
