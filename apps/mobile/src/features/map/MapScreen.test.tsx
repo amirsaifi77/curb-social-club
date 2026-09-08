@@ -236,6 +236,24 @@ describe('S03 Map', () => {
     }
   });
 
+  it('R-16: below the full detent a card recenters rather than opening the meet', async () => {
+    mockEvents.mockReturnValue(listState({ data: { data: [eventSummary()], meta: {} } }));
+
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+
+      // S03's list of what is on the map: the row is a control, not a link.
+      const row = screen.getByLabelText('Lido Saturday');
+      expect(row.props.accessibilityRole).toBe('button');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('R-14: an error with nothing cached offers a retry in the sheet', async () => {
     const refetch = jest.fn();
     mockEventsMap.mockReturnValue(mapState({ isError: true, data: undefined, refetch }));

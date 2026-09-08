@@ -1,5 +1,5 @@
 import { useEvents, useEventsMap } from '@curb/api-client';
-import { createPinIndex, zoomFromRegion, type MapFeature, type Region } from '@curb/ui';
+import { bboxFromRegion, createPinIndex, zoomFromRegion, type MapFeature, type Region } from '@curb/ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
@@ -72,15 +72,9 @@ export default function MapScreen() {
   const now = useMemo(() => new Date(), [pins.data]);
   const features = useMemo(() => {
     if (!viewport.committed) return [];
-    return index.featuresIn(
-      {
-        west: viewport.region.longitude - viewport.region.longitudeDelta / 2,
-        south: viewport.region.latitude - viewport.region.latitudeDelta / 2,
-        east: viewport.region.longitude + viewport.region.longitudeDelta / 2,
-        north: viewport.region.latitude + viewport.region.latitudeDelta / 2,
-      },
-      zoomFromRegion(viewport.region, width),
-    );
+    // The same conversion the queries use, so what is drawn and what was
+    // asked for cannot drift apart.
+    return index.featuresIn(bboxFromRegion(viewport.region), zoomFromRegion(viewport.region, width));
   }, [index, viewport.committed, viewport.region, width]);
 
   // R-16: a pin selects and scrolls its card in; a card recenters the map.
@@ -205,17 +199,18 @@ export default function MapScreen() {
         near={near}
         onSort={setSort}
         onSelect={(event) => {
-          setSelected({ pinId: event.id, eventId: event.id });
+          // R-16: a card recenters the map on its pin and selects it. A row
+          // with no pin in the current box selects nothing rather than
+          // flying the map somewhere the person cannot see.
           const pin = (pins.data?.data ?? []).find((row) => row.event_id === event.id);
-          if (pin) {
-            setSelected({ pinId: pin.id, eventId: event.id });
-            map.current?.animateToRegion({
-              latitude: pin.lat,
-              longitude: pin.lng,
-              latitudeDelta: viewport.region.latitudeDelta,
-              longitudeDelta: viewport.region.longitudeDelta,
-            });
-          }
+          if (!pin) return;
+          setSelected({ pinId: pin.id, eventId: event.id });
+          map.current?.animateToRegion({
+            latitude: pin.lat,
+            longitude: pin.lng,
+            latitudeDelta: viewport.region.latitudeDelta,
+            longitudeDelta: viewport.region.longitudeDelta,
+          });
         }}
         selectedEventId={selected?.eventId ?? null}
         status={viewport.tooWide ? 'ready' : status}

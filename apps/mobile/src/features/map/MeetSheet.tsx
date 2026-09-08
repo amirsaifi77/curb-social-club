@@ -1,6 +1,6 @@
 import type { EventSummary } from '@curb/api-client';
 import BottomSheet, { BottomSheetFlatList, type BottomSheetFlatListMethods } from '@gorhom/bottom-sheet';
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -13,6 +13,7 @@ import { TextButton } from '@/ui/TextButton';
 
 // R-18: peek with a count, half list, full list. The full detent is S04.
 export const DETENTS = ['14%', '45%', '90%'] as const;
+export const FULL_DETENT = 2;
 
 export interface MeetSheetHandle {
   /** R-16: bring a pin's card into view when its pin is tapped. */
@@ -56,7 +57,12 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
 ) {
   const { theme } = useUnistyles();
   const list = useRef<BottomSheetFlatListMethods>(null);
+  const [detent, setDetent] = useState(0);
   const sorts = availableSorts(near);
+  // The same sheet is two screens. Below the full detent it is S03's list of
+  // what is on the map, so a card recenters and selects (R-16); at the full
+  // detent it is S04, where a card opens the meet (docs/screens.md S04).
+  const opensMeets = detent >= FULL_DETENT;
 
   useImperativeHandle(ref, () => ({
     scrollToEvent(eventId) {
@@ -122,14 +128,11 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
 
   const renderItem = useCallback(
     ({ item }: { item: EventSummary }) => (
-      <View
-        style={[styles.row, item.id === selectedEventId && styles.rowSelected]}
-        onTouchEnd={() => onSelect(item)}
-      >
-        <EventCard event={item} />
+      <View style={[styles.row, item.id === selectedEventId && styles.rowSelected]}>
+        <EventCard event={item} onPress={opensMeets ? undefined : () => onSelect(item)} />
       </View>
     ),
-    [onSelect, selectedEventId],
+    [onSelect, opensMeets, selectedEventId],
   );
 
   return (
@@ -137,6 +140,7 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
       index={0}
       snapPoints={DETENTS as unknown as string[]}
       enableDynamicSizing={false}
+      onChange={setDetent}
       backgroundStyle={{ backgroundColor: theme.colors.surfaceRaised }}
       handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
     >

@@ -1,7 +1,7 @@
 // Registers the Unistyles themes before the card's StyleSheet.create runs.
 import '@/lib/unistyles';
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 
 import { EventCard } from './EventCard';
@@ -72,6 +72,18 @@ describe('EventCard', () => {
     await render(<EventCard event={eventSummary({ sponsors_preview: [...event.sponsors_preview, third] })} />);
 
     expect(screen.queryByLabelText('Third Sponsor')).toBeNull();
+  });
+
+  it('R-16: a card given a press is a control, not a link to the meet', async () => {
+    const onPress = jest.fn();
+    await render(<EventCard event={eventSummary()} onPress={onPress} />);
+
+    const card = screen.getByLabelText('Lido Saturday');
+    expect(card.props.accessibilityRole).toBe('button');
+    // Without one it is the link it is everywhere else. render replaces the
+    // tree, so this is the only card on screen by now.
+    await render(<EventCard event={eventSummary()} />);
+    expect(screen.getByLabelText('Lido Saturday').props.accessibilityRole).toBe('link');
   });
 
   it('renders an announced meet with no next occurrence', async () => {
