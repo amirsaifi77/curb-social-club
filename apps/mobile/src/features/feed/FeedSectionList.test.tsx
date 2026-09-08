@@ -2,7 +2,7 @@
 import '@/lib/unistyles';
 
 import { describe, expect, it, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { FeedSectionList } from './FeedSectionList';
 import { renderableSections } from './sections';
@@ -41,6 +41,25 @@ describe('FeedSectionList', () => {
     expect(screen.queryByText('From people you follow')).toBeNull();
     // An empty section never becomes a title above nothing.
     expect(screen.queryByText('Later')).toBeNull();
+  });
+
+  it('clubs R-17: a club row is a tap that goes somewhere, not just a label', async () => {
+    const navigations = (globalThis as { __linkNavigations?: jest.Mock }).__linkNavigations;
+    navigations?.mockClear();
+    await render(
+      <FeedSectionList
+        sections={renderableSections(feed())}
+        refreshing={false}
+        onRefresh={jest.fn()}
+      />,
+    );
+    await screen.findByText('Clubs near you');
+
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Back Bay Air-Cooled'));
+    });
+
+    expect(navigations).toHaveBeenCalledWith('/clubs/back-bay-air-cooled');
   });
 
   it('AC-16: the sponsor row matches the club row and carries no label', async () => {

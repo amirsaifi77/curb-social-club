@@ -14,6 +14,25 @@ export interface ClientOptions {
   fetch?: typeof fetch;
 }
 
+// Read structurally, never with instanceof: an error that came back out of
+// the query persister is a plain object with the prototype gone, and a
+// duplicated copy of this package under pnpm is a different class again.
+// Both would make an `instanceof` check quietly answer "not an API error"
+// and retry a 404.
+export function errorStatus(error: unknown): number | null {
+  if (typeof error !== 'object' || error === null || !('status' in error)) return null;
+  const status = Number((error as { status: unknown }).status);
+  return Number.isFinite(status) ? status : null;
+}
+
+export function errorDetails(error: unknown): Record<string, unknown> | null {
+  if (typeof error !== 'object' || error === null || !('details' in error)) return null;
+  const details = (error as { details: unknown }).details;
+  return typeof details === 'object' && details !== null
+    ? (details as Record<string, unknown>)
+    : null;
+}
+
 // The API error envelope, normalized (docs/api.md).
 export class ApiError extends Error {
   readonly code: string;

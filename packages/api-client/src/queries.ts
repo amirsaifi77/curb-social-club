@@ -1,5 +1,7 @@
 import type {
   ClubsQuery,
+  EventOccurrencesQuery,
+  EventQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
@@ -12,7 +14,7 @@ import type {
 } from '@curb/types';
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
-import { ApiError, type ApiClient } from './client';
+import { errorStatus, type ApiClient } from './client';
 import { mutationKeys, queryKeys } from './keys';
 import { api } from './requests';
 
@@ -22,7 +24,8 @@ import { api } from './requests';
 // A 4xx answer is final; a network or 5xx failure retries once (the same
 // as the app-level QueryClient default, so the two never disagree).
 function retryUnlessClientError(failureCount: number, error: unknown): boolean {
-  if (error instanceof ApiError && error.status < 500) return false;
+  const status = errorStatus(error);
+  if (status !== null && status < 500) return false;
   return failureCount < 1;
 }
 
@@ -136,6 +139,43 @@ export function searchSponsorsQuery(client: ApiClient, query: SponsorsQuery) {
     queryKey: queryKeys.searchSponsors(query),
     queryFn: async () => (await api.sponsors.list(client, query)).data,
     staleTime: 30_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S08 (event-detail-and-rsvp.md R-11). `token` unlocks an unlisted event
+// and `near` fills the nearby list a 410 comes back with, so both belong in
+// the key: the same slug answers differently with and without them.
+export function eventQuery(client: ApiClient, slug: string, query: EventQuery = {}) {
+  return queryOptions({
+    queryKey: [...queryKeys.event(slug), query] as const,
+    queryFn: async () => (await api.events.get(client, slug, query)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S09 by id, so a curb://occurrences/:id deep link has something to read
+// rather than only the in-app path that already knows the date (R-25).
+export function occurrenceQuery(client: ApiClient, id: string) {
+  return queryOptions({
+    queryKey: queryKeys.occurrence(id),
+    queryFn: async () => (await api.occurrences.get(client, id)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// R-12's "Next dates" rows.
+export function eventOccurrencesQuery(
+  client: ApiClient,
+  eventId: string,
+  query: EventOccurrencesQuery = {},
+) {
+  return queryOptions({
+    queryKey: [...queryKeys.eventOccurrences(eventId), query] as const,
+    queryFn: async () => (await api.events.occurrences(client, eventId, query)).data,
+    staleTime: 60_000,
     retry: retryUnlessClientError,
   });
 }

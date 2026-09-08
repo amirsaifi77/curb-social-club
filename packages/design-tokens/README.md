@@ -12,7 +12,7 @@ Three flat themes, each with a light and a dark scheme. Marine Layer is the defa
 | `harbor`       | Harbor                 | Deep navy, bone white, warm sand, old brass                                 | `#7A5A1E`    | `#CBA55B`   |
 | `olive-ivory`  | Olive and Ivory        | Sage-olive, ivory, stone grey, burnt sienna                                 | `#8A3D1F`    | `#D9946E`   |
 
-Roles per scheme: `bg`, `surface`, `surfaceRaised`, `border`, `textPrimary`, `textSecondary`, `accent`, `accentInk`, `link`, `success`, `warning`, `error`, `pinNow`, `pinToday`, `pinUpcoming`, `pinRecurring`, `pinPast`, `pinCluster`, `pinLabel`, `glassTint` (hex8), `scrim` (hex8).
+Roles per scheme: `bg`, `surface`, `surfaceRaised`, `border`, `textPrimary`, `textSecondary`, `accent`, `accentInk`, `link`, `success`, `warning`, `error`, `pinNow`, `pinToday`, `pinUpcoming`, `pinRecurring`, `pinPast`, `pinCluster`, `pinLabel`, `onScrim`, `glassTint` (hex8), `scrim` (hex8).
 
 Contrast is verified for every theme and scheme: text roles on `bg`, `surface`, and `surfaceRaised` are at least 4.5:1; `accentInk` on `accent` is at least 5.5:1; pin labels and pins against `bg` are at least 3:1. See `brand/brand-guide.md` section 5 for the computed tables.
 
@@ -100,6 +100,10 @@ packages/design-tokens/
   dist/            # generated
   package.json
 ```
+
+## Added in 2.3.0
+
+`onScrim` joins the color roles: the one colour that reads over `scrim`. The scrim is dark in all six theme and scheme combinations, so `onScrim` is white in all six; `pinLabel` flips with the scheme and is for pins only.
 
 ## Added in 2.2.0
 

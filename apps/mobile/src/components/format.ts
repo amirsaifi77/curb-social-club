@@ -31,6 +31,35 @@ export function dayAndTime(startsAt: string, timezone: string): string {
   return `${day}, ${time}`;
 }
 
+// The window a recurring meet keeps, read off the next occurrence:
+// "7:30 to 10 am" (event-detail Copy, S08 when, recurring). The meridiem is
+// written once when both ends share it, and a whole hour drops its ":00".
+export function timeRange(startsAt: string, endsAt: string, timezone: string): string | null {
+  const start = clockParts(startsAt, timezone);
+  const end = clockParts(endsAt, timezone);
+  if (!start || !end) return null;
+  const opening = start.meridiem === end.meridiem ? start.time : `${start.time} ${start.meridiem}`;
+  return `${opening} to ${end.time} ${end.meridiem}`;
+}
+
+// formatToParts rather than a string replace: the separator between the
+// time and the meridiem is a narrow no-break space in newer ICU builds, so
+// matching on " AM" quietly stops matching.
+function clockParts(value: string, timezone: string): { time: string; meridiem: string } | null {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: timezone,
+  }).formatToParts(date);
+  const hour = parts.find((part) => part.type === 'hour')?.value;
+  const minute = parts.find((part) => part.type === 'minute')?.value;
+  const meridiem = parts.find((part) => part.type === 'dayPeriod')?.value;
+  if (!hour || !minute || !meridiem) return null;
+  return { time: minute === '00' ? hour : `${hour}:${minute}`, meridiem: meridiem.toLowerCase() };
+}
+
 // Always pinned, never the reader's zone: a confirmation date that shifts
 // when you fly east is a different string for the same fact. Falls back to
 // UTC, which is how the API stores the instant.

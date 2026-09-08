@@ -1,7 +1,7 @@
 import type { EventSummary } from '@curb/api-client';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { confirmationChip, dayAndTime, miles, sourceLabel } from './format';
@@ -29,13 +29,14 @@ export function EventCard({
   const chip = confirmationChip(event);
   const sponsors = event.sponsors_preview.slice(0, SPONSOR_LOGO_LIMIT);
 
+  // Link asChild clones its child with onPress, and a View has no such
+  // prop, so a card wrapped in a Link was a dead tap everywhere it appeared.
   const card = (
-    <View
+    <Pressable
       style={styles.card}
       accessibilityRole={onPress ? 'button' : 'link'}
       accessibilityLabel={event.title}
-      onStartShouldSetResponder={onPress ? () => true : undefined}
-      onResponderRelease={onPress}
+      onPress={onPress}
     >
         {event.cover_url ? (
           <Image
@@ -125,14 +126,17 @@ export function EventCard({
             </Text>
           ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 
   if (onPress) return card;
 
+  // R-11 and mobile-liquid-glass section 6: the detail screen is pushed
+  // with the Apple zoom transition from the card. iOS 18 and up honours it;
+  // everywhere else the Link pushes as usual.
   return (
     <Link href={`/meets/${event.slug}`} asChild>
-      {card}
+      <Link.AppleZoom>{card}</Link.AppleZoom>
     </Link>
   );
 }

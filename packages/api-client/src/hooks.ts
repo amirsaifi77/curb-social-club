@@ -1,5 +1,7 @@
 import type {
   ClubsQuery,
+  EventOccurrencesQuery,
+  EventQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
@@ -11,6 +13,9 @@ import { queryKeys } from './keys';
 import { useApiClient } from './provider';
 import {
   deleteAccountMutation,
+  eventOccurrencesQuery,
+  eventQuery,
+  occurrenceQuery,
   eventsMapQuery,
   eventsQuery,
   feedQuery,
@@ -56,6 +61,24 @@ export function useEventsMap(query: EventsMapQuery, options: { enabled?: boolean
 // R-18: the sheet's list, filtered and sorted the same way as the pins.
 export function useEvents(query: EventsListQuery = {}, options: { enabled?: boolean } = {}) {
   return useQuery({ ...eventsQuery(useApiClient(), query), ...options });
+}
+
+// S08 by slug. A 410 or 404 is a final answer with a body the screen needs
+// (R-20), so it is not retried and the error carries through.
+export function useEvent(slug: string, query: EventQuery = {}, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...eventQuery(useApiClient(), slug, query), ...options });
+}
+
+export function useOccurrence(id: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...occurrenceQuery(useApiClient(), id), ...options });
+}
+
+export function useEventOccurrences(
+  eventId: string,
+  query: EventOccurrencesQuery = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({ ...eventOccurrencesQuery(useApiClient(), eventId, query), ...options });
 }
 
 // R-20: one request per group, each switched off until the debounce says

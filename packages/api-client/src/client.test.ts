@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { ApiError, createClient, unwrap } from './client';
+import { ApiError, createClient, errorDetails, errorStatus, unwrap } from './client';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -97,5 +97,27 @@ describe('createClient', () => {
 
     const ok = unwrap({ data: { data: { purge_after: 'x' } }, response: jsonResponse(202, {}) });
     expect(ok.data.purge_after).toBe('x');
+  });
+});
+
+describe('errorStatus and errorDetails', () => {
+  it('read an ApiError', () => {
+    const error = new ApiError('gone', 'Gone', 410, { nearby: [] });
+    expect(errorStatus(error)).toBe(410);
+    expect(errorDetails(error)).toEqual({ nearby: [] });
+  });
+
+  it('read an error that lost its prototype on the way out of the persister', () => {
+    const rehydrated = { name: 'ApiError', message: 'Gone', status: 410, details: { nearby: [] } };
+    expect(errorStatus(rehydrated)).toBe(410);
+    expect(errorDetails(rehydrated)).toEqual({ nearby: [] });
+  });
+
+  it('answer null for anything that is not one', () => {
+    expect(errorStatus(new Error('offline'))).toBeNull();
+    expect(errorStatus(null)).toBeNull();
+    expect(errorStatus({ status: 'nope' })).toBeNull();
+    expect(errorDetails(new Error('offline'))).toBeNull();
+    expect(errorDetails({ details: 'a string' })).toBeNull();
   });
 });

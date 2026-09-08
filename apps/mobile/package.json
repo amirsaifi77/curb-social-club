@@ -29,6 +29,7 @@
     "expo-apple-authentication": "~57",
     "expo-application": "~57",
     "expo-blur": "~57.0.1",
+    "expo-calendar": "~57.0.2",
     "expo-constants": "~57.0.17",
     "expo-crypto": "~57",
     "expo-device": "~57.0.1",

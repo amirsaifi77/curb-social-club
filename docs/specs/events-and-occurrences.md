@@ -131,6 +131,7 @@ No screen is owned here. Copy below is the exact wording consumers must use for 
 | Card chip, stale (consumers) | Check. Last confirmed Jul 12. |
 | Card chip, fresh, unclaimed | Unclaimed. Last confirmed Aug 30. |
 | Detail, dormant | Not confirmed since Jun 1. Are you the host? Confirm it and it comes back. |
+| Detail, dormant, never confirmed | Never confirmed. Are you the host? Confirm it and it comes back. |
 | Detail, announced, no dates | No dates listed yet. Follow to hear when the host posts one. |
 | Occurrence, cancelled | Cancelled this week. Host note: {override_note} |
 | `GET /events` 400, sort=distance without near | Send near to sort by distance. |
@@ -199,6 +200,7 @@ Geo fixtures used below (real coordinates, `starts_at` next Saturday 07:30 Ameri
 - Adopted 2026-09-06 into docs/api.md: EventSummary gains `stale` and `cadence`; Event gains `dormant`; document the 400 cases in R-16, R-17, R-19 and the one-pin-per-event rule on `GET /events/map`.
 - Adopted 2026-09-06 into docs/architecture.md section 3.5 and ADR 0003: the materialization horizon is 90 days (this spec and `docs/app-overview.md`), not 8 weeks; the read-time trigger threshold becomes 60 days.
 - Adopted 2026-09-06 into docs/api.md: `POST /events/:id/occurrences` (host) for announced series, owned by create-and-host-tools.md; until then only A04 creates occurrences by hand.
+- Adopted 2026-09-08 (session 1.14): R-26 decays off `COALESCE(last_confirmed_at, published_at, created_at)`, so a dormant event can carry a null `last_confirmed_at` and the Event payload carries no `published_at`. The Copy table gains "Detail, dormant, never confirmed" for that case; S08 renders the dormant line either way.
 - Gaps item 5: the decay clock is 30 and 90 days on `COALESCE(last_confirmed_at, published_at)` for unclaimed events only. Phase 4 may add RSVPs, check-ins, and photos as activity; the SQL is one `GREATEST` away.
 - Gaps item 4: `last_confirmed_at` is the unit of truth this spec exposes; "Confirmed by host" copy and the "Still happening?" prompt for claimed events belong to event-detail-and-rsvp.md and notifications.md.
 - Gaps item 8 and 6: the first seed file targets 25 coastal Orange County and 25 Inland Empire meets, every row verified by hand with `verification_source_url`; coastal rows will lag and the importer must not need a full file to be useful.

@@ -29,6 +29,15 @@ const plugins: NonNullable<ExpoConfig['plugins']> = [
       isAndroidBackgroundLocationEnabled: false,
     },
   ],
+  // R-12: Add to calendar needs the usage descriptions in Info.plist, which
+  // this plugin injects. Without them iOS terminates the app the moment the
+  // event store is touched, which no JavaScript catch can soften.
+  [
+    'expo-calendar',
+    {
+      calendarPermission: 'curb adds a meet to your calendar when you ask it to.',
+    },
+  ],
 ];
 if (googleUrlScheme) {
   plugins.push(['@react-native-google-signin/google-signin', { iosUrlScheme: googleUrlScheme }]);
@@ -64,6 +73,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // Reduced accuracy is the only level curb asks for (discovery R-10).
       NSLocationDefaultAccuracyReduced: true,
     },
+    // R-25: a curbsocial.club/meets link opens S08 directly rather than
+    // hopping through Safari. This needs the AASA file served from the
+    // domain, which lands with the web app (session 1.17, gaps item 2);
+    // until then the curb:// scheme is the path that works.
+    associatedDomains: ['applinks:curbsocial.club', 'applinks:www.curbsocial.club'],
   },
   web: {
     output: 'static',

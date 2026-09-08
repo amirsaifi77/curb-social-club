@@ -29,7 +29,8 @@ export interface TokensSource {
 
 export const SCHEMES = ['light', 'dark'] as const;
 
-// The 22 color roles: the 21 in the package README plus accentPressed (R-3).
+// The 23 color roles: the 21 in the package README, accentPressed (R-3), and
+// onScrim, the one colour that reads over a photo scrim in every scheme.
 export const ROLES = [
   'bg',
   'surface',
@@ -51,6 +52,7 @@ export const ROLES = [
   'pinPast',
   'pinCluster',
   'pinLabel',
+  'onScrim',
   'glassTint',
   'scrim',
 ] as const;

@@ -1,4 +1,4 @@
-export { ApiError, createClient, unwrap } from './client';
+export { ApiError, createClient, errorDetails, errorStatus, unwrap } from './client';
 export type { ApiClient, ClientOptions } from './client';
 export { endpoints } from './endpoints';
 export type { EndpointName } from './endpoints';
@@ -6,6 +6,9 @@ export { api } from './requests';
 export { mutationKeys, queryKeys } from './keys';
 export {
   deleteAccountMutation,
+  eventOccurrencesQuery,
+  eventQuery,
+  occurrenceQuery,
   eventsMapQuery,
   eventsQuery,
   feedQuery,
@@ -24,7 +27,10 @@ export {
 export { ApiClientProvider, useApiClient } from './provider';
 export {
   useDeleteAccount,
+  useEvent,
+  useEventOccurrences,
   useEvents,
+  useOccurrence,
   useEventsMap,
   useFeed,
   useHealth,

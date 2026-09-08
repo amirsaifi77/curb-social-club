@@ -66,6 +66,15 @@ describe('the tab route tree', () => {
     expect(tree['']).toContain('search');
   });
 
+  it('R-25: a meet and an occurrence each have a route to deep-link into', () => {
+    const tree = routeTree();
+
+    // curb://meets/:slug and curb://occurrences/:id, and the same paths
+    // under the universal link domain.
+    expect(tree['']).toContain('meets/[slug]');
+    expect(tree['']).toContain('occurrences/[id]');
+  });
+
   it('the root wraps the tree in GestureHandlerRootView', () => {
     // The map's sheet renders a GestureDetector. Without this ancestor a dev
     // build throws on the Map tab and a release build silently refuses to
