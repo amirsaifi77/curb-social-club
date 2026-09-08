@@ -1,9 +1,11 @@
+import type { FeedQuery } from '@curb/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from './keys';
 import { useApiClient } from './provider';
 import {
   deleteAccountMutation,
+  feedQuery,
   healthQuery,
   meQuery,
   registerDeviceMutation,
@@ -26,6 +28,12 @@ export function useHealth() {
 
 export function useMe(options: { enabled?: boolean } = {}) {
   return useQuery({ ...meQuery(useApiClient()), ...options });
+}
+
+// `enabled` is false until the browse area is known, so the feed is never
+// fetched without a `near` the caller has already rounded (discovery R-1).
+export function useFeed(query: FeedQuery = {}, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...feedQuery(useApiClient(), query), ...options });
 }
 
 export function useSignInWithApple() {

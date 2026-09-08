@@ -18,6 +18,17 @@ const plugins: NonNullable<ExpoConfig['plugins']> = [
   ],
   'expo-apple-authentication',
   'expo-secure-store',
+  // R-10: reduced accuracy, asked from S01 card two and never at launch.
+  // The purpose string is the exact copy in discovery.md.
+  [
+    'expo-location',
+    {
+      locationWhenInUsePermission:
+        'curb uses your approximate location to show meets near you.',
+      isIosBackgroundLocationEnabled: false,
+      isAndroidBackgroundLocationEnabled: false,
+    },
+  ],
 ];
 if (googleUrlScheme) {
   plugins.push(['@react-native-google-signin/google-signin', { iosUrlScheme: googleUrlScheme }]);
@@ -49,6 +60,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: 'club.curbsocial.app',
     supportsTablet: false,
     usesAppleSignIn: true,
+    infoPlist: {
+      // Reduced accuracy is the only level curb asks for (discovery R-10).
+      NSLocationDefaultAccuracyReduced: true,
+    },
   },
   web: {
     output: 'static',

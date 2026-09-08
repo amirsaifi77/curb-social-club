@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiError, createClient } from './client';
 import { queryKeys } from './keys';
 import {
+  feedQuery,
   healthQuery,
   meQuery,
   registerDeviceMutation,
@@ -72,6 +73,26 @@ describe('query options', () => {
       status: 401,
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends near and radius_km to the feed and caches under the shared key', async () => {
+    const sections = [{ kind: 'this_weekend', title: 'This weekend', items: [], more: null }];
+    const fetchMock = vi.fn(async (_request: Request) =>
+      jsonResponse(200, { data: { sections }, meta: { generated_at: '2026-10-01T00:00:00Z' } }),
+    );
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const query = { near: '33.62,-117.93', radius_km: 32 };
+
+    const result = await queryClient.fetchQuery(feedQuery(clientWith(fetchMock), query));
+
+    expect(result.sections).toEqual(sections);
+    expect(queryClient.getQueryData(queryKeys.feed(query))).toEqual({ sections });
+    const request = fetchMock.mock.calls[0]?.[0];
+    const url = request && new URL(request.url);
+    expect(url?.pathname).toBe('/v1/feed');
+    // R-1: the caller rounds, and what it rounded is what goes on the wire.
+    expect(url?.searchParams.get('near')).toBe('33.62,-117.93');
+    expect(url?.searchParams.get('radius_km')).toBe('32');
   });
 
   it('reads health', async () => {

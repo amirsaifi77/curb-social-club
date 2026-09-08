@@ -20,7 +20,13 @@ export default [
     files: ['babel.config.js', 'jest.config.js', 'jest.setup.js', 'jest.setup-after-env.js', 'metro.config.js'],
     languageOptions: {
       sourceType: 'commonjs',
-      globals: { require: 'readonly', module: 'writable', jest: 'readonly', __dirname: 'readonly' },
+      globals: {
+        require: 'readonly',
+        module: 'writable',
+        jest: 'readonly',
+        __dirname: 'readonly',
+        process: 'readonly',
+      },
     },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
