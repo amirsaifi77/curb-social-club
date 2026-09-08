@@ -1928,6 +1928,13 @@ CREATE INDEX index_venues_on_location ON public.venues USING gist (location);
 
 
 --
+-- Name: index_venues_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_venues_on_name ON public.venues USING gin (name public.gin_trgm_ops);
+
+
+--
 -- Name: claim_requests fk_rails_0dcff6cd76; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2166,6 +2173,7 @@ ALTER TABLE ONLY public.events
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260908120000'),
 ('20260908090002'),
 ('20260908090001'),
 ('20260908090000'),

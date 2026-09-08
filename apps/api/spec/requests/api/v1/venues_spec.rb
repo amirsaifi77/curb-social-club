@@ -20,18 +20,8 @@ RSpec.describe "v1/venues" do
       data: {
         type: :object,
         properties: {
-          venues: { type: :array, items: { type: :object, additionalProperties: true } },
-          suggestions: {
-            type: :array,
-            items: {
-              type: :object,
-              properties: {
-                name: { type: :string }, address: { type: :string }, lat: { type: :number }, lng: { type: :number },
-                external_place_id: { type: :string, nullable: true }, external_source: { type: :string }
-              },
-              required: %w[name address lat lng external_place_id external_source]
-            }
-          }
+          venues: { type: :array, maxItems: 5, items: { "$ref" => "#/components/schemas/Venue" } },
+          suggestions: { type: :array, maxItems: 5, items: { "$ref" => "#/components/schemas/VenueSuggestion" } }
         },
         required: %w[venues suggestions]
       }
@@ -98,6 +88,28 @@ RSpec.describe "v1/venues" do
       expect(response).to have_http_status(:ok)
       expect(json.dig("data", "venues").size).to eq(1)
       expect(json.dig("data", "suggestions")).to eq([])
+    end
+
+    it "does not cache a provider outage, so the next search tries again" do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+      create(:venue, name: "Back Bay Coffee", location: Geo.point(33.6172, -117.9270))
+      stub_request(:get, provider_url).to_timeout
+
+      get "/v1/venues/search", params: { q: "back bay coffee" }
+      expect(json.dig("data", "suggestions")).to eq([])
+
+      stub_provider([ nominatim_row("Back Bay Coffee Roasters", 33.62, -117.93, 42) ])
+      get "/v1/venues/search", params: { q: "back bay coffee" }
+      expect(json.dig("data", "suggestions").map { |row| row["name"] }).to eq([ "Back Bay Coffee Roasters" ])
+    end
+
+    it "caches a genuinely empty result rather than asking again all day" do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+      stub_provider([])
+
+      2.times { get "/v1/venues/search", params: { q: "nowhere at all" } }
+      expect(json.dig("data", "suggestions")).to eq([])
+      expect(a_request(:get, provider_url)).to have_been_made.once
     end
 
     it "skips the provider for a query too short to mean anything" do

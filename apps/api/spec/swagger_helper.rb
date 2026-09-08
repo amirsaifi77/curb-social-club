@@ -319,6 +319,52 @@ RSpec.configure do |config|
             },
             required: %w[id event_id slug lat lng starts_at title going_count]
           },
+          Venue: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, name: { type: :string },
+              address_line1: { type: :string, nullable: true }, address_line2: { type: :string, nullable: true },
+              city: { type: :string, nullable: true }, region: { type: :string, nullable: true },
+              postal_code: { type: :string, nullable: true }, country: { type: :string, nullable: true },
+              timezone: { type: :string },
+              location: { type: :object, properties: { lat: { type: :number }, lng: { type: :number } }, required: %w[lat lng] }
+            },
+            required: %w[id name address_line1 address_line2 city region postal_code country timezone location]
+          },
+          VenueSuggestion: {
+            type: :object,
+            description: "A place the provider knows and we do not. Nothing is stored until a host picks one.",
+            properties: {
+              name: { type: :string }, address: { type: :string }, lat: { type: :number }, lng: { type: :number },
+              external_place_id: { type: :string, nullable: true }, external_source: { type: :string }
+            },
+            required: %w[name address lat lng external_place_id external_source]
+          },
+          FeedSection: {
+            type: :object,
+            description: "One home feed section. The item shape follows the kind: EventSummary for the three date windows, ClubSummary for clubs_nearby, SponsorSummary for sponsors_nearby.",
+            properties: {
+              kind: { type: :string, enum: %w[this_weekend clubs_nearby sponsors_nearby next_week later] },
+              title: { type: :string },
+              items: {
+                type: :array,
+                items: {
+                  oneOf: [
+                    { "$ref" => "#/components/schemas/EventSummary" },
+                    { "$ref" => "#/components/schemas/ClubSummary" },
+                    { "$ref" => "#/components/schemas/SponsorSummary" }
+                  ]
+                }
+              },
+              more: {
+                type: :object, nullable: true,
+                description: "The list this section is a window on. Params go straight to the path as a query string.",
+                properties: { path: { type: :string }, params: { type: :object, additionalProperties: true } },
+                required: %w[path params]
+              }
+            },
+            required: %w[kind title items more]
+          },
           Device: {
             type: :object,
             properties: {

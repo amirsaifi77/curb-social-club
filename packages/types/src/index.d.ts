@@ -23,6 +23,8 @@ export type ClubSummary = Schemas['ClubSummary'];
 export type ClubDetail = Schemas['Club'];
 export type MiniProfile = Schemas['MiniProfile'];
 export type MapPin = Schemas['MapPin'];
+export type Venue = Schemas['Venue'];
+export type VenueSuggestion = Schemas['VenueSuggestion'];
 
 type Operation<P extends ApiPath, M extends keyof paths[P]> = NonNullable<paths[P][M]>;
 
@@ -89,7 +91,7 @@ export type UserEventsResponse = JsonResponse<'/v1/users/{handle}/events', 'get'
 export type UserClubsResponse = JsonResponse<'/v1/users/{handle}/clubs', 'get', 200>;
 export type FeedQuery = QueryParams<'/v1/feed', 'get'>;
 export type FeedResponse = JsonResponse<'/v1/feed', 'get', 200>;
-export type FeedSection = FeedResponse['data']['sections'][number];
+export type FeedSection = Schemas['FeedSection'];
 export type VenueSearchQuery = QueryParams<'/v1/venues/search', 'get'>;
 export type VenueSearchResponse = JsonResponse<'/v1/venues/search', 'get', 200>;
 export type SitemapResponse = JsonResponse<'/v1/sitemap', 'get', 200>;

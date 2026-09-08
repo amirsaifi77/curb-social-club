@@ -30,13 +30,30 @@ module Venues
     def existing
       return [] if query.blank?
 
-      scope = Venue.where("venues.name % ?", query)
-      scope = scope.order(Arel.sql("ST_Distance(venues.location, #{Geo.point_sql(origin.lat, origin.lng)})")) if origin
+      scope = Venue.where("venues.name % ?", query).order(existing_order)
       scope.limit(EXISTING_LIMIT).to_a
     end
 
+    # Nearest first when we know where the caller is, otherwise closest by
+    # name. Either way the tiebreak is total, so the same query gives the
+    # same five rows.
+    def existing_order
+      if origin
+        Arel.sql(Venue.sanitize_sql_array([ "ST_Distance(venues.location, #{Geo.point_sql(origin.lat, origin.lng)}) ASC, venues.name ASC, venues.id ASC" ]))
+      else
+        Arel.sql(Venue.sanitize_sql_array([ "similarity(venues.name, ?) DESC, venues.name ASC, venues.id ASC", query ]))
+      end
+    end
+
+    # An empty result is a real answer worth caching; a provider outage is
+    # not, or one bad minute costs a day of suggestions.
     def suggestions
-      Rails.cache.fetch(cache_key, expires_in: CACHE_TTL) { provider_results }
+      cached = Rails.cache.read(cache_key)
+      return cached unless cached.nil?
+
+      results = provider_results
+      Rails.cache.write(cache_key, results, expires_in: CACHE_TTL) unless results.nil?
+      results || []
     end
 
     # A provider outage costs suggestions, never the endpoint.
@@ -51,7 +68,7 @@ module Venues
       end
     rescue StandardError => e
       Rails.logger.warn("Venues::Search provider failed: #{e.class}: #{e.message}")
-      []
+      nil
     end
 
     def geocoder_params

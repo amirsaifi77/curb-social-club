@@ -1154,20 +1154,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             data: {
-                                sections: {
-                                    /** @enum {string} */
-                                    kind: "this_weekend" | "clubs_nearby" | "sponsors_nearby" | "next_week" | "later";
-                                    title: string;
-                                    items: {
-                                        [key: string]: unknown;
-                                    }[];
-                                    more: {
-                                        path: string;
-                                        params: {
-                                            [key: string]: unknown;
-                                        };
-                                    } | null;
-                                }[];
+                                sections: components["schemas"]["FeedSection"][];
                             };
                             meta: {
                                 /** Format: date-time */
@@ -1934,17 +1921,8 @@ export interface paths {
                     content: {
                         "application/json": {
                             data: {
-                                venues: {
-                                    [key: string]: unknown;
-                                }[];
-                                suggestions: {
-                                    name: string;
-                                    address: string;
-                                    lat: number;
-                                    lng: number;
-                                    external_place_id: string | null;
-                                    external_source: string;
-                                }[];
+                                venues: components["schemas"]["Venue"][];
+                                suggestions: components["schemas"]["VenueSuggestion"][];
                             };
                         };
                     };
@@ -2285,6 +2263,45 @@ export interface components {
             starts_at: string;
             title: string;
             going_count: number;
+        };
+        Venue: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            address_line1: string | null;
+            address_line2: string | null;
+            city: string | null;
+            region: string | null;
+            postal_code: string | null;
+            country: string | null;
+            timezone: string;
+            location: {
+                lat: number;
+                lng: number;
+            };
+        };
+        /** @description A place the provider knows and we do not. Nothing is stored until a host picks one. */
+        VenueSuggestion: {
+            name: string;
+            address: string;
+            lat: number;
+            lng: number;
+            external_place_id: string | null;
+            external_source: string;
+        };
+        /** @description One home feed section. The item shape follows the kind: EventSummary for the three date windows, ClubSummary for clubs_nearby, SponsorSummary for sponsors_nearby. */
+        FeedSection: {
+            /** @enum {string} */
+            kind: "this_weekend" | "clubs_nearby" | "sponsors_nearby" | "next_week" | "later";
+            title: string;
+            items: (components["schemas"]["EventSummary"] | components["schemas"]["ClubSummary"] | components["schemas"]["SponsorSummary"])[];
+            /** @description The list this section is a window on. Params go straight to the path as a query string. */
+            more: {
+                path: string;
+                params: {
+                    [key: string]: unknown;
+                };
+            } | null;
         };
         Device: {
             /** Format: uuid */

@@ -14,25 +14,7 @@ RSpec.describe "v1/feed" do
     properties: {
       data: {
         type: :object,
-        properties: {
-          sections: {
-            type: :array,
-            items: {
-              type: :object,
-              properties: {
-                kind: { type: :string, enum: %w[this_weekend clubs_nearby sponsors_nearby next_week later] },
-                title: { type: :string },
-                items: { type: :array, items: { type: :object, additionalProperties: true } },
-                more: {
-                  type: :object, nullable: true,
-                  properties: { path: { type: :string }, params: { type: :object, additionalProperties: true } },
-                  required: %w[path params]
-                }
-              },
-              required: %w[kind title items more]
-            }
-          }
-        },
+        properties: { sections: { type: :array, items: { "$ref" => "#/components/schemas/FeedSection" } } },
         required: %w[sections]
       },
       meta: { type: :object, properties: { generated_at: { type: :string, format: "date-time" } }, required: %w[generated_at] }
@@ -131,6 +113,7 @@ RSpec.describe "v1/feed" do
 
     it "sponsors AC-11: only a sponsor with a nearby upcoming meet appears, and cancelling it removes the section" do
       travel_to wednesday do
+        create(:club, name: "Nearby Club", home_location: Geo.point(33.6352, -117.9270))
         attached = create(:sponsor, name: "Has a meet", home_location: Geo.point(33.6352, -117.9270))
         create(:sponsor, name: "No meet", home_location: Geo.point(33.6352, -117.9270))
         far_meet_sponsor = create(:sponsor, name: "Meet is far", home_location: Geo.point(33.6352, -117.9270))
@@ -144,7 +127,8 @@ RSpec.describe "v1/feed" do
 
         get "/v1/feed", params: { near: lido }
         expect(section("sponsors_nearby")["items"].map { |row| row["name"] }).to eq([ "Has a meet" ])
-        expect(kinds.index("sponsors_nearby")).to eq(kinds.index("clubs_nearby") + 1) if kinds.include?("clubs_nearby")
+        expect(kinds).to include("clubs_nearby")
+        expect(kinds.index("sponsors_nearby")).to eq(kinds.index("clubs_nearby") + 1)
 
         saturday.occurrences.update_all(status: "cancelled")
         get "/v1/feed", params: { near: lido }
@@ -187,6 +171,39 @@ RSpec.describe "v1/feed" do
         get "/v1/feed", params: { near: lido }
         expect(section("this_weekend")["items"].map { |row| row["title"] }).to eq([ "Late Sunday" ])
         expect(section("next_week")["items"].map { |row| row["title"] }).to eq([ "Early Monday" ])
+      end
+    end
+
+    it "R-6: every more link returns the whole section it came from" do
+      travel_to wednesday do
+        meet_at(:corona_del_mar, zone.parse("2026-10-24 07:30"), title: "Saturday")
+        meet_at(:corona_del_mar, zone.parse("2026-10-25 23:30"), title: "Late Sunday")
+        meet_at(:corona_del_mar, zone.parse("2026-10-26 00:30"), title: "Early Monday")
+        meet_at(:corona_del_mar, zone.parse("2026-11-01 09:00"), title: "Sunday next week")
+        meet_at(:corona_del_mar, zone.parse("2026-11-25 18:00"), title: "Five weeks out")
+
+        get "/v1/feed", params: { near: lido }
+        sections = json.dig("data", "sections").select { |row| row["more"]["path"] == "/events" }
+        expect(sections.map { |row| row["kind"] }).to eq(%w[this_weekend next_week later])
+
+        sections.each do |row|
+          get "/v1/events", params: row["more"]["params"]
+          expect(response).to have_http_status(:ok), "#{row['kind']} link 400ed"
+          listed = json["data"].map { |event| event["title"] }
+          expect(listed).to include(*row["items"].map { |item| item["title"] })
+        end
+      end
+    end
+
+    it "R-6: a Saturday evening reader still sees tonight's meet in this weekend" do
+      # Saturday 19:00 in Newport is Sunday 02:00 UTC.
+      travel_to zone.parse("2026-10-24 19:00") do
+        meet_at(:corona_del_mar, zone.parse("2026-10-24 20:00"), title: "In an hour")
+        meet_at(:corona_del_mar, zone.parse("2026-10-28 18:00"), title: "Next Wednesday")
+
+        get "/v1/feed", params: { near: lido }
+        expect(section("this_weekend")["items"].map { |row| row["title"] }).to eq([ "In an hour" ])
+        expect(section("next_week")["items"].map { |row| row["title"] }).to eq([ "Next Wednesday" ])
       end
     end
 

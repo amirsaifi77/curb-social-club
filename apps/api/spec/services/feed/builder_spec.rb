@@ -11,6 +11,8 @@ RSpec.describe Feed::Builder, type: :service do
     create_meet(:corona_del_mar, starts_at: starts_at, title: title)
   end
 
+  def window(section) = section.more[:params].values_at(:from, :to)
+
   describe "window boundaries (R-6)" do
     it "runs this_weekend to the coming Sunday, whatever day it is asked on" do
       travel_to zone.parse("2026-10-21 10:00") do
@@ -33,6 +35,32 @@ RSpec.describe Feed::Builder, type: :service do
         sections = build(now: Time.current).index_by(&:kind)
         expect(sections[:this_weekend].items.map { |row| row["title"] }).to eq([ "Tonight" ])
         expect(sections[:next_week].items.map { |row| row["title"] }).to eq([ "Next Saturday" ])
+      end
+    end
+
+    it "keeps tonight's meet in this weekend when the server clock has already rolled into Sunday" do
+      # Saturday 19:00 in Newport is Sunday 02:00 UTC. A window read off the
+      # server clock would start at Sunday and lose the meet entirely.
+      travel_to zone.parse("2026-10-24 19:00") do
+        meet(zone.parse("2026-10-24 20:00"), "In an hour")
+        meet(zone.parse("2026-10-25 08:00"), "Tomorrow")
+
+        sections = build(now: Time.current).index_by(&:kind)
+        expect(sections[:this_weekend].items.map { |row| row["title"] }).to eq([ "In an hour", "Tomorrow" ])
+        expect(sections).not_to have_key(:next_week)
+      end
+    end
+
+    it "does not title next week's meets as this weekend on a Sunday evening" do
+      # Sunday 20:00 in Newport is Monday 03:00 UTC, so a server-clock window
+      # would call the whole of next week "This weekend".
+      travel_to zone.parse("2026-10-25 20:00") do
+        meet(zone.parse("2026-10-25 22:00"), "Later tonight")
+        meet(zone.parse("2026-10-28 18:00"), "Wednesday")
+
+        sections = build(now: Time.current).index_by(&:kind)
+        expect(sections[:this_weekend].items.map { |row| row["title"] }).to eq([ "Later tonight" ])
+        expect(sections[:next_week].items.map { |row| row["title"] }).to eq([ "Wednesday" ])
       end
     end
 
@@ -64,14 +92,20 @@ RSpec.describe Feed::Builder, type: :service do
       end
     end
 
-    it "carries a more link with the origin, the radius, and the window" do
+    it "carries a more link with the origin, the radius, and a window that bounds the section" do
       travel_to zone.parse("2026-10-21 10:00") do
         meet(zone.parse("2026-10-24 07:30"), "Saturday")
-        section = build(now: Time.current).first
+        meet(zone.parse("2026-10-28 18:00"), "Next Wednesday")
+        meet(zone.parse("2026-11-25 18:00"), "Five weeks out")
+        sections = build(now: Time.current).index_by(&:kind)
 
-        expect(section.more[:path]).to eq("/events")
-        expect(section.more[:params]).to include(near: "33.6172,-117.927", radius_km: 32,
-                                                 from: "2026-10-21", to: "2026-10-25")
+        expect(sections[:this_weekend].more[:path]).to eq("/events")
+        expect(sections[:this_weekend].more[:params]).to include(near: "33.6172,-117.927", radius_km: 32)
+        # Timestamps, not bare dates, and a day of slack on each side so the
+        # list covers the local day wherever the venue is.
+        expect(window(sections[:this_weekend])).to eq([ "2026-10-21T17:00:00Z", "2026-10-27T00:00:00Z" ])
+        expect(window(sections[:next_week])).to eq([ "2026-10-25T00:00:00Z", "2026-11-03T00:00:00Z" ])
+        expect(window(sections[:later]).first).to eq("2026-11-01T00:00:00Z")
       end
     end
 
