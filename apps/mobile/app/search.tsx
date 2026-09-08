@@ -26,6 +26,7 @@ export default function SearchScreen() {
   const [recents, setRecents] = useState<string[]>(() => readRecents());
   const [everywhere, setEverywhere] = useState(false);
   const [places, setPlaces] = useState<Place[]>([]);
+  const [placesUnavailable, setPlacesUnavailable] = useState(false);
 
   const asking = query !== null;
   // R-21: Search everywhere repeats the events query without `near`.
@@ -38,11 +39,14 @@ export default function SearchScreen() {
   useEffect(() => {
     if (!query) {
       setPlaces([]);
+      setPlacesUnavailable(false);
       return;
     }
     let alive = true;
-    void searchPlaces(query).then((found) => {
-      if (alive) setPlaces(found);
+    void searchPlaces(query).then((outcome) => {
+      if (!alive) return;
+      setPlaces(outcome.places);
+      setPlacesUnavailable(outcome.status === 'unavailable');
     });
     return () => {
       alive = false;
@@ -72,7 +76,8 @@ export default function SearchScreen() {
   const failed = events.isError && clubs.isError && sponsors.isError;
   // Screens S05 offline: a group that failed while another still has rows
   // is saved results, not a failed search. Failing with nothing is an error.
-  const offline = !failed && (events.isError || clubs.isError || sponsors.isError);
+  const offline =
+    !failed && (events.isError || clubs.isError || sponsors.isError || placesUnavailable);
 
   function pickPlace(place: Place) {
     // R-20 and AC-22: the map moves to the place, and S05 closes.

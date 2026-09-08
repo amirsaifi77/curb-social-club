@@ -205,6 +205,24 @@ describe('S05 Search', () => {
     }
   });
 
+  it('Screens S05: a geocoder that cannot be reached is saved results, not an empty Places', async () => {
+    wire(mockEvents, { data: [eventSummary()], meta: {} });
+    mockGeocode.mockRejectedValue(new Error('offline'));
+
+    jest.useFakeTimers();
+    try {
+      await render(<SearchScreen />);
+      await type('Dana Point');
+
+      expect(screen.getByText(SEARCH_COPY.offline)).toBeTruthy();
+      // Not an empty group claiming the place does not exist.
+      expect(screen.queryByText(GROUP_TITLES.places)).toBeNull();
+      expect(screen.queryByText(SEARCH_COPY.error)).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('Screens S05: one group failing over rows that arrived is saved results', async () => {
     wire(mockEvents, { data: [eventSummary()], meta: {} });
     wire(mockClubs, undefined, { isError: true, isSuccess: false });
