@@ -27,6 +27,7 @@ Expo Router paths are relative to `apps/mobile/app/`. Web paths are React Router
 | S02 | Home (feed) | `(tabs)/index` | `/` | Tab | 1 | discovery | sections omitted when empty, widen radius |
 | S03 | Map | `(tabs)/map` | `/map` | Tab | 1 (spots layer 4) | discovery | truncated results, search this area, layer toggle |
 | S04 | List (map sheet expanded) | inside `(tabs)/map` | `/meets` | Map sheet toggle | 1 | discovery | sort by soonest or nearest |
+| S04b | List filtered to one host | `meets` | `/meets?host=` or `?sponsor=` | See all meets on S11, S12, S14 | 1 | clubs, sponsors | empty, error, offline, paged |
 | S05 | Search | `search` (modal) | `/meets?q=` | Search field on Home and Map | 1 | discovery | recents, no results, search everywhere |
 | S06 | Create (tab) | `(tabs)/new` | `/new` (Later) | Tab | 2 (import 3) | create-and-host-tools, import-from-link | clipboard URL detected, offline |
 | S07 | Me (tab) | `(tabs)/me` | `/u/:handle` (own) | Tab | 0 (skeleton), 2 | profiles-and-follow | signed-out (shows sign-in and settings only) |

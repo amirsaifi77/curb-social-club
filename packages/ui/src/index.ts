@@ -26,7 +26,13 @@ export {
 export type { Bbox, MapFeature, MapPinInput, PinIndex, Region } from './map';
 export {
   SHARE_BASE_URL,
+  SOCIAL_PLATFORMS,
   canonicalEventUrl,
   canonicalOccurrenceUrl,
+  isSocialPlatform,
   shareEventText,
+  socialLinks,
+  socialUrl,
+  websiteUrl,
 } from './links';
+export type { SocialLink, SocialPlatform } from './links';

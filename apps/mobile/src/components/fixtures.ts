@@ -1,4 +1,11 @@
-import type { ClubSummary, EventSummary, SponsorSummary } from '@curb/api-client';
+import type {
+  ClubDetail,
+  ClubSummary,
+  EventSummary,
+  Profile,
+  SponsorDetail,
+  SponsorSummary,
+} from '@curb/api-client';
 
 // Shapes straight from the OpenAPI types, so a card test fails when the
 // contract moves rather than when a hand-written stub drifts.
@@ -90,6 +97,79 @@ export function sponsorSummary(overrides: Partial<SponsorSummary> = {}): Sponsor
     followers_count: 8,
     home_label: 'Newport Beach, CA',
     distance_m: 3200,
+    ...overrides,
+  };
+}
+
+// The three host page payloads (S12, S14, S11). Built on the summaries so a
+// change to either shape reaches both a card test and a page test.
+export function clubDetail(overrides: Partial<ClubDetail> = {}): ClubDetail {
+  return {
+    ...clubSummary(),
+    description: 'Air-cooled cars and bad coffee, every other Sunday.',
+    banner_url: null,
+    links: { instagram: 'backbayaircooled' },
+    events_count: 4,
+    upcoming_events: [eventSummary()],
+    members_preview: [],
+    viewer: { following: false, membership: null, can_manage: false },
+    ...overrides,
+  };
+}
+
+export function sponsorDetail(overrides: Partial<SponsorDetail> = {}): SponsorDetail {
+  return {
+    ...sponsorSummary(),
+    description: 'A coffee cart that turns up where the cars are.',
+    banner_url: null,
+    website: 'https://bearcoastcoffee.com',
+    links: { instagram: 'bearcoastcoffee' },
+    events_count: 3,
+    upcoming_events: [
+      { ...eventSummary(), relation: 'host' as const },
+      {
+        ...eventSummary({ id: '99999999-9999-4999-8999-999999999999', slug: 'fontana-sunday', title: 'Fontana Sunday' }),
+        relation: 'sponsor' as const,
+      },
+    ],
+    viewer: { following: false },
+    ...overrides,
+  };
+}
+
+export function profile(overrides: Partial<Profile> = {}): Profile {
+  return {
+    id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    handle: 'amir',
+    display_name: 'Amir',
+    bio: 'Runs the Saturday meet at Lido.',
+    avatar_url: null,
+    home_label: 'Newport Beach, CA',
+    is_host: true,
+    links: { instagram: 'amir', website: 'https://example.com' },
+    clubs: [],
+    counts: { followers: 128, following: 12, events_hosted: 3, vehicles: 0, posts: 0 },
+    viewer: { following: false, blocked: false, is_self: false, reported: false },
+    ...overrides,
+  };
+}
+
+// GET /clubs/:slug/members rows: MiniProfile plus the member's role.
+export function clubMember(
+  overrides: Partial<{
+    id: string;
+    handle: string;
+    display_name: string;
+    avatar_url: string | null;
+    role: 'owner' | 'admin' | 'member';
+  }> = {},
+) {
+  return {
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    handle: 'amir',
+    display_name: 'Amir',
+    avatar_url: null,
+    role: 'owner' as const,
     ...overrides,
   };
 }

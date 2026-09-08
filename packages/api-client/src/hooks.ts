@@ -1,26 +1,38 @@
 import type {
+  ClubEventsQuery,
+  ClubMembersQuery,
   ClubsQuery,
   EventOccurrencesQuery,
   EventQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
+  SponsorEventsQuery,
   SponsorsQuery,
+  UserEventsQuery,
 } from '@curb/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from './keys';
 import { useApiClient } from './provider';
 import {
+  clubEventsQuery,
+  clubMembersInfiniteQuery,
+  clubMembersQuery,
+  clubQuery,
   deleteAccountMutation,
   eventOccurrencesQuery,
   eventQuery,
   occurrenceQuery,
+  eventsInfiniteQuery,
   eventsMapQuery,
   eventsQuery,
   feedQuery,
   healthQuery,
   meQuery,
+  profileClubsQuery,
+  profileEventsQuery,
+  profileQuery,
   registerDeviceMutation,
   searchClubsQuery,
   searchEventsQuery,
@@ -28,6 +40,8 @@ import {
   signInWithAppleMutation,
   signInWithGoogleMutation,
   signOutMutation,
+  sponsorEventsQuery,
+  sponsorQuery,
   updateDeviceMutation,
   updateMeMutation,
 } from './queries';
@@ -63,6 +77,12 @@ export function useEvents(query: EventsListQuery = {}, options: { enabled?: bool
   return useQuery({ ...eventsQuery(useApiClient(), query), ...options });
 }
 
+// The filtered list behind "See all meets". A host's meets are a list, not
+// a viewport, so this one pages.
+export function useEventsPages(query: EventsListQuery = {}, limit?: number) {
+  return useInfiniteQuery(eventsInfiniteQuery(useApiClient(), query, limit));
+}
+
 // S08 by slug. A 410 or 404 is a final answer with a body the screen needs
 // (R-20), so it is not retried and the error carries through.
 export function useEvent(slug: string, query: EventQuery = {}, options: { enabled?: boolean } = {}) {
@@ -93,6 +113,63 @@ export function useSearchClubs(query: ClubsQuery, options: { enabled?: boolean }
 
 export function useSearchSponsors(query: SponsorsQuery, options: { enabled?: boolean } = {}) {
   return useQuery({ ...searchSponsorsQuery(useApiClient(), query), ...options });
+}
+
+// The host pages: S12, S13, S14, S11. Each takes the slug or handle the
+// route carries, and `enabled` is the caller's when a param can be missing.
+
+export function useClub(slug: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...clubQuery(useApiClient(), slug), ...options });
+}
+
+export function useClubEvents(
+  slug: string,
+  query: ClubEventsQuery = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({ ...clubEventsQuery(useApiClient(), slug, query), ...options });
+}
+
+export function useClubMembers(
+  slug: string,
+  query: ClubMembersQuery = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({ ...clubMembersQuery(useApiClient(), slug, query), ...options });
+}
+
+// S13 pages through the members; S12's row wants one page and whether it
+// is the whole club, which useClubMembers answers directly.
+export function useClubMembersPages(slug: string, limit?: number) {
+  return useInfiniteQuery(clubMembersInfiniteQuery(useApiClient(), slug, limit));
+}
+
+export function useSponsor(slug: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...sponsorQuery(useApiClient(), slug), ...options });
+}
+
+export function useSponsorEvents(
+  slug: string,
+  query: SponsorEventsQuery = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({ ...sponsorEventsQuery(useApiClient(), slug, query), ...options });
+}
+
+export function useProfile(handle: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...profileQuery(useApiClient(), handle), ...options });
+}
+
+export function useProfileEvents(
+  handle: string,
+  query: UserEventsQuery = {},
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({ ...profileEventsQuery(useApiClient(), handle, query), ...options });
+}
+
+export function useProfileClubs(handle: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...profileClubsQuery(useApiClient(), handle), ...options });
 }
 
 export function useSignInWithApple() {
