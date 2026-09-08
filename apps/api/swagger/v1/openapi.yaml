@@ -1057,6 +1057,63 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/v1/feed":
+    get:
+      summary: Sectioned home feed
+      description: 'Sections in display order with empty ones omitted (discovery R-5,
+        R-6). Windows are local calendar days in the venue''s timezone: this_weekend
+        runs to the coming Sunday, next_week is the Monday to Sunday after it, later
+        is the rest of the 90 day horizon. Served from Solid Cache for 60 seconds
+        (R-24).'
+      tags:
+      - Feed
+      parameters:
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng; falls back to the device home area
+      - name: radius_km
+        in: query
+        required: false
+        schema:
+          type: number
+        description: Default 32, 400 above 160
+      responses:
+        '200':
+          description: 'AC-1: one meet in each window plus a club nearby'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      sections:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/FeedSection"
+                    required:
+                    - sections
+                  meta:
+                    type: object
+                    properties:
+                      generated_at:
+                        type: string
+                        format: date-time
+                    required:
+                    - generated_at
+                required:
+                - data
+                - meta
+        '400':
+          description: 'AC-4: a radius above the maximum'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/v1/health":
     get:
       summary: Service health
@@ -1299,6 +1356,71 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/v1/sitemap":
+    get:
+      summary: Slugs for the web sitemap
+      description: 'Public, non-hidden, non-dormant rows (web.md R-4): published events
+        with an upcoming scheduled occurrence, active clubs, active sponsors. Spots
+        arrive in Phase 4. Cached for an hour.'
+      tags:
+      - System
+      responses:
+        '200':
+          description: slugs and timestamps
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        updated_at:
+                          type: string
+                          format: date-time
+                      required:
+                      - slug
+                      - updated_at
+                  clubs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        updated_at:
+                          type: string
+                          format: date-time
+                      required:
+                      - slug
+                      - updated_at
+                  sponsors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        updated_at:
+                          type: string
+                          format: date-time
+                      required:
+                      - slug
+                      - updated_at
+                  spots:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                required:
+                - events
+                - clubs
+                - sponsors
+                - spots
   "/v1/sponsors/{slug}":
     get:
       summary: Sponsor detail
@@ -1619,6 +1741,59 @@ paths:
                 required:
                 - data
                 - meta
+  "/v1/venues/search":
+    get:
+      summary: Search venues
+      description: Venues we already have first, nearest first when near is present,
+        then provider suggestions for places we do not (docs/api.md Venues). Provider
+        results are cached for 24 hours per query, and a provider failure costs suggestions
+        rather than the response.
+      tags:
+      - Venues
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng
+      responses:
+        '200':
+          description: existing venues before provider suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      venues:
+                        type: array
+                        maxItems: 5
+                        items:
+                          "$ref": "#/components/schemas/Venue"
+                      suggestions:
+                        type: array
+                        maxItems: 5
+                        items:
+                          "$ref": "#/components/schemas/VenueSuggestion"
+                    required:
+                    - venues
+                    - suggestions
+                required:
+                - data
+        '400':
+          description: no q
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
 servers:
 - url: http://localhost:3000
   description: Development
@@ -2530,6 +2705,122 @@ components:
       - starts_at
       - title
       - going_count
+    Venue:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address_line1:
+          type: string
+          nullable: true
+        address_line2:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+        postal_code:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+          required:
+          - lat
+          - lng
+      required:
+      - id
+      - name
+      - address_line1
+      - address_line2
+      - city
+      - region
+      - postal_code
+      - country
+      - timezone
+      - location
+    VenueSuggestion:
+      type: object
+      description: A place the provider knows and we do not. Nothing is stored until
+        a host picks one.
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        external_place_id:
+          type: string
+          nullable: true
+        external_source:
+          type: string
+      required:
+      - name
+      - address
+      - lat
+      - lng
+      - external_place_id
+      - external_source
+    FeedSection:
+      type: object
+      description: 'One home feed section. The item shape follows the kind: EventSummary
+        for the three date windows, ClubSummary for clubs_nearby, SponsorSummary for
+        sponsors_nearby.'
+      properties:
+        kind:
+          type: string
+          enum:
+          - this_weekend
+          - clubs_nearby
+          - sponsors_nearby
+          - next_week
+          - later
+        title:
+          type: string
+        items:
+          type: array
+          items:
+            oneOf:
+            - "$ref": "#/components/schemas/EventSummary"
+            - "$ref": "#/components/schemas/ClubSummary"
+            - "$ref": "#/components/schemas/SponsorSummary"
+        more:
+          type: object
+          nullable: true
+          description: The list this section is a window on. Params go straight to
+            the path as a query string.
+          properties:
+            path:
+              type: string
+            params:
+              type: object
+              additionalProperties: true
+          required:
+          - path
+          - params
+      required:
+      - kind
+      - title
+      - items
+      - more
     Device:
       type: object
       properties:

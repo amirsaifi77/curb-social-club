@@ -8,6 +8,8 @@ import type {
   ClubsResponse,
   DeleteMeResponse,
   DeviceResponse,
+  FeedQuery,
+  FeedResponse,
   EventOccurrencesQuery,
   EventOccurrencesResponse,
   EventQuery,
@@ -32,8 +34,11 @@ import type {
   SignInResponse,
   SignInWithAppleBody,
   SignInWithGoogleBody,
+  SitemapResponse,
   UpdateDeviceBody,
   UpdateMeBody,
+  VenueSearchQuery,
+  VenueSearchResponse,
 } from '@curb/types';
 
 import { unwrap, type ApiClient } from './client';
@@ -155,6 +160,19 @@ export const api = {
     update: async (client: ApiClient, id: string): Promise<void> => {
       unwrap(await client.PATCH('/v1/sponsors/{id}', { params: { path: { id } } }));
     },
+  },
+  // Discovery surfaces (docs/api.md Feed, Venues, System).
+  feed: {
+    get: async (client: ApiClient, query: FeedQuery = {}): Promise<FeedResponse> =>
+      unwrap(await client.GET('/v1/feed', { params: { query } })),
+  },
+  venues: {
+    search: async (client: ApiClient, query: VenueSearchQuery): Promise<VenueSearchResponse> =>
+      unwrap(await client.GET('/v1/venues/search', { params: { query } })),
+  },
+  sitemap: {
+    get: async (client: ApiClient): Promise<SitemapResponse> =>
+      unwrap(await client.GET('/v1/sitemap')),
   },
   users: {
     get: async (client: ApiClient, handle: string): Promise<UserResponse> =>
