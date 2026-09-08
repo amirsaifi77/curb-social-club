@@ -3,6 +3,7 @@ module Seeds
   # `owner_handle` means the app account, so a seeded club always has the
   # one owner clubs R-3 requires.
   class ClubRowImporter < BaseImporter
+    UNIQUE_COLUMNS = %i[slug].freeze
     REQUIRED = %i[slug name].freeze
 
     Plan = Data.define(:row_number, :slug, :attributes, :owner, :existing)
@@ -23,6 +24,7 @@ module Seeds
       return report.add(number: number, key: slug, action: "error", errors: record.errors.full_messages) unless record.valid?
 
       action = existing.nil? ? "create" : (record.changed? ? "update" : "skip")
+      record.restore_attributes if existing
       report.add(number: number, key: slug, action: action)
       return nil if action == "skip"
 

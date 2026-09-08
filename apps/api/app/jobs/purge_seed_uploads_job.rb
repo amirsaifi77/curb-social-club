@@ -16,7 +16,7 @@ class PurgeSeedUploadsJob < ApplicationJob
     self.class.uploads.where(created_at: ...(now - KEEP_FOR)).find_each do |blob|
       # Attached to something after all (nothing attaches these today, but
       # a purge that deletes a referenced file is not recoverable).
-      next blob.update_columns(metadata: blob.metadata.except("seed_upload").to_json) if blob.attachments.exists?
+      next blob.update!(metadata: blob.metadata.except("seed_upload", "seed_kind")) if blob.attachments.exists?
 
       blob.purge_later
     end

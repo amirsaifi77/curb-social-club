@@ -11,6 +11,9 @@ module Seeds
     TOO_MANY_ROWS = "Files are limited to #{MAX_ROWS} rows. Split the file.".freeze
 
     class TooManyRows < StandardError; end
+    # A file that cannot be parsed at all, as opposed to a row that cannot
+    # be written: the caller shows the message rather than a stack trace.
+    class Unreadable < StandardError; end
 
     def self.call(source, dry_run: false, now: Time.current)
       new(source, dry_run: dry_run, now: now).call
@@ -29,7 +32,13 @@ module Seeds
     # writable in one transaction otherwise. A row that fails validation is
     # reported and skipped; it never stops the rows around it.
     def call
-      plans = rows.each_with_index.map { |row, index| plan(row, index + 1) }
+      duplicates = duplicate_keys
+      plans = rows.each_with_index.map do |row, index|
+        number = index + 1
+        next report.add(number: number, key: key_for(row).to_s, action: "error", errors: duplicates[number]) if duplicates[number]
+
+        plan(row, number)
+      end
       return report if dry_run
 
       # grep, not compact: `plan` returns the Report::Row it added for a row
@@ -44,12 +53,50 @@ module Seeds
 
     attr_reader :rows, :dry_run, :now, :report
 
+    # ActiveStorage::Blob#open yields a binmode file, so the bytes arrive as
+    # ASCII-8BIT and any accent or byte-order mark would blow up the moment
+    # they met a UTF-8 pattern. The encoding is declared before anything
+    # touches the text.
     def parse(source)
-      text = source.respond_to?(:read) ? source.read : File.read(source)
-      table = CSV.parse(text.to_s.sub("\xEF\xBB\xBF", ""), headers: true, header_converters: :symbol)
+      raw = source.respond_to?(:read) ? source.read : File.read(source, mode: "rb")
+      text = raw.to_s.dup.force_encoding(Encoding::UTF_8).delete_prefix("\uFEFF")
+      raise Unreadable, "The file is not valid UTF-8. Save it as UTF-8 and upload it again." unless text.valid_encoding?
+
+      table = CSV.parse(text, headers: true, header_converters: :symbol)
       raise TooManyRows, TOO_MANY_ROWS if table.size > MAX_ROWS
 
       table
+    rescue CSV::MalformedCSVError => error
+      raise Unreadable, "The file is not readable as CSV: #{error.message}"
+    end
+
+    # Two rows with one natural key would pass validation separately and
+    # then collide on the unique index, taking the whole apply down with
+    # them. A copy-pasted row is the likeliest mistake in a hand-written
+    # file, so it is a row error rather than a rollback.
+    def duplicate_keys
+      seen = {}
+      rows.each_with_index.each_with_object({}) do |(row, index), found|
+        self.class::UNIQUE_COLUMNS.each do |column|
+          value = normalized_key(row, column)
+          next if value.blank?
+
+          first = seen[[ column, value ]]
+          next seen[[ column, value ]] = index + 1 if first.nil?
+
+          # Every column that clashes, not only the last one looked at: a
+          # copy-pasted row repeats the slug and the source url both.
+          (found[index + 1] ||= []) << "#{column} #{value} is already used by row #{first} of this file."
+        end
+      end
+    end
+
+    def normalized_key(row, column)
+      value(row, column)&.downcase
+    end
+
+    def key_for(row)
+      value(row, self.class::UNIQUE_COLUMNS.first) || "(no #{self.class::UNIQUE_COLUMNS.first})"
     end
 
     def value(row, key)

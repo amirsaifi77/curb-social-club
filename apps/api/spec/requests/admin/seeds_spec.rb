@@ -51,11 +51,21 @@ RSpec.describe "admin seed import", type: :request do
       expect([ Sponsor.count, Club.count, Event.count ]).to eq([ 2, 3, 12 ])
     end
 
-    it "AC-12: refuses a file over 500 rows with the copy" do
+    it "AC-12: refuses a file over 500 rows with the copy, on preview and on apply" do
       oversized = Rack::Test::UploadedFile.new(oversized_events_csv.path, "text/csv")
       post "/admin/seeds", params: { kind: "events", file: oversized }
+
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("Files are limited to 500 rows. Split the file.")
       expect(response.body).not_to include("Apply")
+      expect(Event.count).to eq(0)
+
+      # The page offers no Apply for an unusable file, so a crafted one is
+      # posted straight at the stored blob: it says the same thing rather
+      # than raising on a report that was never built.
+      post "/admin/seeds/apply", params: { blob_id: ActiveStorage::Blob.order(:created_at).last.signed_id }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Files are limited to 500 rows.")
       expect(Event.count).to eq(0)
     end
 
@@ -78,6 +88,52 @@ RSpec.describe "admin seed import", type: :request do
       audit = AdminAudit.where(action: "import_csv").sole
       expect(audit.changeset).to include("kind" => "sponsors", "filename" => "sponsors_2.csv", "create" => 2)
       expect(PurgeSeedUploadsJob.uploads.count).to eq(1)
+    end
+
+    it "reads a spreadsheet export: a byte order mark and an accented venue name" do
+      lines = File.readlines(fixture("events_12_fixed.csv"))
+      file = Tempfile.new([ "events", ".csv" ])
+      file.binmode
+      file.write("\xEF\xBB\xBF".b + (lines[0] + lines[1].sub("Lido Marina Village", "Café Lido")).b)
+      file.flush
+
+      post "/admin/seeds", params: { kind: "events", file: Rack::Test::UploadedFile.new(file.path, "text/csv") }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Preview: 1 to create")
+      post "/admin/seeds/apply", params: { blob_id: blob_id }
+      expect(Venue.sole.name).to eq("Café Lido")
+    end
+
+    it "says the file is unreadable rather than raising on a malformed quote" do
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(File.readlines(fixture("events_12_fixed.csv"))[0] + %(a,"unclosed\n))
+      file.flush
+
+      post "/admin/seeds", params: { kind: "events", file: Rack::Test::UploadedFile.new(file.path, "text/csv") }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("not readable as CSV")
+    end
+
+    it "refuses a signed id for a blob this screen never made" do
+      other = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("slug,name\n"), filename: "elsewhere.csv",
+                                                     content_type: "text/csv")
+
+      post "/admin/seeds/apply", params: { blob_id: other.signed_id }
+
+      expect(response).to redirect_to("/admin/seeds")
+      follow_redirect!
+      expect(flash_text).to include("That upload is gone.")
+      expect(AdminAudit.where(action: "import_csv")).not_to exist
+    end
+
+    it "applies the kind the preview used, not one the form was made to send" do
+      post "/admin/seeds", params: { kind: "sponsors", file: upload("sponsors_2.csv") }
+      post "/admin/seeds/apply", params: { kind: "events", blob_id: blob_id }
+
+      expect(Sponsor.count).to eq(2)
+      expect(AdminAudit.where(action: "import_csv").sole.changeset["kind"]).to eq("sponsors")
     end
 
     it "asks for a file rather than raising when none was chosen" do

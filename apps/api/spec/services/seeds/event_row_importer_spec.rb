@@ -88,17 +88,36 @@ RSpec.describe Seeds::EventRowImporter, type: :service do
       expect(Event.find_by(slug: "lido-saturday").title).to eq("Lido Saturday Meet")
     end
 
-    it "R-28: a lower verified_date does not move last_confirmed_at backwards" do
-      before_value = Event.find_by(slug: "lido-saturday").last_confirmed_at
+    it "R-28: an older copy of the file moves neither stamp backwards, so every row is skip" do
+      before_event = Event.find_by(slug: "lido-saturday")
+      was_confirmed = before_event.last_confirmed_at
+      was_verified = before_event.verified_at
       rewritten = Tempfile.new([ "events", ".csv" ])
       rewritten.write(File.read(path).gsub("2026-09-05", "2026-07-01"))
-      rewritten.rewind
+      rewritten.flush
 
-      described_class.call(rewritten.path, dry_run: false)
+      report = described_class.call(rewritten.path, dry_run: false)
+
       event = Event.find_by(slug: "lido-saturday")
-      expect(event.last_confirmed_at).to eq(before_value)
-      # verified_at follows the file, because it records when the check happened.
-      expect(event.verified_at.in_time_zone("America/Los_Angeles").to_date).to eq(Date.new(2026, 7, 1))
+      expect(event.last_confirmed_at).to eq(was_confirmed)
+      expect(event.verified_at).to eq(was_verified)
+      # Both stamps move forward only, so re-running an older file changes
+      # nothing at all rather than reporting twelve updates.
+      expect(report.counts).to include(update: 0, error: 0)
+      expect(report.counts[:skip]).to eq(12)
+    end
+
+    it "AC-21: a title edit is the only update, even when another row carries an older date" do
+      rewritten = Tempfile.new([ "events", ".csv" ])
+      text = File.read(path).sub("Lido Saturday,", "Lido Saturday Meet,")
+      # A different row, with a date behind the one already stored.
+      rewritten.write(text.sub("Fontana Saturday,Coffee and cars in the lot.,,,Sierra at Foothill", "Fontana Saturday,Coffee and cars in the lot.,,,Sierra at Foothill")
+                          .sub(",2026-09-05,\n", ",2026-07-01,\n"))
+      rewritten.flush
+
+      report = described_class.call(rewritten.path, dry_run: false)
+      expect(report.counts).to include(update: 1, error: 0)
+      expect(report.counts[:skip]).to eq(11)
     end
 
     it "R-29: a claimed event keeps its host, and the row says so" do
@@ -112,6 +131,109 @@ RSpec.describe Seeds::EventRowImporter, type: :service do
       event.reload
       expect(event.host).to eq(claimed_host)
       expect(event.claimed_at).to be_present
+    end
+  end
+
+  describe "validation the dry run has to catch" do
+    let(:dry_run) { true }
+
+    def two_rows(&edit)
+      lines = File.readlines(fixture("events_12_fixed.csv"))
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(lines[0] + edit.call(lines[1]) + lines[2])
+      file.flush
+      file
+    end
+
+    it "reports a bad venue column, which the Event alone would never see" do
+      file = two_rows { |line| line.sub(",US,", ",USA,") }
+
+      preview = described_class.call(file.path, dry_run: true)
+      expect(preview.counts).to include(create: 1, error: 1)
+      expect(preview.rows.first.errors).to include("venue: Country must be an ISO 3166-1 alpha-2 code")
+
+      # And the good row still lands, rather than the whole apply rolling back.
+      described_class.call(file.path, dry_run: false)
+      expect(Event.pluck(:slug)).to eq([ "lido-sunday" ])
+    end
+
+    it "reports a slug repeated inside one file, naming the row it clashes with" do
+      lines = File.readlines(fixture("events_12_fixed.csv"))
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(lines[0] + lines[1] + lines[1])
+      file.flush
+
+      report = described_class.call(file.path, dry_run: true)
+      expect(report.counts).to include(create: 1, error: 1)
+      expect(report.rows.last.errors).to include("slug lido-saturday is already used by row 1 of this file.")
+
+      described_class.call(file.path, dry_run: false)
+      expect(Event.count).to eq(1)
+    end
+
+    it "reports a source_url repeated inside one file" do
+      file = two_rows { |line| line }
+      lines = File.readlines(fixture("events_12_fixed.csv"))
+      repeated = Tempfile.new([ "events", ".csv" ])
+      repeated.write(lines[0] + lines[1] + lines[2].sub("https://example.com/lido-sunday", "https://example.com/lido-saturday"))
+      repeated.flush
+
+      report = described_class.call(repeated.path, dry_run: true)
+      expect(report.rows.last.errors.first).to include("source_url", "row 1")
+      expect(file).to be_present
+    end
+
+    it "reads a file with an accent and a byte order mark, which is what a spreadsheet exports" do
+      lines = File.readlines(fixture("events_12_fixed.csv"))
+      file = Tempfile.new([ "events", ".csv" ])
+      file.binmode
+      file.write("\xEF\xBB\xBF".b + (lines[0] + lines[1].sub("Lido Marina Village", "Café Lido")).b)
+      file.flush
+
+      report = described_class.call(file.path, dry_run: false)
+      expect(report.counts).to include(create: 1, error: 0)
+      expect(Venue.sole.name).to eq("Café Lido")
+    end
+
+    it "says the file is unreadable rather than raising on a malformed quote" do
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(File.readlines(fixture("events_12_fixed.csv"))[0] + %(a,"unclosed\n))
+      file.flush
+
+      expect { described_class.call(file.path, dry_run: true) }
+        .to raise_error(Seeds::BaseImporter::Unreadable, /not readable as CSV/)
+    end
+  end
+
+  describe "corrections to an event that already exists" do
+    let(:path) { fixture("events_12_fixed.csv") }
+
+    before { described_class.call(path, dry_run: false) }
+
+    it "R-6: moves the venue when the row fixes its lat and lng, and says so" do
+      lines = File.readlines(path)
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(lines[0] + lines[1].sub("33.6172,-117.9270", "33.6000,-117.9000"))
+      file.flush
+
+      report = described_class.call(file.path, dry_run: false)
+
+      expect(report.counts).to include(update: 1)
+      expect(report.rows.first.notes.join).to include("venue:")
+      venue = Event.find_by(slug: "lido-saturday").venue
+      expect(venue.location.y).to be_within(0.0001).of(33.6000)
+    end
+
+    it "R-29: emptying the sponsors column detaches, and the row says update" do
+      lines = File.readlines(path)
+      file = Tempfile.new([ "events", ".csv" ])
+      file.write(lines[0] + lines[12].sub("bear-coast:coffee|apex-detail:partner", ""))
+      file.flush
+
+      report = described_class.call(file.path, dry_run: false)
+
+      expect(report.counts).to include(update: 1, skip: 0)
+      expect(Event.find_by(slug: "inland-unknown-host").sponsorships).to be_empty
     end
   end
 

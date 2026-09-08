@@ -6,6 +6,8 @@ module Seeds
   # forward (R-28); and a claimed event keeps its host and `claimed_at`,
   # with the skip named in the row's notes (R-29).
   class EventRowImporter < BaseImporter
+    # Both are unique indexes, so a repeat inside one file is a row error.
+    UNIQUE_COLUMNS = %i[slug source_url].freeze
     REQUIRED = %i[slug title cadence duration_minutes].freeze
     VENUE_REQUIRED = %i[venue_name venue_city venue_region venue_country venue_lat venue_lng].freeze
     HOST_TYPES = { "user" => "User", "club" => "Club", "sponsor" => "Sponsor" }.freeze
@@ -28,25 +30,84 @@ module Seeds
       return report.add(number: number, key: slug, action: "error", errors: [ host_error ]) if host_error
 
       notes = []
+      # The venue is validated here, not left to the Event: a belongs_to
+      # target is never validated by its owner, so a bad venue column used
+      # to preview clean and then take the whole apply down.
+      venue_errors, venue_note = venue_plan(venue, existing, notes)
+      return report.add(number: number, key: slug, action: "error", errors: venue_errors) if venue_errors.any?
+
       attributes = event_attributes(row, venue, host, existing, notes)
       record = candidate(existing, slug, venue, attributes)
       return report.add(number: number, key: slug, action: "error", errors: record.errors.full_messages) unless record.valid?
 
-      action = existing.nil? ? "create" : (record.changed? ? "update" : "skip")
+      sponsorships = sponsorship_rows(row)
+      changed = record.changed? || venue_note.present? || sponsorships_change?(existing, sponsorships)
+      action = existing.nil? ? "create" : (changed ? "update" : "skip")
+      # The candidate was the existing row itself; apply assigns again.
+      record.restore_attributes if existing
       report.add(number: number, key: slug, action: action, notes: notes)
-      return nil if action == "skip" && sponsorship_rows(row).blank?
+      return nil if action == "skip"
 
       Plan.new(row_number: number, slug: slug, attributes: attributes, venue: venue,
-               sponsorships: sponsorship_rows(row), existing: existing)
+               sponsorships: sponsorships, existing: existing)
+    end
+
+    # R-20 asks the preview to name the resolved venue action, and R-6 says
+    # a correction to a lot has to land: a moved or renamed venue makes the
+    # row an update rather than a silent skip.
+    def venue_plan(venue, existing, notes)
+      return [ [], nil ] if venue.nil?
+
+      candidate = Venue.new(venue)
+      return [ candidate.errors.full_messages.map { |message| "venue: #{message}" }, nil ] unless candidate.valid?
+
+      match = Venues::Deduper.find_match(venue[:name], venue[:location])
+      note = venue_note(match, venue, existing)
+      notes << "venue: #{note}" if note
+      [ [], note ]
+    end
+
+    def venue_note(match, venue, existing)
+      return "new venue #{venue[:name]}." if match.nil?
+      return "moves to #{match.name}." if existing && existing.venue_id != match.id
+      return nil if existing.nil?
+
+      moved = Venues::Deduper.find_match(match.name, venue[:location])&.id != match.id
+      "#{match.name} updated." if moved || venue_columns_differ?(match, venue)
+    end
+
+    def venue_columns_differ?(match, venue)
+      venue.except(:name, :location, :created_by).any? { |column, value| match.public_send(column) != value }
+    end
+
+    # The sponsors column is the whole truth for a row (R-29), so emptying
+    # it is a change that detaches, not a no-op.
+    def sponsorships_change?(existing, sponsorships)
+      return false if existing.nil?
+
+      wanted = sponsorships.map { |entry| [ entry[:slug], entry[:role] ] }
+      current = existing.sponsorships.includes(:sponsor).map { |row| [ row.sponsor.slug, row.role ] }
+      wanted != current
     end
 
     def apply(plan)
-      venue = Venues::Deduper.find_or_create(plan.venue) if plan.venue
+      venue = write_venue(plan.venue) if plan.venue
       event = plan.existing || Event.new(slug: plan.slug, created_by: User.app_account)
       event.venue = venue if venue
       event.assign_attributes(plan.attributes)
       event.save!
       write_sponsorships(event, plan.sponsorships)
+    end
+
+    # A matched lot takes the row's corrections, including a fixed point,
+    # which is the whole reason R-6 keys on the name rather than the
+    # coordinates. Its stored name stays: the two are equal once normalized.
+    def write_venue(attributes)
+      match = Venues::Deduper.find_match(attributes[:name], attributes[:location])
+      return Venue.create!(attributes) if match.nil?
+
+      match.update!(attributes.except(:name, :created_by))
+      match
     end
 
     # Validation the CSV owns, before the model gets a say.
@@ -95,6 +156,8 @@ module Seeds
       model = HOST_TYPES[type.to_s]
       return [ nil, "host_type must be user, club, or sponsor." ] if model.nil?
 
+      return [ nil, "host_slug is required when host_type is #{type}." ] if slug.blank?
+
       host = lookup_host(model, slug)
       [ host, ("no #{type} with slug #{slug}." if host.nil?) ]
     end
@@ -106,8 +169,8 @@ module Seeds
     def candidate(existing, slug, venue, attributes)
       record = existing || Event.new(slug: slug, created_by: User.app_account)
       # The venue is not written on a dry run, so validation borrows an
-      # in-memory one with the same timezone and point.
-      record.venue ||= Venue.new(venue.merge(created_by: User.app_account)) if venue
+      # in-memory one. venue_plan has already validated it on its own.
+      record.venue = Venue.new(venue) if venue && record.venue.nil?
       record.assign_attributes(attributes)
       record
     end
@@ -134,13 +197,19 @@ module Seeds
     # R-28: verified_at follows verified_date; last_confirmed_at only ever
     # moves forward, so re-running an older file cannot age a meet back
     # into staleness.
+    # Noon Pacific rather than the venue's zone: the date records when a
+    # person checked the meet, not anything that happens at the lot.
+    # Both stamps move forward only, so re-running an older copy of a file
+    # cannot age a meet back toward staleness or undo a later check.
     def confirmation(row, existing)
       verified = Date.iso8601(value(row, :verified_date)).in_time_zone(Venue::DEFAULT_TIMEZONE).noon
-      attributes = { verified_at: verified }
-      current = existing&.last_confirmed_at
-      attributes[:last_confirmed_at] = verified if current.nil? || verified > current
+      attributes = {}
+      attributes[:verified_at] = verified if forward?(existing&.verified_at, verified)
+      attributes[:last_confirmed_at] = verified if forward?(existing&.last_confirmed_at, verified)
       attributes
     end
+
+    def forward?(current, verified) = current.nil? || verified > current
 
     # R-29: a claimed event's host belongs to whoever claimed it.
     def host_attributes(host, existing, notes)

@@ -1,8 +1,8 @@
 <% content_for :title, "Preview" %>
 <h1>Preview: <%= @kind %></h1>
 
-<% if @too_many %>
-  <p class="form-errors" role="alert"><%= @too_many %></p>
+<% if @problem %>
+  <p class="form-errors" role="alert"><%= @problem %></p>
   <p><%= link_to "Back", admin_seeds_path %></p>
 <% else %>
   <% counts = @report.counts %>

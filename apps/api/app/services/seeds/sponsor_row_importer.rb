@@ -1,6 +1,7 @@
 module Seeds
   # sponsors.csv (docs/specs/admin.md Data). Natural key `slug`.
   class SponsorRowImporter < BaseImporter
+    UNIQUE_COLUMNS = %i[slug].freeze
     REQUIRED = %i[slug name kind].freeze
 
     Plan = Data.define(:row_number, :slug, :attributes, :existing)
@@ -19,6 +20,7 @@ module Seeds
       return report.add(number: number, key: slug, action: "error", errors: record.errors.full_messages) unless record.valid?
 
       action = existing.nil? ? "create" : (record.changed? ? "update" : "skip")
+      record.restore_attributes if existing
       report.add(number: number, key: slug, action: action)
       return nil if action == "skip"
 
