@@ -164,11 +164,14 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Playwright smoke test (web)
+      - name: OG card render (web)
+        if: steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
+        run: pnpm --filter @curb/web test:og
+      - name: Playwright suite (web)
         if: steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
         run: |
           pnpm --filter @curb/web exec playwright install --with-deps chromium
-          pnpm --filter @curb/web test:e2e
+          pnpm --filter @curb/web test:e2e --project=chromium
       - name: Upload Playwright report
         if: failure() && steps.exists.outputs.present == 'true' && needs.changes.outputs.web == 'true'
         uses: actions/upload-artifact@v4
