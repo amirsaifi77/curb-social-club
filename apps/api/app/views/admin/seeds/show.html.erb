@@ -1,0 +1,16 @@
+<% content_for :title, "Seed import" %>
+<h1>Seed import</h1>
+<p class="muted">One CSV at a time. Import order is venues, sponsors, clubs, events: an event row naming a club or sponsor that does not exist yet is a row error.</p>
+
+<%= form_with url: admin_seeds_path, method: :post, multipart: true, class: "record-form" do |form| %>
+  <div class="field">
+    <%= form.label :kind, "Kind" %>
+    <%= form.select :kind, Admin::SeedsController::KINDS, selected: @kind %>
+  </div>
+  <div class="field">
+    <%= form.label :file, "CSV file" %>
+    <%= form.file_field :file, accept: ".csv,text/csv" %>
+    <p class="hint">Up to <%= Seeds::BaseImporter::MAX_ROWS %> rows. Nothing is written until you press Apply.</p>
+  </div>
+  <div class="actions"><%= form.submit "Upload and preview" %></div>
+<% end %>

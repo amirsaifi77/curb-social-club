@@ -7,3 +7,9 @@ app_account = User.app_account || User.transaction do
   user
 end
 puts "App account: #{app_account.id} (@curb)"
+
+# The seed CSVs, in dependency order: an event row naming an unknown club or
+# sponsor slug is a row error, so those files import first (admin.md Data,
+# Import order). A file that is not present is skipped, so a fresh database
+# is usable before the verified rows are written.
+Seeds::Runner.import_all

@@ -48,6 +48,10 @@ Rails.application.routes.draw do
         post :unverify
       end
     end
+    # A07 (admin.md R-20): upload and preview, then apply the same blob.
+    resource :seeds, only: %i[show create], controller: "seeds" do
+      post :apply
+    end
     resources :users, only: %i[index show destroy] do
       member do
         patch :role
