@@ -9,11 +9,12 @@ module Geo
     DATE_CURSOR_SIZE = 5
     DISTANCE_CURSOR_SIZE = 3
 
-    attr_reader :origin, :sort
+    attr_reader :origin, :sort, :local_days
 
-    def initialize(window:, filters:, origin: nil, sort: "date", now: Time.current, **rest)
+    def initialize(window:, filters:, origin: nil, sort: "date", now: Time.current, local_days: nil, **rest)
       super(window: window, filters: filters, **rest)
       @origin = origin
+      @local_days = local_days
       @sort = SORTS.include?(sort.to_s) ? sort.to_s : "date"
       @now = now
       raise ParamError, "Send near to sort by distance." if @sort == "distance" && origin.nil?
@@ -31,10 +32,16 @@ module Geo
       relation = EventOccurrence.scheduled.joins(event: :venue).merge(Event.listed)
                                 .where(starts_at: window.range)
                                 .where(spatial_sql, *spatial_binds)
+      relation = relation.where("#{LOCAL_DAY_SQL} BETWEEN ? AND ?", local_days.first, local_days.last) if local_days
+      relation = relation
                                 .select(Arel.sql(select_sql))
                                 .order(Arel.sql("event_occurrences.event_id, event_occurrences.starts_at"))
       filters.apply(relation)
     end
+
+    # The occurrence's calendar day where the meet happens, not where the
+    # server is.
+    LOCAL_DAY_SQL = "(event_occurrences.starts_at AT TIME ZONE events.timezone)::date".freeze
 
     def select_sql
       <<~SQL.squish
@@ -42,7 +49,7 @@ module Geo
         event_occurrences.event_id AS event_id,
         event_occurrences.id AS occurrence_id,
         event_occurrences.starts_at AS starts_at,
-        (event_occurrences.starts_at AT TIME ZONE events.timezone)::date AS local_day,
+        #{LOCAL_DAY_SQL} AS local_day,
         #{Event.stale_sql(now)} AS stale,
         #{distance_sql} AS distance_m
       SQL

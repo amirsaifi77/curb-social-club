@@ -24,6 +24,9 @@ export const queryKeys = {
   userEvents: (handle: string, query: Record<string, unknown> = {}) =>
     ['curb', 'users', handle, 'events', query] as const,
   userClubs: (handle: string) => ['curb', 'users', handle, 'clubs'] as const,
+  feed: (query: Record<string, unknown> = {}) => ['curb', 'feed', query] as const,
+  venueSearch: (query: Record<string, unknown>) => ['curb', 'venues', 'search', query] as const,
+  sitemap: () => ['curb', 'sitemap'] as const,
 };
 
 export const mutationKeys = {

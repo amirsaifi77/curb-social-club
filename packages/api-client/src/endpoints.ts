@@ -40,6 +40,9 @@ export const endpoints = {
   user: { path: '/v1/users/{handle}', method: 'get' },
   userEvents: { path: '/v1/users/{handle}/events', method: 'get' },
   userClubs: { path: '/v1/users/{handle}/clubs', method: 'get' },
+  feed: { path: '/v1/feed', method: 'get' },
+  venueSearch: { path: '/v1/venues/search', method: 'get' },
+  sitemap: { path: '/v1/sitemap', method: 'get' },
 } as const satisfies Record<string, { path: keyof paths; method: HttpMethod }>;
 
 export type EndpointName = keyof typeof endpoints;

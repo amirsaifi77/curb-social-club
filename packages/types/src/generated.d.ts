@@ -1121,6 +1121,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sectioned home feed
+         * @description Sections in display order with empty ones omitted (discovery R-5, R-6). Windows are local calendar days in the venue's timezone: this_weekend runs to the coming Sunday, next_week is the Monday to Sunday after it, later is the rest of the 90 day horizon. Served from Solid Cache for 60 seconds (R-24).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description lat,lng; falls back to the device home area */
+                    near?: string;
+                    /** @description Default 32, 400 above 160 */
+                    radius_km?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: one meet in each window plus a club nearby */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                sections: {
+                                    /** @enum {string} */
+                                    kind: "this_weekend" | "clubs_nearby" | "sponsors_nearby" | "next_week" | "later";
+                                    title: string;
+                                    items: {
+                                        [key: string]: unknown;
+                                    }[];
+                                    more: {
+                                        path: string;
+                                        params: {
+                                            [key: string]: unknown;
+                                        };
+                                    } | null;
+                                }[];
+                            };
+                            meta: {
+                                /** Format: date-time */
+                                generated_at: string;
+                            };
+                        };
+                    };
+                };
+                /** @description AC-4: a radius above the maximum */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -1408,6 +1482,64 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sitemap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Slugs for the web sitemap
+         * @description Public, non-hidden, non-dormant rows (web.md R-4): published events with an upcoming scheduled occurrence, active clubs, active sponsors. Spots arrive in Phase 4. Cached for an hour.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description slugs and timestamps */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            events: {
+                                slug: string;
+                                /** Format: date-time */
+                                updated_at: string;
+                            }[];
+                            clubs: {
+                                slug: string;
+                                /** Format: date-time */
+                                updated_at: string;
+                            }[];
+                            sponsors: {
+                                slug: string;
+                                /** Format: date-time */
+                                updated_at: string;
+                            }[];
+                            spots: {
+                                [key: string]: unknown;
+                            }[];
+                        };
                     };
                 };
             };
@@ -1758,6 +1890,72 @@ export interface paths {
                                 total: number | null;
                             };
                         };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/venues/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search venues
+         * @description Venues we already have first, nearest first when near is present, then provider suggestions for places we do not (docs/api.md Venues). Provider results are cached for 24 hours per query, and a provider failure costs suggestions rather than the response.
+         */
+        get: {
+            parameters: {
+                query: {
+                    q: string;
+                    /** @description lat,lng */
+                    near?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description existing venues before provider suggestions */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                venues: {
+                                    [key: string]: unknown;
+                                }[];
+                                suggestions: {
+                                    name: string;
+                                    address: string;
+                                    lat: number;
+                                    lng: number;
+                                    external_place_id: string | null;
+                                    external_source: string;
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /** @description no q */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };

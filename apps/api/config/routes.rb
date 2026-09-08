@@ -62,6 +62,11 @@ Rails.application.routes.draw do
       get "sponsors/:slug", to: "sponsors#show"
       patch "sponsors/:id", to: "sponsors#update"
 
+      # Discovery surfaces (docs/api.md Feed, Venues, System).
+      get "feed", to: "feed#index"
+      get "sitemap", to: "sitemap#show"
+      get "venues/search", to: "venues#search"
+
       get "users/:handle", to: "users#show"
       get "users/:handle/events", to: "users#events"
       get "users/:handle/clubs", to: "users#clubs"
