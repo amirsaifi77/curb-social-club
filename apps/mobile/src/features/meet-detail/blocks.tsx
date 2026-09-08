@@ -206,8 +206,13 @@ export function SponsorsBlock({ event }: { event: EventDetail }) {
               <Image source={{ uri: sponsorship.sponsor.logo_url }} style={styles.logo} contentFit="contain" />
             ) : null}
             <View style={styles.rowText}>
+              {/* A role added server-side that this build has no label for
+                  shows the sponsor's name rather than calling a presenting
+                  sponsor a partner. */}
               <Text variant="body">
-                {`${SPONSOR_ROLES[sponsorship.role] ?? 'Partner'} ${sponsorship.sponsor.name}`}
+                {[SPONSOR_ROLES[sponsorship.role], sponsorship.sponsor.name]
+                  .filter(Boolean)
+                  .join(' ')}
               </Text>
               {sponsorship.note ? (
                 <Text variant="caption" color="secondary">

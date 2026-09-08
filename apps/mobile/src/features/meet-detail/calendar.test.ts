@@ -32,8 +32,15 @@ describe('add to calendar', () => {
       title: 'Back Bay Coffee',
       timeZone: 'America/Los_Angeles',
       location: 'Lido Marina Village',
-      recurrenceRule: { frequency: 'weekly' },
+      recurrenceRule: { frequency: 'weekly', daysOfTheWeek: [{ dayOfTheWeek: 7 }] },
     });
+  });
+
+  it('R-12: a seasonal meet goes in once, with no repeat', async () => {
+    await addToCalendar({ ...meet, cadence: 'seasonal' });
+
+    const written = jest.mocked(Calendar.createEventAsync).mock.calls[0]?.[1];
+    expect(written).not.toHaveProperty('recurrenceRule');
   });
 
   it('R-12: a one-off meet is written without a repeat', async () => {
@@ -58,46 +65,47 @@ describe('add to calendar', () => {
     expect(await addToCalendar(meet)).toBe('failed');
   });
 
-  it('translates the parts of an RRULE a meet uses', () => {
-    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA')).toEqual({ frequency: 'weekly' });
-    expect(toRecurrenceRule('RRULE:FREQ=MONTHLY;INTERVAL=2')).toEqual({
+  it('R-12: translates the two shapes the API grammar actually emits', () => {
+    // recurrence/rrule_validator.rb: FREQ=WEEKLY or FREQ=MONTHLY, always
+    // with BYDAY, never with UNTIL or COUNT.
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA')).toEqual({
+      frequency: 'weekly',
+      daysOfTheWeek: [{ dayOfTheWeek: 7 }],
+    });
+    // "First Saturday of the month" is expressible, and losing the ordinal
+    // would put the meet on the day of the month the series happens to
+    // start on instead.
+    expect(toRecurrenceRule('FREQ=MONTHLY;BYDAY=1SA')).toEqual({
       frequency: 'monthly',
-      interval: 2,
+      daysOfTheWeek: [{ dayOfTheWeek: 7, weekNumber: 1 }],
     });
-    expect(toRecurrenceRule('FREQ=WEEKLY;COUNT=8')).toEqual({
-      frequency: 'weekly',
-      occurrence: 8,
+    expect(toRecurrenceRule('FREQ=MONTHLY;BYDAY=-1SU')).toEqual({
+      frequency: 'monthly',
+      daysOfTheWeek: [{ dayOfTheWeek: 1, weekNumber: -1 }],
     });
-    expect(toRecurrenceRule('FREQ=WEEKLY;UNTIL=20261231T000000Z')).toEqual({
+    // Two days a week is two days, not one.
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA,SU')).toEqual({
       frequency: 'weekly',
-      endDate: new Date(Date.UTC(2026, 11, 31)),
+      daysOfTheWeek: [{ dayOfTheWeek: 7 }, { dayOfTheWeek: 1 }],
     });
   });
 
-  it('writes a single event rather than a wrong repeat for a rule it cannot read', () => {
-    expect(toRecurrenceRule('FREQ=FORTNIGHTLY')).toBeUndefined();
-    expect(toRecurrenceRule('nonsense')).toBeUndefined();
-    expect(toRecurrenceRule('')).toBeUndefined();
+  it('R-12: a seasonal meet is written once, not forever', () => {
+    // The grammar forbids UNTIL, and events.rrule_until is not on the
+    // payload, so nothing in hand can end the repeat. An unbounded weekly
+    // entry would sit in a calendar for years.
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA', 'seasonal')).toBeUndefined();
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA', 'weekly')).toEqual({
+      frequency: 'weekly',
+      daysOfTheWeek: [{ dayOfTheWeek: 7 }],
+    });
   });
 
   it('R-12: refuses a rule whose meaning lives in a part it cannot express', () => {
-    // "First Saturday of the month" would otherwise become "the 3rd of
-    // every month", and "Saturday and Sunday" would lose Sunday.
-    expect(toRecurrenceRule('FREQ=MONTHLY;BYDAY=1SA')).toBeUndefined();
-    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA,SU')).toBeUndefined();
     expect(toRecurrenceRule('FREQ=MONTHLY;BYMONTHDAY=15')).toBeUndefined();
     expect(toRecurrenceRule('FREQ=YEARLY;BYMONTH=6')).toBeUndefined();
-  });
-
-  it('R-12: a weekly rule on the day it starts is a plain weekly rule', () => {
-    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA')).toEqual({ frequency: 'weekly' });
-  });
-
-  it('reads a rule whatever its case and spacing', () => {
-    expect(toRecurrenceRule('freq=weekly; interval=2')).toEqual({
-      frequency: 'weekly',
-      interval: 2,
-    });
+    // A BYDAY that cannot be read whole is not translated in part.
+    expect(toRecurrenceRule('FREQ=WEEKLY;BYDAY=SA,XX')).toBeUndefined();
   });
 
   it('drops a count that would schedule nothing', () => {

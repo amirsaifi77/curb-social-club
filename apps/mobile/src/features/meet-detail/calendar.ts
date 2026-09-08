@@ -19,6 +19,7 @@ export interface CalendarEvent {
   location: string;
   notes: string | null;
   rrule: string | null;
+  cadence?: string | null;
 }
 
 export async function addToCalendar(event: CalendarEvent): Promise<CalendarOutcome> {
@@ -29,6 +30,8 @@ export async function addToCalendar(event: CalendarEvent): Promise<CalendarOutco
     const calendar = await Calendar.getDefaultCalendarAsync();
     if (!calendar?.id) return 'failed';
 
+    const rule = event.rrule ? toRecurrenceRule(event.rrule, event.cadence) : undefined;
+
     await Calendar.createEventAsync(calendar.id, {
       title: event.title,
       startDate: new Date(event.startsAt),
@@ -36,7 +39,7 @@ export async function addToCalendar(event: CalendarEvent): Promise<CalendarOutco
       timeZone: event.timezone,
       location: event.location,
       notes: event.notes ?? undefined,
-      ...(event.rrule ? { recurrenceRule: toRecurrenceRule(event.rrule) } : {}),
+      ...(rule ? { recurrenceRule: rule } : {}),
     });
     return 'added';
   } catch {
@@ -46,17 +49,22 @@ export async function addToCalendar(event: CalendarEvent): Promise<CalendarOutco
   }
 }
 
-// expo-calendar takes a structured rule, not an RRULE string, and it cannot
-// express the BY* parts at all. A rule whose meaning depends on one of them
-// is therefore not translated: writing it without the part would put the
-// meet on the wrong days, which is worse than putting it on the calendar
-// once. "First Saturday of the month" would become "the 3rd of every
-// month"; "Saturday and Sunday" would quietly lose Sunday.
-//
-// The one exception is a weekly rule with a single BYDAY, which repeats on
-// the same day the meet starts and so is already what a plain weekly rule
-// means.
-export function toRecurrenceRule(rrule: string): Calendar.RecurrenceRule | undefined {
+// The API's grammar (recurrence/rrule_validator.rb) emits exactly two
+// shapes: FREQ=WEEKLY;BYDAY=<day> and FREQ=MONTHLY;BYDAY=<ordinal><day>,
+// never UNTIL or COUNT. Both are expressible: expo-calendar takes
+// `daysOfTheWeek` with a `weekNumber`, which is what an ordinal BYDAY means.
+// Anything outside that grammar is not translated, because writing it
+// without the part it depends on would put the meet on the wrong days.
+export function toRecurrenceRule(
+  rrule: string,
+  cadence?: string | null,
+): Calendar.RecurrenceRule | undefined {
+  // A seasonal meet ends on a date the Event payload does not carry
+  // (events.rrule_until is not serialized), and the rule itself cannot say
+  // so because the grammar forbids UNTIL. An unbounded repeat would sit in
+  // someone's calendar every week for years, so it stays a single event.
+  if (cadence === 'seasonal') return undefined;
+
   const parts: Record<string, string> = {};
   for (const pair of rrule.replace(/^RRULE:/i, '').split(';')) {
     const [key, value] = pair.split('=');
@@ -65,28 +73,52 @@ export function toRecurrenceRule(rrule: string): Calendar.RecurrenceRule | undef
 
   const frequency = FREQUENCIES[parts.FREQ?.toUpperCase() ?? ''];
   if (!frequency) return undefined;
-  if (!expressible(parts, frequency)) return undefined;
+
+  const unsupported = Object.keys(parts).filter(
+    (key) => key.startsWith('BY') && key !== 'BYDAY',
+  );
+  if (unsupported.length > 0) return undefined;
+
+  const days = parts.BYDAY ? parseByDay(parts.BYDAY) : [];
+  // A BYDAY that cannot be read whole is a rule that is not translated at
+  // all, rather than one silently missing a day.
+  if (days === null) return undefined;
 
   const interval = Number(parts.INTERVAL ?? 1);
   const count = Number(parts.COUNT);
   return {
     frequency,
+    ...(days.length > 0 ? { daysOfTheWeek: days } : {}),
     ...(Number.isFinite(interval) && interval > 1 ? { interval } : {}),
     ...(Number.isFinite(count) && count > 0 ? { occurrence: count } : {}),
     ...(parts.UNTIL ? { endDate: parseUntil(parts.UNTIL) } : {}),
   };
 }
 
-function expressible(parts: Record<string, string>, frequency: Calendar.Frequency): boolean {
-  const byParts = Object.keys(parts).filter((key) => key.startsWith('BY'));
-  if (byParts.length === 0) return true;
-  // A weekly rule on one weekday is the weekday the meet starts on.
-  return (
-    frequency === FREQUENCIES.WEEKLY &&
-    byParts.length === 1 &&
-    byParts[0] === 'BYDAY' &&
-    !parts.BYDAY.includes(',')
-  );
+const WEEKDAYS: Record<string, Calendar.DayOfTheWeek> = {
+  SU: 1,
+  MO: 2,
+  TU: 3,
+  WE: 4,
+  TH: 5,
+  FR: 6,
+  SA: 7,
+} as Record<string, Calendar.DayOfTheWeek>;
+
+// "SA" is every Saturday; "1SA" is the first Saturday of the month and
+// "-1SA" the last. Returns null when any part of the list cannot be read,
+// so a rule is translated whole or not at all.
+export function parseByDay(byDay: string): Calendar.DaysOfTheWeek[] | null {
+  const days: Calendar.DaysOfTheWeek[] = [];
+  for (const token of byDay.split(',')) {
+    const match = /^([+-]?\d{1,2})?(SU|MO|TU|WE|TH|FR|SA)$/i.exec(token.trim());
+    if (!match) return null;
+    const day = WEEKDAYS[match[2]!.toUpperCase()];
+    if (day === undefined) return null;
+    const week = match[1] ? Number(match[1]) : undefined;
+    days.push(week === undefined ? { dayOfTheWeek: day } : { dayOfTheWeek: day, weekNumber: week });
+  }
+  return days;
 }
 
 const FREQUENCIES: Record<string, Calendar.Frequency> = {

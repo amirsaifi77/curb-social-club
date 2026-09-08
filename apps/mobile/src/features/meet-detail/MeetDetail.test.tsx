@@ -121,6 +121,39 @@ describe('S08 meet detail', () => {
     expect(screen.getByText(DETAIL_COPY.comments)).toBeTruthy();
   });
 
+  it('AC-9: the blocks are in R-11 order, not merely all present', async () => {
+    await render(<MeetDetailScreen />);
+
+    // One landmark per block, read in the order they appear on screen.
+    const landmarks = [
+      'Lido Saturday',
+      'Sat, Oct 24, 7:30 am',
+      'Lido Marina Village',
+      DETAIL_COPY.hostUnclaimed,
+      DETAIL_COPY.sponsorsHeader,
+      DETAIL_COPY.goingZero,
+      DETAIL_COPY.aboutHeader,
+      DETAIL_COPY.sourceAction,
+      DETAIL_COPY.photosUpcoming,
+      DETAIL_COPY.comments,
+    ];
+    // Position in the serialized tree is render order, which is what R-11
+    // is about; asserting presence alone would pass with the blocks shuffled.
+    const tree = JSON.stringify(screen.toJSON());
+    const positions = landmarks.map((text) => tree.indexOf(text));
+
+    expect(positions.every((index) => index >= 0)).toBe(true);
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  });
+
+  it('R-11: an announced meet with no dates is not treated as one that happened', async () => {
+    wire(detail({ upcoming_occurrences: [], cadence: 'announced' }));
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText(DETAIL_COPY.photosUpcoming)).toBeTruthy();
+    expect(screen.queryByText(DETAIL_COPY.photosPast)).toBeNull();
+  });
+
   it('R-11: the sponsors block is absent rather than empty when there are none', async () => {
     wire(detail({ sponsorships: [] }));
     await render(<MeetDetailScreen />);

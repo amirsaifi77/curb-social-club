@@ -49,6 +49,9 @@ export default function MeetDetailScreen() {
       location: event.data.venue.name,
       notes: event.data.description,
       rrule: event.data.rrule,
+      // R-12: a seasonal series ends on a date the payload does not carry,
+      // so the calendar gets one entry rather than an endless repeat.
+      cadence: event.data.cadence,
     });
     // R-12: only a refusal has something to say; a failure adds nothing and
     // says nothing rather than blaming the person's settings.
@@ -184,11 +187,20 @@ export default function MeetDetailScreen() {
             event={meet}
             onOpen={() => meet.source && void WebBrowser.openBrowserAsync(meet.source.url)}
           />
-          <PlaceholdersBlock past={!next} />
+          {/* "No photos from this one yet. Were you there?" only makes
+              sense for a meet that has happened. A meet whose dates are
+              only announced has not. */}
+          <PlaceholdersBlock past={hasPassed(meet)} />
         </View>
       </ScrollView>
     </>
   );
+}
+
+// A meet is past when its dates are behind us, not when it has no upcoming
+// ones: an `announced` meet has no dates yet and has not happened.
+function hasPassed(meet: { cadence: string; upcoming_occurrences: unknown[] }): boolean {
+  return meet.cadence !== 'announced' && meet.upcoming_occurrences.length === 0;
 }
 
 // Read structurally rather than with instanceof: an error crossing a module

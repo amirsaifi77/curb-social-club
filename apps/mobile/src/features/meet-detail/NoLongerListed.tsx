@@ -37,7 +37,18 @@ export function NoLongerListed({ nearby }: { nearby: unknown[] }) {
 function isEventSummary(row: unknown): row is EventSummary {
   if (typeof row !== 'object' || row === null) return false;
   const value = row as Record<string, unknown>;
-  return typeof value.id === 'string' && typeof value.venue === 'object' && value.venue !== null;
+  // Every field the card reads without a guard of its own. Checking only
+  // id and venue let a row through that then threw inside the card, on the
+  // one page whose job is to be a soft landing.
+  return (
+    typeof value.id === 'string' &&
+    typeof value.slug === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.venue === 'object' &&
+    value.venue !== null &&
+    Array.isArray(value.sponsors_preview) &&
+    Array.isArray(value.tags)
+  );
 }
 
 const styles = StyleSheet.create((theme, rt) => ({
