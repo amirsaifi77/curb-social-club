@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiError, createClient } from './client';
 import { queryKeys } from './keys';
 import {
+  clubMembersInfiniteQuery,
+  eventsInfiniteQuery,
   eventsMapQuery,
   eventsQuery,
   feedQuery,
@@ -265,5 +267,57 @@ describe('mutations and request functions', () => {
 
     const failing = clientWith(vi.fn(async () => jsonResponse(500, {})));
     await expect(api.auth.signOut(failing)).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+// The two paged lists (clubs R-16, and "See all meets" on S12, S14, S11).
+describe('paged lists', () => {
+  it('follows the cursor to the next page and stops when it is null', async () => {
+    const urls: string[] = [];
+    const fetchMock = vi.fn(async (request: Request) => {
+      urls.push(request.url);
+      const cursor = new URL(request.url).searchParams.get('cursor');
+      return cursor === null
+        ? jsonResponse(200, {
+            data: [{ id: 'm1' }],
+            meta: { next_cursor: 'club_members.1', total: null },
+          })
+        : jsonResponse(200, { data: [{ id: 'm2' }], meta: { next_cursor: null, total: null } });
+    });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const result = await queryClient.fetchInfiniteQuery({
+      ...clubMembersInfiniteQuery(clientWith(fetchMock), 'back-bay-air-cooled'),
+      pages: 3,
+    });
+
+    expect(result.pages.flatMap((page) => page.data)).toEqual([{ id: 'm1' }, { id: 'm2' }]);
+    // Three pages were asked for, two exist: the null cursor ends it rather
+    // than the second page being requested again forever.
+    expect(urls).toHaveLength(2);
+    expect(urls[1]).toContain('cursor=club_members.1');
+  });
+
+  it('keeps the host filter on every page, not only the first', async () => {
+    const urls: string[] = [];
+    const fetchMock = vi.fn(async (request: Request) => {
+      urls.push(request.url);
+      const cursor = new URL(request.url).searchParams.get('cursor');
+      return jsonResponse(200, {
+        data: [],
+        meta: { next_cursor: cursor === null ? 'events.1' : null, total: null },
+      });
+    });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    await queryClient.fetchInfiniteQuery({
+      ...eventsInfiniteQuery(clientWith(fetchMock), { host: 'club:abc' }),
+      pages: 2,
+    });
+
+    // A second page without the filter would be everyone's meets, quietly
+    // appended to this host's list.
+    expect(urls).toHaveLength(2);
+    for (const url of urls) expect(url).toContain('host=club%3Aabc');
   });
 });

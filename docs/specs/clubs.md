@@ -53,7 +53,7 @@ Not in this spec: sponsors (sponsors.md), event creation UI (create-and-host-too
 **Mobile**
 
 - R-14 Tapping a host chip of type `club` anywhere in the app MUST open S12. (US-1)
-- R-15 S12 MUST show banner, avatar, name, verified badge, home label, description, links, member count with the first eight avatars, follower count, upcoming meets (up to three, with a "See all" link to a filtered List), and a Follow button (Phase 2). (US-1, US-3, US-4)
+- R-15 S12 MUST show banner, avatar, name, verified badge, home label, description, links, member count with the first eight avatars, follower count, upcoming meets (up to three, with a "See all" link to a filtered List), and a Follow button (Phase 2). The count comes from `members_count`; the leadership half of the row ("Owner and two admins.") is counted from the members page the row already reads, and is omitted when that page is not the whole club, since the Club shape carries no role counts and a partial page would be a guess. Phase 1 renders no Follow control at all: `viewer.following` is always false and a button that does nothing is worse than none. (US-1, US-3, US-4)
 - R-16 S13 MUST list active members with role labels for owner and admin, paginated. (US-4)
 - R-17 The feed MUST show a "Clubs near you" section (up to six ClubSummary cards) when at least one active club with a `home_location` is within the browse radius. (US-2)
 - R-18 Search MUST return clubs as a group under events, matched on `name` with trigram similarity. (US-2)
@@ -98,7 +98,11 @@ Write (Phase 7, behind `clubs_self_service`): `POST /clubs`, `PATCH /clubs/:id`,
 |---|---|
 | S12 header, verified | Verified club |
 | S12 members row | 24 members. Owner and two admins. |
+| S12 members row, count alone | 24 members. |
+| S12 upcoming header | Upcoming |
 | S12 upcoming empty | No meets listed yet. Follow to hear when one is. |
+| S12 see all | See all meets |
+| S04b empty (list filtered to one host) | No meets listed yet. |
 | S12 join policy, open (7) | Open to join |
 | S12 join policy, invite (7) | By invitation |
 | S12 hidden | This club is no longer listed. |
@@ -145,6 +149,8 @@ Write (Phase 7, behind `clubs_self_service`): `POST /clubs`, `PATCH /clubs/:id`,
 
 - Gaps item 29: the club page must read as welcoming, not as a members-only wall. Default: identical layout for open and invite-only clubs; the join policy is a small label, never a gate on viewing.
 - Seeded clubs have no consenting owner. Default: seeded clubs carry the app account as owner until a claim (Phase 2) or a Phase 7 handoff; the club page shows no "Owner" label when the owner is the app account.
+- Adopted 2026-09-08 (session 1.15) into this spec: the Copy table gains "S04b empty", the line the filtered list shows for a host with no upcoming meets. It is the S12 sentence without the half that points at a Follow control Phase 1 does not have. docs/screens.md gives S04b to this spec and sponsors.md jointly.
+- Adopted 2026-09-08 (session 1.15) into this spec: R-15 says where the members row's two halves come from, and the Copy table gains "S12 members row, count alone", "S12 upcoming header" and "S12 see all", which S12 renders and the table did not name. The row reads `GET /clubs/:slug/members` rather than `members_preview`, because only that endpoint carries the roles the Owner and Admin labels need.
 - Whether a club can have events at multiple venues with different recurrence rules is already handled: each event is its own record with the club as host.
 - Club privacy (hidden member lists) is not planned. If a club asks, add `members_visibility` later.
 

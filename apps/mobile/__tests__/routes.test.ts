@@ -75,6 +75,23 @@ describe('the tab route tree', () => {
     expect(tree['']).toContain('occurrences/[id]');
   });
 
+  it('clubs AC-10, sponsors AC-13, profiles AC-12: every host chip has somewhere to land', () => {
+    const tree = routeTree();
+
+    // hostHref builds /clubs/:slug, /sponsors/:slug and /u/:handle. A chip
+    // that opens a route the tree does not carry is a tap into +not-found,
+    // which no render test would catch.
+    expect(tree['']).toContain('clubs/[slug]');
+    expect(tree['']).toContain('sponsors/[slug]');
+    expect(tree['']).toContain('u/[handle]');
+    // S13 is a sibling route, not a child of the club page: expo-router
+    // flattens both into the root stack, and /clubs/:slug/members resolves
+    // even though clubs/[slug].tsx is a file rather than a directory.
+    expect(tree['']).toContain('clubs/[slug]/members');
+    // "See all meets" lands on the filtered list, not on a meet.
+    expect(tree['']).toContain('meets/index');
+  });
+
   it('the root wraps the tree in GestureHandlerRootView', () => {
     // The map's sheet renders a GestureDetector. Without this ancestor a dev
     // build throws on the Map tab and a release build silently refuses to

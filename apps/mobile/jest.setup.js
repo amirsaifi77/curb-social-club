@@ -135,8 +135,16 @@ jest.mock('expo-symbols', () => {
   const React = require('react');
   const { View } = require('react-native');
   /* eslint-disable react/prop-types */
+  // Keeps size and tintColor: expo-symbols paints the system tint when a
+  // caller omits them, which does not follow the app's themes in dark, and
+  // a double that dropped them could not tell the difference.
   const SymbolView = (props) =>
-    React.createElement(View, { accessibilityLabel: props.name, testID: 'symbol' });
+    React.createElement(View, {
+      accessibilityLabel: props.name,
+      testID: 'symbol',
+      size: props.size,
+      tintColor: props.tintColor,
+    });
   /* eslint-enable react/prop-types */
   return { SymbolView };
 });

@@ -4,3 +4,11 @@ export {
   canonicalOccurrenceUrl,
   shareEventText,
 } from './events';
+export {
+  SOCIAL_PLATFORMS,
+  isSocialPlatform,
+  socialLinks,
+  socialUrl,
+  websiteUrl,
+} from './socials';
+export type { SocialLink, SocialPlatform } from './socials';

@@ -1,21 +1,26 @@
 import type {
+  ClubEventsQuery,
+  ClubMembersQuery,
   ClubsQuery,
   EventOccurrencesQuery,
   EventQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
+  SponsorEventsQuery,
   SponsorsQuery,
+  UserEventsQuery,
   RegisterDeviceBody,
   SignInWithAppleBody,
   SignInWithGoogleBody,
   UpdateDeviceBody,
   UpdateMeBody,
 } from '@curb/types';
-import { keepPreviousData, queryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions, keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import { errorStatus, type ApiClient } from './client';
 import { mutationKeys, queryKeys } from './keys';
+import { firstPage, getNextPageParam, pageParams, type Cursor } from './pagination';
 import { api } from './requests';
 
 // Option factories: usable with useQuery on the client and with
@@ -112,6 +117,25 @@ export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
   });
 }
 
+// S04 filtered to one host or sponsor (clubs R-15, sponsors R-15). "See
+// all meets" means all of them, so this pages rather than stopping at the
+// first twenty the way a viewport list can afford to.
+export function eventsInfiniteQuery(
+  client: ApiClient,
+  query: EventsListQuery = {},
+  limit?: number,
+) {
+  return infiniteQueryOptions({
+    queryKey: [...queryKeys.events(query), 'pages', limit ?? null] as const,
+    queryFn: ({ pageParam }: { pageParam: Cursor }) =>
+      api.events.list(client, { ...query, ...pageParams(pageParam, limit) }),
+    initialPageParam: firstPage,
+    getNextPageParam,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
 // S05's three API groups (discovery R-20). One query each, so a group that
 // fails or is slow does not hold up the others, and the screen renders
 // whichever have arrived. `enabled` belongs to the caller: the debounce
@@ -175,6 +199,106 @@ export function eventOccurrencesQuery(
   return queryOptions({
     queryKey: [...queryKeys.eventOccurrences(eventId), query] as const,
     queryFn: async () => (await api.events.occurrences(client, eventId, query)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// The host pages (clubs R-15, sponsors R-15, profiles R-17). All three are
+// public reads, so they answer the same without a token; a hidden club or
+// sponsor and a missing handle are 404s the screen renders as a page, so
+// they are not retried.
+
+export function clubQuery(client: ApiClient, slug: string) {
+  return queryOptions({
+    queryKey: queryKeys.club(slug),
+    queryFn: async () => (await api.clubs.get(client, slug)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S12 shows three; S04 filtered by `host=club:<id>` shows the rest.
+export function clubEventsQuery(client: ApiClient, slug: string, query: ClubEventsQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.clubEvents(slug, query),
+    queryFn: async () => api.clubs.events(client, slug, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S13. The whole envelope: the cursor in `meta` is what pages it.
+export function clubMembersQuery(client: ApiClient, slug: string, query: ClubMembersQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.clubMembers(slug, query),
+    queryFn: async () => api.clubs.members(client, slug, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S13's list. A club can outgrow one page, so the screen pages with the
+// standard cursor rather than showing the first twenty and stopping.
+export function clubMembersInfiniteQuery(client: ApiClient, slug: string, limit?: number) {
+  return infiniteQueryOptions({
+    queryKey: [...queryKeys.clubMembers(slug, {}), 'pages', limit ?? null] as const,
+    queryFn: ({ pageParam }: { pageParam: Cursor }) =>
+      api.clubs.members(client, slug, pageParams(pageParam, limit)),
+    initialPageParam: firstPage,
+    getNextPageParam,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function sponsorQuery(client: ApiClient, slug: string) {
+  return queryOptions({
+    queryKey: queryKeys.sponsor(slug),
+    queryFn: async () => (await api.sponsors.get(client, slug)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function sponsorEventsQuery(
+  client: ApiClient,
+  slug: string,
+  query: SponsorEventsQuery = {},
+) {
+  return queryOptions({
+    queryKey: queryKeys.sponsorEvents(slug, query),
+    queryFn: async () => api.sponsors.events(client, slug, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function profileQuery(client: ApiClient, handle: string) {
+  return queryOptions({
+    queryKey: queryKeys.user(handle),
+    queryFn: async () => (await api.users.get(client, handle)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function profileEventsQuery(client: ApiClient, handle: string, query: UserEventsQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.userEvents(handle, query),
+    queryFn: async () => api.users.events(client, handle, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// The Profile shape carries `clubs`, but `role` is set only on this
+// endpoint (docs/api.md ClubSummary), and R-17 asks for the Owner and Admin
+// labels, so the section reads from here rather than from the profile.
+export function profileClubsQuery(client: ApiClient, handle: string) {
+  return queryOptions({
+    queryKey: queryKeys.userClubs(handle),
+    queryFn: async () => (await api.users.clubs(client, handle)).data,
     staleTime: 60_000,
     retry: retryUnlessClientError,
   });

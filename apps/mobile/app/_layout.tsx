@@ -83,6 +83,13 @@ function RootLayout() {
               name="search"
               options={{ presentation: 'modal', headerShown: false }}
             />
+            {/* The host pages and the filtered list set their own titles
+                from what they load (S11, S12, S13, S14, S04). */}
+            <Stack.Screen name="clubs/[slug]" options={{ title: '' }} />
+            <Stack.Screen name="clubs/[slug]/members" options={{ title: '' }} />
+            <Stack.Screen name="sponsors/[slug]" options={{ title: '' }} />
+            <Stack.Screen name="u/[handle]" options={{ title: '' }} />
+            <Stack.Screen name="meets/index" options={{ title: '' }} />
             <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
           </Stack>
         </ApiClientProvider>
