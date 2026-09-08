@@ -14,6 +14,18 @@ export function bboxFromRegion(region: Region): Bbox {
   };
 }
 
+// The inverse of bboxFromRegion. The web map tracks a bounding box, which
+// is what the API takes, but movedEnough compares regions, so one of the
+// two has to convert and this keeps both conversions in one file.
+export function regionFromBbox(bbox: Bbox): Region {
+  return {
+    latitude: (bbox.north + bbox.south) / 2,
+    longitude: (bbox.east + bbox.west) / 2,
+    latitudeDelta: bbox.north - bbox.south,
+    longitudeDelta: bbox.east - bbox.west,
+  };
+}
+
 // `bbox=w,s,e,n`, rounded to six decimals so an idle map does not produce a
 // new cache key every frame. This is a viewport, not a person's location:
 // the R-1 rounding rule is about `near`, which never comes from here.

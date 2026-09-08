@@ -1,4 +1,5 @@
 import type { EventDetail, EventSummary, Occurrence } from '@curb/api-client';
+import { socialLinks, websiteUrl } from '@curb/ui';
 
 // web.md R-5, R-6, R-11. One builder for the meta every indexable page
 // carries, and the JSON-LD a crawler reads off W03.
@@ -292,6 +293,43 @@ export function occurrenceJsonLd(
   delete json.eventSchedule;
   const url = canonicalUrl(baseUrl, `/meets/${event.slug}/${occurrence.id}`);
   if (url) json.url = url;
+  return json;
+}
+
+// R-9: W08 and W09 emit an Organization. W06 emits none, because a person
+// is not one and schema.org's Person adds nothing a crawler does not
+// already have from the page.
+export interface OrganizationInput {
+  name: string;
+  path: string;
+  logoUrl?: string | null;
+  description?: string | null;
+  /** The profile's `links`, rendered as sameAs. */
+  links?: Record<string, string> | null;
+  website?: string | null;
+}
+
+export function organizationJsonLd(input: OrganizationInput, baseUrl: string | null): JsonLd {
+  const json: JsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: input.name,
+  };
+  const url = canonicalUrl(baseUrl, input.path);
+  if (url) json.url = url;
+  if (input.logoUrl) json.logo = input.logoUrl;
+  if (input.description) json.description = input.description;
+
+  // sameAs is where a crawler learns these are the same business, so it
+  // takes the addresses the socials builder makes rather than the handles.
+  const sameAs = [
+    ...socialLinks(input.links).map((link) => link.url),
+    ...(websiteUrl(input.website ?? input.links?.website ?? null)
+      ? [websiteUrl(input.website ?? input.links?.website ?? null) as string]
+      : []),
+  ];
+  if (sameAs.length > 0) json.sameAs = sameAs;
+
   return json;
 }
 

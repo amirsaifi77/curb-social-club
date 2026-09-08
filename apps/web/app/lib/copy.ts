@@ -28,12 +28,81 @@ export const WEB_COPY = {
   sourceAction: 'Open the original',
   goingZero: "Nobody has said they're going yet.",
   getTheApp: 'Get the app',
+  // web.md Copy, the W05 rows. The loading line is this route's own: the
+  // map is client-only, so there is a moment with nothing on screen and the
+  // Copy table names no string for it.
+  mapLoading: 'Loading the map.',
+  mapTruncated: 'Zoom in to see all meets here.',
+  mapEmpty: 'No meets here. Zoom out, or add the one you know about in the app.',
+  mapError: "Couldn't load this area.",
   notFoundHeadline: 'Not found.',
   // The colon promises the nearby cards, which land with 1.17 (R-21).
   notFoundBody: "That page isn't here. Nearby this weekend:",
   goneHeadline: 'This meet is no longer listed.',
   goneNearby: 'Nearby this weekend',
 } as const;
+
+// clubs.md, sponsors.md and web.md Copy, for W06 to W09.
+export const HOST_COPY = {
+  clubVerified: 'Verified club',
+  sponsorVerified: 'Verified',
+  upcoming: 'Upcoming',
+  upcomingEmpty: 'No meets listed yet. Follow to hear when one is.',
+  seeAll: 'See all meets',
+  members: 'Members',
+  membersEmpty: 'No members listed yet.',
+  clubHidden: 'This club is no longer listed.',
+  sponsorHidden: 'This sponsor is no longer listed.',
+  sponsorFooter: 'Run this business? Email hello@curbsocial.club to update the page.',
+  website: 'Website',
+  // web.md Copy, "W08 and W09 follow": following is an app surface, so the
+  // web says where to do it rather than offering a control that cannot.
+  follow: 'Follow in the app',
+  clubsTitle: 'Clubs in Southern California',
+  profileHostBadge: 'Host',
+  profileClubs: 'Clubs',
+  profileClubsEmpty: 'Not in a club yet.',
+  profileNotFound: "This profile isn't here.",
+} as const;
+
+// sponsors.md Copy, "W09 kind labels" and "S14 relation labels".
+export const SPONSOR_KINDS: Record<string, string> = {
+  brand: 'Sponsor',
+  vendor: 'Vendor',
+  venue: 'Venue partner',
+};
+
+export function sponsorKindLabel(kind: string): string {
+  return SPONSOR_KINDS[kind] ?? SPONSOR_KINDS.brand;
+}
+
+export const RELATIONS: Record<string, string> = { host: 'Hosts', sponsor: 'Sponsors' };
+
+export function relationLabel(relation: string): string {
+  return RELATIONS[relation] ?? RELATIONS.sponsor;
+}
+
+export function followersLine(count: number): string {
+  return `${count} ${count === 1 ? 'follower' : 'followers'}`;
+}
+
+// profiles-and-follow.md Copy, "S11 counts, host".
+export function hostCounts(followers: number, meets: number): string {
+  return `${followersLine(followers)}. ${meets} ${meets === 1 ? 'meet' : 'meets'}.`;
+}
+
+// web.md Copy, "W12 title" and "W12 description (meta)".
+export function cityTitle(city: string): string {
+  return `cars and coffee in ${city}`;
+}
+
+export function cityDescription(city: string): string {
+  return `Every car meet within 10 miles of ${city} this weekend, with times, lots, and hosts.`;
+}
+
+export function cityEmpty(city: string): string {
+  return `Nothing listed in ${city} this weekend. Try a nearby city.`;
+}
 
 // web.md Copy: "Nothing for "{query}". Try a city, a host, or a day."
 export function noResults(query: string): string {

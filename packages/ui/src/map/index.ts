@@ -8,6 +8,7 @@ export {
   bboxWidth,
   isRequestableBbox,
   movedEnough,
+  regionFromBbox,
   spanForZoom,
   zoomFromRegion,
 } from './bbox';

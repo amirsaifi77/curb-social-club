@@ -2,7 +2,11 @@ import { createServer } from 'node:http';
 
 import {
   CANCELLED,
+  CLUB,
+  CLUB_MEMBERS,
   FEED,
+  PROFILE,
+  SPONSOR,
   UNLISTED,
   UNLISTED_TOKEN,
   eventDetail,
@@ -63,6 +67,36 @@ function route(url: URL): { status: number; body: string } {
     // copy has something to render against.
     const items = q && q !== 'lido' ? [] : [eventSummary()];
     return json({ data: items, meta: { next_cursor: null, total: items.length } });
+  }
+
+  if (path === '/v1/clubs') return json({ data: [CLUB], meta: { next_cursor: null, total: 1 } });
+
+  const clubMatch = /^\/v1\/clubs\/([^/]+)$/.exec(path);
+  if (clubMatch) {
+    const slug = decodeURIComponent(clubMatch[1] ?? '');
+    // clubs.md R-5: a hidden club is a 404 on every public endpoint.
+    return slug === CLUB.slug ? json({ data: CLUB }) : error('not_found', 'Not found', 404);
+  }
+  if (/^\/v1\/clubs\/[^/]+\/members$/.test(path)) {
+    return json({ data: CLUB_MEMBERS, meta: { next_cursor: null, total: 1 } });
+  }
+
+  const sponsorMatch = /^\/v1\/sponsors\/([^/]+)$/.exec(path);
+  if (sponsorMatch) {
+    const slug = decodeURIComponent(sponsorMatch[1] ?? '');
+    return slug === SPONSOR.slug ? json({ data: SPONSOR }) : error('not_found', 'Not found', 404);
+  }
+
+  const userMatch = /^\/v1\/users\/([^/]+)$/.exec(path);
+  if (userMatch) {
+    const handle = decodeURIComponent(userMatch[1] ?? '');
+    return handle === PROFILE.handle ? json({ data: PROFILE }) : error('not_found', 'Not found', 404);
+  }
+  if (/^\/v1\/users\/[^/]+\/events$/.test(path)) {
+    return json({ data: [eventSummary()], meta: { next_cursor: null, total: 1 } });
+  }
+  if (/^\/v1\/users\/[^/]+\/clubs$/.test(path)) {
+    return json({ data: [{ ...CLUB, role: 'owner' }] });
   }
 
   const eventMatch = /^\/v1\/events\/([^/]+)$/.exec(path);

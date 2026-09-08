@@ -12,6 +12,15 @@ export default [
   // W14: the link preview card, in its own namespace so it is easy to
   // disallow in robots.txt (R-17).
   route('og/meets/:slug.png', 'routes/og.meets.$slug[.png].tsx'),
+  // W06 to W09: the host pages, and the directory W07.
+  route('u/:handle', 'routes/u.$handle.tsx'),
+  route('clubs', 'routes/clubs._index.tsx'),
+  route('clubs/:slug', 'routes/clubs.$slug.tsx'),
+  route('sponsors/:slug', 'routes/sponsors.$slug.tsx'),
+  // W12: the seven city pages.
+  route('socal/:city', 'routes/socal.$city.tsx'),
+  // W05: client only, so there is nothing to server-render.
+  route('map', 'routes/map.tsx'),
   // W15: the three files a crawler and an iPhone read rather than a reader.
   route('sitemap.xml', 'routes/sitemap[.xml].tsx'),
   route('robots.txt', 'routes/robots[.txt].tsx'),

@@ -184,3 +184,71 @@ export const FEED = {
     },
   ],
 };
+
+export const CLUB = {
+  id: '22222222-2222-4222-8222-222222222222',
+  slug: 'back-bay-air-cooled',
+  name: 'Back Bay Air-Cooled',
+  avatar_url: null,
+  verified: true,
+  home_label: 'Newport Beach, CA',
+  members_count: 12,
+  followers_count: 30,
+  join_policy: 'open',
+  distance_m: 3000,
+  role: null,
+  description: 'Air-cooled cars and bad coffee, every other Sunday.',
+  banner_url: null,
+  links: { instagram: 'backbayaircooled', website: 'https://backbayaircooled.com' },
+  events_count: 4,
+  upcoming_events: [eventSummary()],
+  members_preview: [],
+  viewer: { following: false, membership: null, can_manage: false },
+};
+
+export const CLUB_MEMBERS = [
+  {
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    handle: 'amir',
+    display_name: 'Amir',
+    avatar_url: null,
+    role: 'owner',
+  },
+];
+
+export const SPONSOR = {
+  id: '55555555-5555-4555-8555-555555555555',
+  slug: 'bear-coast',
+  name: 'Bear Coast Coffee',
+  kind: 'vendor',
+  logo_url: null,
+  verified: false,
+  tagline: 'Pour-over from the cart',
+  followers_count: 8,
+  home_label: 'Newport Beach, CA',
+  distance_m: 3200,
+  description: 'A coffee cart that turns up where the cars are.',
+  banner_url: null,
+  website: 'https://bearcoastcoffee.com',
+  links: { instagram: 'bearcoastcoffee' },
+  events_count: 3,
+  upcoming_events: [
+    { ...eventSummary(), relation: 'host' },
+    { ...eventSummary({ id: 'e9', slug: 'fontana-sunday', title: 'Fontana Sunday' }), relation: 'sponsor' },
+  ],
+  viewer: { following: false },
+};
+
+export const PROFILE = {
+  id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  handle: 'amir',
+  display_name: 'Amir',
+  bio: 'Runs the Saturday meet at Lido.',
+  avatar_url: null,
+  home_label: 'Newport Beach, CA',
+  is_host: true,
+  links: { instagram: 'amir', website: 'https://example.com' },
+  clubs: [],
+  counts: { followers: 128, following: 12, events_hosted: 3, vehicles: 0, posts: 0 },
+  viewer: { following: false, blocked: false, is_self: false, reported: false },
+};
