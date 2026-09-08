@@ -1451,7 +1451,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description web.md AC-4: an overridden date says so, and one the materializer wrote does not */
+                /** @description AC-23: a cancelled occurrence carries its timezone and note */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -2161,6 +2161,11 @@ export interface components {
             rrule: string | null;
             /** Format: date-time */
             dtstart: string | null;
+            /**
+             * Format: date
+             * @description Last date a seasonal series runs; JSON-LD Schedule endDate (web.md R-6)
+             */
+            rrule_until: string | null;
             duration_minutes: number;
             /** @enum {string} */
             rsvp_mode: "open" | "count_only" | "off";

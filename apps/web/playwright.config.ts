@@ -19,12 +19,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     ...(executablePath ? { launchOptions: { executablePath } } : {}),
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    // AC-6 and AC-7 are about what an iPhone and an in-app browser do, and
-    // the user agent is what the server branches on.
-    { name: 'iphone', use: { ...devices['iPhone 14'] } },
-  ],
+  // One project. AC-6 and AC-7 turn on the user agent, not the engine, and
+  // those tests build their own context with the string they need, so a
+  // second project only ran every other test twice.
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   // Two servers: the fixture API, then the app pointed at it. Every loader
   // runs in Node, so an in-browser mock would sit on the wrong side of the
   // boundary and never see the request.

@@ -3,7 +3,7 @@ import { api, errorStatus } from '@curb/api-client';
 import type { Route } from './+types/og.meets.$slug[.png]';
 
 import { serverClient } from '~/lib/api.server';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { dayAndTime } from '~/lib/format';
 import { OG_CACHE_CONTROL, loadCover, renderOgPng } from '~/lib/og.server';
 
@@ -21,7 +21,7 @@ const COLORS = {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
   const client = serverClient(deviceId);
 
   let event;

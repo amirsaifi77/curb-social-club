@@ -71,8 +71,16 @@ export function canonicalUrl(baseUrl: string | null, path: string): string | nul
   return baseUrl ? `${baseUrl}${path}` : null;
 }
 
-export function ogImageUrl(baseUrl: string | null, slug: string): string | null {
-  return baseUrl ? `${baseUrl}/og/meets/${encodeURIComponent(slug)}.png` : null;
+// The token travels with the card: /og/meets/:slug.png reads the same
+// endpoint the page does, and refuses an unlisted meet without it.
+export function ogImageUrl(
+  baseUrl: string | null,
+  slug: string,
+  token?: string | null,
+): string | null {
+  if (!baseUrl) return null;
+  const query = token ? `?token=${encodeURIComponent(token)}` : '';
+  return `${baseUrl}/og/meets/${encodeURIComponent(slug)}.png${query}`;
 }
 
 // R-6's JSON-LD. Written as plain objects so the tests read as the shape a
@@ -186,8 +194,10 @@ export function eventSchedule(event: EventDetail): JsonLd | null {
     if (endTime) schedule.endTime = endTime;
     if (startDate) schedule.startDate = startDate;
   }
-  // events.rrule_until is not on the Event payload, so a seasonal series
-  // carries no endDate rather than one this page guessed.
+  // R-6: a seasonal series ends on rrule_until. The payload carries it now,
+  // so the Schedule says when the series stops rather than reading as one
+  // that repeats forever.
+  if (event.rrule_until) schedule.endDate = event.rrule_until;
   return schedule;
 }
 

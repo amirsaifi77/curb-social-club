@@ -48,6 +48,12 @@ export async function fonts() {
 // wait and keeps the bytes under our own eye (ADR 0011), and a cover that
 // does not arrive becomes the placeholder rather than a stalled request.
 export const COVER_TIMEOUT_MS = 2_500;
+export const BLOCKED_MEDIA_HOSTS = [
+  'cdninstagram.com',
+  'instagram.com',
+  'fbcdn.net',
+  'facebook.com',
+] as const;
 export const COVER_MAX_BYTES = 4 * 1024 * 1024;
 
 export async function loadCover(
@@ -63,6 +69,13 @@ export async function loadCover(
     return null;
   }
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+  // ADR 0011: Instagram media is never fetched, stored or copied. The API
+  // refuses to store it, so this should never fire, and a card that quietly
+  // inlined it would be the one place the rule broke without anyone seeing.
+  // An allowlist replaces this once the media host is configurable.
+  if (BLOCKED_MEDIA_HOSTS.some((host) => parsed.hostname === host || parsed.hostname.endsWith(`.${host}`))) {
+    return null;
+  }
 
   try {
     const response = await fetchImpl(url, { signal: AbortSignal.timeout(timeoutMs) });

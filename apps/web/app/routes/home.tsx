@@ -6,7 +6,7 @@ import type { Route } from './+types/home';
 import { MeetCard, isEventSummary } from '~/components/MeetCard';
 import { nearFromRequest, parseNear, serverClient } from '~/lib/api.server';
 import { CITIES, cityNear, findCity } from '~/lib/cities';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY } from '~/lib/copy';
 import { appStoreUrl } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
@@ -24,7 +24,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // R-2 and R-13: the city's own centre when one is picked, otherwise the
   // Vercel IP headers rounded to two decimals, otherwise coastal OC.
   const near = city ? cityNear(city) : (parseNear(url.searchParams.get('near')) ?? nearFromRequest(request));
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
 
   const feed = await api.feed.get(serverClient(deviceId), { near });
   const sections = feed.data.sections.filter((section) =>

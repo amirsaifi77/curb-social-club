@@ -40,10 +40,17 @@ export async function fetchApiHealth(
 // R-1: every loader calls the API anonymously, with the device cookie as
 // X-Device-Id and no token. One client per request, because the device id
 // belongs to the request rather than to the process.
-export function serverClient(deviceId: string | null): ApiClient {
+// Every read is bounded. A page that waits forever on the API is a page
+// that holds a Vercel function open until it is killed, and /og/meets is
+// the route every link preview hits.
+export const API_TIMEOUT_MS = 5_000;
+
+export function serverClient(deviceId: string | null, timeoutMs = API_TIMEOUT_MS): ApiClient {
   return createClient({
     baseUrl: apiUrl(),
     ...(deviceId ? { getDeviceId: () => deviceId } : {}),
+    fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+      fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(timeoutMs) }),
   });
 }
 
@@ -53,9 +60,13 @@ export function serverClient(deviceId: string | null): ApiClient {
 export const FALLBACK_NEAR = { lat: 33.62, lng: -117.93 };
 
 export function nearFromRequest(request: Request): string {
-  const lat = Number(request.headers.get('x-vercel-ip-latitude'));
-  const lng = Number(request.headers.get('x-vercel-ip-longitude'));
-  const usable = Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0);
+  const rawLat = request.headers.get('x-vercel-ip-latitude');
+  const rawLng = request.headers.get('x-vercel-ip-longitude');
+  const lat = Number(rawLat);
+  const lng = Number(rawLng);
+  // Both or neither: a missing header parses as 0, and one header alone put
+  // the reader in the Gulf of Guinea.
+  const usable = rawLat !== null && rawLng !== null && Number.isFinite(lat) && Number.isFinite(lng);
   const point = usable ? { lat, lng } : FALLBACK_NEAR;
   return roundNear(point.lat, point.lng);
 }

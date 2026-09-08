@@ -1340,8 +1340,7 @@ paths:
         required: true
       responses:
         '200':
-          description: 'web.md AC-4: an overridden date says so, and one the materializer
-            wrote does not'
+          description: 'AC-23: a cancelled occurrence carries its timezone and note'
           content:
             application/json:
               schema:
@@ -2418,6 +2417,12 @@ components:
             type: string
             format: date-time
             nullable: true
+          rrule_until:
+            type: string
+            format: date
+            nullable: true
+            description: Last date a seasonal series runs; JSON-LD Schedule endDate
+              (web.md R-6)
           duration_minutes:
             type: integer
           rsvp_mode:
@@ -2596,6 +2601,7 @@ components:
         - description
         - parking_note
         - rrule
+        - rrule_until
         - dtstart
         - duration_minutes
         - rsvp_mode

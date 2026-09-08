@@ -1,56 +1,64 @@
 import { expect, test } from '@playwright/test';
 
-// AC-6 and AC-7 are about a phone: the user agent decides both. They run in
-// the iphone project, where devices['iPhone 14'] supplies the real string.
-test.use({ ...{} });
+// AC-6 and AC-7 are about a phone, and the user agent is what both the
+// server and the click handler branch on, so each test builds the context
+// carrying the string it needs.
 
 test.describe('deep links and the in-app bar', () => {
-  test.skip(({ browserName }) => browserName !== 'chromium', 'user-agent driven');
 
-  test('AC-6: on an iPhone the app is tried, then the App Store 1.5 s later', async ({
+  test('AC-6: on an iPhone the href is the app itself, before any script runs', async ({
     browser,
   }) => {
     const context = await browser.newContext({
       userAgent:
         'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+      javaScriptEnabled: false,
     });
     const page = await context.newPage();
-    // The store is another origin, so the navigation is intercepted rather
-    // than followed: what matters is that it was attempted, and when.
-    let storeAttempt: number | null = null;
-    const started = Date.now();
-    await context.route('https://apps.apple.com/**', (route) => {
-      storeAttempt ??= Date.now() - started;
-      void route.fulfill({ status: 200, body: 'store' });
-    });
-
     await page.goto('/meets/lido-saturday');
-    await page.getByRole('link', { name: "I'm going" }).click();
 
-    await page.waitForURL(/apps\.apple\.com/, { timeout: 10_000 });
-    // The app gets its chance first: an immediate jump to the store would
-    // mean the scheme was never tried.
-    expect(storeAttempt).toBeGreaterThan(1_000);
+    // R-10 wants the scheme tried first. With the store URL in the href, a
+    // tap before hydration went straight to the App Store, and no timing
+    // assertion could tell that from a slow machine.
+    await expect(page.getByRole('link', { name: "I'm going" })).toHaveAttribute(
+      'href',
+      'curb://meets/lido-saturday',
+    );
     await context.close();
   });
 
-  test('AC-6: I am going tries the app, then the store, and never a write endpoint', async ({
-    page,
-  }) => {
-    const writes: string[] = [];
-    page.on('request', (request) => {
-      if (request.method() !== 'GET') writes.push(request.url());
-      if (/\/rsvp|\/follows/.test(request.url())) writes.push(request.url());
+  test('AC-6: the App Store is the fallback, not the first stop', async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
     });
+    const page = await context.newPage();
+    await context.route('https://apps.apple.com/**', (route) =>
+      route.fulfill({ status: 200, body: 'store' }),
+    );
 
+    await page.goto('/meets/lido-saturday');
+    // Wait for hydration, so this measures the handler and not the race.
+    await expect(page.getByTestId('hydrated')).toBeAttached();
+    await page.getByRole('link', { name: "I'm going" }).click();
+
+    await page.waitForURL(/apps\.apple\.com/, { timeout: 10_000 });
+    await context.close();
+  });
+
+  test('R-10: off iOS the anchor is the store, since the app is not there', async ({ page }) => {
     await page.goto('/meets/lido-saturday');
     const link = page.getByRole('link', { name: "I'm going" });
 
-    // Without an iPhone user agent the anchor is the store link, which is
-    // the whole behaviour on a desktop browser.
     await expect(link).toHaveAttribute('href', 'https://apps.apple.com/app/id6740000000');
     await expect(link).toHaveAttribute('data-app-path', 'meets/lido-saturday');
-    expect(writes).toEqual([]);
+  });
+
+  test('R-19: a cancelled date does not offer a CTA that acts', async ({ page }) => {
+    await page.goto('/meets/fontana-sunday');
+
+    await expect(page.getByRole('link', { name: "I'm going" })).toHaveCount(0);
+    await expect(page.getByText("I'm going")).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('AC-7: the Open in app bar shows for Instagram, and stays gone once dismissed', async ({

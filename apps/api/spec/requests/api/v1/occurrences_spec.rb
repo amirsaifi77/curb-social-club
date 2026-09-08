@@ -79,22 +79,18 @@ RSpec.describe "v1/occurrences" do
           expect(json["data"]).to include("timezone" => "America/Los_Angeles", "status" => "cancelled",
                                           "override_note" => "Rained out this week")
           expect(json.dig("data", "event", "next_occurrence")).to be_present
-        end
-      end
 
-      response "200", "web.md AC-4: an overridden date says so, and one the materializer wrote does not" do
-        schema occurrence_schema
-        let!(:occurrence) do
-          meet = create_meet(:corona_del_mar)
-          create(:event_occurrence, :overridden, event: meet, starts_at: meet.dtstart + 7.days)
-        end
-        let(:id) { occurrence.id }
+          # web.md AC-4: W04 is self-canonical only for a date a host edited,
+          # so a client has to be able to tell an edited date from one the
+          # materializer wrote. This lives here rather than in a second 200
+          # block, because rswag merges responses by status and the last one
+          # would erase this one's description from the published spec.
+          edited = create(:event_occurrence, :overridden, event: occurrence.event,
+                                                          starts_at: occurrence.starts_at + 7.days)
+          get "/v1/occurrences/#{edited.id}"
+          expect(JSON.parse(response.body).dig("data", "overridden_at")).to be_present
 
-        run_test! do
-          # W04 is self-canonical only for a date a host edited, so the
-          # client has to be able to tell the two apart.
-          expect(json.dig("data", "overridden_at")).to be_present
-          plain = create(:event_occurrence, event: occurrence.event, starts_at: occurrence.starts_at + 7.days)
+          plain = create(:event_occurrence, event: occurrence.event, starts_at: occurrence.starts_at + 14.days)
           get "/v1/occurrences/#{plain.id}"
           expect(JSON.parse(response.body).dig("data", "overridden_at")).to be_nil
         end

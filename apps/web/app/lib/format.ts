@@ -57,8 +57,9 @@ export function sourceLabel(type: string | null | undefined): string {
 }
 
 // R-7: directions by platform. Apple Maps on Apple hardware, Google Maps
-// everywhere else, both with the coordinates and the name so the pin lands
-// on the lot rather than on a geocoded guess at the address.
+// everywhere else. Both take the coordinates, so the pin lands on the lot
+// rather than on a geocoded guess at the address; Apple Maps also takes the
+// name, which Google's search URL has no separate field for.
 export function directionsUrl(
   venue: { name: string; location: { lat: number; lng: number } },
   userAgent: string | null | undefined,

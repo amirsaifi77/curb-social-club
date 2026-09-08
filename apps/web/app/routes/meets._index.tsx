@@ -6,7 +6,7 @@ import type { Route } from './+types/meets._index';
 import { MeetCard } from '~/components/MeetCard';
 import { nearFromRequest, parseNear, serverClient } from '~/lib/api.server';
 import { CITIES, cityNear, findCity } from '~/lib/cities';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY, noResults } from '~/lib/copy';
 import { appStoreUrl } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
@@ -32,7 +32,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const from = url.searchParams.get('from');
   const tags = url.searchParams.getAll('tags').filter(isTag);
   const near = city ? cityNear(city) : (parseNear(url.searchParams.get('near')) ?? nearFromRequest(request));
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
 
   const response = await api.events.list(serverClient(deviceId), {
     near,
@@ -46,6 +46,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     q,
     city,
     tags,
+    from,
     baseUrl: shareBaseUrl(),
     appStoreId: appStoreId(),
   };
@@ -56,9 +57,10 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
   const city = loaderData?.city ?? null;
   const q = loaderData?.q ?? null;
 
-  // R-14: canonical is /meets?city=<slug> when city is the only filter, and
+  // R-14: canonical is /meets?city=<slug> when city is the ONLY filter, and
   // /meets otherwise, so a tag or a date does not mint a new address.
-  const canonical = canonicalUrl(baseUrl, city && !q ? `/meets?city=${city.slug}` : '/meets');
+  const onlyCity = Boolean(city) && !q && (loaderData?.tags.length ?? 0) === 0 && !loaderData?.from;
+  const canonical = canonicalUrl(baseUrl, onlyCity && city ? `/meets?city=${city.slug}` : '/meets');
 
   return pageMeta({
     title: city ? `Meets in ${city.name}` : 'Meets',
@@ -117,9 +119,7 @@ export default function MeetsIndex({ loaderData }: Route.ComponentProps) {
       </nav>
 
       {events.length === 0 ? (
-        <p className="mt-10 text-lg">
-          {q ? noResults(q) : WEB_COPY.homeEmpty}
-        </p>
+        <p className="mt-10 text-lg">{q ? noResults(q) : WEB_COPY.listEmpty}</p>
       ) : (
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (

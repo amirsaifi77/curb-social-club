@@ -45,6 +45,7 @@ export function eventDetail(overrides: Partial<EventDetail> = {}): EventDetail {
     description: 'Coffee is inside, parking is wherever there is room.',
     parking_note: 'lot behind the bakery',
     rrule: 'FREQ=WEEKLY;BYDAY=SA',
+    rrule_until: null,
     dtstart: '2026-10-24T14:30:00Z',
     duration_minutes: 150,
     rsvp_mode: 'count_only',

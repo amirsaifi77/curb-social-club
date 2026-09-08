@@ -203,9 +203,6 @@ importers:
       '@curb/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
-      '@curb/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@react-router/node':
         specifier: ^7.18.3
         version: 7.18.3(react-router@7.18.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
@@ -9149,9 +9146,7 @@ snapshots:
       metro-runtime: 0.84.6
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 

@@ -3,7 +3,7 @@ import { api, errorStatus } from '@curb/api-client';
 import type { Route } from './+types/calendar.meets.$slug[.ics]';
 
 import { serverClient } from '~/lib/api.server';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { shareBaseUrl } from '~/lib/env.server';
 import { buildIcs } from '~/lib/ics';
 
@@ -14,7 +14,7 @@ import { buildIcs } from '~/lib/ics';
 export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
   const client = serverClient(deviceId);
 
   let event;
@@ -38,6 +38,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     title: event.title,
     startsAt: next.starts_at,
     endsAt: next.ends_at,
+    timezone: next.timezone,
     location: [event.venue.name, event.venue.address_line1, event.venue.city]
       .filter(Boolean)
       .join(', '),

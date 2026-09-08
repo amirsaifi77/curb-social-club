@@ -19,7 +19,6 @@
   "dependencies": {
     "@curb/api-client": "workspace:*",
     "@curb/design-tokens": "workspace:*",
-    "@curb/ui": "workspace:*",
     "@react-router/node": "^7.18.3",
     "@react-router/serve": "^7.18.3",
     "@resvg/resvg-js": "^2.6.2",

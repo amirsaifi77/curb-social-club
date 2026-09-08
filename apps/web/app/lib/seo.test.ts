@@ -134,6 +134,16 @@ describe('eventSchedule', () => {
     });
   });
 
+  it('R-6: a seasonal series says when it stops', () => {
+    const schedule = eventSchedule(eventDetail({ cadence: 'seasonal', rrule_until: '2026-10-31' }));
+
+    expect(schedule).toMatchObject({ endDate: '2026-10-31' });
+  });
+
+  it('a series with no end carries no endDate rather than a guess', () => {
+    expect(eventSchedule(eventDetail())).not.toHaveProperty('endDate');
+  });
+
   it('has nothing to say about a one-off', () => {
     expect(eventSchedule(eventDetail({ recurring: false, rrule: null }))).toBeNull();
   });

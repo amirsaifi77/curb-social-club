@@ -233,6 +233,8 @@ RSpec.configure do |config|
                 properties: {
                   description: { type: :string, nullable: true }, parking_note: { type: :string, nullable: true },
                   rrule: { type: :string, nullable: true }, dtstart: { type: :string, format: "date-time", nullable: true },
+                  rrule_until: { type: :string, format: :date, nullable: true,
+                                 description: "Last date a seasonal series runs; JSON-LD Schedule endDate (web.md R-6)" },
                   duration_minutes: { type: :integer }, rsvp_mode: { type: :string, enum: Event::RSVP_MODES },
                   capacity: { type: :integer, nullable: true }, status: { type: :string, enum: Event::STATUSES },
                   visibility: { type: :string, enum: Event::VISIBILITIES },
@@ -286,7 +288,7 @@ RSpec.configure do |config|
                   },
                   photos_count: { type: :integer }, comments_count: { type: :integer }, followers_count: { type: :integer }
                 },
-                required: %w[description parking_note rrule dtstart duration_minutes rsvp_mode capacity status visibility
+                required: %w[description parking_note rrule rrule_until dtstart duration_minutes rsvp_mode capacity status visibility
                              dormant hidden external_host_name venue upcoming_occurrences sponsorships viewer
                              photos_count comments_count followers_count]
               }

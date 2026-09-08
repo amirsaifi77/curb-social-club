@@ -4,11 +4,12 @@ import { data, Link } from 'react-router';
 import type { Route } from './+types/meets.$slug.$occurrenceId';
 
 import { AppLink } from '~/components/AppLink';
+import { CopyLink } from '~/components/CopyLink';
 import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { serverClient } from '~/lib/api.server';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY, cancelledBanner, goingCounts } from '~/lib/copy';
-import { isInAppBrowser } from '~/lib/deep-link';
+import { isInAppBrowser, isIos } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
 import { dayAndTime, directionsUrl } from '~/lib/format';
 import { canonicalUrl, eventDescription, jsonLdScript, occurrenceJsonLd, ogImageUrl, pageMeta } from '~/lib/seo';
@@ -21,7 +22,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
   const userAgent = request.headers.get('user-agent');
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
   const client = serverClient(deviceId);
 
   try {
@@ -39,9 +40,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return {
       occurrence,
       event: eventResponse.data,
+      token,
       baseUrl: shareBaseUrl(),
       appStoreId: appStoreId(),
       inAppBrowser: isInAppBrowser(userAgent),
+      isIos: isIos(userAgent),
       directions: directionsUrl(eventResponse.data.venue, userAgent),
     };
   } catch (error) {
@@ -55,7 +58,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export function meta({ data: loaderData }: Route.MetaArgs) {
   if (!loaderData) return [{ title: `Not found | ${WEB_COPY.siteTitleSuffix}` }];
-  const { event, occurrence, baseUrl, appStoreId: storeId } = loaderData;
+  const { event, occurrence, baseUrl, appStoreId: storeId, token } = loaderData;
   // R-8: self-canonical only for a date a host edited. Every other date of
   // a weekly series is a near-duplicate of the event page, and pointing
   // each one at itself would set them competing with it.
@@ -69,7 +72,7 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
     title: `${event.title}, ${dayAndTime(occurrence.starts_at, occurrence.timezone)}`,
     description: eventDescription(event),
     canonical,
-    image: ogImageUrl(baseUrl, event.slug),
+    image: ogImageUrl(baseUrl, event.slug, token),
     appStoreId: storeId,
     noindex: event.visibility === 'unlisted',
   });
@@ -77,6 +80,7 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
 
 export default function OccurrencePage({ loaderData }: Route.ComponentProps) {
   const { occurrence, event, baseUrl, appStoreId: storeId, inAppBrowser, directions } = loaderData;
+  const onIos = loaderData.isIos;
   const cancelled = occurrence.status === 'cancelled';
   const jsonLd = occurrenceJsonLd(event, occurrence, baseUrl);
 
@@ -106,9 +110,16 @@ export default function OccurrencePage({ loaderData }: Route.ComponentProps) {
         <p className="mt-4 text-textSecondary">{goingCounts(occurrence.going_count)}</p>
 
         <div className="mt-6 flex flex-wrap gap-4">
-          <AppLink path={`occurrences/${occurrence.id}`} appStoreId={storeId} className="underline">
+          <AppLink
+            path={`occurrences/${occurrence.id}`}
+            appStoreId={storeId}
+            isIos={onIos}
+            disabled={cancelled}
+            className="underline"
+          >
             {WEB_COPY.rsvp}
           </AppLink>
+          <CopyLink url={canonicalUrl(baseUrl, `/meets/${event.slug}/${occurrence.id}`)} />
           <Link to={`/meets/${event.slug}`} className="underline">
             All dates
           </Link>

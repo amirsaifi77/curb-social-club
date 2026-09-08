@@ -19,6 +19,7 @@ import type { Route } from './+types/root';
 import './app.css';
 
 import { deviceCookie, readDeviceId, readTheme } from '~/lib/cookies.server';
+import { WEB_COPY } from '~/lib/copy';
 import { publicEnv } from '~/lib/env.server';
 import { DEFAULT_THEME } from '~/lib/theme';
 
@@ -132,10 +133,19 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let details = 'Try again in a moment.';
   let stack: string | undefined;
 
+  // web.md Copy, the 404 and 410 rows. The nearby cards those rows promise
+  // land with 1.17; the sentences are these pages' own either way.
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? 'Not found' : `Error ${error.status}`;
-    details =
-      error.status === 404 ? 'There is nothing at this address.' : error.statusText || details;
+    if (error.status === 404) {
+      message = WEB_COPY.notFoundHeadline;
+      details = WEB_COPY.notFoundBody;
+    } else if (error.status === 410) {
+      message = WEB_COPY.goneHeadline;
+      details = WEB_COPY.goneNearby;
+    } else {
+      message = `Error ${error.status}`;
+      details = error.statusText || details;
+    }
   } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
     stack = error.stack;

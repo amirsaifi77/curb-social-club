@@ -8,10 +8,19 @@ function read(name: string): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 }
 
+// R-23: no default is committed. A deployment without it fails loudly at
+// the first request rather than spending every page on a connection refused
+// to a localhost that is not there.
+export const DEV_API_URL = 'http://localhost:3000';
+
 export function apiUrl(): string {
-  // The one exception: local development has an obvious API to talk to, and
-  // 0.8 already shipped this fallback for the health check.
-  return (read('API_URL') ?? read('VITE_API_URL') ?? 'http://localhost:3000').replace(/\/+$/, '');
+  const value = read('API_URL') ?? read('VITE_API_URL');
+  if (value) return value.replace(/\/+$/, '');
+  // Local development is the one place a default is a kindness rather than
+  // a silent misconfiguration: there is an obvious API on 3000 and no
+  // deployment to mistake it for.
+  if (import.meta.env?.DEV) return DEV_API_URL;
+  throw new Error('API_URL is not set. web.md R-23: it has no default.');
 }
 
 // The canonical origin every page's URL, OG image and app-argument is built

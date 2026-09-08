@@ -40,6 +40,15 @@ export function readDeviceId(header: string | null): { deviceId: string; minted:
   return { deviceId: randomUUID(), minted: true };
 }
 
+// The id a page's own API calls should carry. On a first visit the root
+// loader mints one and sets the cookie, and a page loader that minted its
+// own would send the API a different id from the one the reader keeps, so a
+// request with no cookie sends none at all and the next one carries it.
+export function deviceIdForRequest(header: string | null): string | null {
+  const { deviceId, minted } = readDeviceId(header);
+  return minted ? null : deviceId;
+}
+
 export function deviceCookie(deviceId: string): string {
   return [
     `${DEVICE_COOKIE}=${deviceId}`,

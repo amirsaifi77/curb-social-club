@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 
 import { dayAndTime } from './format';
@@ -61,18 +61,53 @@ describe('the meet OG card', () => {
     expect(pngSize(png)).toEqual({ width: OG_WIDTH, height: OG_HEIGHT });
   });
 
-  it('AC-12: an imported meet never puts Instagram media on the card', () => {
-    // ADR 0011: Instagram images are never fetched, stored or copied. The
-    // card is built from the fields we own, so a meet whose source is an
-    // Instagram post still draws its own cover or the placeholder.
-    const event = eventDetail({
-      cover_url: null,
-      source: { type: 'instagram', url: 'https://instagram.com/p/abc' },
-    });
-    const card = JSON.stringify(ogCard(cardFor(event)));
+  it('AC-12: the placeholder is a solid band of the same height as a cover', () => {
+    // Reading the canvas size alone would pass on an empty div, since the
+    // card is 1200x630 either way.
+    const card = JSON.stringify(ogCard(cardFor(eventDetail({ cover_url: null }))));
 
-    expect(card).not.toContain('instagram');
-    expect(card).not.toContain('cdninstagram');
+    expect(card).toContain('"height":300');
+    expect(card).toContain(`"backgroundColor":"${COLORS.surface}"`);
+  });
+
+  it('AC-12: a cover on Instagram CDN is refused, not inlined', async () => {
+    // ADR 0011: Instagram media is never fetched, stored or copied. The API
+    // refuses to store it, so this is the second lock rather than the
+    // first, and it goes through the real fetch path.
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(Uint8Array.from([0x89, 0x50]), {
+          status: 200,
+          headers: { 'content-type': 'image/jpeg' },
+        }),
+    );
+
+    for (const url of [
+      'https://scontent.cdninstagram.com/v/t51/whatever.jpg',
+      'https://instagram.com/p/abc/media',
+      'https://scontent-lax3-1.xx.fbcdn.net/v/x.jpg',
+    ]) {
+      expect(await loadCover(url, fetchMock as unknown as typeof fetch)).toBeNull();
+    }
+    // Refused before the request, not after it.
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('AC-12: a cover we host is fetched as usual', async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(Uint8Array.from([0x89, 0x50, 0x4e, 0x47]), {
+          status: 200,
+          headers: { 'content-type': 'image/png' },
+        }),
+    );
+
+    const uri = await loadCover(
+      'https://media.curbsocial.club/covers/lido.png',
+      fetchMock as unknown as typeof fetch,
+    );
+
+    expect(uri?.startsWith('data:image/png;base64,')).toBe(true);
   });
 
   it('the card is flat: no gradient, no shadow', () => {

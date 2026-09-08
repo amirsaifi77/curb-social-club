@@ -10,6 +10,7 @@ describe('buildIcs', () => {
     endsAt: '2026-10-24T17:00:00Z',
     url: 'https://curbsocial.club/meets/lido-saturday',
     location: 'Lido Marina Village, 3434 Via Lido, Newport Beach, CA',
+    timezone: 'America/Los_Angeles',
     now: new Date('2026-09-08T08:00:00Z'),
   };
 
@@ -30,8 +31,22 @@ describe('buildIcs', () => {
     );
   });
 
-  it('a one-off has no rule at all', () => {
-    expect(buildIcs({ ...base, rrule: null })).not.toContain('RRULE');
+  it('writes a series in the venue clock, so it does not drift at DST', () => {
+    // 14:30Z is 07:30 in Newport Beach. As a floating UTC instant plus an
+    // RRULE, every occurrence after the November change would land at 08:30.
+    const ics = buildIcs({ ...base, rrule: 'FREQ=WEEKLY;BYDAY=SA' });
+
+    expect(ics).toContain('DTSTART;TZID=America/Los_Angeles:20261024T073000');
+    expect(ics).toContain('DTEND;TZID=America/Los_Angeles:20261024T100000');
+    expect(ics).not.toContain('DTSTART:20261024T143000Z');
+  });
+
+  it('a one-off has no rule at all, and stays an exact instant', () => {
+    const ics = buildIcs({ ...base, rrule: null });
+
+    expect(ics).not.toContain('RRULE');
+    // One date is one instant, and UTC says which one without a zone.
+    expect(ics).toContain('DTSTART:20261024T143000Z');
   });
 
   it('answers null rather than a file with a broken date', () => {
@@ -74,6 +89,18 @@ describe('fold', () => {
     expect(folded[0]).toHaveLength(75);
     for (const line of folded.slice(1)) expect(line.startsWith(' ')).toBe(true);
     expect(folded.join('').replace(/ /g, '')).toBe(`DESCRIPTION:${'x'.repeat(200)}`);
+  });
+
+  it('counts octets, not characters, and never splits one in half', () => {
+    // The format's limit is 75 octets. Folding by string length puts an
+    // accented venue name over it, and can cut a multi-byte character.
+    const encoder = new TextEncoder();
+    const folded = fold(`LOCATION:${'é'.repeat(80)}`);
+
+    for (const line of folded) expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
+    expect(folded.map((line, index) => (index === 0 ? line : line.slice(1))).join('')).toBe(
+      `LOCATION:${'é'.repeat(80)}`,
+    );
   });
 });
 

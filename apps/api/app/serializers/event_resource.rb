@@ -8,6 +8,10 @@ class EventResource < EventSummaryResource
   attribute(:description) { |hit| hit.event.description }
   attribute(:parking_note) { |hit| hit.event.parking_note }
   attribute(:rrule) { |hit| hit.event.rrule }
+  # web.md R-6: the JSON-LD Schedule's endDate, and the date a seasonal
+  # series stops. Without it a client can only write a repeat that never
+  # ends, which is why the mobile calendar writes a seasonal meet once.
+  attribute(:rrule_until) { |hit| hit.event.rrule_until&.to_date&.iso8601 }
   attribute(:dtstart) { |hit| hit.event.dtstart&.utc&.iso8601 }
   attribute(:duration_minutes) { |hit| hit.event.duration_minutes }
   attribute(:rsvp_mode) { |hit| hit.event.rsvp_mode }

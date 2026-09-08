@@ -4,11 +4,12 @@ import { data, Link } from 'react-router';
 import type { Route } from './+types/meets.$slug';
 
 import { AppLink } from '~/components/AppLink';
+import { CopyLink } from '~/components/CopyLink';
 import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { nearFromRequest, serverClient } from '~/lib/api.server';
-import { readDeviceId } from '~/lib/cookies.server';
+import { deviceIdForRequest } from '~/lib/cookies.server';
 import { WEB_COPY, cancelledBanner, goingCounts, lastConfirmed, sourceCard } from '~/lib/copy';
-import { isInAppBrowser } from '~/lib/deep-link';
+import { isInAppBrowser, isIos } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
 import {
   dayAndTime,
@@ -28,7 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
   const userAgent = request.headers.get('user-agent');
-  const { deviceId } = readDeviceId(request.headers.get('cookie'));
+  const deviceId = deviceIdForRequest(request.headers.get('cookie'));
   const client = serverClient(deviceId);
 
   try {
@@ -43,6 +44,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       baseUrl: shareBaseUrl(),
       appStoreId: appStoreId(),
       inAppBrowser: isInAppBrowser(userAgent),
+      isIos: isIos(userAgent),
       directions: directionsUrl(response.data.venue, userAgent),
       token,
     };
@@ -64,7 +66,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export function meta({ data: loaderData, location }: Route.MetaArgs) {
   if (!loaderData) return [{ title: `Not found | ${WEB_COPY.siteTitleSuffix}` }];
-  const { event, baseUrl, appStoreId: storeId } = loaderData;
+  const { event, baseUrl, appStoreId: storeId, token } = loaderData;
   // R-14's canonical rule for a token: the unlisted page is the same page
   // with or without it, so the canonical carries no secret.
   const canonical = canonicalUrl(baseUrl, `/meets/${event.slug}`);
@@ -73,7 +75,7 @@ export function meta({ data: loaderData, location }: Route.MetaArgs) {
     title: event.title,
     description: eventDescription(event),
     canonical,
-    image: ogImageUrl(baseUrl, event.slug),
+    image: ogImageUrl(baseUrl, event.slug, token),
     appStoreId: storeId,
     // An unlisted event is reachable only by its link, so it is never an
     // address a crawler should keep.
@@ -82,14 +84,19 @@ export function meta({ data: loaderData, location }: Route.MetaArgs) {
 }
 
 export default function EventPage({ loaderData }: Route.ComponentProps) {
-  const { event, baseUrl, appStoreId: storeId, inAppBrowser, directions } = loaderData;
+  const { event, baseUrl, appStoreId: storeId, inAppBrowser, directions, token } = loaderData;
+  const onIos = loaderData.isIos;
   const next = event.upcoming_occurrences[0] ?? null;
   const cancelled = next?.status === 'cancelled';
   const stale = event.last_confirmed_at ? isStale(event.last_confirmed_at) : false;
   const host = event.host;
   const hostHref = host ? hostPath(host) : null;
   const jsonLd = eventJsonLd({ event, baseUrl });
-  const calendarHref = `/calendar/meets/${event.slug}.ics`;
+  // An unlisted meet is reachable only by its link, so every link this page
+  // draws has to carry the token too, or the card and the calendar 404 for
+  // exactly the meets whose only channel is a pasted URL.
+  const query = token ? `?token=${encodeURIComponent(token)}` : '';
+  const calendarHref = `/calendar/meets/${event.slug}.ics${query}`;
 
   return (
     <>
@@ -148,7 +155,7 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
               {event.upcoming_occurrences.slice(1, 5).map((occurrence) => (
                 <li key={occurrence.id}>
                   <Link
-                    to={`/meets/${event.slug}/${occurrence.id}`}
+                    to={`/meets/${event.slug}/${occurrence.id}${query}`}
                     className="text-link underline"
                   >
                     {dayAndTime(occurrence.starts_at, occurrence.timezone)}
@@ -165,9 +172,17 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
               </a>
             ) : null}
             {/* R-10: the app, then the store. Never a write endpoint. */}
-            <AppLink path={`meets/${event.slug}`} appStoreId={storeId} className="underline">
+            <AppLink
+              path={`meets/${event.slug}`}
+              appStoreId={storeId}
+              isIos={onIos}
+              disabled={cancelled}
+              className="underline"
+            >
               {WEB_COPY.rsvp}
             </AppLink>
+            {/* web.md Copy, "W03 share": the canonical URL, to the clipboard. */}
+            <CopyLink url={canonicalUrl(baseUrl, `/meets/${event.slug}`)} />
           </div>
           <p className="mt-1 text-sm text-textSecondary">{WEB_COPY.rsvpHelper}</p>
         </section>
@@ -248,7 +263,7 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
               {sourceCard(sourceLabel(event.source.type), event.external_host_name)}
             </p>
             <a href={event.source.url} rel="noopener nofollow" className="underline">
-              Open the original
+              {WEB_COPY.sourceAction}
             </a>
           </section>
         ) : null}
@@ -256,6 +271,13 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
         <section className="mb-8 text-textSecondary">
           <h2 className="sr-only">Photos</h2>
           <p>{WEB_COPY.photosPlaceholder}</p>
+        </section>
+
+        {/* R-11's order ends photos, then comments. Both are Phase 4, and
+            both say so rather than being absent. */}
+        <section className="mb-8 text-textSecondary">
+          <h2 className="sr-only">Comments</h2>
+          <p>{WEB_COPY.commentsPlaceholder}</p>
         </section>
       </main>
     </>

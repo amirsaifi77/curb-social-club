@@ -10,6 +10,10 @@ export const WEB_COPY = {
   homeEmpty: 'Nothing listed near here yet. Pick a city or get the app to add one.',
   sectionTitles: { this_weekend: 'This weekend', next_week: 'Next week', later: 'Later' },
   searchPlaceholder: 'Search meets, clubs, places',
+  // web.md names no empty line for W02 without a query. W01's sentence
+  // offers a city picker that W02 also has, so it is the same offer without
+  // the half that belongs to the home page.
+  listEmpty: 'Nothing listed here yet. Try another city, or get the app to add one.',
   rsvp: "I'm going",
   rsvpHelper: "Opens curb. Get it on the App Store if you don't have it.",
   calendar: 'Add to calendar',
@@ -18,8 +22,14 @@ export const WEB_COPY = {
   shareDone: 'Link copied',
   unclaimed: 'Unclaimed. Are you the host? Claim it in the app.',
   photosPlaceholder: 'Photos go here after the meet.',
+  // event-detail-and-rsvp.md Copy, "S08 comments": R-7 asks W03 for the
+  // photos and comments placeholders both, and web.md names only the first.
+  commentsPlaceholder: 'Comments open soon. Ask the host on their page for now.',
+  sourceAction: 'Open the original',
+  goingZero: "Nobody has said they're going yet.",
   getTheApp: 'Get the app',
   notFoundHeadline: 'Not found.',
+  // The colon promises the nearby cards, which land with 1.17 (R-21).
   notFoundBody: "That page isn't here. Nearby this weekend:",
   goneHeadline: 'This meet is no longer listed.',
   goneNearby: 'Nearby this weekend',
@@ -57,5 +67,7 @@ export function sourceCard(source: string, handle: string | null): string {
 // event-detail-and-rsvp.md Copy, "S08 going counts". The Event payload
 // carries no interested count, so W03 shows the half it has.
 export function goingCounts(going: number): string {
-  return `${going} going.`;
+  // event-detail-and-rsvp.md Copy: a meet nobody has answered yet gets its
+  // own sentence rather than a zero.
+  return going === 0 ? WEB_COPY.goingZero : `${going} going.`;
 }

@@ -70,11 +70,48 @@ test.describe('W03 event page', () => {
     expect(response?.status()).toBe(410);
   });
 
-  test('the blocks render in the S08 order', async ({ page }) => {
+  test('R-11: the blocks render in the S08 order, ending photos then comments', async ({
+    page,
+  }) => {
     await page.goto('/meets/lido-saturday');
 
     const headings = await page.locator('main h2').allTextContents();
-    expect(headings).toEqual(['When', 'Where', 'Host', 'Sponsors', 'Going', 'About', 'Source', 'Photos']);
+    expect(headings).toEqual([
+      'When',
+      'Where',
+      'Host',
+      'Sponsors',
+      'Going',
+      'About',
+      'Source',
+      'Photos',
+      'Comments',
+    ]);
+  });
+
+  test('W03 share: the canonical URL goes to the clipboard', async ({ page }) => {
+    await page.goto('/meets/lido-saturday');
+
+    await expect(page.getByRole('button', { name: 'Copy link' })).toBeVisible();
+  });
+
+  test('AC-3: an unlisted meet carries its token into the card and the calendar', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/meets/secret-meet?token=tok_9');
+
+    // The card and the .ics read the same endpoint the page does, and it
+    // refuses an unlisted meet without the token: an og:image or a calendar
+    // link without it is a 404 for the one meet whose only channel is a
+    // pasted link.
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+    expect(ogImage).toContain('?token=tok_9');
+    expect((await request.get(new URL(ogImage ?? '').pathname + '?token=tok_9')).status()).toBe(200);
+
+    const calendar = await page.getByRole('link', { name: 'Add to calendar' }).getAttribute('href');
+    expect(calendar).toContain('?token=tok_9');
+    expect((await request.get(calendar ?? '')).status()).toBe(200);
   });
 });
 
