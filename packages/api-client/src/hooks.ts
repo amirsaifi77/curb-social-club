@@ -1,10 +1,12 @@
-import type { FeedQuery } from '@curb/types';
+import type { EventsListQuery, EventsMapQuery, FeedQuery } from '@curb/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from './keys';
 import { useApiClient } from './provider';
 import {
   deleteAccountMutation,
+  eventsMapQuery,
+  eventsQuery,
   feedQuery,
   healthQuery,
   meQuery,
@@ -34,6 +36,17 @@ export function useMe(options: { enabled?: boolean } = {}) {
 // fetched without a `near` the caller has already rounded (discovery R-1).
 export function useFeed(query: FeedQuery = {}, options: { enabled?: boolean } = {}) {
   return useQuery({ ...feedQuery(useApiClient(), query), ...options });
+}
+
+// R-15: S03 decides when a box is worth a request, so `enabled` is false
+// until the region has settled and the pill has been tapped.
+export function useEventsMap(query: EventsMapQuery, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...eventsMapQuery(useApiClient(), query), ...options });
+}
+
+// R-18: the sheet's list, filtered and sorted the same way as the pins.
+export function useEvents(query: EventsListQuery = {}, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...eventsQuery(useApiClient(), query), ...options });
 }
 
 export function useSignInWithApple() {

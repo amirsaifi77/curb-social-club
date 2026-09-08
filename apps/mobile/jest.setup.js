@@ -53,6 +53,24 @@ jest.mock('expo-router', () => {
   };
 });
 
+// Glass and blur are native views. The doubles keep the same tree shape, so
+// a test still sees the layout the tiers share and only the material differs
+// (docs/mobile-liquid-glass.md section 4).
+jest.mock('expo-glass-effect', () => {
+  const { View } = require('react-native');
+  return {
+    GlassView: View,
+    GlassContainer: View,
+    isLiquidGlassAvailable: () => true,
+    isGlassEffectAPIAvailable: () => true,
+  };
+});
+
+jest.mock('expo-blur', () => {
+  const { View } = require('react-native');
+  return { BlurView: View };
+});
+
 jest.mock('@sentry/react-native', () => ({
   init: jest.fn(),
   wrap: (component) => component,

@@ -2263,6 +2263,8 @@ export interface components {
             starts_at: string;
             title: string;
             going_count: number;
+            /** @description The event is a series; S03 draws it in the recurring pin style (discovery R-15) */
+            recurring: boolean;
         };
         Venue: {
             /** Format: uuid */

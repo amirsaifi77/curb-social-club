@@ -1,4 +1,6 @@
 import type {
+  EventsListQuery,
+  EventsMapQuery,
   FeedQuery,
   RegisterDeviceBody,
   SignInWithAppleBody,
@@ -71,6 +73,31 @@ export function signOutMutation(client: ApiClient) {
     mutationKey: mutationKeys.signOut,
     mutationFn: () => api.auth.signOut(client),
   };
+}
+
+// Map pins for a viewport (discovery R-15). Kept fresh for a minute like
+// the feed: pins move when occurrences do, not when the map does, and R-15
+// already decides when a new box is worth a request.
+export function eventsMapQuery(client: ApiClient, query: EventsMapQuery) {
+  return queryOptions({
+    queryKey: queryKeys.eventsMap(query),
+    // The whole envelope: R-19's zoom-in notice comes from meta.truncated,
+    // so unwrapping to data alone would throw it away.
+    queryFn: async () => api.events.map(client, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// The sheet's list (discovery R-18). Same filters as the pins, plus the
+// sort, so the pair answers one question about one viewport.
+export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.events(query),
+    queryFn: async () => api.events.list(client, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
 }
 
 export function updateMeMutation(client: ApiClient) {

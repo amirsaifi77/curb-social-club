@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiError, createClient } from './client';
 import { queryKeys } from './keys';
 import {
+  eventsMapQuery,
+  eventsQuery,
   feedQuery,
   healthQuery,
   meQuery,
@@ -93,6 +95,59 @@ describe('query options', () => {
     // R-1: the caller rounds, and what it rounded is what goes on the wire.
     expect(url?.searchParams.get('near')).toBe('33.62,-117.93');
     expect(url?.searchParams.get('radius_km')).toBe('32');
+  });
+
+  it('R-15: map pins go out as one bbox with the filters beside it', async () => {
+    const pins = [
+      {
+        id: 'o1',
+        event_id: 'e1',
+        slug: 'lido-saturday',
+        lat: 33.62,
+        lng: -117.93,
+        starts_at: '2026-10-24T14:30:00Z',
+        title: 'Lido Saturday',
+        going_count: 0,
+        recurring: true,
+      },
+    ];
+    const fetchMock = vi.fn(async (_request: Request) =>
+      jsonResponse(200, { data: pins, meta: { truncated: false } }),
+    );
+    const query = {
+      bbox: '-118.13,33.52,-117.73,33.72',
+      'tags[]': ['jdm' as const],
+      recurring: true,
+    };
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const result = await queryClient.fetchQuery(eventsMapQuery(clientWith(fetchMock), query));
+
+    expect(result.data).toEqual(pins);
+    expect(result.meta.truncated).toBe(false);
+    expect(queryClient.getQueryData(queryKeys.eventsMap(query))).toBeDefined();
+    const url = new URL(fetchMock.mock.calls[0]?.[0].url ?? '');
+    expect(url.pathname).toBe('/v1/events/map');
+    expect(url.searchParams.get('bbox')).toBe('-118.13,33.52,-117.73,33.72');
+    // AC-17: the same filters that drive the pins.
+    expect(url.searchParams.getAll('tags[]')).toEqual(['jdm']);
+    expect(url.searchParams.get('recurring')).toBe('true');
+  });
+
+  it('R-18: the sheet list carries the sort and keeps the page envelope', async () => {
+    const fetchMock = vi.fn(async (_request: Request) =>
+      jsonResponse(200, { data: [], meta: { next_cursor: 'abc', has_more: true } }),
+    );
+    const query = { bbox: '-118.13,33.52,-117.73,33.72', sort: 'distance' as const };
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const result = await queryClient.fetchQuery(eventsQuery(clientWith(fetchMock), query));
+
+    // The whole envelope, not just data: the sheet pages off next_cursor.
+    expect(result.meta).toEqual({ next_cursor: 'abc', has_more: true });
+    const url = new URL(fetchMock.mock.calls[0]?.[0].url ?? '');
+    expect(url.pathname).toBe('/v1/events');
+    expect(url.searchParams.get('sort')).toBe('distance');
   });
 
   it('reads health', async () => {

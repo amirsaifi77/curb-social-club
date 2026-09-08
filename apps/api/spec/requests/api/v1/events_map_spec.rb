@@ -40,7 +40,7 @@ RSpec.describe "v1/events/map" do
           expect(starts).to eq(starts.sort)
           expect(starts.last).to eq((GeoFixtures.next_saturday_0730 + 499.minutes).utc.iso8601)
           expect(json["data"].first).to include("lat" => be_within(0.0001).of(34.1065), "lng" => be_within(0.0001).of(-117.4356), "going_count" => 0)
-          expect(json["data"].first.keys).to contain_exactly("id", "event_id", "slug", "lat", "lng", "starts_at", "title", "going_count")
+          expect(json["data"].first.keys).to contain_exactly("id", "event_id", "slug", "lat", "lng", "starts_at", "title", "going_count", "recurring")
         end
       end
 
@@ -75,6 +75,16 @@ RSpec.describe "v1/events/map" do
       get "/v1/events/map", params: { bbox: fontana_box, recurring: "true" }
       expect(json["data"].map { |pin| pin["event_id"] }).to match_array(weekly_ids)
       expect(json.dig("meta", "truncated")).to be(false)
+      # discovery R-15: the client draws a series in its own pin style, so
+      # the pin carries the flag rather than the client inferring it.
+      expect(json["data"].map { |pin| pin["recurring"] }).to all(be(true))
+    end
+
+    it "R-15: a one-off meet's pin says it is not a series" do
+      create_meet(:victoria_gardens, starts_at: GeoFixtures.next_saturday_0730)
+
+      get "/v1/events/map", params: { bbox: fontana_box }
+      expect(json["data"].map { |pin| pin["recurring"] }).to eq([ false ])
     end
 
     it "AC-6: one pin per event at its nearer Saturday, honoring the window and tags (R-21)" do

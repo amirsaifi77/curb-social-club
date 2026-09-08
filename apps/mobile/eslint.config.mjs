@@ -31,6 +31,16 @@ export default [
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
+    // jest.mock factories are hoisted above the imports, so a module double
+    // has to reach for react-native with require, and a double is not a
+    // component anyone reads a display name off.
+    files: ['**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      'react/display-name': 'off',
+    },
+  },
+  {
     // Glass and blur render only through the Surface primitive (R-14).
     files: ['**/*.{ts,tsx}'],
     ignores: ['src/ui/**'],

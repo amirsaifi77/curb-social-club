@@ -2696,6 +2696,10 @@ components:
           type: string
         going_count:
           type: integer
+        recurring:
+          type: boolean
+          description: The event is a series; S03 draws it in the recurring pin style
+            (discovery R-15)
       required:
       - id
       - event_id
@@ -2705,6 +2709,7 @@ components:
       - starts_at
       - title
       - going_count
+      - recurring
     Venue:
       type: object
       properties:

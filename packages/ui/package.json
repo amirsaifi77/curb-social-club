@@ -17,6 +17,7 @@
     "@curb/config": "workspace:*",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.1.13",
+    "@types/supercluster": "^7.1.3",
     "eslint": "^9.17.0",
     "jsdom": "^27.0.0",
     "react": "19.2.3",
@@ -26,7 +27,8 @@
   },
   "description": "Shared logic and headless hooks for web and mobile; no rendering code.",
   "dependencies": {
-    "@curb/design-tokens": "workspace:*"
+    "@curb/design-tokens": "workspace:*",
+    "supercluster": "^9.1.0"
   },
   "peerDependencies": {
     "react": ">=18"
