@@ -11,7 +11,7 @@ import { WEB_COPY, cancelledBanner, goingCounts } from '~/lib/copy';
 import { isInAppBrowser } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
 import { dayAndTime, directionsUrl } from '~/lib/format';
-import { canonicalUrl, eventDescription, occurrenceJsonLd, ogImageUrl, pageMeta } from '~/lib/seo';
+import { canonicalUrl, eventDescription, jsonLdScript, occurrenceJsonLd, ogImageUrl, pageMeta } from '~/lib/seo';
 
 // W04 (web.md R-8): one date of one meet. The canonical points at the event
 // page unless this date was overridden, because otherwise every date of a
@@ -85,7 +85,7 @@ export default function OccurrencePage({ loaderData }: Route.ComponentProps) {
       <OpenInAppBar show={inAppBrowser} path={`occurrences/${occurrence.id}`} appStoreId={storeId} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
 
       <main className="mx-auto max-w-readingMax px-gutter py-8">

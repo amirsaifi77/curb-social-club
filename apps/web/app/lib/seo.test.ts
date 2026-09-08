@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { eventJsonLd, eventSchedule, localTime, occurrenceJsonLd, pageMeta } from './seo';
+import { eventJsonLd, eventSchedule, jsonLdScript, localTime, occurrenceJsonLd, pageMeta } from './seo';
 
 import { eventDetail, occurrence } from '~/test/fixtures';
 
@@ -219,5 +219,44 @@ describe('pageMeta', () => {
     expect(tags).toContainEqual({ name: 'robots', content: 'noindex' });
     // No canonical to point at when the deployment has no origin.
     expect(tags.some((tag) => tag.rel === 'canonical')).toBe(false);
+  });
+});
+
+// The JSON-LD is written with dangerouslySetInnerHTML, so what it escapes
+// is the difference between structured data and script injection.
+describe('jsonLdScript', () => {
+  it('a title that closes the script tag cannot close it', () => {
+    const json = eventJsonLd({
+      event: eventDetail({ title: 'Lido </script><script>alert(1)</script> Saturday' }),
+      baseUrl: BASE,
+    });
+
+    const rendered = jsonLdScript(json);
+
+    // The block a browser sees ends exactly once, at the tag we wrote.
+    expect(rendered).not.toContain('</script>');
+    expect(rendered).not.toContain('<script');
+    expect(`<script type="application/ld+json">${rendered}</script>`.split('</script>')).toHaveLength(2);
+  });
+
+  it('escapes the angle brackets in every field a host can write', () => {
+    const json = eventJsonLd({
+      event: eventDetail({
+        description: '<img src=x onerror=alert(1)>',
+        venue: { ...eventDetail().venue, name: '</script>Lot' },
+      }),
+      baseUrl: BASE,
+    });
+
+    expect(jsonLdScript(json)).not.toContain('<');
+    expect(jsonLdScript(json)).not.toContain('>');
+  });
+
+  it('is still the same document a crawler reads', () => {
+    // \u003c is valid JSON, so the escaping changes the bytes and not the
+    // structured data.
+    const json = eventJsonLd({ event: eventDetail({ title: 'A < B & C > D' }), baseUrl: BASE });
+
+    expect(JSON.parse(jsonLdScript(json))).toEqual(json);
   });
 });

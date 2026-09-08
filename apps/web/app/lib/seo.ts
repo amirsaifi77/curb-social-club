@@ -54,6 +54,19 @@ export function pageMeta(input: PageMetaInput): MetaDescriptor[] {
   return tags;
 }
 
+// JSON.stringify escapes nothing HTML cares about, so a stored "</script>"
+// in a title, a venue name or a sponsor's name closes the block and runs
+// whatever follows it. The values here come from hosts and from the
+// importer, so this is the difference between structured data and script
+// injection. \u003c is valid JSON that parses back to "<", so a crawler
+// reads exactly the same document.
+export function jsonLdScript(json: JsonLd): string {
+  return JSON.stringify(json)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+}
+
 export function canonicalUrl(baseUrl: string | null, path: string): string | null {
   return baseUrl ? `${baseUrl}${path}` : null;
 }

@@ -18,7 +18,7 @@ import {
   shortDate,
   sourceLabel,
 } from '~/lib/format';
-import { canonicalUrl, eventDescription, eventJsonLd, ogImageUrl, pageMeta } from '~/lib/seo';
+import { canonicalUrl, eventDescription, eventJsonLd, jsonLdScript, ogImageUrl, pageMeta } from '~/lib/seo';
 
 // W03 (web.md R-5 to R-7, R-10, R-11). The same blocks as S08 in the same
 // order (event-detail-and-rsvp.md R-11), server-rendered from the anonymous
@@ -98,7 +98,7 @@ export default function EventPage({ loaderData }: Route.ComponentProps) {
           the page for a reader. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
 
       <main className="mx-auto max-w-readingMax px-gutter pb-16">
