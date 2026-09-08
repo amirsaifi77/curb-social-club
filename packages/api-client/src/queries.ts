@@ -1,4 +1,6 @@
 import type {
+  EventsListQuery,
+  EventsMapQuery,
   FeedQuery,
   RegisterDeviceBody,
   SignInWithAppleBody,
@@ -6,7 +8,7 @@ import type {
   UpdateDeviceBody,
   UpdateMeBody,
 } from '@curb/types';
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import { ApiError, type ApiClient } from './client';
 import { mutationKeys, queryKeys } from './keys';
@@ -71,6 +73,38 @@ export function signOutMutation(client: ApiClient) {
     mutationKey: mutationKeys.signOut,
     mutationFn: () => api.auth.signOut(client),
   };
+}
+
+// Map pins for a viewport (discovery R-15). Kept fresh for a minute like
+// the feed: pins move when occurrences do, not when the map does, and R-15
+// already decides when a new box is worth a request.
+export function eventsMapQuery(client: ApiClient, query: EventsMapQuery) {
+  return queryOptions({
+    queryKey: queryKeys.eventsMap(query),
+    // The whole envelope: R-19's zoom-in notice comes from meta.truncated,
+    // so unwrapping to data alone would throw it away.
+    queryFn: async () => api.events.map(client, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+    // A new box is a new key. Without this the map blanks on every "search
+    // this area" tap, and an offline tap loses the last pins the offline
+    // state is supposed to keep showing (discovery R-15, Screens S03).
+    placeholderData: keepPreviousData,
+  });
+}
+
+// The sheet's list (discovery R-18). Same filters as the pins, plus the
+// sort, so the pair answers one question about one viewport.
+export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
+  return queryOptions({
+    queryKey: queryKeys.events(query),
+    queryFn: async () => api.events.list(client, query),
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+    // The sheet keeps its rows while the next box loads, for the same
+    // reason the pins do.
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function updateMeMutation(client: ApiClient) {

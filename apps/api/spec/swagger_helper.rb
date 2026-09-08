@@ -315,9 +315,10 @@ RSpec.configure do |config|
             properties: {
               id: { type: :string, format: :uuid, description: "The occurrence" }, event_id: { type: :string, format: :uuid },
               slug: { type: :string }, lat: { type: :number }, lng: { type: :number },
-              starts_at: { type: :string, format: "date-time" }, title: { type: :string }, going_count: { type: :integer }
+              starts_at: { type: :string, format: "date-time" }, title: { type: :string }, going_count: { type: :integer },
+              recurring: { type: :boolean, description: "The event is a series; S03 draws it in the recurring pin style (discovery R-15)" }
             },
-            required: %w[id event_id slug lat lng starts_at title going_count]
+            required: %w[id event_id slug lat lng starts_at title going_count recurring]
           },
           Venue: {
             type: :object,

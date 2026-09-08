@@ -6,6 +6,8 @@ export { api } from './requests';
 export { mutationKeys, queryKeys } from './keys';
 export {
   deleteAccountMutation,
+  eventsMapQuery,
+  eventsQuery,
   feedQuery,
   healthQuery,
   meQuery,
@@ -19,6 +21,8 @@ export {
 export { ApiClientProvider, useApiClient } from './provider';
 export {
   useDeleteAccount,
+  useEvents,
+  useEventsMap,
   useFeed,
   useHealth,
   useMe,

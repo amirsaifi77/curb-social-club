@@ -14,15 +14,29 @@ import { Text } from '@/ui/Text';
 // from tokens: no glass in rows (docs/mobile-liquid-glass.md section 6).
 export const SPONSOR_LOGO_LIMIT = 2;
 
-export function EventCard({ event }: { event: EventSummary }) {
+// On S03's sheet a card tap recenters the map rather than opening the meet
+// (discovery R-16), so the card can be handed its own press instead of the
+// link it carries everywhere else.
+export function EventCard({
+  event,
+  onPress,
+}: {
+  event: EventSummary;
+  onPress?: () => void;
+}) {
   const occurrence = event.next_occurrence;
   const distance = miles(event.distance_m);
   const chip = confirmationChip(event);
   const sponsors = event.sponsors_preview.slice(0, SPONSOR_LOGO_LIMIT);
 
-  return (
-    <Link href={`/meets/${event.slug}`} asChild>
-      <View style={styles.card} accessibilityRole="link" accessibilityLabel={event.title}>
+  const card = (
+    <View
+      style={styles.card}
+      accessibilityRole={onPress ? 'button' : 'link'}
+      accessibilityLabel={event.title}
+      onStartShouldSetResponder={onPress ? () => true : undefined}
+      onResponderRelease={onPress}
+    >
         {event.cover_url ? (
           <Image
             source={{ uri: event.cover_url }}
@@ -110,8 +124,15 @@ export function EventCard({ event }: { event: EventSummary }) {
               {chip}
             </Text>
           ) : null}
-        </View>
       </View>
+    </View>
+  );
+
+  if (onPress) return card;
+
+  return (
+    <Link href={`/meets/${event.slug}`} asChild>
+      {card}
     </Link>
   );
 }

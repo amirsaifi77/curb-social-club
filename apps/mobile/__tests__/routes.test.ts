@@ -24,6 +24,17 @@ describe('the tab route tree', () => {
     }
   });
 
+  it('the root wraps the tree in GestureHandlerRootView', () => {
+    // The map's sheet renders a GestureDetector. Without this ancestor a dev
+    // build throws on the Map tab and a release build silently refuses to
+    // drag, stranding R-18's detents at peek. Jest cannot see either: RNGH
+    // suppresses the throw under a test environment.
+    const root = readFileSync(join(APP, '_layout.tsx'), 'utf8');
+
+    expect(root).toMatch(/import \{ GestureHandlerRootView \} from 'react-native-gesture-handler'/);
+    expect(root).toMatch(/<GestureHandlerRootView/);
+  });
+
   it('the Home group holds the screen its stack titles', () => {
     expect(existsSync(join(APP, '(tabs)', '(home)', 'index.tsx'))).toBe(true);
     // A leftover file here would win over the group and drop the header.

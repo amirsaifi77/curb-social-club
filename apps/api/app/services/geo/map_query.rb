@@ -18,7 +18,7 @@ module Geo
     def call
       rows = EventOccurrence.unscoped.from(inner_relation, :pins)
                             .order(Arel.sql("pins.starts_at ASC, pins.id ASC")).limit(MAX_PINS + 1)
-                            .pluck(*%w[id event_id slug lat lng starts_at title going_count].map { |column| Arel.sql("pins.#{column}") })
+                            .pluck(*%w[id event_id slug lat lng starts_at title going_count recurring].map { |column| Arel.sql("pins.#{column}") })
       pins = rows.first(MAX_PINS).map { |row| MapPin.new(*row) }
       Result.new(pins: pins, truncated: rows.size > MAX_PINS)
     end
@@ -39,7 +39,8 @@ module Geo
                                   ST_X(event_occurrences.location::geometry) AS lng,
                                   event_occurrences.starts_at AS starts_at,
                                   events.title AS title,
-                                  event_occurrences.going_count AS going_count
+                                  event_occurrences.going_count AS going_count,
+                                  (events.cadence <> 'once') AS recurring
                                 SQL
                                 .order(Arel.sql("event_occurrences.event_id, event_occurrences.starts_at"))
       filters.apply(relation)

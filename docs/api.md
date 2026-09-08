@@ -133,7 +133,7 @@ Spot: SpotSummary plus `description`, `access_notes`, `region`, `created_by` (mi
 
 ### MapPin
 
-`id` (occurrence), `event_id`, `slug`, `lat`, `lng`, `starts_at`, `title`, `going_count`. Intentionally flat and small.
+`id` (occurrence), `event_id`, `slug`, `lat`, `lng`, `starts_at`, `title`, `going_count`, `recurring`. Intentionally flat and small. `recurring` is `cadence <> 'once'`, and it is on the pin because S03 draws a series in its own pin style and a pin is all the map has (discovery R-15).
 
 ### Profile
 

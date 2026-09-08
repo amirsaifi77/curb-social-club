@@ -8,7 +8,7 @@ Truly shared code is logic, not pixels. iOS renders native Liquid Glass componen
 
 | Shared | Examples |
 |---|---|
-| Map logic | `supercluster` wrapper, bbox helpers, pin payload to cluster conversion |
+| Map logic | `supercluster` wrapper, bbox helpers, pin payload to cluster conversion. `radius` is measured against supercluster's `extent`, so the wrapper pins `extent` to the same 256 px tile the zoom is read from; at the library default of 512 a 56 px radius clusters at 28 px on screen |
 | Formatting | `formatOccurrence` (local time with timezone), `describeRrule` ("Every Saturday, 7 to 10am"), distance formatting (mi with one decimal) |
 | Links | canonical event URL and share text builders, deep link parsing |
 | Headless hooks | `useAsyncAction` (the primary CTA machine over `motion.asyncButton`: no loading under 150 ms, loading kept 400 ms, confirmed held 600 ms, error at 10 s with silent late success), `useRsvpState`, `useImportPolling`, `useDraftForm` (state and validation, no JSX) |
@@ -22,6 +22,9 @@ Not shared: buttons, cards, tab bars, glass surfaces, anything with platform-spe
 packages/ui/
   src/
     map/
+      types.ts        # MapPinInput, Bbox, Region, MapFeature
+      bbox.ts         # region to bbox, the API's 5 degree limit, zoom, the R-15 move test
+      pinIndex.ts     # supercluster wrapper: radius 56 px at extent 256, max zoom 16
     format/
     links/
     hooks/
