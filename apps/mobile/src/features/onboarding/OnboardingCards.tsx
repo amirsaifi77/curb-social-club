@@ -60,7 +60,9 @@ export function OnboardingCards({
           <Text variant="display">curb</Text>
           <Text variant="body">{ONBOARDING_COPY.cardOne}</Text>
           <TextButton label="Next" emphasis="accent" onPress={next} />
-          <TextButton label={ONBOARDING_COPY.skip} onPress={() => finish()} />
+          {/* Skip advances rather than finishing, so AC-8's "Skip on every
+              card" is a path a person can actually take. */}
+          <TextButton label={ONBOARDING_COPY.skip} onPress={next} />
         </View>
       ) : null}
 
@@ -91,7 +93,7 @@ export function OnboardingCards({
                 value={city}
                 onChangeText={setCity}
                 placeholder="Laguna Beach"
-                accessibilityLabel={ONBOARDING_COPY.pickACity}
+                accessibilityLabel="City name"
                 style={styles.input}
                 autoCorrect={false}
                 returnKeyType="search"
