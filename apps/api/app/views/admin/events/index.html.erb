@@ -32,4 +32,4 @@
              link_to("Dates", admin_event_occurrences_path(event))
            ] } %>
 
-<%= render "admin/shared/pager", pagy: @pagy %>
+<%= render "admin/shared/pager", pagy: @pagy, filters: @filters.to_params %>

@@ -29,7 +29,7 @@
   <h2>Schedule</h2>
   <%= render "admin/shared/field", form: form, name: :cadence, control: form.select(:cadence, Event::CADENCES) %>
   <%= render "admin/shared/field", form: form, name: :timezone,
-             hint: "IANA zone name. The two times below are read in this zone." %>
+             hint: "IANA zone name. The two times below are read in this zone, so changing it alone keeps the wall clock and moves the instant." %>
   <%= render "admin/shared/field", form: form, name: :dtstart_local, label: "Starts (local)",
              control: form.datetime_field(:dtstart_local, value: local_input_value(event.dtstart, event.timezone)) %>
   <%= render "admin/shared/field", form: form, name: :duration_minutes,
@@ -55,10 +55,16 @@
   </div>
   <%= render "admin/shared/field", form: form, name: :cover, control: form.file_field(:cover, accept: "image/*") %>
 
-  <h2>Source</h2>
+  <h2>Source and confirmation</h2>
   <%= render "admin/shared/field", form: form, name: :source_url %>
   <%= render "admin/shared/field", form: form, name: :source_type, hint: "Adapter name, when the meet came from an importer." %>
   <%= render "admin/shared/field", form: form, name: :verification_source_url %>
+  <%= render "admin/shared/field", form: form, name: :verified_at_local, label: "Verified at",
+             control: form.datetime_field(:verified_at_local, value: local_input_value(event.verified_at, AdminHelper::ADMIN_ZONE)),
+             hint: "Pacific. Verify now sets this to the moment you click it; edit it here to record when the check really happened." %>
+  <%= render "admin/shared/field", form: form, name: :last_confirmed_at_local, label: "Last confirmed at",
+             control: form.datetime_field(:last_confirmed_at_local, value: local_input_value(event.last_confirmed_at, AdminHelper::ADMIN_ZONE)),
+             hint: "Pacific. Drives the stale and dormant clocks." %>
 
   <h2>Sponsors</h2>
   <p class="hint">Up to <%= Event::MAX_SPONSORSHIPS %>. Clear the sponsor and tick Remove to detach one.</p>

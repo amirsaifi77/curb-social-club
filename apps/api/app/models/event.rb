@@ -37,8 +37,12 @@ class Event < ApplicationRecord
   has_many :sponsors, through: :sponsorships
   # A04 edits sponsorships inline (admin.md R-15); a row with no sponsor
   # picked is an empty slot in the form, not a validation error.
+  # An empty new row is a spare slot in the form. An existing row whose
+  # sponsor was cleared is a mistake worth an error, not a silent no-op.
   accepts_nested_attributes_for :sponsorships, allow_destroy: true,
-                                               reject_if: ->(attributes) { attributes["sponsor_id"].blank? }
+                                               reject_if: lambda { |attributes|
+                                                 attributes["id"].blank? && attributes["sponsor_id"].blank?
+                                               }
   has_many :claim_requests, dependent: :destroy
   has_one_attached :cover
 

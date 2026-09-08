@@ -3,6 +3,7 @@
 # location is copied from the venue and follows it (Venue R-8).
 class EventOccurrence < ApplicationRecord
   STATUSES = %w[scheduled cancelled completed].freeze
+  OVERRIDE_NOTE_MAX = 280
 
   belongs_to :event
 
@@ -12,7 +13,7 @@ class EventOccurrence < ApplicationRecord
   validates :ends_at, presence: true
   validates :location, presence: true
   validates :status, inclusion: { in: STATUSES }
-  validates :override_note, length: { maximum: 280 }, allow_nil: true
+  validates :override_note, length: { maximum: OVERRIDE_NOTE_MAX }, allow_nil: true
   validate :ends_after_start
 
   after_save :recount_event, if: -> { previously_new_record? || saved_change_to_status? }

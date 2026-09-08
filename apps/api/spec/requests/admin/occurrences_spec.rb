@@ -75,6 +75,18 @@ RSpec.describe "admin event occurrences", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include(Admin::Events::OccurrencesController::CANCEL_NOTE_ERROR)
         expect(occurrence.reload.status).to eq("scheduled")
+        # The add form below the table is its own record, so a rejected
+        # cancel does not pre-fill it with the failing date's note.
+        add_note = Nokogiri::HTML(response.body).at("form.record-form input[name='event_occurrence[override_note]']")
+        expect(add_note["value"]).to be_blank
+
+        # A note past the model's limit lands in the same inline error, not
+        # on an exception page.
+        post "/admin/events/#{event.id}/occurrences/#{occurrence.id}/cancel",
+             params: { override_note: "x" * (EventOccurrence::OVERRIDE_NOTE_MAX + 1) }
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("is too long")
+        expect(occurrence.reload.status).to eq("scheduled")
 
         post "/admin/events/#{event.id}/occurrences/#{occurrence.id}/cancel",
              params: { override_note: "The lot is being resurfaced." }
@@ -83,6 +95,9 @@ RSpec.describe "admin event occurrences", type: :request do
         expect(occurrence.status).to eq("cancelled")
         expect(occurrence.override_note).to eq("The lot is being resurfaced.")
         expect(AdminAudit.where(target_id: event.id, action: "occurrence_cancel")).to exist
+        # Every occurrence audit names the row it touched.
+        actions = AdminAudit.where(target_id: event.id).where("action LIKE ?", "occurrence_%")
+        expect(actions.map { |row| row.changeset["occurrence_id"] }.uniq).to eq([ occurrence.id ])
       end
     end
   end

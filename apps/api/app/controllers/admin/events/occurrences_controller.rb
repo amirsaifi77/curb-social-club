@@ -12,8 +12,7 @@ module Admin
       before_action :load_occurrence, only: %i[edit update cancel reset]
 
       def index
-        @occurrences = window_rows
-        @occurrence = EventOccurrence.new(event: @event)
+        load_index
       end
 
       def edit; end
@@ -21,13 +20,14 @@ module Admin
       # R-13: an admin-added date is an override from birth, so the nightly
       # materializer never removes it, and announced events accept rows.
       def create
-        @occurrence = @event.occurrences.new(occurrence_params.merge(overridden_at: Time.current))
-        @occurrence.starts_at = local_time(params.dig(:event_occurrence, :starts_at_local))
-        if @occurrence.save
-          audit("occurrence_create", target: @event, changes: { "starts_at" => @occurrence.starts_at.iso8601 })
+        @new_occurrence = @event.occurrences.new(occurrence_params.merge(overridden_at: Time.current))
+        @new_occurrence.starts_at = local_time(params.dig(:event_occurrence, :starts_at_local))
+        if @new_occurrence.save
+          audit("occurrence_create", target: @event,
+                changes: { "occurrence_id" => @new_occurrence.id, "starts_at" => @new_occurrence.starts_at.iso8601 })
           redirect_to admin_event_occurrences_path(@event), notice: "Date added."
         else
-          @occurrences = window_rows
+          load_index
           render :index, status: :unprocessable_content
         end
       end
@@ -49,14 +49,17 @@ module Admin
       # the column is optional, because it is shown to everyone going.
       def cancel
         note = params[:override_note].to_s.strip
-        if note.blank?
-          @occurrences = window_rows
-          @occurrence.errors.add(:override_note, CANCEL_NOTE_ERROR)
+        @occurrence.errors.add(:override_note, CANCEL_NOTE_ERROR) if note.blank?
+
+        # update, not update!: a note over the model's limit belongs in the
+        # same inline error as a missing one, not on an exception page.
+        saved = note.present? && @occurrence.update(status: "cancelled", override_note: note, overridden_at: Time.current)
+        unless saved
+          load_index
           @cancel_error_id = @occurrence.id
           return render :index, status: :unprocessable_content
         end
 
-        @occurrence.update!(status: "cancelled", override_note: note, overridden_at: Time.current)
         audit("occurrence_cancel", target: @event, changes: { "occurrence_id" => @occurrence.id, "override_note" => note })
         redirect_to admin_event_occurrences_path(@event), notice: "Date cancelled."
       end
@@ -78,6 +81,14 @@ module Admin
 
       def load_occurrence
         @occurrence = @event.occurrences.find(params[:id])
+      end
+
+      # Everything the index template needs, wherever it is rendered from.
+      # The add form gets its own record so a rejected cancel does not
+      # pre-fill it with the failing date's note.
+      def load_index
+        @occurrences = window_rows
+        @new_occurrence ||= EventOccurrence.new(event: @event)
       end
 
       def window_rows

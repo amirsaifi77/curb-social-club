@@ -16,7 +16,7 @@
   </tbody>
 </table>
 
-<h2>Events here</h2>
+<h2>Upcoming events here</h2>
 <%= render "admin/shared/table",
            columns: [ "Title", "Status", "Cadence", "Next date" ],
            empty: "No events at this venue yet.",
@@ -27,9 +27,9 @@
              next_at ? admin_time(next_at, zone: event.timezone) : "none"
            ] } %>
 
-<% if @upcoming.empty? %>
+<% if @event_count.zero? %>
   <%= button_to "Delete venue", admin_venue_path(@venue), method: :delete, class: "button button-danger",
                 data: { confirm: "Delete #{@venue.name}?" } %>
 <% else %>
-  <p class="muted">A venue with events cannot be deleted. Repoint the events above first.</p>
+  <p class="muted">A venue with events cannot be deleted. <%= link_to pluralize(@event_count, "event"), admin_events_path(q: @venue.name) %> here, upcoming or not; repoint them first.</p>
 <% end %>

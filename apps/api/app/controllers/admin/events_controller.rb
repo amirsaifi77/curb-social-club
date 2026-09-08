@@ -33,9 +33,9 @@ module Admin
     def create
       @event = Event.new(created_by: current_admin)
       assign(@event)
-      changes = changeset(@event)
       if @event.save
-        audit("create", target: @event, changes: changes)
+        audit_skipped(@event)
+        audit("create", target: @event, changes: changeset(@event))
         redirect_to edit_admin_event_path(@event), notice: "Event created."
       else
         render :new, status: :unprocessable_content
@@ -44,9 +44,9 @@ module Admin
 
     def update
       assign(@event)
-      changes = changeset(@event)
       if @event.save
-        audit("update", target: @event, changes: changes)
+        audit_skipped(@event)
+        audit("update", target: @event, changes: changeset(@event))
         redirect_to edit_admin_event_path(@event), notice: "Event saved."
       else
         render :edit, status: :unprocessable_content
@@ -84,9 +84,10 @@ module Admin
 
     def assign(event)
       attributes = event_params
-      skipped = skipped_keys(event, attributes)
-      attributes = attributes.except(*skipped)
-      audit(LOCKED_AUDIT, target: event, changes: { "skipped" => skipped.map(&:to_s) }) if skipped.any?
+      # Recorded, not audited yet: a drop is only worth a row once the edit
+      # it was part of actually saved.
+      @skipped = skipped_keys(event, attributes)
+      attributes = attributes.except(*@skipped)
 
       host = Admin::HostPicker.parse(attributes.delete(:host))
       # The checkbox group carries a blank so clearing every tag submits the
@@ -97,7 +98,26 @@ module Admin
       zone = effective_zone(event, attributes)
       event.dtstart = parse_local(params.dig(:event, :dtstart_local), zone) if params[:event]&.key?(:dtstart_local)
       event.rrule_until = parse_local(params.dig(:event, :rrule_until_local), zone) if params[:event]&.key?(:rrule_until_local)
+      # R-15: the confirmation stamps are administrative, so they read in
+      # the admin's own zone rather than the meet's.
+      assign_admin_time(event, :verified_at)
+      assign_admin_time(event, :last_confirmed_at)
+      attach_cover(event)
       clear_dormancy(event)
+    end
+
+    def assign_admin_time(event, name)
+      key = :"#{name}_local"
+      return unless params[:event]&.key?(key)
+
+      event.public_send(:"#{name}=", parse_local(params.dig(:event, key), AdminHelper::ADMIN_ZONE))
+    end
+
+    # An empty value for a file field is a browser sending no file, not a
+    # request to purge the attachment; only a real upload replaces it.
+    def attach_cover(event)
+      file = params.dig(:event, :cover)
+      event.cover.attach(file) if file.respond_to?(:original_filename)
     end
 
     # On create the model copies the venue's zone unless the timezone was
@@ -151,13 +171,24 @@ module Admin
       params.require(:event).permit(
         :title, :slug, :description, :host, :venue_id, :cadence, :duration_minutes, :timezone, :rrule,
         :status, :visibility, :source_url, :source_type, :external_host_name, :parking_note,
-        :capacity, :rsvp_mode, :verification_source_url, :cover,
+        :capacity, :rsvp_mode, :verification_source_url,
         tags: [], sponsorships_attributes: %i[id sponsor_id role note position _destroy]
       )
     end
 
+    # After the save, so R-1's before and after covers what the callbacks
+    # wrote too: the generated slug, the denormalized host_name, published_at.
     def changeset(event)
-      event.changes.transform_values { |before, after| { "before" => before.to_s, "after" => after.to_s } }
+      event.saved_changes.except("created_at", "updated_at")
+           .transform_values { |before, after| { "before" => before.to_s, "after" => after.to_s } }
+    end
+
+    # R-1: the drop really happened, so it is recorded, but only alongside
+    # the edit that landed.
+    def audit_skipped(event)
+      return if @skipped.blank?
+
+      audit(LOCKED_AUDIT, target: event, changes: { "skipped" => @skipped.map(&:to_s) })
     end
 
     helper_method :claimed_copy

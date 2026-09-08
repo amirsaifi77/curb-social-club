@@ -21,4 +21,4 @@
              link_to("Edit", edit_admin_venue_path(venue))
            ] } %>
 
-<%= render "admin/shared/pager", pagy: @pagy %>
+<%= render "admin/shared/pager", pagy: @pagy, filters: { q: @query.presence }.compact %>

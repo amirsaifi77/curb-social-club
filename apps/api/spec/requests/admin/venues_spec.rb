@@ -4,6 +4,8 @@ require "rails_helper"
 RSpec.describe "admin venues", type: :request do
   let(:admin) { create(:user, role: "admin") }
 
+  def pager_hrefs = Nokogiri::HTML(response.body).css(".pager a").map { |link| link["href"] }
+
   it "AC-4: a moderator is bounced from A03 with the role flash" do
     sign_in_moderator(create(:user, role: "moderator"))
     get "/admin/venues"
@@ -13,29 +15,53 @@ RSpec.describe "admin venues", type: :request do
   end
 
   context "when signed in as an admin" do
-    before { sign_in_admin(admin) }
+      before { sign_in_admin(admin) }
 
-  describe "GET /admin/venues" do
-    it "lists venues, searches name and city, and pages at 50" do
-      create(:venue, name: "Lido Marina Village", city: "Newport Beach")
-      create(:venue, name: "Sierra at Foothill", city: "Fontana")
+    describe "GET /admin/venues" do
+      it "lists venues, searches name and city, and pages at 50" do
+        create(:venue, name: "Lido Marina Village", city: "Newport Beach")
+        create(:venue, name: "Sierra at Foothill", city: "Fontana")
 
-      get "/admin/venues"
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Lido Marina Village", "Sierra at Foothill")
+        get "/admin/venues"
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Lido Marina Village", "Sierra at Foothill")
 
-      get "/admin/venues", params: { q: "fontana" }
-      expect(response.body).to include("Sierra at Foothill")
-      expect(response.body).not_to include("Lido Marina Village")
+        get "/admin/venues", params: { q: "fontana" }
+        expect(response.body).to include("Sierra at Foothill")
+        expect(response.body).not_to include("Lido Marina Village")
 
-      get "/admin/venues", params: { q: "lido" }
-      expect(response.body).to include("Lido Marina Village")
-    end
+        get "/admin/venues", params: { q: "lido" }
+        expect(response.body).to include("Lido Marina Village")
+      end
 
-    it "shows the empty copy on a fresh database" do
-      get "/admin/venues"
-      expect(response.body).to include("Nothing here yet.")
-    end
+      it "shows the empty copy on a fresh database" do
+        get "/admin/venues"
+        expect(response.body).to include("Nothing here yet.")
+      end
+
+      it "pages at 50, keeps the search, and ignores a reserved key in the query string" do
+        60.times { |i| create(:venue, name: "Venue #{format('%02d', i)}", city: "Newport Beach") }
+
+        get "/admin/venues"
+        expect(Nokogiri::HTML(response.body).css("table.list tbody tr").size).to eq(50)
+        expect(response.body).to include("1 to 50 of 60")
+        expect(pager_hrefs).to eq([ "/admin/venues?page=2" ])
+
+        get "/admin/venues", params: { page: 2 }
+        expect(Nokogiri::HTML(response.body).css("table.list tbody tr").size).to eq(10)
+
+        get "/admin/venues", params: { q: "Newport" }
+        expect(pager_hrefs.first).to include("q=Newport")
+
+        # url_for treats these as routing options, so forwarding the request's
+        # own query would rewrite the link or raise.
+        { "host" => "evil.example.com", "controller" => "nope", "action" => "destroy",
+          "script_name" => "/x", "protocol" => "javascript" }.each do |key, value|
+          get "/admin/venues", params: { key => value }
+          expect(response).to have_http_status(:ok), "#{key} broke the list"
+          expect(pager_hrefs).to eq([ "/admin/venues?page=2" ]), "#{key} reached url_for"
+        end
+      end
   end
 
   describe "POST /admin/venues" do
@@ -85,11 +111,12 @@ RSpec.describe "admin venues", type: :request do
       audit = AdminAudit.where(target_type: "Venue", target_id: venue.id).recent.first
       expect(audit.action).to eq("update")
       expect(audit.changeset["name"]).to eq("before" => "Old name", "after" => "New name")
+      expect(audit.changeset).not_to have_key("updated_at")
     end
   end
 
   describe "GET and DELETE /admin/venues/:id" do
-    it "shows the venue with its events and refuses to delete while they exist" do
+    it "shows the venue with its upcoming events and refuses to delete while they exist" do
       venue = create(:venue, name: "Lido Marina Village")
       event = create(:event, :published, venue: venue, title: "Saturday meet")
       create(:event_occurrence, event: event, starts_at: 3.days.from_now)
@@ -100,7 +127,18 @@ RSpec.describe "admin venues", type: :request do
 
       expect { delete "/admin/venues/#{venue.id}" }.not_to change(Venue, :count)
       expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include("Events")
+      expect(response.body).to include("Upcoming events here")
+    end
+
+    it "still blocks the delete when every event at the venue is in the past" do
+      venue = create(:venue, name: "Old lot")
+      past = create(:event, :published, venue: venue, title: "Last summer")
+      create(:event_occurrence, event: past, starts_at: 40.days.ago, status: "completed")
+
+      get "/admin/venues/#{venue.id}"
+      expect(response.body).not_to have_button("Delete venue")
+      expect(response.body).to include("1 event")
+      expect { delete "/admin/venues/#{venue.id}" }.not_to change(Venue, :count)
     end
 
     it "deletes a venue with no events" do

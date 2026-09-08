@@ -15,7 +15,7 @@ module Admin
     end
 
     def show
-      @upcoming = upcoming_events(@venue)
+      load_show
     end
 
     def new
@@ -27,9 +27,8 @@ module Admin
     def create
       @venue = Venue.new(created_by: current_admin)
       assign(@venue)
-      changes = changeset(@venue)
       if @venue.save
-        audit("create", target: @venue, changes: changes)
+        audit("create", target: @venue, changes: changeset(@venue))
         redirect_to admin_venue_path(@venue), notice: "Venue created."
       else
         render :new, status: :unprocessable_content
@@ -38,9 +37,8 @@ module Admin
 
     def update
       assign(@venue)
-      changes = changeset(@venue)
       if @venue.save
-        audit("update", target: @venue, changes: changes)
+        audit("update", target: @venue, changes: changeset(@venue))
         redirect_to admin_venue_path(@venue), notice: "Venue saved."
       else
         render :edit, status: :unprocessable_content
@@ -54,7 +52,7 @@ module Admin
         audit("destroy", target: @venue, changes: { "name" => @venue.name })
         redirect_to admin_venues_path, notice: "Venue deleted."
       else
-        @upcoming = upcoming_events(@venue)
+        load_show
         render :show, status: :unprocessable_content
       end
     end
@@ -72,12 +70,20 @@ module Admin
       scope.where("venues.name ILIKE :q OR venues.city ILIKE :q", q: "%#{Venue.sanitize_sql_like(@query)}%")
     end
 
+    # R-14 asks for the upcoming events; the delete guard needs to know
+    # about every event, including one whose dates are all in the past, so
+    # the two are counted separately.
+    def load_show
+      @upcoming = upcoming_events(@venue)
+      @event_count = Event.where(venue: @venue).count
+    end
+
     # [event, its next scheduled date] in two queries rather than one per row.
     def upcoming_events(venue)
-      events = Event.where(venue: venue).order(:title).limit(UPCOMING_LIMIT).to_a
-      next_dates = EventOccurrence.scheduled.upcoming.where(event_id: events.map(&:id))
+      next_dates = EventOccurrence.scheduled.upcoming.where(event_id: Event.where(venue: venue).select(:id))
                                   .group(:event_id).minimum(:starts_at)
-      events.map { |event| [ event, next_dates[event.id] ] }
+      Event.where(id: next_dates.keys).order(:title).limit(UPCOMING_LIMIT)
+           .map { |event| [ event, next_dates[event.id] ] }
     end
 
     def assign(venue)
@@ -91,8 +97,11 @@ module Admin
                               timezone external_place_id external_source lat lng])
     end
 
+    # After the save, so R-1's before and after covers the columns the
+    # model's own callbacks wrote.
     def changeset(venue)
-      venue.changes.transform_values { |before, after| { "before" => before.to_s, "after" => after.to_s } }
+      venue.saved_changes.except("created_at", "updated_at")
+           .transform_values { |before, after| { "before" => before.to_s, "after" => after.to_s } }
     end
   end
 end

@@ -55,6 +55,18 @@ RSpec.describe "admin events", type: :request do
       expect(response.body).not_to include("Draft meet")
     end
 
+    it "pages at 50 and carries only the known filters into the pager link" do
+      venue = create(:venue)
+      60.times { |i| create(:event, :published, venue: venue, title: "Meet #{format('%02d', i)}") }
+
+      get "/admin/events", params: { status: "published", q: "Meet", host: "evil.example.com" }
+      expect(response).to have_http_status(:ok)
+      href = Nokogiri::HTML(response.body).css(".pager a").map { |link| link["href"] }.first
+      expect(href).to start_with("/admin/events?")
+      expect(href).to include("status=published", "q=Meet", "page=2")
+      expect(href).not_to include("evil.example.com", "host=")
+    end
+
     it "ignores a filter value it does not know rather than raising" do
       create(:event, :published, title: "Saturday meet")
       get "/admin/events", params: { status: "nope", host_type: "Robot", claimed: "maybe" }
@@ -132,6 +144,48 @@ RSpec.describe "admin events", type: :request do
       expect(skipped.changeset["skipped"]).to eq([ "host" ])
     end
 
+    it "records the drop only when the edit it came with actually saved" do
+      club = create(:club, name: "Original club")
+      event = create(:event, :published, host: club, claimed_at: 3.days.ago)
+      other = create(:club, name: "Someone else")
+
+      patch "/admin/events/#{event.id}",
+            params: { event: form_params(event, host: Admin::HostPicker.value("Club", other.id), title: "") }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(AdminAudit.where(action: "skipped_locked_fields")).not_to exist
+      expect(AdminAudit.where(action: "update")).not_to exist
+    end
+
+    it "audits what the callbacks wrote, not only what the form sent (R-1)" do
+      event = create(:event, :published)
+      club = create(:club, name: "New Club")
+
+      patch "/admin/events/#{event.id}", params: { event: form_params(event, host: Admin::HostPicker.value("Club", club.id)) }
+
+      audit = AdminAudit.where(target_id: event.id, action: "update").recent.first
+      # host_name is denormalized by an Event callback, so a changeset read
+      # before the save would have missed it entirely.
+      expect(audit.changeset["host_name"]).to eq("before" => event.host_name, "after" => "New Club")
+      expect(audit.changeset).not_to have_key("updated_at")
+    end
+
+    it "edits the two confirmation stamps directly, read in Pacific (R-15)" do
+      event = create(:event, :published, verified_at: nil, last_confirmed_at: 90.days.ago)
+
+      get "/admin/events/#{event.id}/edit"
+      expect(response.body).to have_field("event[verified_at_local]")
+      expect(response.body).to have_field("event[last_confirmed_at_local]")
+
+      patch "/admin/events/#{event.id}",
+            params: { event: form_params(event, verified_at_local: "2026-08-15T10:00",
+                                                last_confirmed_at_local: "2026-08-15T10:00") }
+
+      event.reload
+      expect(event.verified_at).to eq(zone.parse("2026-08-15 10:00"))
+      expect(event.last_confirmed_at).to eq(zone.parse("2026-08-15 10:00"))
+    end
+
     it "locks the slug once the event is published" do
       event = create(:event, :published, slug: "lido-saturday")
 
@@ -170,7 +224,11 @@ RSpec.describe "admin events", type: :request do
       expect(event.host_name).to eq("Curb Social Club")
       expect(event.tags).to eq([ "all" ])
       expect(event.dtstart).to eq(zone.parse("2026-11-07 07:30"))
-      expect(AdminAudit.where(target_id: event.id, action: "create")).to exist
+      audit = AdminAudit.where(target_id: event.id, action: "create").sole
+      # The slug is generated in a callback, so it only lands in the
+      # changeset when that is read after the save.
+      expect(audit.changeset["slug"]).to include("after" => event.slug)
+      expect(audit.changeset["host_name"]).to include("after" => "Curb Social Club")
     end
 
     it "reads the local start in the venue's zone when the timezone field is left at the default" do
@@ -255,6 +313,19 @@ RSpec.describe "admin events", type: :request do
         "0" => { id: first.id, sponsor_id: first.sponsor_id, role: first.role, position: "0", _destroy: "1" }
       }) }
       expect(event.reload.sponsorships.map(&:sponsor_id)).to eq([ shop.id ])
+    end
+
+    it "reports an existing row whose sponsor was cleared instead of ignoring it" do
+      event = create(:event, :published)
+      sponsorship = create(:event_sponsorship, event: event, sponsor: create(:sponsor))
+
+      patch "/admin/events/#{event.id}", params: { event: form_params(event, sponsorships_attributes: {
+        "0" => { id: sponsorship.id, sponsor_id: "", role: sponsorship.role, position: "0" }
+      }) }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Sponsorships sponsor must exist")
+      expect(event.reload.sponsorships.map(&:sponsor_id)).to eq([ sponsorship.sponsor_id ])
     end
 
     it "refuses a seventh sponsorship with a form error rather than saving six plus one" do

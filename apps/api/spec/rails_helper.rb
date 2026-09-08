@@ -8,7 +8,7 @@ require "rspec/rails"
 require "webmock/rspec"
 # Matchers only (have_button, have_select, have_field): no driver, no
 # system tests, so request specs can assert on rendered admin HTML.
-require "capybara/rspec"
+require "capybara/rspec/matchers"
 
 # Never call Apple or Google in specs (session 0.5 notes).
 WebMock.disable_net_connect!(allow_localhost: true)

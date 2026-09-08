@@ -24,7 +24,8 @@
             <%= link_to "Edit", edit_admin_event_occurrence_path(@event, occurrence) %>
             <% unless occurrence.cancelled? %>
               <%= form_with url: cancel_admin_event_occurrence_path(@event, occurrence), method: :post, class: "inline" do |form| %>
-                <%= form.text_field :override_note, placeholder: "Why this date is off (shown to people who were going)" %>
+                <%= form.text_field :override_note, maxlength: EventOccurrence::OVERRIDE_NOTE_MAX,
+                                    placeholder: "Why this date is off (shown to people who were going)" %>
                 <%= form.submit "Cancel date", data: { confirm: "Cancel this date?" } %>
               <% end %>
             <% end %>
@@ -43,8 +44,8 @@
 <% end %>
 
 <h2>Add a date</h2>
-<%= form_with model: @occurrence, url: admin_event_occurrences_path(@event), method: :post, class: "record-form" do |form| %>
-  <%= render "admin/shared/form_errors", record: @occurrence unless @cancel_error_id %>
+<%= form_with model: @new_occurrence, url: admin_event_occurrences_path(@event), method: :post, class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: @new_occurrence %>
   <%= render "admin/shared/field", form: form, name: :starts_at_local, label: "Starts (local)",
              control: form.datetime_field(:starts_at_local, value: nil) %>
   <%= render "admin/shared/field", form: form, name: :override_note %>

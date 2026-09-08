@@ -1,8 +1,11 @@
-<%# Offset pager (admin.md R-14, R-15): 50 per page, prev and next only. %>
+<%# Offset pager (admin.md R-14, R-15): 50 per page, prev and next only.
+    The query is rebuilt from the screen's own filter keys, never from the
+    request's, so a reserved key (controller, action, host, script_name)
+    cannot reach url_for and rewrite or break the link. %>
 <% if pagy.last > 1 %>
   <nav class="pager">
-    <%= link_to "Previous", url_for(request.query_parameters.merge(page: pagy.previous)) if pagy.previous %>
+    <%= link_to "Previous", url_for(filters.merge(page: pagy.previous, only_path: true)) if pagy.previous %>
     <span><%= pagy.from %> to <%= pagy.to %> of <%= pagy.count %></span>
-    <%= link_to "Next", url_for(request.query_parameters.merge(page: pagy.next)) if pagy.next %>
+    <%= link_to "Next", url_for(filters.merge(page: pagy.next, only_path: true)) if pagy.next %>
   </nav>
 <% end %>
