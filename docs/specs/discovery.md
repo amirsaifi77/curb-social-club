@@ -121,7 +121,7 @@ Deltas adopted into docs/api.md on 2026-09-06 (see Risks): the section time boun
 | S03 empty | Nothing here this weekend. |
 | S03 empty toggle | Show all upcoming |
 | S03 truncated | Zoom in to see all meets here. |
-| S03 error | Couldn't load this area. Try again. |
+| S03 error | Couldn't load this area. Try again. ("Try again" is the retry control, as on S02.) |
 | S03 offline | You're offline. Showing the last results. |
 | S03 Spots toggle (4) | Spots |
 | S03 locate me refused | Location is off. Pan the map instead. |
