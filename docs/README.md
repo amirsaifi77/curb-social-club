@@ -9,7 +9,7 @@ Planning documents for the Curb Social Club platform (Curb Social in prose, "cur
 | [data-model.md](data-model.md) | ERD, every table and column, indexes, retention | Architecture workstream |
 | [api.md](api.md) | REST v1 conventions and endpoint reference draft | Architecture workstream |
 | [importer.md](importer.md) | Link and flyer import pipeline, adapters, confidence, LLM fallback | Architecture workstream |
-| [local-development.md](local-development.md) | Planned local setup and commands | Architecture workstream |
+| [local-development.md](local-development.md) | Local setup, the iOS Simulator recipe, environment variables, troubleshooting | Architecture workstream |
 | [mobile-liquid-glass.md](mobile-liquid-glass.md) | iOS 26 Liquid Glass design language and how to achieve it in Expo, plus the mobile architecture | Mobile workstream |
 | [business-plan.md](business-plan.md) | Project proposal and business plan, brand direction, personas, go-to-market, metrics, risks (including the Curb namespace), budget | Product workstream |
 | [app-overview.md](app-overview.md) | Functional overview of every surface, the import-from-link flow, copy examples, MVP cut list | Product workstream |

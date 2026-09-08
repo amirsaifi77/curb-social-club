@@ -19,4 +19,13 @@ namespace :seeds do
     failed = reports.sum { |report| report.counts[:error] }
     abort "#{failed} rows had errors." if failed.positive?
   end
+
+  desc "Import the fabricated development rows in db/seeds/dev (never in production)"
+  task dev: :environment do
+    reports = Seeds::DevFixtures.call
+    failed = reports.sum { |report| report.counts[:error] }
+    abort "#{failed} rows had errors." if failed.positive?
+  rescue Seeds::DevFixtures::Refused => error
+    abort error.message
+  end
 end

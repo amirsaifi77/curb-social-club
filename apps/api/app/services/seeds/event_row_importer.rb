@@ -233,8 +233,12 @@ module Seeds
       ActiveSupport::TimeZone[zone]&.parse(text.to_s)
     end
 
+    # end_of_day carries nanoseconds and the column stores microseconds, so
+    # the value written is never the value read back: without the floor a
+    # seasonal row reports `update` and rewrites itself on every re-run,
+    # which is the one signal that says nothing changed.
     def end_of_day(text, zone)
-      ActiveSupport::TimeZone[zone]&.parse(text.to_s)&.end_of_day
+      ActiveSupport::TimeZone[zone]&.parse(text.to_s)&.end_of_day&.floor(6)
     end
 
     def sponsorship_rows(row)
