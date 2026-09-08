@@ -6,7 +6,12 @@ import { toBrowseArea, type BrowseArea } from '@/lib/browse-location';
 // leaves the phone for this group, and the coordinates it returns go
 // through the same rounding boundary as every other browse coordinate
 // (R-1), because picking a place moves the map.
-export const MAX_PLACES = 5;
+// One place, not five. `Location.geocodeAsync` returns coordinates with no
+// names, so five matches for "Corona" would render as five identical rows
+// and picking one would be a coin flip between Corona CA, Corona NY and
+// Corona del Mar. The geocoder orders by relevance, so the first is the
+// answer to show until a named place source lands.
+export const MAX_PLACES = 1;
 
 export interface Place {
   id: string;

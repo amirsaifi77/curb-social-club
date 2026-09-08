@@ -115,7 +115,7 @@ export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
 // decides when a query is worth making.
 export function searchEventsQuery(client: ApiClient, query: EventsListQuery) {
   return queryOptions({
-    queryKey: queryKeys.events(query),
+    queryKey: queryKeys.searchEvents(query),
     queryFn: async () => api.events.list(client, query),
     staleTime: 30_000,
     retry: retryUnlessClientError,
@@ -124,7 +124,7 @@ export function searchEventsQuery(client: ApiClient, query: EventsListQuery) {
 
 export function searchClubsQuery(client: ApiClient, query: ClubsQuery) {
   return queryOptions({
-    queryKey: queryKeys.clubs(query),
+    queryKey: queryKeys.searchClubs(query),
     queryFn: async () => (await api.clubs.list(client, query)).data,
     staleTime: 30_000,
     retry: retryUnlessClientError,
@@ -133,7 +133,7 @@ export function searchClubsQuery(client: ApiClient, query: ClubsQuery) {
 
 export function searchSponsorsQuery(client: ApiClient, query: SponsorsQuery) {
   return queryOptions({
-    queryKey: queryKeys.sponsors(query),
+    queryKey: queryKeys.searchSponsors(query),
     queryFn: async () => (await api.sponsors.list(client, query)).data,
     staleTime: 30_000,
     retry: retryUnlessClientError,

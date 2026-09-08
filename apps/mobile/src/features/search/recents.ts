@@ -41,16 +41,16 @@ export function clearRecents(store: KeyValueStore = storage): void {
 }
 
 // The recents list is not the only copy of what someone searched for: the
-// persisted query cache keys its rows by the query, which is what makes
-// S05's offline state work (Screens S05, "cached only"). Clearing the
-// history has to clear both, or the visible list empties while the same
-// strings stay on disk for another day.
+// query cache keys its rows by the query too, which is what S05's offline
+// state reads (Screens S05, "cached only"). Those rows live under the
+// `curb.search` namespace and so never reach the disk, but clearing the
+// history should still drop them, or the list empties while the same
+// strings answer from memory for the rest of the session.
 export function clearSearchHistory(client: QueryClient, store: KeyValueStore = storage): void {
   clearRecents(store);
   client.removeQueries({
     predicate: (query) => {
-      const params = query.queryKey.at(-1);
-      return typeof params === 'object' && params !== null && 'q' in params;
+      return query.queryKey[0] === 'curb' && query.queryKey[1] === 'search';
     },
   });
 }

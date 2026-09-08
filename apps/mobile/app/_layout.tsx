@@ -78,6 +78,11 @@ function RootLayout() {
               name="onboarding"
               options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }}
             />
+            {/* S05 over whichever tab opened it (docs/screens.md S05). */}
+            <Stack.Screen
+              name="search"
+              options={{ presentation: 'modal', headerShown: false }}
+            />
             <Stack.Screen name="dev/gallery" options={{ title: 'Gallery' }} />
           </Stack>
         </ApiClientProvider>

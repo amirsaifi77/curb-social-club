@@ -1,9 +1,10 @@
 import { useSearchClubs, useSearchEvents, useSearchSponsors } from '@curb/api-client';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { requestMapTarget } from '@/features/map/map-target';
 import { SEARCH_COPY, noResults } from '@/features/search/copy';
 import { searchPlaces, type Place } from '@/features/search/places';
 import { readRecents, rememberSearch } from '@/features/search/recents';
@@ -24,14 +25,22 @@ export default function SearchScreen() {
   const { near } = useBrowseLocation();
   const { text, query, setText } = useDebouncedQuery();
   const [recents, setRecents] = useState<string[]>(() => readRecents());
-  const [everywhere, setEverywhere] = useState(false);
+  // R-21 widens one query for one search. Held as the query it applies to,
+  // not a boolean reset in an effect: the reset landed a render late, so the
+  // next search fired twice per group, once wide and once near.
+  const [everywhereFor, setEverywhereFor] = useState<string | null>(null);
   const [places, setPlaces] = useState<Place[]>([]);
   const [placesUnavailable, setPlacesUnavailable] = useState(false);
 
   const asking = query !== null;
-  // R-21: Search everywhere repeats the events query without `near`.
-  const area = everywhere ? {} : { near, radius_km: SEARCH_RADIUS_KM };
-  const events = useSearchEvents({ q: query ?? '', ...area }, { enabled: asking });
+  const everywhere = query !== null && everywhereFor === query;
+  const area = { near, radius_km: SEARCH_RADIUS_KM };
+  // R-21 and the block's deliverable: Search everywhere repeats the *events*
+  // query without `near`. Clubs and sponsors keep theirs.
+  const events = useSearchEvents(
+    { q: query ?? '', ...(everywhere ? {} : area) },
+    { enabled: asking },
+  );
   const clubs = useSearchClubs({ q: query ?? '', ...area }, { enabled: asking });
   const sponsors = useSearchSponsors({ q: query ?? '', ...area }, { enabled: asking });
 
@@ -53,13 +62,11 @@ export default function SearchScreen() {
     };
   }, [query]);
 
-  // A search that returned something is a search worth remembering.
-  useEffect(() => {
-    if (query && events.isSuccess) setRecents(rememberSearch(query));
-  }, [query, events.isSuccess]);
-
-  // Widening is about this query; the next one starts near again.
-  useEffect(() => setEverywhere(false), [query]);
+  // Remembering on every successful fetch filled the ten slots with the
+  // prefixes of one word: pausing mid-"corona" committed "co", "cor",
+  // "coro". A recent is something the person acted on, so it is recorded
+  // when they submit the field or open a result.
+  const remember = useCallback((text: string) => setRecents(rememberSearch(text)), []);
 
   // Lets the header field open S05 again once this one has gone.
   useEffect(() => markSearchClosed, []);
@@ -72,6 +79,8 @@ export default function SearchScreen() {
   };
   const total =
     groups.events.length + groups.clubs.length + groups.sponsors.length + groups.places.length;
+  // R-20: a group that is slow does not hold up the others, so the line
+  // says a search is still running rather than replacing what has arrived.
   const loading = asking && (events.isLoading || clubs.isLoading || sponsors.isLoading);
   const failed = events.isError && clubs.isError && sponsors.isError;
   // Screens S05 offline: a group that failed while another still has rows
@@ -80,9 +89,16 @@ export default function SearchScreen() {
     !failed && (events.isError || clubs.isError || sponsors.isError || placesUnavailable);
 
   function pickPlace(place: Place) {
-    // R-20 and AC-22: the map moves to the place, and S05 closes.
+    // R-20 and AC-22: the map moves to the place, and S05 closes. The area
+    // is what every other browse query reads; the target is the deliberate
+    // "go here" the map consumes, since it does not follow the area (that
+    // would fight a pan). S05 opens from Home too, so this lands on the tab
+    // that can actually show the place.
     setBrowseArea(place.area);
+    requestMapTarget(place.area);
+    remember(place.label);
     router.back();
+    router.push('/(tabs)/map');
   }
 
   return (
@@ -90,6 +106,7 @@ export default function SearchScreen() {
       <TextInput
         value={text}
         onChangeText={setText}
+        onSubmitEditing={() => query && remember(query)}
         placeholder={SEARCH_COPY.placeholder}
         accessibilityLabel={SEARCH_COPY.placeholder}
         style={styles.field}
@@ -133,9 +150,7 @@ export default function SearchScreen() {
           </View>
         ) : null}
 
-        {asking && !loading && !failed ? (
-          <SearchResults groups={groups} onPickPlace={pickPlace} />
-        ) : null}
+        {asking && !failed ? <SearchResults groups={groups} onPickPlace={pickPlace} /> : null}
 
         {/* R-21: nothing found offers a wider search and a way to add it. */}
         {asking && !loading && !failed && total === 0 ? (
@@ -145,15 +160,14 @@ export default function SearchScreen() {
               <TextButton
                 label={SEARCH_COPY.searchEverywhere}
                 emphasis="accent"
-                onPress={() => setEverywhere(true)}
+                onPress={() => setEverywhereFor(query)}
               />
             )}
             <TextButton
               label={SEARCH_COPY.addAMeet}
-              onPress={() => {
-                router.back();
-                router.push('/(tabs)/new');
-              }}
+              // Dismissing and pushing in the same tick races the modal's
+              // own animation; dismissTo does the one navigation.
+              onPress={() => router.dismissTo('/(tabs)/new')}
             />
           </View>
         ) : null}

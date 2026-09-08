@@ -159,7 +159,11 @@ describe('S05 Search', () => {
       expect(query.radius_km).toBeUndefined();
       // Offered once; after widening there is nowhere wider to go.
       expect(screen.queryByText(SEARCH_COPY.searchEverywhere)).toBeNull();
-      expect(screen.getByText(SEARCH_COPY.addAMeet)).toBeTruthy();
+      // AC-21's second half: Add a meet opens S06.
+      await act(async () => {
+        fireEvent.press(screen.getByText(SEARCH_COPY.addAMeet));
+      });
+      expect(router.dismissTo).toHaveBeenCalledWith('/(tabs)/new');
     } finally {
       jest.useRealTimers();
     }
@@ -186,20 +190,76 @@ describe('S05 Search', () => {
     }
   });
 
-  it('AC-20: a search that returned something becomes a recent', async () => {
+  it('R-20: a recent is something the person acted on, not every keystroke', async () => {
     wire(mockEvents, { data: [eventSummary()], meta: {} });
 
     jest.useFakeTimers();
     try {
       await render(<SearchScreen />);
+      // Pausing mid-word used to commit every prefix, filling the ten slots
+      // with "co", "cor", "coro" before the real search was even typed.
+      await type('co');
+      await type('cor');
       await type('corona');
 
+      await act(async () => {
+        fireEvent.changeText(screen.getByLabelText(SEARCH_COPY.placeholder), '');
+      });
+      expect(screen.queryByText(SEARCH_COPY.recentsHeader)).toBeNull();
+
+      // Submitting is the deliberate act.
+      await type('corona');
+      await act(async () => {
+        fireEvent(screen.getByLabelText(SEARCH_COPY.placeholder), 'submitEditing');
+      });
       await act(async () => {
         fireEvent.changeText(screen.getByLabelText(SEARCH_COPY.placeholder), '');
       });
 
       expect(screen.getByText(SEARCH_COPY.recentsHeader)).toBeTruthy();
       expect(screen.getByText('corona')).toBeTruthy();
+      expect(screen.queryByText('cor')).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('R-20: a slow group does not hide the group that already answered', async () => {
+    wire(mockEvents, { data: [eventSummary()], meta: {} });
+    wire(mockClubs, undefined, { isLoading: true, isSuccess: false });
+
+    jest.useFakeTimers();
+    try {
+      await render(<SearchScreen />);
+      await type('corona');
+
+      // The line says a search is still running; the rows that arrived stay.
+      expect(screen.getByText(SEARCH_COPY.loading)).toBeTruthy();
+      expect(screen.getByText(GROUP_TITLES.events)).toBeTruthy();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('R-21: widening applies to this search only, and to the events query only', async () => {
+    jest.useFakeTimers();
+    try {
+      await render(<SearchScreen />);
+      await type('zzzz');
+      await act(async () => {
+        fireEvent.press(screen.getByText(SEARCH_COPY.searchEverywhere));
+      });
+
+      // Clubs and sponsors keep their near; only events widens.
+      expect(mockClubs.mock.calls.at(-1)?.[0]).toMatchObject({ near: '33.62,-117.93' });
+      expect(mockSponsors.mock.calls.at(-1)?.[0]).toMatchObject({ near: '33.62,-117.93' });
+
+      // The next search starts near again, in one query rather than two.
+      await type('qqqq');
+      const wide = mockEvents.mock.calls.filter(
+        ([q]) => (q as Record<string, unknown>).q === 'qqqq' && !(q as Record<string, unknown>).near,
+      );
+      expect(wide).toHaveLength(0);
     } finally {
       jest.useRealTimers();
     }

@@ -2,7 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { act, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
-import { DEBOUNCE_MS, useDebouncedQuery } from './use-debounced-query';
+import { DEBOUNCE_MS, MIN_QUERY_LENGTH, useDebouncedQuery } from './use-debounced-query';
 
 let controls: ReturnType<typeof useDebouncedQuery>;
 
@@ -13,6 +13,13 @@ function Probe() {
 
 // docs/specs/discovery.md R-20 and AC-20.
 describe('useDebouncedQuery', () => {
+  it('R-20: the numbers are 250 ms and two characters', () => {
+    // The rest of this suite imports the constants, so it checks the
+    // mechanism. R-20 names the values, so something has to pin them.
+    expect(DEBOUNCE_MS).toBe(250);
+    expect(MIN_QUERY_LENGTH).toBe(2);
+  });
+
   it('R-20: waits 250 ms, and a keystroke inside that restarts the wait', async () => {
     jest.useFakeTimers();
     try {

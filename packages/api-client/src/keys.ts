@@ -26,6 +26,15 @@ export const queryKeys = {
   userClubs: (handle: string) => ['curb', 'users', handle, 'clubs'] as const,
   feed: (query: Record<string, unknown> = {}) => ['curb', 'feed', query] as const,
   venueSearch: (query: Record<string, unknown>) => ['curb', 'venues', 'search', query] as const,
+  // S05's groups keep their own namespace. The query text is part of the
+  // key, and `curb.search` is not in the mobile persister's allowlist, so a
+  // search history cannot reach the disk cache the way a browse response
+  // does (discovery R-20, R-14). It also keeps these off the list keys,
+  // whose payload shape is the full page envelope.
+  searchEvents: (query: Record<string, unknown>) => ['curb', 'search', 'events', query] as const,
+  searchClubs: (query: Record<string, unknown>) => ['curb', 'search', 'clubs', query] as const,
+  searchSponsors: (query: Record<string, unknown>) =>
+    ['curb', 'search', 'sponsors', query] as const,
   sitemap: () => ['curb', 'sitemap'] as const,
 };
 

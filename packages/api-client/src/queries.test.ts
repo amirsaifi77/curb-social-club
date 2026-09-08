@@ -7,6 +7,9 @@ import {
   eventsMapQuery,
   eventsQuery,
   feedQuery,
+  searchClubsQuery,
+  searchEventsQuery,
+  searchSponsorsQuery,
   healthQuery,
   meQuery,
   registerDeviceMutation,
@@ -148,6 +151,44 @@ describe('query options', () => {
     const url = new URL(fetchMock.mock.calls[0]?.[0].url ?? '');
     expect(url.pathname).toBe('/v1/events');
     expect(url.searchParams.get('sort')).toBe('distance');
+  });
+
+  it('R-20: each search group is its own query, under its own key', async () => {
+    const fetchMock = vi.fn(async (_request: Request) =>
+      jsonResponse(200, { data: [], meta: { has_more: false } }),
+    );
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const query = { q: 'corona', near: '33.62,-117.93', radius_km: 80 };
+
+    await queryClient.fetchQuery(searchEventsQuery(clientWith(fetchMock), query));
+
+    // The search namespace is what keeps the query text out of the mobile
+    // persister, which allowlists the browse resources by name.
+    expect(queryClient.getQueryData(queryKeys.searchEvents(query))).toBeDefined();
+    expect(queryClient.getQueryData(queryKeys.events(query))).toBeUndefined();
+    const url = new URL(fetchMock.mock.calls[0]?.[0].url ?? '');
+    expect(url.pathname).toBe('/v1/events');
+    expect(url.searchParams.get('q')).toBe('corona');
+    expect(url.searchParams.get('near')).toBe('33.62,-117.93');
+  });
+
+  it('R-20: the club and sponsor groups unwrap to their rows', async () => {
+    const rows = [{ id: 'c1', slug: 'back-bay', name: 'Back Bay Air-Cooled' }];
+    const fetchMock = vi.fn(async (_request: Request) => jsonResponse(200, { data: rows }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    const clubs = await queryClient.fetchQuery(
+      searchClubsQuery(clientWith(fetchMock), { q: 'lido' }),
+    );
+    const sponsors = await queryClient.fetchQuery(
+      searchSponsorsQuery(clientWith(fetchMock), { q: 'lido' }),
+    );
+
+    // Rows, not the page envelope: the screen renders these directly.
+    expect(clubs).toEqual(rows);
+    expect(sponsors).toEqual(rows);
+    expect(queryClient.getQueryData(queryKeys.clubs({ q: 'lido' }))).toBeUndefined();
+    expect(queryClient.getQueryData(queryKeys.sponsors({ q: 'lido' }))).toBeUndefined();
   });
 
   it('reads health', async () => {

@@ -9,12 +9,14 @@ import { Text } from '@/ui/Text';
 // clubs R-17 and sponsors R-16: the two rows are one component, so they are
 // identical in weight and a sponsor card can never grow a "Sponsored"
 // label the clubs row does not have.
+
 export interface HostRowCardProps {
   name: string;
   slug: string;
   imageUrl: string | null;
   label: string | null;
   kind: 'club' | 'sponsor';
+  layout?: HostRowLayout;
 }
 
 // The feed shows these in a horizontal row of fixed-width cards; search
@@ -43,7 +45,7 @@ export function HostRowCard({
   label,
   kind,
   layout = 'card',
-}: HostRowCardProps & { layout?: HostRowLayout }) {
+}: HostRowCardProps) {
   return (
     <Link href={kind === 'club' ? `/clubs/${slug}` : `/sponsors/${slug}`} asChild>
       <View

@@ -47,7 +47,7 @@ jest.mock('expo-router', () => {
   /* eslint-enable react/prop-types */
   return {
     Link,
-    router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
+    router: { push: jest.fn(), back: jest.fn(), replace: jest.fn(), dismissTo: jest.fn() },
     useFocusEffect: jest.fn(),
     useLocalSearchParams: () => ({}),
   };

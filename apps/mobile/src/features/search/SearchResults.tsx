@@ -1,5 +1,5 @@
 import type { ClubSummary, EventSummary, SponsorSummary } from '@curb/api-client';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { GROUP_TITLES, SEARCH_COPY } from './copy';
@@ -8,7 +8,6 @@ import type { Place } from './places';
 import { EventCard } from '@/components/EventCard';
 import { HostRowCard, toHostRowCard } from '@/components/HostRowCard';
 import { Text } from '@/ui/Text';
-import { TextButton } from '@/ui/TextButton';
 
 export interface SearchGroups {
   events: EventSummary[];
@@ -47,12 +46,23 @@ export function SearchResults({
         ))}
       </Group>
 
-      <Group title={GROUP_TITLES.places} count={groups.places.length}>
+      <Group title={GROUP_TITLES.places} count={groups.places.length} layout="rows">
         {groups.places.map((place) => (
-          <TextButton key={place.id} label={place.label} onPress={() => onPickPlace(place)} />
+          <ResultRow key={place.id} label={place.label} onPress={() => onPickPlace(place)} />
         ))}
       </Group>
     </View>
+  );
+}
+
+// A recent and a place are list rows, not buttons: left-aligned text on a
+// hairline rule, the flat rendering the brand guide asks for. A row of
+// centred pills is not a list (mobile-liquid-glass section 6).
+function ResultRow({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.row}>
+      <Text variant="body">{label}</Text>
+    </Pressable>
   );
 }
 
@@ -60,10 +70,12 @@ function Group({
   title,
   count,
   children,
+  layout = 'cards',
 }: {
   title: string;
   count: number;
   children: React.ReactNode;
+  layout?: 'cards' | 'rows';
 }) {
   if (count === 0) return null;
   return (
@@ -71,7 +83,7 @@ function Group({
       <Text variant="headline" accessibilityRole="header">
         {title}
       </Text>
-      <View style={styles.rows}>{children}</View>
+      <View style={layout === 'rows' ? styles.list : styles.rows}>{children}</View>
     </View>
   );
 }
@@ -89,9 +101,9 @@ export function Recents({
       <Text variant="headline" accessibilityRole="header">
         {SEARCH_COPY.recentsHeader}
       </Text>
-      <View style={styles.rows}>
+      <View style={styles.list}>
         {recents.map((query) => (
-          <TextButton key={query} label={query} onPress={() => onPick(query)} />
+          <ResultRow key={query} label={query} onPress={() => onPick(query)} />
         ))}
       </View>
     </View>
@@ -107,5 +119,15 @@ const styles = StyleSheet.create((theme) => ({
   },
   rows: {
     gap: theme.spacing['3'],
+  },
+  list: {
+    gap: 0,
+  },
+  row: {
+    paddingVertical: theme.spacing['3'],
+    borderBottomWidth: theme.radius.hairline,
+    borderBottomColor: theme.colors.border,
+    minHeight: 44,
+    justifyContent: 'center',
   },
 }));

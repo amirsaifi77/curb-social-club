@@ -71,16 +71,16 @@ describe('search recents', () => {
     // sit waiting on one after the assertions.
     const client = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
     rememberSearch('corona', store);
-    client.setQueryData(['curb', 'events', { q: 'corona', near: '33.62,-117.93' }], { data: [] });
-    client.setQueryData(['curb', 'clubs', { q: 'corona' }], []);
+    client.setQueryData(['curb', 'search', 'events', { q: 'corona' }], { data: [] });
+    client.setQueryData(['curb', 'search', 'clubs', { q: 'corona' }], []);
     // A browse response is not a search and stays put.
     client.setQueryData(['curb', 'feed', { near: '33.62,-117.93' }], { sections: [] });
 
     clearSearchHistory(client, store);
 
     expect(readRecents(store)).toEqual([]);
-    expect(client.getQueryData(['curb', 'events', { q: 'corona', near: '33.62,-117.93' }])).toBeUndefined();
-    expect(client.getQueryData(['curb', 'clubs', { q: 'corona' }])).toBeUndefined();
+    expect(client.getQueryData(['curb', 'search', 'events', { q: 'corona' }])).toBeUndefined();
+    expect(client.getQueryData(['curb', 'search', 'clubs', { q: 'corona' }])).toBeUndefined();
     expect(client.getQueryData(['curb', 'feed', { near: '33.62,-117.93' }])).toBeDefined();
   });
 

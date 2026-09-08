@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 // The Home tab owns a stack (app/(tabs)/(home)) so S02 can carry a native
@@ -8,6 +8,37 @@ import { join } from 'node:path';
 // wrong loses the whole tab at runtime without failing a typecheck.
 const APP = join(__dirname, '..', 'app');
 
+// expo-router's own resolver, over the real app directory. File existence
+// says nothing about the URL a screen ends up on: a group segment is
+// stripped, so wrapping map/ in parentheses silently deletes curb://map and
+// leaves S03 sharing `/` with Home. Only the resolved tree shows that.
+function routeTree(): Record<string, string[]> {
+   
+  const { getRoutes } = require('expo-router/build/getRoutes.js');
+  const files: string[] = [];
+  const walk = (dir: string, prefix = '') => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(join(dir, entry.name), rel);
+      else if (/\.tsx?$/.test(entry.name) && !/\.test\./.test(entry.name)) files.push(`./${rel}`);
+    }
+  };
+  walk(APP);
+  const context = Object.assign(() => ({ default: () => null }), {
+    keys: () => files,
+    resolve: (key: string) => key,
+    id: 'app',
+  });
+  const tree: Record<string, string[]> = {};
+  const visit = (node: { route: string; children?: unknown[] }, parent: string) => {
+    const children = (node.children ?? []) as { route: string; children?: unknown[] }[];
+    tree[parent] = children.map((child) => child.route);
+    for (const child of children) visit(child, `${parent}/${child.route}`);
+  };
+  visit(getRoutes(context, { platform: 'ios' }), '');
+  return tree;
+}
+
 describe('the tab route tree', () => {
   it('every NativeTabs trigger names a route that exists', () => {
     const layout = readFileSync(join(APP, '(tabs)', '_layout.tsx'), 'utf8');
@@ -15,13 +46,24 @@ describe('the tab route tree', () => {
       (match) => match[1],
     );
 
-    expect(names).toEqual(['(home)', '(map)', 'new', 'me']);
+    expect(names).toEqual(['(home)', 'map', 'new', 'me']);
 
     for (const name of names) {
       const asFile = join(APP, '(tabs)', `${name}.tsx`);
       const asDirectory = join(APP, '(tabs)', name, '_layout.tsx');
       expect(existsSync(asFile) || existsSync(asDirectory)).toBe(true);
     }
+  });
+
+  it('S03 keeps its own URL rather than sharing one with Home', () => {
+    const tree = routeTree();
+
+    // A group here would resolve to '' and collide with (home)/index.
+    expect(tree['/(tabs)']).toContain('map');
+    expect(tree['/(tabs)']).not.toContain('(map)');
+    expect(tree['/(tabs)/map']).toEqual(['index']);
+    // S05 is a route of its own, off the root stack.
+    expect(tree['']).toContain('search');
   });
 
   it('the root wraps the tree in GestureHandlerRootView', () => {
@@ -36,12 +78,15 @@ describe('the tab route tree', () => {
   });
 
   it('each tab group holds the screen its stack wraps', () => {
-    for (const group of ['(home)', '(map)']) {
-      expect(existsSync(join(APP, '(tabs)', group, 'index.tsx'))).toBe(true);
-      expect(existsSync(join(APP, '(tabs)', group, '_layout.tsx'))).toBe(true);
+    for (const dir of ['(home)', 'map']) {
+      expect(existsSync(join(APP, '(tabs)', dir, 'index.tsx'))).toBe(true);
+      expect(existsSync(join(APP, '(tabs)', dir, '_layout.tsx'))).toBe(true);
     }
-    // A leftover file here would win over the group and drop the header.
+    // A leftover file here would win over the directory and drop the header.
     expect(existsSync(join(APP, '(tabs)', 'index.tsx'))).toBe(false);
     expect(existsSync(join(APP, '(tabs)', 'map.tsx'))).toBe(false);
+    // `map` is a real segment, not a group: a group would strip it from the
+    // URL and leave S03 sharing `/` with Home, deleting curb://map.
+    expect(existsSync(join(APP, '(tabs)', '(map)'))).toBe(false);
   });
 });
