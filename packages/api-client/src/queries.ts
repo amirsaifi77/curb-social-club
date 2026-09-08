@@ -1,7 +1,9 @@
 import type {
+  ClubsQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
+  SponsorsQuery,
   RegisterDeviceBody,
   SignInWithAppleBody,
   SignInWithGoogleBody,
@@ -104,6 +106,37 @@ export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
     // The sheet keeps its rows while the next box loads, for the same
     // reason the pins do.
     placeholderData: keepPreviousData,
+  });
+}
+
+// S05's three API groups (discovery R-20). One query each, so a group that
+// fails or is slow does not hold up the others, and the screen renders
+// whichever have arrived. `enabled` belongs to the caller: the debounce
+// decides when a query is worth making.
+export function searchEventsQuery(client: ApiClient, query: EventsListQuery) {
+  return queryOptions({
+    queryKey: queryKeys.searchEvents(query),
+    queryFn: async () => api.events.list(client, query),
+    staleTime: 30_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function searchClubsQuery(client: ApiClient, query: ClubsQuery) {
+  return queryOptions({
+    queryKey: queryKeys.searchClubs(query),
+    queryFn: async () => (await api.clubs.list(client, query)).data,
+    staleTime: 30_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+export function searchSponsorsQuery(client: ApiClient, query: SponsorsQuery) {
+  return queryOptions({
+    queryKey: queryKeys.searchSponsors(query),
+    queryFn: async () => (await api.sponsors.list(client, query)).data,
+    staleTime: 30_000,
+    retry: retryUnlessClientError,
   });
 }
 

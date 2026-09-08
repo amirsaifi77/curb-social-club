@@ -7,7 +7,7 @@ import {
   type MapFeature,
   type Region,
 } from '@curb/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
 import { StyleSheet } from 'react-native-unistyles';
@@ -25,6 +25,7 @@ import {
   type MapFilters,
   type Sort,
 } from '@/features/map/filters';
+import { mapTargetVersion, readMapTarget, subscribeMapTarget } from '@/features/map/map-target';
 import { MeetSheet, type MeetSheetHandle, type SheetStatus } from '@/features/map/MeetSheet';
 import { ClusterMarker, PinMarker } from '@/features/map/PinMarker';
 import { useViewport } from '@/features/map/use-viewport';
@@ -137,6 +138,31 @@ export default function MapScreen() {
   // The Screens table's S03 states, in the order they take precedence. A box
   // the API would refuse is its own state: it is not an empty area, and
   // offering "Show all upcoming" there would be an action that cannot help.
+  // AC-22: S05 hands the map a place to go to. The map is mounted behind
+  // the modal the whole time, so `initialRegion` cannot do this: it only
+  // applies at mount. Committing the viewport is the fresh fetch the AC
+  // asks for.
+  const targetVersion = useSyncExternalStore(subscribeMapTarget, mapTargetVersion, mapTargetVersion);
+  useEffect(() => {
+    const area = readMapTarget();
+    if (targetVersion === 0 || !area) return;
+    map.current?.animateToRegion({
+      latitude: area.lat,
+      longitude: area.lng,
+      latitudeDelta: SPAN_DEGREES / 2,
+      longitudeDelta: SPAN_DEGREES,
+    });
+    viewport.onRegionChange({
+      latitude: area.lat,
+      longitude: area.lng,
+      latitudeDelta: SPAN_DEGREES / 2,
+      longitudeDelta: SPAN_DEGREES,
+    });
+    viewport.commit();
+    // The viewport helpers are stable; this runs once per place picked.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetVersion]);
+
   const status: SheetStatus = viewport.tooWide
     ? 'too_wide'
     : pins.isError

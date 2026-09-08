@@ -76,6 +76,10 @@ describe('the MMKV persister', () => {
     expect(shouldPersistQuery(query(['curb', 'devices', 'abc']))).toBe(false);
     // Anything named later is out until it is named here.
     expect(shouldPersistQuery(query(['curb', 'notifications']))).toBe(false);
+    // S05's groups live under their own namespace precisely so the query
+    // text cannot reach the disk (discovery R-20).
+    expect(shouldPersistQuery(query(['curb', 'search', 'events', { q: 'corona' }]))).toBe(false);
+    expect(shouldPersistQuery(query(['curb', 'search', 'clubs', { q: 'corona' }]))).toBe(false);
   });
 
   it('R-14: an errored query is not what airplane mode should show', () => {

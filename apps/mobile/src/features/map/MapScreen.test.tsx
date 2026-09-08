@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { MAP_COPY, peekLabel } from './copy';
+import { requestMapTarget, resetMapTarget } from './map-target';
 import { SETTLE_MS } from './use-viewport';
 // The screen lives under app/; a test file there would be picked up by
 // expo-router's require.context and shipped as a route.
@@ -37,12 +38,15 @@ jest.mock('@/lib/auth', () => ({ auth: { client: {} } }));
 
 // react-native-maps and the sheet both reach for native views; the screen
 // only cares about what it hands them.
+// Named `mock*` so the hoisted jest.mock factory may reach it.
+const mockAnimate = jest.fn();
+
 jest.mock('react-native-maps', () => {
   const React = require('react');
   const { View } = require('react-native');
   const MapView = React.forwardRef(
     (props: { children?: unknown; style?: unknown; onRegionChangeComplete?: unknown }, ref: unknown) => {
-      React.useImperativeHandle(ref, () => ({ animateToRegion: jest.fn() }));
+      React.useImperativeHandle(ref, () => ({ animateToRegion: mockAnimate }));
       return React.createElement(
         View,
         {
@@ -127,6 +131,8 @@ describe('S03 Map', () => {
     setBrowseArea(toBrowseArea(33.62, -117.93, 'Coastal Orange County', 'default'));
     wire(mockEventsMap, mapState());
     wire(mockEvents, listState());
+    resetMapTarget();
+    mockAnimate.mockClear();
   });
 
   it('R-15: asks for nothing until the region has settled', async () => {
@@ -142,6 +148,32 @@ describe('S03 Map', () => {
 
       expect(mockEventsMap).toHaveBeenLastCalledWith(expect.anything(), { enabled: true });
       expect(lastMapQuery().bbox).toBe('-118.13,33.52,-117.73,33.72');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('AC-22: a place picked on S05 moves the map and refetches for it', async () => {
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+      const opened = lastMapQuery().bbox;
+      mockAnimate.mockClear();
+
+      // What S05 does when someone picks "Dana Point".
+      await act(async () => {
+        requestMapTarget(toBrowseArea(33.4672, -117.6981, 'Dana Point', 'city'));
+      });
+
+      expect(mockAnimate).toHaveBeenCalledWith(
+        expect.objectContaining({ latitude: 33.47, longitude: -117.7 }),
+      );
+      // AC-22 asks for a fresh fetch, not just a moved camera.
+      expect(lastMapQuery().bbox).not.toBe(opened);
+      expect(lastMapQuery().bbox).toBe('-117.9,33.37,-117.5,33.57');
     } finally {
       jest.useRealTimers();
     }
