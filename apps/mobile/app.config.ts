@@ -64,6 +64,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // Reduced accuracy is the only level curb asks for (discovery R-10).
       NSLocationDefaultAccuracyReduced: true,
     },
+    // R-25: a curbsocial.club/meets link opens S08 directly rather than
+    // hopping through Safari. This needs the AASA file served from the
+    // domain, which lands with the web app (session 1.17, gaps item 2);
+    // until then the curb:// scheme is the path that works.
+    associatedDomains: ['applinks:curbsocial.club', 'applinks:www.curbsocial.club'],
   },
   web: {
     output: 'static',

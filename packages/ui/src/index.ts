@@ -24,3 +24,11 @@ export {
   zoomFromRegion,
 } from './map';
 export type { Bbox, MapFeature, MapPinInput, PinIndex, Region } from './map';
+export {
+  SHARE_BASE_URL,
+  canonicalEventUrl,
+  canonicalOccurrenceUrl,
+  eventPath,
+  occurrencePath,
+  shareEventText,
+} from './links';

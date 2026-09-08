@@ -1,0 +1,215 @@
+import { useEvent } from '@curb/api-client';
+import { canonicalEventUrl, shareEventText } from '@curb/ui';
+import * as Linking from 'expo-linking';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { useCallback, useState } from 'react';
+import { Platform, ScrollView, Share, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
+
+import { dayAndTime } from '@/components/format';
+import {
+  AboutBlock,
+  CancelledBanner,
+  GoingBlock,
+  Hero,
+  HostBlock,
+  PlaceholdersBlock,
+  ShareRow,
+  SourceBlock,
+  SponsorsBlock,
+  WhenBlock,
+  WhereBlock,
+} from '@/features/meet-detail/blocks';
+import { addToCalendar } from '@/features/meet-detail/calendar';
+import { DETAIL_COPY } from '@/features/meet-detail/copy';
+import { NoLongerListed } from '@/features/meet-detail/NoLongerListed';
+import { useBrowseLocation } from '@/lib/use-browse-location';
+import { Text } from '@/ui/Text';
+import { TextButton } from '@/ui/TextButton';
+
+// S08 (event-detail-and-rsvp.md R-11 to R-25). The hero scrolls under a
+// transparent header; every block below it is opaque content.
+export default function MeetDetailScreen() {
+  const { slug, token } = useLocalSearchParams<{ slug: string; token?: string }>();
+  const { near } = useBrowseLocation();
+  // R-20: `near` fills the nearby list a 410 comes back with.
+  const event = useEvent(slug, { ...(token ? { token } : {}), near });
+  const [calendarNotice, setCalendarNotice] = useState<string | null>(null);
+
+  const onAddToCalendar = useCallback(async () => {
+    const next = event.data?.upcoming_occurrences[0];
+    if (!event.data || !next) return;
+    const outcome = await addToCalendar({
+      title: event.data.title,
+      startsAt: next.starts_at,
+      endsAt: next.ends_at,
+      timezone: next.timezone,
+      location: event.data.venue.name,
+      notes: event.data.description,
+      rrule: event.data.rrule,
+    });
+    // R-12: only a refusal has something to say; a failure adds nothing and
+    // says nothing rather than blaming the person's settings.
+    setCalendarNotice(outcome === 'denied' ? DETAIL_COPY.calendarDenied : null);
+  }, [event.data]);
+
+  const onDirections = useCallback(() => {
+    const venue = event.data?.venue;
+    if (!venue) return;
+    // R-13: Apple Maps with the coordinates and the name, so the pin lands
+    // on the lot rather than on a geocoded guess at the address.
+    const query = encodeURIComponent(venue.name);
+    const url =
+      Platform.OS === 'ios'
+        ? `http://maps.apple.com/?ll=${venue.location.lat},${venue.location.lng}&q=${query}`
+        : `geo:${venue.location.lat},${venue.location.lng}?q=${query}`;
+    void Linking.openURL(url);
+  }, [event.data]);
+
+  const onShare = useCallback(() => {
+    if (!event.data) return;
+    const next = event.data.upcoming_occurrences[0];
+    void Share.share({
+      message: shareEventText({
+        title: event.data.title,
+        when: next ? dayAndTime(next.starts_at, next.timezone) : null,
+        slug: event.data.slug,
+        token,
+      }),
+      url: canonicalEventUrl(event.data.slug, token),
+    });
+  }, [event.data, token]);
+
+  const header = (
+    <Stack.Screen
+      options={{
+        title: '',
+        headerTransparent: true,
+        headerShadowVisible: false,
+        headerRight: () => <ShareRow onShare={onShare} />,
+      }}
+    />
+  );
+
+  // R-20: 410 and 404 are a page, not an error state. The API puts the
+  // nearby meets in the error's details, which is where ApiError keeps them.
+  const status = errorStatus(event.error);
+  if (status === 410 || status === 404) {
+    const nearby = errorDetails(event.error)?.nearby;
+    return (
+      <>
+        {header}
+        <NoLongerListed nearby={Array.isArray(nearby) ? nearby : []} />
+      </>
+    );
+  }
+
+  if (event.isError) {
+    return (
+      <>
+        {header}
+        <View style={styles.state}>
+          <Text variant="body">{DETAIL_COPY.error}</Text>
+          <TextButton
+            label={DETAIL_COPY.errorAction}
+            emphasis="accent"
+            onPress={() => void event.refetch()}
+          />
+        </View>
+      </>
+    );
+  }
+
+  if (!event.data) {
+    return (
+      <>
+        {header}
+        <View style={styles.state}>
+          <Text variant="body" color="secondary" accessibilityRole="progressbar">
+            Loading this meet.
+          </Text>
+        </View>
+      </>
+    );
+  }
+
+  const meet = event.data;
+  const next = meet.upcoming_occurrences[0];
+  const cancelled = next?.status === 'cancelled';
+
+  return (
+    <>
+      {header}
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="never"
+      >
+        <Hero event={meet} />
+
+        <View style={styles.blocks}>
+          {/* R-19: a cancelled next occurrence says so above everything. */}
+          {cancelled ? <CancelledBanner note={next?.override_note ?? null} /> : null}
+          {meet.dormant ? (
+            <Text variant="caption" color="secondary">
+              This meet has not been confirmed in a while.
+            </Text>
+          ) : null}
+
+          <WhenBlock
+            event={meet}
+            onAddToCalendar={() => void onAddToCalendar()}
+            notice={calendarNotice}
+          />
+          <WhereBlock event={meet} onDirections={onDirections} />
+          <HostBlock event={meet} />
+          <SponsorsBlock event={meet} />
+          <GoingBlock event={meet} />
+          <AboutBlock event={meet} />
+          <SourceBlock
+            event={meet}
+            onOpen={() => meet.source && void WebBrowser.openBrowserAsync(meet.source.url)}
+          />
+          <PlaceholdersBlock past={!next} />
+        </View>
+      </ScrollView>
+    </>
+  );
+}
+
+// Read structurally rather than with instanceof: an error crossing a module
+// boundary keeps its status and details but not always its prototype.
+function errorStatus(error: unknown): number | null {
+  if (typeof error !== 'object' || error === null || !('status' in error)) return null;
+  const status = Number((error as { status: unknown }).status);
+  return Number.isFinite(status) ? status : null;
+}
+
+function errorDetails(error: unknown): Record<string, unknown> | null {
+  if (typeof error !== 'object' || error === null || !('details' in error)) return null;
+  const details = (error as { details: unknown }).details;
+  return typeof details === 'object' && details !== null
+    ? (details as Record<string, unknown>)
+    : null;
+}
+
+const styles = StyleSheet.create((theme, rt) => ({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.bg,
+  },
+  content: {
+    paddingBottom: rt.insets.bottom + theme.spacing['8'],
+  },
+  blocks: {
+    paddingHorizontal: theme.spacing.gutter,
+  },
+  state: {
+    flex: 1,
+    gap: theme.spacing['3'],
+    padding: theme.spacing.gutter,
+    paddingTop: rt.insets.top + theme.spacing['16'],
+    backgroundColor: theme.colors.bg,
+  },
+}));

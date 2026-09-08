@@ -45,8 +45,17 @@ jest.mock('expo-router', () => {
       : React.createElement(View, { accessibilityRole: 'link' }, children);
   };
   /* eslint-enable react/prop-types */
+  // Screens declare their header through <Stack.Screen options>. The double
+  // renders the header's own items, so a control that lives in the toolbar
+  // (share, for one) is still reachable from a test.
+   
+  const Stack = {
+    Screen: (props) => props?.options?.headerRight?.() ?? null,
+  };
+   
   return {
     Link,
+    Stack,
     router: { push: jest.fn(), back: jest.fn(), replace: jest.fn(), dismissTo: jest.fn() },
     useFocusEffect: jest.fn(),
     useLocalSearchParams: () => ({}),
@@ -73,6 +82,14 @@ jest.mock('expo-glass-effect', () => {
 });
 
 // SF Symbols are a native view; a pin's glyph is asserted by its name.
+// expo-calendar is native; the rrule translation is what is under test.
+jest.mock('expo-calendar', () => ({
+  requestCalendarPermissionsAsync: jest.fn(async () => ({ granted: true })),
+  getDefaultCalendarAsync: jest.fn(async () => ({ id: 'cal-1' })),
+  createEventAsync: jest.fn(async () => 'event-1'),
+  Frequency: { DAILY: 'daily', WEEKLY: 'weekly', MONTHLY: 'monthly', YEARLY: 'yearly' },
+}));
+
 jest.mock('expo-symbols', () => {
   const React = require('react');
   const { View } = require('react-native');

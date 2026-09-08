@@ -1,5 +1,7 @@
 import type {
   ClubsQuery,
+  EventOccurrencesQuery,
+  EventQuery,
   EventsListQuery,
   EventsMapQuery,
   FeedQuery,
@@ -136,6 +138,32 @@ export function searchSponsorsQuery(client: ApiClient, query: SponsorsQuery) {
     queryKey: queryKeys.searchSponsors(query),
     queryFn: async () => (await api.sponsors.list(client, query)).data,
     staleTime: 30_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// S08 (event-detail-and-rsvp.md R-11). `token` unlocks an unlisted event
+// and `near` fills the nearby list a 410 comes back with, so both belong in
+// the key: the same slug answers differently with and without them.
+export function eventQuery(client: ApiClient, slug: string, query: EventQuery = {}) {
+  return queryOptions({
+    queryKey: [...queryKeys.event(slug), query] as const,
+    queryFn: async () => (await api.events.get(client, slug, query)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
+// R-12's "Next dates" rows.
+export function eventOccurrencesQuery(
+  client: ApiClient,
+  eventId: string,
+  query: EventOccurrencesQuery = {},
+) {
+  return queryOptions({
+    queryKey: [...queryKeys.eventOccurrences(eventId), query] as const,
+    queryFn: async () => (await api.events.occurrences(client, eventId, query)).data,
+    staleTime: 60_000,
     retry: retryUnlessClientError,
   });
 }
