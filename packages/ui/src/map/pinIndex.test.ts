@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { TILE_SIZE, bboxFromRegion, bboxParam, isRequestableBbox, movedEnough, zoomFromRegion } from './bbox';
+import {
+  TILE_SIZE,
+  bboxFromRegion,
+  bboxParam,
+  isRequestableBbox,
+  movedEnough,
+  spanForZoom,
+  zoomFromRegion,
+} from './bbox';
 import { CLUSTER_MAX_ZOOM, createPinIndex } from './pinIndex';
 import type { Bbox, MapPinInput } from './types';
 
@@ -78,6 +86,20 @@ describe('the pin index', () => {
     expect(index.expansionZoom(cluster.id)).toBeGreaterThan(12);
   });
 
+  it('R-16: an id the index does not hold does not become a degenerate region', () => {
+    const index = createPinIndex([pin({ id: 'a' })]);
+
+    // Supercluster answers an unknown id with a zoom past the maximum, and
+    // a span of a millionth of a degree is not somewhere to fly.
+    expect(index.expansionZoom(999_999)).toBeLessThanOrEqual(CLUSTER_MAX_ZOOM + 1);
+  });
+
+  it('draws nothing for a zoom that is not a number', () => {
+    const index = createPinIndex([pin({ id: 'a' })]);
+
+    expect(index.featuresIn(AROUND_LIDO, Number.NaN)).toEqual([]);
+  });
+
   it('R-16: a cluster can name the pins inside it, for the sheet', () => {
     const index = createPinIndex([
       pin({ id: 'a' }),
@@ -150,6 +172,17 @@ describe('bbox helpers', () => {
     );
 
     expect(zoom).toBeCloseTo(Math.log2((360 * (390 / TILE_SIZE)) / 0.4), 6);
+  });
+
+  it('R-16: spanForZoom is the exact inverse of zoomFromRegion', () => {
+    // The two disagreeing is a cluster tap that overshoots: on a phone by
+    // about half a level, on an iPad in landscape by more than two.
+    for (const width of [390, 430, 1194]) {
+      for (const span of [0.4, 0.05, 3]) {
+        const region = { latitude: 33.62, longitude: -117.93, latitudeDelta: span / 2, longitudeDelta: span };
+        expect(spanForZoom(zoomFromRegion(region, width), width)).toBeCloseTo(span, 10);
+      }
+    }
   });
 
   it('R-15: the pill waits for a fifth of the viewport or a whole zoom level', () => {

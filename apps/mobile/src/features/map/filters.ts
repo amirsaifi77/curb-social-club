@@ -94,3 +94,39 @@ export function listQueryFor(
 export function availableSorts(near: string | null): Sort[] {
   return near ? ['date', 'distance'] : ['date'];
 }
+
+const EARTH_RADIUS_KM = 6371;
+
+// R-17: the same filters reach the pins and the list. `GET /events/map`
+// takes a box, not a radius, so the Distance chip is applied to the pins
+// here. Without it a 10 mile filter would shrink the list while every pin
+// in the viewport stayed drawn, and the sheet's count would disagree with
+// the rows under it.
+export function withinDistance<T extends { lat: number; lng: number }>(
+  pins: readonly T[],
+  near: string | null,
+  miles: DistanceMiles,
+): T[] {
+  const centre = parseNear(near);
+  if (!centre) return [...pins];
+  const km = DISTANCE_OPTIONS.find((option) => option.miles === miles)?.km;
+  if (km === undefined) return [...pins];
+  return pins.filter((pin) => haversineKm(centre, pin) <= km);
+}
+
+function parseNear(near: string | null): { lat: number; lng: number } | null {
+  if (!near) return null;
+  const [lat, lng] = near.split(',').map(Number);
+  if (lat === undefined || lng === undefined) return null;
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(h)));
+}

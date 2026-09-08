@@ -20,6 +20,11 @@ export interface MeetSheetHandle {
   scrollToEvent: (eventId: string) => void;
 }
 
+// The Screens table's S03 states. `too_wide` is R-15's: the box the map is
+// showing is one the API would refuse, so there is nothing to say about it
+// except to zoom in.
+export type SheetStatus = 'loading' | 'error' | 'offline' | 'too_wide' | 'ready';
+
 export interface MeetSheetProps {
   events: EventSummary[];
   count: number;
@@ -28,7 +33,7 @@ export interface MeetSheetProps {
   onSort: (sort: Sort) => void;
   onSelect: (event: EventSummary) => void;
   selectedEventId: string | null;
-  status: 'loading' | 'error' | 'offline' | 'ready';
+  status: SheetStatus;
   truncated: boolean;
   /** A one-line message from a control, such as locate-me being refused. */
   notice?: string | null;
@@ -58,7 +63,7 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
   const { theme } = useUnistyles();
   const list = useRef<BottomSheetFlatListMethods>(null);
   const [detent, setDetent] = useState(0);
-  const sorts = availableSorts(near);
+  const sorts = useMemo(() => availableSorts(near), [near]);
   // The same sheet is two screens. Below the full detent it is S03's list of
   // what is on the map, so a card recenters and selects (R-16); at the full
   // detent it is S04, where a card opens the meet (docs/screens.md S04).
@@ -74,7 +79,11 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
   const header = useMemo(
     () => (
       <View style={styles.header}>
-        <Text variant="subhead">{peekLabel(count)}</Text>
+        {/* The peek line is a count of what is on the map, and a box the API
+            will not answer has no count to give. */}
+        <Text variant="subhead">
+          {status === 'too_wide' ? MAP_COPY.truncated : peekLabel(count)}
+        </Text>
 
         {sorts.length > 1 ? (
           <View style={styles.sorts}>
@@ -89,8 +98,14 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
           </View>
         ) : null}
 
+        {status === 'loading' ? (
+          <Text variant="caption" color="secondary" accessibilityRole="progressbar">
+            {MAP_COPY.loading}
+          </Text>
+        ) : null}
+
         {/* R-19: what arrived is drawn; the notice says the rest is there. */}
-        {truncated ? (
+        {truncated && status !== 'too_wide' ? (
           <Text variant="caption" color="secondary" accessibilityRole="alert">
             {MAP_COPY.truncated}
           </Text>
@@ -123,7 +138,18 @@ export const MeetSheet = forwardRef<MeetSheetHandle, MeetSheetProps>(function Me
         ) : null}
       </View>
     ),
-    [count, events.length, notice, onRetry, onShowAllUpcoming, onSort, sort, sorts, status, truncated],
+    [
+      count,
+      events.length,
+      notice,
+      onRetry,
+      onShowAllUpcoming,
+      onSort,
+      sort,
+      sorts,
+      status,
+      truncated,
+    ],
   );
 
   const renderItem = useCallback(

@@ -28,7 +28,14 @@ describe('the map viewport', () => {
       expect(screen.getByText('none no-pill')).toBeTruthy();
 
       // Still moving at 299 ms: nothing is committed yet.
-      // Moving restarts the wait, so 299 ms after the move is still nothing.
+      // Most of the wait passes with the map still moving.
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS - 50);
+      });
+      expect(screen.getByText('none no-pill')).toBeTruthy();
+
+      // Then it moves again. A debounce restarts here; a one-shot timer set
+      // at mount would fire 50 ms later and commit the old centre.
       await act(async () => {
         controls.onRegionChange({ ...LIDO, longitude: -117.9 });
       });

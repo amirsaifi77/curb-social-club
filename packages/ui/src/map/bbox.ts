@@ -50,6 +50,13 @@ export function zoomFromRegion(region: Region, viewportWidth: number): number {
   return Math.log2((360 * (viewportWidth / TILE_SIZE)) / span);
 }
 
+// The exact inverse, for flying to a zoom the index handed back. Dropping
+// the viewport width here would overshoot by log2(width / 256): about half
+// a level on a phone and over two on an iPad.
+export function spanForZoom(zoom: number, viewportWidth: number): number {
+  return (360 * (viewportWidth / TILE_SIZE)) / 2 ** zoom;
+}
+
 // R-15: the "search this area" pill appears once the map has moved more
 // than 20 percent of the viewport or a whole zoom level from the box the
 // pins came from.

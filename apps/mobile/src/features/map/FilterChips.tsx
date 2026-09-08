@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { MAP_COPY } from './copy';
@@ -29,7 +29,14 @@ export function FilterChips({
 
   return (
     <View style={styles.layer} pointerEvents="box-none">
-      <SurfaceGroup style={styles.row}>
+      {/* The four chips scroll rather than wrap: wrapping onto a second row
+          on a narrow phone would push them into the pill below. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.rowContent}
+      >
+        <SurfaceGroup style={styles.row}>
         <Chip
           label={MAP_COPY.chipWeekend}
           selected={filters.thisWeekend}
@@ -50,7 +57,8 @@ export function FilterChips({
           selected={filters.recurringOnly}
           onPress={() => onChange({ ...filters, recurringOnly: !filters.recurringOnly })}
         />
-      </SurfaceGroup>
+        </SurfaceGroup>
+      </ScrollView>
 
       <SurfaceGroup style={styles.locate}>
         <Surface material="glass" interactive style={styles.round}>
@@ -103,11 +111,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     top: rt.insets.top + theme.spacing['2'],
     gap: theme.spacing['3'],
   },
+  rowContent: {
+    paddingHorizontal: theme.spacing.gutter,
+  },
   row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: theme.spacing['2'],
-    paddingHorizontal: theme.spacing.gutter,
   },
   locate: {
     alignSelf: 'flex-end',

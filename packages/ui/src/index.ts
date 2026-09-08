@@ -20,6 +20,7 @@ export {
   createPinIndex,
   isRequestableBbox,
   movedEnough,
+  spanForZoom,
   zoomFromRegion,
 } from './map';
 export type { Bbox, MapFeature, MapPinInput, PinIndex, Region } from './map';

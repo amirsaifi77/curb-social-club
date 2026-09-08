@@ -42,7 +42,9 @@ export function createPinIndex(pins: readonly MapPinInput[]): PinIndex {
   return {
     featuresIn(bbox, zoom) {
       // Supercluster takes whole zoom levels; a fractional one would drop
-      // clusters the map is showing between two levels.
+      // clusters the map is showing between two levels. A zoom that is not
+      // a number at all draws nothing rather than throwing inside the index.
+      if (!Number.isFinite(zoom)) return [];
       const level = Math.min(Math.max(Math.round(zoom), 0), CLUSTER_MAX_ZOOM + 1);
       return index
         .getClusters([bbox.west, bbox.south, bbox.east, bbox.north], level)
@@ -63,8 +65,12 @@ export function createPinIndex(pins: readonly MapPinInput[]): PinIndex {
         });
     },
 
+    // An id the index does not hold is a bug in the caller, not a region to
+    // fly to: supercluster answers with a zoom past the max, which would
+    // send the map to a span of a millionth of a degree.
     expansionZoom(clusterId) {
-      return index.getClusterExpansionZoom(clusterId);
+      const zoom = index.getClusterExpansionZoom(clusterId);
+      return Number.isFinite(zoom) ? Math.min(zoom, CLUSTER_MAX_ZOOM + 1) : CLUSTER_MAX_ZOOM;
     },
 
     leaves(clusterId, limit = Infinity) {

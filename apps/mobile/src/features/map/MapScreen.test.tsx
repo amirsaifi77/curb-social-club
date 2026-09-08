@@ -22,6 +22,17 @@ jest.mock('@curb/api-client', () => ({
   useEvents: (query: unknown, options?: unknown) => mockEvents(query, options),
 }));
 
+// The mocks are given the same `enabled` the screen passes, so a query the
+// screen has switched off answers like a switched-off query.
+function wire(
+  mock: jest.Mock<(query: unknown, options?: unknown) => unknown>,
+  build: (enabled: boolean) => unknown,
+) {
+  mock.mockImplementation((_query, options) =>
+    build((options as { enabled?: boolean } | undefined)?.enabled ?? true),
+  );
+}
+
 jest.mock('@/lib/auth', () => ({ auth: { client: {} } }));
 
 // react-native-maps and the sheet both reach for native views; the screen
@@ -29,10 +40,20 @@ jest.mock('@/lib/auth', () => ({ auth: { client: {} } }));
 jest.mock('react-native-maps', () => {
   const React = require('react');
   const { View } = require('react-native');
-  const MapView = React.forwardRef((props: { children?: unknown }, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ animateToRegion: jest.fn() }));
-    return React.createElement(View, { testID: 'map' }, props.children);
-  });
+  const MapView = React.forwardRef(
+    (props: { children?: unknown; style?: unknown; onRegionChangeComplete?: unknown }, ref: unknown) => {
+      React.useImperativeHandle(ref, () => ({ animateToRegion: jest.fn() }));
+      return React.createElement(
+        View,
+        {
+          testID: 'map',
+          style: props.style,
+          onRegionChangeComplete: props.onRegionChangeComplete,
+        },
+        props.children,
+      );
+    },
+  );
   MapView.displayName = 'MapView';
   return {
     __esModule: true,
@@ -56,24 +77,38 @@ jest.mock('@gorhom/bottom-sheet', () => {
   };
 });
 
-function mapState(overrides: Record<string, unknown> = {}) {
+// A disabled query has no data and is pending but not fetching, the way
+// TanStack actually reports one. Mocks that answer regardless of `enabled`
+// would assert the screen against a state it can never be in.
+function queryState(data: unknown, overrides: Record<string, unknown>, enabled: boolean) {
+  if (!enabled) {
+    return {
+      data: undefined,
+      dataUpdatedAt: 0,
+      isPending: true,
+      isFetching: false,
+      isError: false,
+      refetch: jest.fn(),
+    };
+  }
   return {
-    data: { data: [], meta: { truncated: false } },
-    isLoading: false,
+    data,
+    dataUpdatedAt: Date.now(),
+    isPending: false,
+    isFetching: false,
     isError: false,
     refetch: jest.fn(),
     ...overrides,
   };
 }
 
+function mapState(overrides: Record<string, unknown> = {}) {
+  return (enabled: boolean) =>
+    queryState({ data: [], meta: { truncated: false } }, overrides, enabled);
+}
+
 function listState(overrides: Record<string, unknown> = {}) {
-  return {
-    data: { data: [], meta: {} },
-    isLoading: false,
-    isError: false,
-    refetch: jest.fn(),
-    ...overrides,
-  };
+  return (enabled: boolean) => queryState({ data: [], meta: {} }, overrides, enabled);
 }
 
 function lastMapQuery() {
@@ -90,8 +125,8 @@ describe('S03 Map', () => {
     clearBrowseArea();
     resetBrowseAreaCache();
     setBrowseArea(toBrowseArea(33.62, -117.93, 'Coastal Orange County', 'default'));
-    mockEventsMap.mockReturnValue(mapState());
-    mockEvents.mockReturnValue(listState());
+    wire(mockEventsMap, mapState());
+    wire(mockEvents, listState());
   });
 
   it('R-15: asks for nothing until the region has settled', async () => {
@@ -174,8 +209,7 @@ describe('S03 Map', () => {
   });
 
   it('AC-18: a truncated response draws its pins and says the rest are there', async () => {
-    mockEventsMap.mockReturnValue(
-      mapState({
+    wire(mockEventsMap, mapState({
         data: {
           data: [
             {
@@ -192,9 +226,8 @@ describe('S03 Map', () => {
           ],
           meta: { truncated: true },
         },
-      }),
-    );
-    mockEvents.mockReturnValue(listState({ data: { data: [eventSummary()], meta: {} } }));
+      }));
+    wire(mockEvents, listState({ data: { data: [eventSummary()], meta: {} } }));
 
     jest.useFakeTimers();
     try {
@@ -207,6 +240,41 @@ describe('S03 Map', () => {
       expect(screen.getByText(peekLabel(1))).toBeTruthy();
       // The pin on the map and its row in the sheet, both labelled by title.
       expect(screen.getAllByLabelText('Lido Saturday')).toHaveLength(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('R-16: a series carries the repeat glyph, a one-off the car', async () => {
+    const pin = (id: string, recurring: boolean) => ({
+      id,
+      event_id: `e-${id}`,
+      slug: 'lido-saturday',
+      lat: 33.62,
+      // Far enough apart to stay two pins rather than one cluster.
+      lng: -117.93 + (recurring ? 0.1 : 0),
+      starts_at: '2099-10-24T14:30:00Z',
+      title: id,
+      going_count: 0,
+      recurring,
+    });
+    wire(
+      mockEventsMap,
+      mapState({
+        data: { data: [pin('one-off', false), pin('series', true)], meta: { truncated: false } },
+      }),
+    );
+
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+
+      // State is carried by colour, which nobody can rely on alone.
+      expect(screen.getAllByLabelText('car.fill')).toHaveLength(1);
+      expect(screen.getAllByLabelText('repeat')).toHaveLength(1);
     } finally {
       jest.useRealTimers();
     }
@@ -237,7 +305,7 @@ describe('S03 Map', () => {
   });
 
   it('R-16: below the full detent a card recenters rather than opening the meet', async () => {
-    mockEvents.mockReturnValue(listState({ data: { data: [eventSummary()], meta: {} } }));
+    wire(mockEvents, listState({ data: { data: [eventSummary()], meta: {} } }));
 
     jest.useFakeTimers();
     try {
@@ -254,9 +322,9 @@ describe('S03 Map', () => {
     }
   });
 
-  it('R-14: an error with nothing cached offers a retry in the sheet', async () => {
+  it('Screens S03: an error with nothing cached offers a retry in the sheet', async () => {
     const refetch = jest.fn();
-    mockEventsMap.mockReturnValue(mapState({ isError: true, data: undefined, refetch }));
+    wire(mockEventsMap, mapState({ isError: true, data: undefined, refetch }));
 
     jest.useFakeTimers();
     try {
@@ -270,6 +338,53 @@ describe('S03 Map', () => {
         fireEvent.press(screen.getByText(MAP_COPY.errorAction));
       });
       expect(refetch).toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('Screens S03: loading says so and dims the pins rather than blanking them', async () => {
+    wire(mockEventsMap, mapState({ isFetching: true }));
+
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+
+      expect(screen.getByText(MAP_COPY.loading)).toBeTruthy();
+      const map = screen.getByTestId('map');
+      expect(JSON.stringify(map.props.style)).toContain('0.5');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('R-15: a box the API would refuse says to zoom in, and nothing else', async () => {
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+
+      // Opened zoomed out past the API's 5 degree limit, so the box that
+      // settles is one it would answer with a 400.
+      await act(async () => {
+        fireEvent(screen.getByTestId('map'), 'regionChangeComplete', {
+          latitude: 33.62,
+          longitude: -117.93,
+          latitudeDelta: 8,
+          longitudeDelta: 12,
+        });
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+
+      expect(screen.getByText(MAP_COPY.truncated)).toBeTruthy();
+      // Not an empty area: "Show all upcoming" could not help here.
+      expect(screen.queryByText(MAP_COPY.empty)).toBeNull();
+      expect(screen.queryByText(MAP_COPY.emptyToggle)).toBeNull();
+      expect(screen.queryByText(/meets in view/)).toBeNull();
     } finally {
       jest.useRealTimers();
     }

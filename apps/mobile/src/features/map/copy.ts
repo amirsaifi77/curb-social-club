@@ -8,11 +8,13 @@ export const MAP_COPY = {
   empty: 'Nothing here this weekend.',
   emptyToggle: 'Show all upcoming',
   truncated: 'Zoom in to see all meets here.',
+  loading: 'Looking for meets here.',
   error: "Couldn't load this area.",
   errorAction: 'Try again',
   offline: "You're offline. Showing the last results.",
   locateMe: 'Locate me',
   locateDenied: 'Location is off. Pan the map instead.',
+  locateFailed: "We couldn't find you just now. Pan the map instead.",
   sortSoonest: 'Soonest',
   sortNearest: 'Nearest',
 } as const;

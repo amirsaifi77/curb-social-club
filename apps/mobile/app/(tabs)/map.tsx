@@ -1,5 +1,12 @@
 import { useEvents, useEventsMap } from '@curb/api-client';
-import { bboxFromRegion, createPinIndex, zoomFromRegion, type MapFeature, type Region } from '@curb/ui';
+import {
+  bboxFromRegion,
+  createPinIndex,
+  spanForZoom,
+  zoomFromRegion,
+  type MapFeature,
+  type Region,
+} from '@curb/ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
@@ -14,10 +21,11 @@ import {
   THEME_OPTIONS,
   listQueryFor,
   mapQueryFor,
+  withinDistance,
   type MapFilters,
   type Sort,
 } from '@/features/map/filters';
-import { MeetSheet, type MeetSheetHandle } from '@/features/map/MeetSheet';
+import { MeetSheet, type MeetSheetHandle, type SheetStatus } from '@/features/map/MeetSheet';
 import { ClusterMarker, PinMarker } from '@/features/map/PinMarker';
 import { useViewport } from '@/features/map/use-viewport';
 import { locateDevice } from '@/features/onboarding/locate';
@@ -66,10 +74,17 @@ export default function MapScreen() {
   const pins = useEventsMap(pinQuery, { enabled });
   const list = useEvents(listQuery, { enabled });
 
-  const index = useMemo(() => createPinIndex(pins.data?.data ?? []), [pins.data]);
+  // R-17: the Distance chip cannot travel with the box, so it is applied to
+  // the pins here, which also keeps the sheet's count honest.
+  const visiblePins = useMemo(
+    () => withinDistance(pins.data?.data ?? [], near, filters.distanceMiles),
+    [pins.data, near, filters.distanceMiles],
+  );
+  const index = useMemo(() => createPinIndex(visiblePins), [visiblePins]);
   // One clock per set of pins: a new Date each render would redraw every
-  // marker for nothing, and the styles only move as the pins do.
-  const now = useMemo(() => new Date(), [pins.data]);
+  // marker for nothing, and the styles only move as the pins do. Keyed on
+  // when the data arrived, which is the moment they can have moved.
+  const now = useMemo(() => new Date(pins.dataUpdatedAt || Date.now()), [pins.dataUpdatedAt]);
   const features = useMemo(() => {
     if (!viewport.committed) return [];
     // The same conversion the queries use, so what is drawn and what was
@@ -85,16 +100,16 @@ export default function MapScreen() {
 
   const onCluster = useCallback(
     (feature: Extract<MapFeature, { type: 'cluster' }>) => {
-      const zoom = index.expansionZoom(feature.id);
-      const span = 360 / 2 ** zoom;
+      const span = spanForZoom(index.expansionZoom(feature.id), width);
       map.current?.animateToRegion({
         latitude: feature.lat,
         longitude: feature.lng,
-        latitudeDelta: span / 2,
+        // The map's own aspect ratio, so the fly-to frames what it clustered.
+        latitudeDelta: span * (viewport.region.latitudeDelta / viewport.region.longitudeDelta),
         longitudeDelta: span,
       });
     },
-    [index],
+    [index, viewport.region.latitudeDelta, viewport.region.longitudeDelta, width],
   );
 
   // R-17: locate-me asks for the same reduced accuracy S01 does, rounds
@@ -102,7 +117,11 @@ export default function MapScreen() {
   const locateMe = useCallback(async () => {
     const outcome = await locateDevice();
     if (outcome.status !== 'ok') {
-      setLocateNotice(MAP_COPY.locateDenied);
+      // Refused and could not be reached are different facts, the same
+      // distinction R-11 draws for the geocoder.
+      setLocateNotice(
+        outcome.status === 'denied' ? MAP_COPY.locateDenied : MAP_COPY.locateFailed,
+      );
       return;
     }
     setLocateNotice(null);
@@ -115,22 +134,31 @@ export default function MapScreen() {
     });
   }, [setArea, viewport.region.latitudeDelta, viewport.region.longitudeDelta]);
 
-  const status = pins.isError
-    ? (pins.data ? 'offline' : 'error')
-    : pins.isLoading || list.isLoading
-      ? 'loading'
-      : 'ready';
+  // The Screens table's S03 states, in the order they take precedence. A box
+  // the API would refuse is its own state: it is not an empty area, and
+  // offering "Show all upcoming" there would be an action that cannot help.
+  const status: SheetStatus = viewport.tooWide
+    ? 'too_wide'
+    : pins.isError
+      ? pins.data
+        ? 'offline'
+        : 'error'
+      : pins.isPending || pins.isFetching || list.isFetching
+        ? 'loading'
+        : 'ready';
 
   return (
     <View style={styles.screen}>
       <MapView
         ref={map}
         provider={PROVIDER_DEFAULT}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, status === 'loading' && styles.dimmed]}
         initialRegion={initial}
         onRegionChangeComplete={viewport.onRegionChange}
         showsUserLocation={false}
       >
+        {/* R-15 loading: the pins on screen are the last box's, so they dim
+            rather than vanish while the next one arrives. */}
         {features.map((feature) =>
           feature.type === 'cluster' ? (
             <ClusterMarker key={`c-${feature.id}`} feature={feature} onPress={onCluster} />
@@ -194,7 +222,7 @@ export default function MapScreen() {
       <MeetSheet
         ref={sheet}
         events={list.data?.data ?? []}
-        count={pins.data?.data.length ?? 0}
+        count={visiblePins.length}
         sort={sort}
         near={near}
         onSort={setSort}
@@ -202,7 +230,7 @@ export default function MapScreen() {
           // R-16: a card recenters the map on its pin and selects it. A row
           // with no pin in the current box selects nothing rather than
           // flying the map somewhere the person cannot see.
-          const pin = (pins.data?.data ?? []).find((row) => row.event_id === event.id);
+          const pin = visiblePins.find((row) => row.event_id === event.id);
           if (!pin) return;
           setSelected({ pinId: pin.id, eventId: event.id });
           map.current?.animateToRegion({
@@ -213,8 +241,8 @@ export default function MapScreen() {
           });
         }}
         selectedEventId={selected?.eventId ?? null}
-        status={viewport.tooWide ? 'ready' : status}
-        truncated={pins.data?.meta.truncated ?? viewport.tooWide}
+        status={status}
+        truncated={pins.data?.meta.truncated ?? false}
         notice={locateNotice}
         onRetry={() => {
           void pins.refetch();
@@ -230,6 +258,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   screen: {
     flex: 1,
     backgroundColor: theme.colors.bg,
+  },
+  dimmed: {
+    opacity: 0.5,
   },
   pillLayer: {
     position: 'absolute',

@@ -8,7 +8,7 @@ import type {
   UpdateDeviceBody,
   UpdateMeBody,
 } from '@curb/types';
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import { ApiError, type ApiClient } from './client';
 import { mutationKeys, queryKeys } from './keys';
@@ -86,6 +86,10 @@ export function eventsMapQuery(client: ApiClient, query: EventsMapQuery) {
     queryFn: async () => api.events.map(client, query),
     staleTime: 60_000,
     retry: retryUnlessClientError,
+    // A new box is a new key. Without this the map blanks on every "search
+    // this area" tap, and an offline tap loses the last pins the offline
+    // state is supposed to keep showing (discovery R-15, Screens S03).
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -97,6 +101,9 @@ export function eventsQuery(client: ApiClient, query: EventsListQuery = {}) {
     queryFn: async () => api.events.list(client, query),
     staleTime: 60_000,
     retry: retryUnlessClientError,
+    // The sheet keeps its rows while the next box loads, for the same
+    // reason the pins do.
+    placeholderData: keepPreviousData,
   });
 }
 

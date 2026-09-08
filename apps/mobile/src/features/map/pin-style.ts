@@ -40,3 +40,13 @@ export const PIN_ROLE: Record<PinStyle, 'pinNow' | 'pinToday' | 'pinUpcoming' | 
   upcoming: 'pinUpcoming',
   recurring: 'pinRecurring',
 };
+
+// brand-guide.md section 4: a series carries `repeat`, everything else the
+// car. State is carried by colour; the glyph separates a series from a
+// one-off for anyone who cannot rely on hue.
+export const PIN_GLYPH: Record<PinStyle, 'car.fill' | 'repeat'> = {
+  now: 'car.fill',
+  today: 'car.fill',
+  upcoming: 'car.fill',
+  recurring: 'repeat',
+};

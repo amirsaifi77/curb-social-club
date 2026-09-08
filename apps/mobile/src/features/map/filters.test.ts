@@ -6,6 +6,7 @@ import {
   listQueryFor,
   mapQueryFor,
   weekendWindow,
+  withinDistance,
 } from './filters';
 
 const BBOX = '-118.13,33.52,-117.73,33.72';
@@ -56,6 +57,34 @@ describe('map filters', () => {
     expect(weekendWindow(new Date('2026-10-21T17:00:00.123Z')).from).toBe(
       '2026-10-21T17:00:00.000Z',
     );
+  });
+
+  it('R-17: the Distance chip reaches the pins, which the box cannot carry', () => {
+    // GET /events/map takes a box, not a radius, so a 10 mile filter would
+    // otherwise shrink the list while every pin in view stayed drawn.
+    const near = '33.62,-117.93';
+    const pins = [
+      { id: 'close', lat: 33.62, lng: -117.93 },
+      // About 12 miles up the coast.
+      { id: 'middling', lat: 33.79, lng: -117.93 },
+      // About 45 miles inland.
+      { id: 'far', lat: 33.62, lng: -117.16 },
+    ];
+
+    expect(withinDistance(pins, near, 10).map((p) => p.id)).toEqual(['close']);
+    expect(withinDistance(pins, near, 20).map((p) => p.id)).toEqual(['close', 'middling']);
+    expect(withinDistance(pins, near, 50).map((p) => p.id)).toEqual([
+      'close',
+      'middling',
+      'far',
+    ]);
+  });
+
+  it('R-17: without a near, every pin the box returned is drawn', () => {
+    const pins = [{ id: 'a', lat: 33.62, lng: -117.93 }];
+
+    expect(withinDistance(pins, null, 10)).toHaveLength(1);
+    expect(withinDistance(pins, 'nonsense', 10)).toHaveLength(1);
   });
 
   it('R-18: Nearest is offered, and sent, only when there is a near', () => {

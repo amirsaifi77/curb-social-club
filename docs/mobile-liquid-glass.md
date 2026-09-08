@@ -345,6 +345,8 @@ StyleSheet.configure({
 **Map**
 - `headerTransparent` header or no header; `react-native-maps` fills the screen under the tab bar with `disableAutomaticContentInsets` handled.
 - One `GlassContainer` bottom-right with two `GlassView`s (filters, locate me), `regular` style, `isInteractive`, capability-gated with `isLiquidGlassAvailable()` and a blur/solid fallback.
+- Built in session 1.12 as two containers along the top instead: discovery.md R-17 asks for four named chips rather than one Filters control, and four chips plus locate-me sitting bottom-right would cover the sheet's peek detent. The chips scroll horizontally rather than wrapping, so they cannot push into the "search this area" pill. The bottom-right arrangement is worth revisiting once the device pass says whether four chips read as clutter at the top.
+- The three-detent sheet is `@gorhom/bottom-sheet`, not a native `formSheet`. A `formSheet` is presented over a screen and cannot be a peek detent that stays on screen while the map is panned, which is what R-18 describes. The native `formSheet` with `sheetAllowedDetents: [0.35, 0.9]` still applies to the selected-pin sheet when that lands. `@gorhom/bottom-sheet` requires a `GestureHandlerRootView` at the app root.
 - Selected pin opens a `formSheet` with `sheetAllowedDetents: [0.35, 0.9]` and `sheetGrabberVisible`; sheet content is opaque.
 - Verify contrast over satellite tiles and in dark mode; check Reduce Transparency.
 

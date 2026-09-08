@@ -8,6 +8,7 @@ export {
   bboxWidth,
   isRequestableBbox,
   movedEnough,
+  spanForZoom,
   zoomFromRegion,
 } from './bbox';
 export { CLUSTER_MAX_ZOOM, CLUSTER_RADIUS, createPinIndex } from './pinIndex';

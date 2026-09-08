@@ -1,7 +1,7 @@
 import type { MapPinInput } from '@curb/ui';
 import { describe, expect, it } from '@jest/globals';
 
-import { NOW_WINDOW_MS, PIN_ROLE, pinStyle } from './pin-style';
+import { NOW_WINDOW_MS, PIN_GLYPH, PIN_ROLE, pinStyle } from './pin-style';
 
 function pin(overrides: Partial<MapPinInput> = {}): MapPinInput {
   return {
@@ -51,7 +51,19 @@ describe('pinStyle', () => {
     expect(pinStyle(pin({ starts_at: 'not a date' }), NOON)).toBeNull();
   });
 
-  it('maps every style to a pin role from the tokens', () => {
-    expect(Object.values(PIN_ROLE)).toEqual(['pinNow', 'pinToday', 'pinUpcoming', 'pinRecurring']);
+  it('maps every style to a pin role and a glyph from the brand guide', () => {
+    expect(PIN_ROLE).toEqual({
+      now: 'pinNow',
+      today: 'pinToday',
+      upcoming: 'pinUpcoming',
+      recurring: 'pinRecurring',
+    });
+    // A series is the one that is not a car.
+    expect(PIN_GLYPH).toEqual({
+      now: 'car.fill',
+      today: 'car.fill',
+      upcoming: 'car.fill',
+      recurring: 'repeat',
+    });
   });
 });
