@@ -154,6 +154,17 @@ export function eventQuery(client: ApiClient, slug: string, query: EventQuery = 
   });
 }
 
+// S09 by id, so a curb://occurrences/:id deep link has something to read
+// rather than only the in-app path that already knows the date (R-25).
+export function occurrenceQuery(client: ApiClient, id: string) {
+  return queryOptions({
+    queryKey: queryKeys.occurrence(id),
+    queryFn: async () => (await api.occurrences.get(client, id)).data,
+    staleTime: 60_000,
+    retry: retryUnlessClientError,
+  });
+}
+
 // R-12's "Next dates" rows.
 export function eventOccurrencesQuery(
   client: ApiClient,

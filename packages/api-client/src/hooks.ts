@@ -15,6 +15,7 @@ import {
   deleteAccountMutation,
   eventOccurrencesQuery,
   eventQuery,
+  occurrenceQuery,
   eventsMapQuery,
   eventsQuery,
   feedQuery,
@@ -66,6 +67,10 @@ export function useEvents(query: EventsListQuery = {}, options: { enabled?: bool
 // (R-20), so it is not retried and the error carries through.
 export function useEvent(slug: string, query: EventQuery = {}, options: { enabled?: boolean } = {}) {
   return useQuery({ ...eventQuery(useApiClient(), slug, query), ...options });
+}
+
+export function useOccurrence(id: string, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...occurrenceQuery(useApiClient(), id), ...options });
 }
 
 export function useEventOccurrences(

@@ -199,6 +199,16 @@ describe('S08 meet detail', () => {
     expect(screen.queryByText(DETAIL_COPY.nearbyHeader)).toBeNull();
   });
 
+  it('Screens S08: a failed refetch over a cached copy is a saved copy', async () => {
+    wire(detail(), { isError: true, error: apiError(500, null) });
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText(DETAIL_COPY.offline)).toBeTruthy();
+    // The meet is still on screen, so this is not the error state.
+    expect(screen.queryByText(DETAIL_COPY.error)).toBeNull();
+    expect(screen.getByText('Lido Marina Village')).toBeTruthy();
+  });
+
   it('a failure that is not a 410 is an error with a retry', async () => {
     const refetch = jest.fn();
     wire(undefined, {
@@ -278,12 +288,11 @@ describe('S08 meet detail', () => {
       fireEvent.press(screen.getByLabelText(DETAIL_COPY.share));
     });
 
-    expect(share).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: 'Lido Saturday, Sat, Oct 24, 7:30 am. https://curbsocial.club/meets/lido-saturday',
-        url: 'https://curbsocial.club/meets/lido-saturday',
-      }),
-    );
+    // One activity item: the message already ends with the canonical URL,
+    // and passing it twice puts the link in the shared text twice.
+    expect(share).toHaveBeenCalledWith({
+      message: 'Lido Saturday, Sat, Oct 24, 7:30 am. https://curbsocial.club/meets/lido-saturday',
+    });
     share.mockRestore();
   });
 
@@ -297,8 +306,7 @@ describe('S08 meet detail', () => {
       fireEvent.press(screen.getByLabelText(DETAIL_COPY.share));
     });
 
-    const shared = share.mock.calls[0]?.[0] as { message: string; url?: string };
-    expect(shared.url).toContain('?token=tok_9');
+    const shared = share.mock.calls[0]?.[0] as { message: string };
     expect(shared.message).toContain('?token=tok_9');
 
     share.mockRestore();

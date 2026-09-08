@@ -1,5 +1,5 @@
 import { useEvent } from '@curb/api-client';
-import { canonicalEventUrl, shareEventText } from '@curb/ui';
+import { shareEventText } from '@curb/ui';
 import * as Linking from 'expo-linking';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -71,6 +71,9 @@ export default function MeetDetailScreen() {
   const onShare = useCallback(() => {
     if (!event.data) return;
     const next = event.data.upcoming_occurrences[0];
+    // The Copy table's message already ends with the canonical URL, so
+    // passing `url` as well hands iOS two activity items and the link shows
+    // up twice in what gets sent.
     void Share.share({
       message: shareEventText({
         title: event.data.title,
@@ -78,7 +81,6 @@ export default function MeetDetailScreen() {
         slug: event.data.slug,
         token,
       }),
-      url: canonicalEventUrl(event.data.slug, token),
     });
   }, [event.data, token]);
 
@@ -106,7 +108,9 @@ export default function MeetDetailScreen() {
     );
   }
 
-  if (event.isError) {
+  // An error with a copy already in hand is the offline state further down,
+  // not this one: only a failure with nothing to show is an error.
+  if (event.isError && !event.data) {
     return (
       <>
         {header}
@@ -136,6 +140,9 @@ export default function MeetDetailScreen() {
   const meet = event.data;
   const next = meet.upcoming_occurrences[0];
   const cancelled = next?.status === 'cancelled';
+  // Screens S08: a refetch that failed over a copy already in hand is a
+  // saved copy, not an error. An error with nothing cached was handled above.
+  const offline = event.isError;
 
   return (
     <>
@@ -148,6 +155,12 @@ export default function MeetDetailScreen() {
         <Hero event={meet} />
 
         <View style={styles.blocks}>
+          {offline ? (
+            <Text variant="caption" color="secondary" accessibilityRole="alert">
+              {DETAIL_COPY.offline}
+            </Text>
+          ) : null}
+
           {/* R-19: a cancelled next occurrence says so above everything. */}
           {cancelled ? <CancelledBanner note={next?.override_note ?? null} /> : null}
           {/* events-and-occurrences.md Copy, "Detail, dormant". */}
