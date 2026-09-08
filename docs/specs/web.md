@@ -175,6 +175,8 @@ Read only: the endpoints in R-3 plus `GET /sitemap` (R-4). Web-served resources:
 - Adopted 2026-09-06 into docs/api.md: add `GET /sitemap` returning `{ events: [{ slug, updated_at }], clubs, sponsors, spots }` for public rows, cached 1 h, so the sitemap does not page through `GET /events`.
 - Adopted 2026-09-06 into docs/api.md: `GET /events/:slug` accepts `token` and returns 410 with `nearby` (raised in event-detail-and-rsvp.md).
 - Adopted 2026-09-06 into docs/screens.md: W04 mobile route is `occurrences/[id]`, so the AASA components include `/occurrences/*` in addition to `/meets/*/*`. Default: both patterns allowed.
+- Adopted 2026-09-08 (session 1.16) into docs/api.md: the Occurrence shape gains `overridden_at`. R-8 makes W04 self-canonical for a date a host edited, and the shape carried `override_note` but not the flag itself, so a date edited without a note was indistinguishable from one the materializer wrote.
+- Adopted 2026-09-08 (session 1.16) into this spec: W03's "Add to calendar" is served from `/calendar/meets/:slug.ics` rather than a segment under the slug, where it would sit beside W04's `:occurrenceId` and depend on static segments winning the match.
 - Gaps item 2: domain unconfirmed. Default: `SHARE_BASE_URL` and the AASA are environment-driven; nothing hardcodes `curbsocial.club` outside `.env.example`.
 - Gaps item 18: ADR 0005 is Proposed. Default: React Router v7; if it flips to Next.js, routes and loaders are rewritten and everything else here stands.
 - The launch city list is seven slugs from the two rings. Default: extend `cities.ts` when a ring gets hosts; a city page with no meets stays live with its empty copy rather than 404, to keep the URL indexable.

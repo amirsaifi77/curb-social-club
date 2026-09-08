@@ -129,7 +129,7 @@ Spot: SpotSummary plus `description`, `access_notes`, `region`, `created_by` (mi
 
 ### Occurrence
 
-`id`, `event` (EventSummary), `starts_at`, `ends_at`, `timezone`, `status`, `override_note`, `going_count`, `interested_count`, `check_in_count`, `going_preview` (first 8 avatars), `viewer` (`rsvp`, `checked_in`).
+`id`, `event` (EventSummary), `starts_at`, `ends_at`, `timezone`, `status`, `override_note`, `overridden_at` (null unless a host edited this date; web.md R-8 makes W04 self-canonical when it is set), `going_count`, `interested_count`, `check_in_count`, `going_preview` (first 8 avatars), `viewer` (`rsvp`, `checked_in`).
 
 ### MapPin
 
