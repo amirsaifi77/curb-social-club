@@ -48,6 +48,15 @@ function route(url: URL): { status: number; body: string } {
 
   if (path === '/v1/feed') return json({ data: FEED, meta: { generated_at: new Date().toISOString() } });
 
+  if (path === '/v1/sitemap') {
+    return json({
+      events: [{ slug: 'lido-saturday', updated_at: '2026-09-01T00:00:00Z' }],
+      clubs: [{ slug: 'back-bay-air-cooled', updated_at: '2026-09-01T00:00:00Z' }],
+      sponsors: [{ slug: 'bear-coast', updated_at: '2026-09-01T00:00:00Z' }],
+      spots: [],
+    });
+  }
+
   if (path === '/v1/events') {
     const q = url.searchParams.get('q');
     // AC-10's second half: a query that matches nothing, so the no-results

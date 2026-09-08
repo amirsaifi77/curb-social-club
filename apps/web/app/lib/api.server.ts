@@ -1,4 +1,4 @@
-import { createClient, type ApiClient } from '@curb/api-client';
+import { api, createClient, type ApiClient } from '@curb/api-client';
 
 import { apiUrl } from './env.server';
 
@@ -69,6 +69,20 @@ export function nearFromRequest(request: Request): string {
   const usable = rawLat !== null && rawLng !== null && Number.isFinite(lat) && Number.isFinite(lng);
   const point = usable ? { lat, lng } : FALLBACK_NEAR;
   return roundNear(point.lat, point.lng);
+}
+
+// R-21: the three meets a 404 offers instead of a dead end. A 410 comes
+// with its own `nearby` from the API; a 404 has nothing but the reader's
+// approximate location, so it reads the same feed the home page does.
+export async function nearbyMeets(client: ApiClient, request: Request): Promise<unknown[]> {
+  try {
+    const feed = await api.feed.get(client, { near: nearFromRequest(request) });
+    return feed.data.sections.find((section) => section.kind === 'this_weekend')?.items ?? [];
+  } catch {
+    // A not-found page that cannot load its suggestions is still a
+    // not-found page, and this one is already answering an error.
+    return [];
+  }
 }
 
 // A `near` a page put in its own URL ("Near me" on W01). Re-rounded here

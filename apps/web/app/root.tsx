@@ -18,8 +18,8 @@ import {
 import type { Route } from './+types/root';
 import './app.css';
 
+import { NotFound } from '~/components/NotFound';
 import { deviceCookie, readDeviceId, readTheme } from '~/lib/cookies.server';
-import { WEB_COPY } from '~/lib/copy';
 import { publicEnv } from '~/lib/env.server';
 import { DEFAULT_THEME } from '~/lib/theme';
 
@@ -133,19 +133,17 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let details = 'Try again in a moment.';
   let stack: string | undefined;
 
-  // web.md Copy, the 404 and 410 rows. The nearby cards those rows promise
-  // land with 1.17; the sentences are these pages' own either way.
+  // R-21: a 404 or a 410 is a page with nearby meets on it, not an error.
+  // The 410 carries the rows the API sent with it; the 404 is its own route
+  // (routes/$.tsx), and only reaches here when a loader threw one.
+  if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 410)) {
+    const nearby = (error.data as { nearby?: unknown[] } | null)?.nearby ?? [];
+    return <NotFound status={error.status} nearby={nearby} />;
+  }
+
   if (isRouteErrorResponse(error)) {
-    if (error.status === 404) {
-      message = WEB_COPY.notFoundHeadline;
-      details = WEB_COPY.notFoundBody;
-    } else if (error.status === 410) {
-      message = WEB_COPY.goneHeadline;
-      details = WEB_COPY.goneNearby;
-    } else {
-      message = `Error ${error.status}`;
-      details = error.statusText || details;
-    }
+    message = `Error ${error.status}`;
+    details = error.statusText || details;
   } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
     stack = error.stack;
