@@ -3,6 +3,8 @@
 # Phase 7 behind the clubs_self_service flag. A hidden club stays the host
 # of its events (its events keep rendering with host.type club).
 class Club < ApplicationRecord
+  include SocialLinks
+
   SLUG_FORMAT = /\A[a-z0-9-]{3,40}\z/
   JOIN_POLICIES = %w[open invite_only].freeze
   STATUSES = %w[active hidden].freeze

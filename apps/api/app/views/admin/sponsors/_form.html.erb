@@ -1,0 +1,26 @@
+<%= form_with model: [ :admin, sponsor ], class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: sponsor %>
+
+  <%= render "admin/shared/field", form: form, name: :name %>
+  <%= render "admin/shared/field", form: form, name: :slug,
+             hint: "3 to 40 lowercase letters, digits, or hyphens. Generated from the name when blank." %>
+  <%= render "admin/shared/field", form: form, name: :kind, control: form.select(:kind, Sponsor::KINDS) %>
+  <%= render "admin/shared/field", form: form, name: :tagline %>
+  <%= render "admin/shared/field", form: form, name: :description, control: form.text_area(:description, rows: 5) %>
+  <%= render "admin/shared/field", form: form, name: :website, hint: "Starts with http:// or https://." %>
+  <%= render "admin/shared/field", form: form, name: :home_label %>
+  <%= render "admin/shared/field", form: form, name: :home_lat, label: "Home latitude",
+             control: form.number_field(:home_lat, step: "any", value: sponsor.home_location&.y) %>
+  <%= render "admin/shared/field", form: form, name: :home_lng, label: "Home longitude",
+             control: form.number_field(:home_lng, step: "any", value: sponsor.home_location&.x) %>
+  <%= render "admin/shared/links_fields", record: sponsor, scope: "sponsor" %>
+  <%= render "admin/shared/field", form: form, name: :status, control: form.select(:status, Sponsor::STATUSES) %>
+  <div class="field"><label><%= form.check_box :verified %> Verified</label></div>
+  <%= render "admin/shared/field", form: form, name: :logo, control: form.file_field(:logo, accept: "image/*") %>
+  <%= render "admin/shared/field", form: form, name: :banner, control: form.file_field(:banner, accept: "image/*") %>
+
+  <div class="actions">
+    <%= form.submit sponsor.new_record? ? "Create sponsor" : "Save sponsor" %>
+    <%= link_to "Cancel", sponsor.new_record? ? admin_sponsors_path : admin_sponsor_path(sponsor) %>
+  </div>
+<% end %>

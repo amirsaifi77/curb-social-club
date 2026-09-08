@@ -29,6 +29,32 @@ Rails.application.routes.draw do
         end
       end
     end
+    # A05, A06, A08 (admin.md R-18, R-19, R-22). Clubs and sponsors are
+    # hidden, never deleted: their events keep rendering (clubs R-5).
+    resources :clubs, only: %i[index new create show edit update] do
+      member do
+        post :hide
+        post :unhide
+        post :verify
+        post :unverify
+      end
+      resources :memberships, only: %i[index create update destroy], module: :clubs
+    end
+    resources :sponsors, only: %i[index new create show edit update] do
+      member do
+        post :hide
+        post :unhide
+        post :verify
+        post :unverify
+      end
+    end
+    resources :users, only: %i[index show destroy] do
+      member do
+        patch :role
+        post :suspend
+        post :unsuspend
+      end
+    end
   end
   mount MissionControl::Jobs::Engine => "/admin/jobs"
 

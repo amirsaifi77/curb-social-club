@@ -15,9 +15,12 @@
     <% if current_admin %>
       <nav>
         <%= link_to "Dashboard", admin_root_path %>
+        <%= link_to "Users", admin_users_path %>
         <% if current_admin.admin? %>
           <%= link_to "Venues", admin_venues_path %>
           <%= link_to "Events", admin_events_path %>
+          <%= link_to "Clubs", admin_clubs_path %>
+          <%= link_to "Sponsors", admin_sponsors_path %>
           <%= link_to "Jobs", mission_control_jobs.root_path %>
         <% end %>
       </nav>

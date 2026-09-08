@@ -1,0 +1,20 @@
+<% content_for :title, "Users" %>
+<h1>Users</h1>
+
+<%= form_with url: admin_users_path, method: :get, class: "search" do |form| %>
+  <%= form.label :q, "Search handle or email" %>
+  <%= form.search_field :q, value: @query %>
+  <%= form.submit "Search" %>
+<% end %>
+
+<%= render "admin/shared/table",
+           columns: [ "Handle", "Email", "Role", "Status", "Joined" ],
+           rows: @users.map { |user| [
+             link_to(@handles[user.id] || user.id, admin_user_path(user)),
+             user.email,
+             user.role,
+             user.status,
+             admin_date(user.created_at)
+           ] } %>
+
+<%= render "admin/shared/pager", pagy: @pagy, filters: { q: @query.presence }.compact %>

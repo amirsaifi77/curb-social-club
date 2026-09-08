@@ -1,0 +1,34 @@
+<% content_for :title, @sponsor.name %>
+<div class="page-head">
+  <h1><%= @sponsor.name %></h1>
+  <%= link_to "Edit", edit_admin_sponsor_path(@sponsor), class: "button" %>
+</div>
+
+<%= render "admin/shared/visibility_actions", record: @sponsor,
+           hide_path: hide_admin_sponsor_path(@sponsor), unhide_path: unhide_admin_sponsor_path(@sponsor),
+           verify_path: verify_admin_sponsor_path(@sponsor), unverify_path: unverify_admin_sponsor_path(@sponsor) %>
+
+<table class="detail">
+  <tbody>
+    <tr><th scope="row">Slug</th><td><%= @sponsor.slug %></td></tr>
+    <tr><th scope="row">Kind</th><td><%= @sponsor.kind %></td></tr>
+    <tr><th scope="row">Status</th><td><%= @sponsor.status %></td></tr>
+    <tr><th scope="row">Verified</th><td><%= yes_no(@sponsor.verified) %></td></tr>
+    <tr><th scope="row">Tagline</th><td><%= @sponsor.tagline %></td></tr>
+    <tr><th scope="row">Website</th><td><%= @sponsor.website %></td></tr>
+    <tr><th scope="row">Home</th><td><%= @sponsor.home_label %> <%= "#{@sponsor.home_location.y.round(4)}, #{@sponsor.home_location.x.round(4)}" if @sponsor.home_location %></td></tr>
+    <tr><th scope="row">Links</th><td><%= @sponsor.links.to_h.map { |key, value| "#{key}: #{value}" }.join(", ") %></td></tr>
+  </tbody>
+</table>
+
+<h2>Events hosted</h2>
+<%= render "admin/shared/table",
+           columns: [ "Title", "Status", "Host name on the event" ],
+           empty: "No events hosted.",
+           rows: @hosted.map { |event| [ link_to(event.title, edit_admin_event_path(event)), event.status, event.host_name ] } %>
+
+<h2>Events sponsored</h2>
+<%= render "admin/shared/table",
+           columns: [ "Title", "Status", "Host" ],
+           empty: "No events sponsored.",
+           rows: @sponsored.map { |event| [ link_to(event.title, edit_admin_event_path(event)), event.status, event.host_name ] } %>
