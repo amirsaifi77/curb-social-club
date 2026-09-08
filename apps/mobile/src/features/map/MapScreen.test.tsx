@@ -209,6 +209,11 @@ describe('S03 Map', () => {
 
   it('R-15: a render on its own never changes the query, so nothing refetches', async () => {
     jest.useFakeTimers();
+    // Pinned mid-hour on purpose. The window is the top of the current
+    // hour, so a run that happens to straddle one would see it move and
+    // read as instability that is not there. Crossing an hour genuinely
+    // does change the window, which is a refetch worth making.
+    jest.setSystemTime(new Date('2026-10-21T17:10:00Z'));
     try {
       await render(<MapScreen />);
       await act(async () => {
