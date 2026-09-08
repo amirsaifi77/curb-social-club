@@ -47,6 +47,7 @@ pnpm dev                         # turbo runs api, web, and mobile dev servers
 | api | `cd apps/api && bin/rails c` | Console |
 | api | `cd apps/api && bin/rails db:seed` | The app account, then any verified rows in `db/seeds/*.csv` |
 | api | `cd apps/api && bin/rails seeds:dev` | The fabricated rows in `db/seeds/dev/`, so the screens are not empty. Refuses to run in production |
+| api | `cd apps/api && bin/rails seeds:dev:clear` | Remove every row `seeds:dev` wrote, including the venues no slug prefix reaches |
 | api | `cd apps/api && bin/rails "admin:grant[you@example.com]"` | Make an existing user an admin (`admin:grant[email,moderator]` for the moderator role); then sign in at `/admin/sign_in` |
 | api | `cd apps/api && bin/rails runner 'MaterializeOccurrencesJob.perform_now'` | Expand every published event's schedule 90 days ahead (nightly at 02:00 Pacific) |
 | api | `cd apps/api && bin/rails runner 'HostConsistencyJob.perform_now'` | Report events whose host is missing or hidden and rewrite drifted `host_name` (02:30). Prints a summary line; the report is cached for the admin dashboard |
@@ -68,11 +69,13 @@ Two commands, and they are not the same thing.
 
 `bin/rails db:seed` creates the app account and imports `db/seeds/*.csv`, which hold rows somebody verified against the organizer's own post on `verified_date` (events spec R-30). Those files carry their headers and no rows yet, so on a fresh database this leaves you with an empty app.
 
-`bin/rails seeds:dev` imports `db/seeds/dev/`: seven fabricated meets, one per launch city, covering every cadence except `announced` and both host kinds, plus two clubs, two sponsors, and two people. This is what puts content on the screens. It refuses to run in production, every slug starts `dev-`, every `verification_source_url` points at `example.invalid`, and `db/seeds/dev/README.md` lists the rest of the signals that keep fixture rows apart from verified ones.
+`bin/rails seeds:dev` imports `db/seeds/dev/`: seven fabricated meets, one per launch city, covering every cadence except `announced` and all three host types plus the app account, with two clubs, two sponsors, and two people. This is what puts content on the screens. It refuses to run in production, every slug starts `dev-`, every `verification_source_url` points at `example.invalid`, and `db/seeds/dev/README.md` lists the rest of the signals that keep fixture rows apart from verified ones.
+
+`bin/rails seeds:dev:clear` removes them again. The `dev-` prefix is not by itself a way to find every fixture row (venues, occurrences, memberships, and sponsorships carry no marker, and `_` is a `LIKE` wildcard), which is why the clear task exists rather than a documented query; `db/seeds/dev/README.md` has the detail.
 
 The dev rows are ERB templates rather than plain CSVs because their dates have to stay current: a fixed `verified_date` would age every meet into staleness (R-25) and then dormancy (R-26), which drops it out of every list. Re-run `seeds:dev` any time; rows upsert on their slug and the dates re-render against the day you run it.
 
-Occurrences come from `MaterializeOccurrencesJob`, which the seed enqueues. `bin/dev` runs a Solid Queue worker, so they appear on their own; without a worker a read re-materializes them (R-14), or run the job by hand from the table above.
+Occurrences come from `MaterializeOccurrencesJob`, which creating an event enqueues. Something has to run it: `bin/dev` starts a Solid Queue worker alongside Puma, so they appear on their own. `bin/rails server` alone does not, and neither does reading the event, which only enqueues the job again. Without a worker, run it by hand from the table above.
 
 ## Environment variables
 
@@ -159,7 +162,11 @@ cd apps/mobile
 eas build --profile simulator --platform ios
 ```
 
-The `simulator` profile in `eas.json` extends `development` and sets `ios.simulator: true`, so the artifact is a `.app` for the simulator rather than an `.ipa` for a device. Download it, drag it onto a booted simulator, then run `pnpm --filter @curb/mobile dev` and open the app. Use this when you would rather not build locally, or want to hand the same build to somebody else.
+The `simulator` profile in `eas.json` extends `development`, sets `ios.simulator: true` so the artifact is a `.app` for the simulator rather than an `.ipa` for a device, and overrides `EXPO_PUBLIC_API_URL` back to `http://localhost:3000`. That override matters when the app is opened without Metro attached, which falls back to the bundle built with the profile's `env`; inherited, it would have pointed at a staging API that is not deployed.
+
+Download the artifact, drag it onto a booted simulator, then run `pnpm --filter @curb/mobile dev` and open the app. Use this when you would rather not build locally, or want to hand the same build to somebody else.
+
+This route needs an EAS project first: `eas login` then `eas init` in `apps/mobile`, which writes `extra.eas.projectId` into the app config. Neither exists yet (`docs/STATUS.md` still lists EAS under accounts to set up), so `expo run:ios` is the route that works today.
 
 ### Pointing the app at an API
 
@@ -175,7 +182,7 @@ A physical device on the same Wi-Fi needs the LAN address rather than `localhost
 |---|---|
 | Sign in with Apple | Works, but needs an Apple ID signed in to the simulator, and a real one for token verification. Test on a device. |
 | Universal links | Need the confirmed domain serving the AASA and the associated-domains entitlement in a real build (gaps item 2). The `curb://` scheme works: `xcrun simctl openurl booted curb://meets/dev-harbor-coffee-run` |
-| Push notifications | No APNs token on a simulator |
+| Push notifications | Not wired up yet: `expo-notifications` is not a dependency. Simulators on Xcode 14 and later can receive them, so this is a schedule limit rather than a simulator one |
 | Camera | Use the photo library instead |
 
 ## Troubleshooting

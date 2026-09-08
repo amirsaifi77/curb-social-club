@@ -11,9 +11,9 @@ class Profile < ApplicationRecord
 
   belongs_to :user
 
-  # Set only by db/seeds.rb (and the :app_account factory) so the seeded
-  # system account may take the reserved handle "curb"; R-1 reserves it
-  # against everyone else.
+  # Set only by Seeds::AppAccount (and the :app_account factory) so the
+  # seeded system account may take the reserved handle "curb"; R-1 reserves
+  # it against everyone else.
   attr_accessor :system_account
 
   validates :handle, presence: true,

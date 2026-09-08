@@ -16,14 +16,22 @@ module Seeds
   # (R-25) and past 90 dormant (R-26), which drops it out of every list.
   class DevFixtures
     class Refused < StandardError; end
+    class MissingTemplate < StandardError; end
 
     REFUSED = "seeds:dev writes fabricated rows and refuses to run in production.".freeze
+    # Rails.env alone would not stop `DATABASE_URL=<staging url> bin/rails
+    # seeds:dev` from a development shell, which is a command this repo's own
+    # setup doc teaches the shape of.
+    WRONG_DATABASE = "seeds:dev refuses to write to %s: it is neither a development nor a test database.".freeze
+    SAFE_DATABASE = /_(development|test)([-_]\d+)?\z/
     DIRECTORY = "db/seeds/dev".freeze
     # Kept in the order Seeds::Runner imports them, which is also the order
     # they depend on each other in.
     TEMPLATES = %w[sponsors clubs events].freeze
     # Club owners and one event host. Handles are `dev_` prefixed for the
-    # same reason slugs are `dev-` prefixed: one query finds every row.
+    # same reason slugs are `dev-` prefixed: the rows a person reads are
+    # labelled where they are named. What the prefixes do not reach is in
+    # db/seeds/dev/README.md, and `clear` is what actually removes it all.
     PEOPLE = {
       "dev_ava" => "Ava (fixture)",
       "dev_mateo" => "Mateo (fixture)"
@@ -40,8 +48,7 @@ module Seeds
     end
 
     def call
-      raise Refused, REFUSED if Rails.env.production?
-
+      guard
       people
       Dir.mktmpdir("curb-dev-fixtures") do |tmp|
         render_into(Pathname(tmp))
@@ -51,9 +58,37 @@ module Seeds
       end
     end
 
+    # Everything `call` wrote, including the rows no prefix reaches. Venues
+    # are shared through Venues::Deduper (events spec R-6), so a lot a
+    # verified event has since attached to is kept; only one nothing else
+    # uses is removed.
+    def clear
+      guard
+
+      events = Event.where("slug LIKE ?", "dev-%")
+      venue_ids = events.distinct.pluck(:venue_id)
+      counts = { events: events.count }
+      events.destroy_all
+
+      counts[:venues] = Venue.where(id: venue_ids).where.missing(:events).destroy_all.size
+      counts[:clubs] = Club.where("slug LIKE ?", "dev-%").destroy_all.size
+      counts[:sponsors] = Sponsor.where("slug LIKE ?", "dev-%").destroy_all.size
+      counts[:people] = User.where(id: Profile.where(handle: PEOPLE.keys).select(:user_id)).destroy_all.size
+
+      io.puts counts.map { |kind, count| "#{count} #{kind}" }.join(", ") + " removed"
+      counts
+    end
+
     private
 
     attr_reader :io, :directory
+
+    def guard
+      raise Refused, REFUSED if Rails.env.production?
+
+      database = ActiveRecord::Base.connection_db_config.database.to_s
+      raise Refused, format(WRONG_DATABASE, database) unless SAFE_DATABASE.match?(database)
+    end
 
     # Two ordinary members, plus the app account a blank host column means.
     # A CSV cannot create a user and a club row names its owner by handle,
@@ -88,11 +123,12 @@ module Seeds
     # Rendered under the names Seeds::Runner expects, because it keys the
     # importer off the file name.
     def render_into(target)
+      dates = Dates.new
       TEMPLATES.each do |kind|
         template = directory.join("#{kind}.csv.erb")
-        raise Refused, "No such template: #{template}" unless template.exist?
+        raise MissingTemplate, "No such template: #{template}" unless template.exist?
 
-        target.join("#{kind}.csv").write(Dates.new.render(template.read))
+        target.join("#{kind}.csv").write(dates.render(template.read))
       end
     end
 

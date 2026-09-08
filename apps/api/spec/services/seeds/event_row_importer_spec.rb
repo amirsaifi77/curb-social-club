@@ -281,9 +281,12 @@ RSpec.describe Seeds::EventRowImporter, type: :service do
       file
     end
 
+    # Only the re-run can catch this. Reading the row back and inspecting its
+    # precision passes either way, because Postgres truncates on the way in;
+    # the bug was that the importer's in-memory value never matched what came
+    # back out, which only `changed?` on a second pass can see.
     it "stores a value the column can hold, so a re-run reports skip" do
       expect(report.counts).to include(create: 1, error: 0)
-      expect(Event.first.rrule_until.nsec % 1_000).to eq(0)
 
       expect(described_class.call(path).counts).to include(skip: 1, update: 0)
     end

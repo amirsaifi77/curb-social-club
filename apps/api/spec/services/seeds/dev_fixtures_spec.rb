@@ -56,6 +56,17 @@ RSpec.describe Seeds::DevFixtures, type: :service do
     expect(reports.sum { |report| report.counts[:create] + report.counts[:update] }).to eq(0)
   end
 
+  # The reports cover only the CSV rows. People and memberships are written
+  # outside them, so a second run demoting the club owner would go unreported.
+  it "leaves the people and their memberships alone on a second run" do
+    run
+    owner = Club.find_by(slug: "dev-harbor-motoring").memberships.find_by(role: "owner")
+
+    expect { described_class.call(io: StringIO.new) }.not_to change(User, :count)
+    expect(owner.reload.role).to eq("owner")
+    expect(ClubMembership.count).to eq(4)
+  end
+
   it "marks every row as fabricated rather than verified" do
     run
 
@@ -71,5 +82,60 @@ RSpec.describe Seeds::DevFixtures, type: :service do
 
     expect { run }.to raise_error(described_class::Refused, /production/)
     expect(Event.count).to eq(0)
+  end
+
+  # Rails.env alone would not stop DATABASE_URL pointing a development shell
+  # at a deployed database, which is a command the setup doc teaches.
+  it "refuses a database that is neither development nor test" do
+    config = ActiveRecord::DatabaseConfigurations::HashConfig.new("development", "primary", database: "curb_prod")
+    allow(ActiveRecord::Base).to receive(:connection_db_config).and_return(config)
+
+    expect { run }.to raise_error(described_class::Refused, /curb_prod/)
+    expect(Event.count).to eq(0)
+  end
+
+  describe "#clear" do
+    it "removes every row it wrote, including the venues no prefix reaches" do
+      run
+      MaterializeOccurrencesJob.perform_now
+
+      described_class.new(io: io).clear
+
+      expect(Event.count).to eq(0)
+      expect(Venue.count).to eq(0)
+      expect(Club.count).to eq(0)
+      expect(Sponsor.count).to eq(0)
+      expect(EventOccurrence.count).to eq(0)
+      expect(ClubMembership.count).to eq(0)
+      expect(EventSponsorship.count).to eq(0)
+      # The app account is not a fixture.
+      expect(Profile.pluck(:handle)).to eq([ "curb" ])
+    end
+
+    # Venues::Deduper shares a lot between rows (events spec R-6), so one a
+    # verified event has since attached to is not the fixtures' to delete.
+    # Venue has dependent: :restrict_with_error, so it survives either way;
+    # what the filter buys is an honest count, because destroy_all returns
+    # the rows whose destroy was refused along with the rows it removed.
+    it "keeps a venue another event still uses, and does not count it" do
+      run
+      shared = Event.find_by(slug: "dev-harbor-coffee-run").venue
+      create(:event, venue: shared, slug: "verified-meet")
+
+      counts = described_class.new(io: io).clear
+
+      expect(Venue.exists?(shared.id)).to be(true)
+      expect(Venue.count).to eq(1)
+      expect(counts[:venues]).to eq(6)
+      expect(io.string).to include("6 venues")
+    end
+
+    it "refuses in production, like the seeding does" do
+      run
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new("production"))
+
+      expect { described_class.new(io: io).clear }.to raise_error(described_class::Refused)
+      expect(Event.count).to eq(7)
+    end
   end
 end

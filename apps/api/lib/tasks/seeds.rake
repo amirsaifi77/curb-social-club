@@ -25,7 +25,16 @@ namespace :seeds do
     reports = Seeds::DevFixtures.call
     failed = reports.sum { |report| report.counts[:error] }
     abort "#{failed} rows had errors." if failed.positive?
-  rescue Seeds::DevFixtures::Refused => error
+  rescue Seeds::DevFixtures::Refused, Seeds::DevFixtures::MissingTemplate => error
     abort error.message
+  end
+
+  namespace :dev do
+    desc "Remove every row seeds:dev wrote, including the venues no prefix reaches"
+    task clear: :environment do
+      Seeds::DevFixtures.new.clear
+    rescue Seeds::DevFixtures::Refused => error
+      abort error.message
+    end
   end
 end

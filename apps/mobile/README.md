@@ -45,9 +45,9 @@ pnpm --filter @curb/api dev                # Puma plus a Solid Queue worker
 pnpm --filter @curb/mobile ios             # expo run:ios, then Metro
 ```
 
-`bin/rails seeds:dev` is what puts meets on the screens: seven fabricated meets across the seven launch cities, two clubs, two sponsors. Nothing in `db/seeds/` is real data yet.
+`bin/rails seeds:dev` is what puts meets on the screens: seven fabricated meets across the seven launch cities, two clubs, two sponsors, two people. `bin/rails seeds:dev:clear` removes them again. Nothing in `db/seeds/` is real data yet.
 
-Expo Go cannot run this app. Every native module under "Native modules expected" below needs a dev build, which is what `expo run:ios` produces locally. `eas build --profile simulator --platform ios` produces the same thing on EAS when you would rather not build locally.
+Expo Go cannot run this app: `react-native-mmkv`, `react-native-unistyles`, and `@react-native-google-signin/google-signin` are installed and are not in the Expo Go runtime. A dev build is what `expo run:ios` produces locally. `eas build --profile simulator --platform ios` produces the same thing on EAS, but needs `eas login` and `eas init` first: this app has no EAS project yet.
 
 `EXPO_PUBLIC_API_URL` defaults to `http://localhost:3000`, which the simulator reaches on the host. Metro inlines it at bundle time, so restart Metro after changing it.
 
@@ -118,5 +118,5 @@ apps/mobile/
 | `pnpm --filter @curb/mobile typecheck` | tsc |
 | `pnpm --filter @curb/mobile test` | jest-expo |
 | `pnpm --filter @curb/mobile lint` | eslint |
-| `eas build --profile simulator --platform ios` | dev client built on EAS for the iOS Simulator |
+| `eas build --profile simulator --platform ios` | dev client built on EAS for the iOS Simulator (needs `eas init` first) |
 | `eas build --profile production --platform ios` | release build (CI runs this on `mobile-v*` tags) |
