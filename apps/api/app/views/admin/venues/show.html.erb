@@ -1,0 +1,35 @@
+<% content_for :title, @venue.name %>
+<div class="page-head">
+  <h1><%= @venue.name %></h1>
+  <%= link_to "Edit", edit_admin_venue_path(@venue), class: "button" %>
+</div>
+
+<%= render "admin/shared/form_errors", record: @venue %>
+
+<table class="detail">
+  <tbody>
+    <tr><th scope="row">Address</th><td><%= [ @venue.address_line1, @venue.address_line2 ].compact_blank.join(", ") %></td></tr>
+    <tr><th scope="row">City</th><td><%= [ @venue.city, @venue.region, @venue.postal_code, @venue.country ].compact_blank.join(", ") %></td></tr>
+    <tr><th scope="row">Location</th><td><%= @venue.location.y.round(6) %>, <%= @venue.location.x.round(6) %></td></tr>
+    <tr><th scope="row">Timezone</th><td><%= @venue.timezone %></td></tr>
+    <tr><th scope="row">Source</th><td><%= @venue.external_source %> <%= @venue.external_place_id %></td></tr>
+  </tbody>
+</table>
+
+<h2>Events here</h2>
+<%= render "admin/shared/table",
+           columns: [ "Title", "Status", "Cadence", "Next date" ],
+           empty: "No events at this venue yet.",
+           rows: @upcoming.map { |event, next_at| [
+             link_to(event.title, edit_admin_event_path(event)),
+             event.status,
+             event.cadence,
+             next_at ? admin_time(next_at, zone: event.timezone) : "none"
+           ] } %>
+
+<% if @upcoming.empty? %>
+  <%= button_to "Delete venue", admin_venue_path(@venue), method: :delete, class: "button button-danger",
+                data: { confirm: "Delete #{@venue.name}?" } %>
+<% else %>
+  <p class="muted">A venue with events cannot be deleted. Repoint the events above first.</p>
+<% end %>

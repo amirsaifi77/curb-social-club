@@ -1,0 +1,24 @@
+<% content_for :title, "Venues" %>
+<div class="page-head">
+  <h1>Venues</h1>
+  <%= link_to "New venue", new_admin_venue_path, class: "button" %>
+</div>
+
+<%= form_with url: admin_venues_path, method: :get, class: "search" do |form| %>
+  <%= form.label :q, "Search name or city" %>
+  <%= form.search_field :q, value: @query %>
+  <%= form.submit "Search" %>
+<% end %>
+
+<%= render "admin/shared/table",
+           columns: [ "Name", "City", "Timezone", "Events", "" ],
+           empty: "Nothing here yet.",
+           rows: @venues.map { |venue| [
+             link_to(venue.name, admin_venue_path(venue)),
+             venue.city,
+             venue.timezone,
+             @event_counts.fetch(venue.id, 0),
+             link_to("Edit", edit_admin_venue_path(venue))
+           ] } %>
+
+<%= render "admin/shared/pager", pagy: @pagy %>

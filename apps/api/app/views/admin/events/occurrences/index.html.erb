@@ -1,0 +1,52 @@
+<% content_for :title, "Dates for #{@event.title}" %>
+<div class="page-head">
+  <h1>Dates: <%= @event.title %></h1>
+  <%= link_to "Back to event", edit_admin_event_path(@event), class: "button" %>
+</div>
+<p class="muted">30 days back to 90 days ahead, in <%= @event.timezone %>.</p>
+
+<% if @occurrences.empty? %>
+  <p class="muted"><%= @event.cadence == "announced" ? "No dates yet. Add one when the host posts it." : "Nothing here yet." %></p>
+<% else %>
+  <table class="list">
+    <thead>
+      <tr><th>Starts</th><th>Status</th><th>Going</th><th>Override</th><th>Note</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      <% @occurrences.each do |occurrence| %>
+        <tr>
+          <td><%= occurrence_time(occurrence, @event) %></td>
+          <td><%= occurrence.status %></td>
+          <td class="num"><%= occurrence.going_count %></td>
+          <td><%= occurrence.overridden? ? admin_time(occurrence.overridden_at) : "from the rule" %></td>
+          <td><%= occurrence.override_note %></td>
+          <td class="row-actions">
+            <%= link_to "Edit", edit_admin_event_occurrence_path(@event, occurrence) %>
+            <% unless occurrence.cancelled? %>
+              <%= form_with url: cancel_admin_event_occurrence_path(@event, occurrence), method: :post, class: "inline" do |form| %>
+                <%= form.text_field :override_note, placeholder: "Why this date is off (shown to people who were going)" %>
+                <%= form.submit "Cancel date", data: { confirm: "Cancel this date?" } %>
+              <% end %>
+            <% end %>
+            <% if occurrence.overridden? %>
+              <%= button_to "Reset override", reset_admin_event_occurrence_path(@event, occurrence),
+                            data: { confirm: "Hand this date back to the rule?" } %>
+            <% end %>
+          </td>
+        </tr>
+        <% if @cancel_error_id == occurrence.id %>
+          <tr><td colspan="6"><%= render "admin/shared/form_errors", record: @occurrence %></td></tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<h2>Add a date</h2>
+<%= form_with model: @occurrence, url: admin_event_occurrences_path(@event), method: :post, class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: @occurrence unless @cancel_error_id %>
+  <%= render "admin/shared/field", form: form, name: :starts_at_local, label: "Starts (local)",
+             control: form.datetime_field(:starts_at_local, value: nil) %>
+  <%= render "admin/shared/field", form: form, name: :override_note %>
+  <div class="actions"><%= form.submit "Add date" %></div>
+<% end %>

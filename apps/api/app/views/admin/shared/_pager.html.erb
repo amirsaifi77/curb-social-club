@@ -1,0 +1,8 @@
+<%# Offset pager (admin.md R-14, R-15): 50 per page, prev and next only. %>
+<% if pagy.last > 1 %>
+  <nav class="pager">
+    <%= link_to "Previous", url_for(request.query_parameters.merge(page: pagy.previous)) if pagy.previous %>
+    <span><%= pagy.from %> to <%= pagy.to %> of <%= pagy.count %></span>
+    <%= link_to "Next", url_for(request.query_parameters.merge(page: pagy.next)) if pagy.next %>
+  </nav>
+<% end %>

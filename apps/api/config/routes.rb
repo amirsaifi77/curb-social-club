@@ -11,6 +11,24 @@ Rails.application.routes.draw do
     root to: "dashboard#show"
     get "sign_in", to: "sessions#new"
     resource :session, only: %i[create destroy]
+    # api_only drops new and edit from the default resource actions, so the
+    # admin's HTML forms name them explicitly.
+    resources :venues, only: %i[index new create show edit update destroy]
+    # A04 (admin.md R-15 to R-17). No destroy: an event is cancelled or
+    # hidden, never deleted, so shared links keep resolving.
+    resources :events, only: %i[index new create edit update] do
+      member do
+        post :verify
+        post :confirm
+        post :rematerialize
+      end
+      resources :occurrences, only: %i[index create edit update], module: :events do
+        member do
+          post :cancel
+          post :reset
+        end
+      end
+    end
   end
   mount MissionControl::Jobs::Engine => "/admin/jobs"
 

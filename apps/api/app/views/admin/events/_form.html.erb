@@ -1,0 +1,85 @@
+<%= form_with model: [ :admin, event ], class: "record-form" do |form| %>
+  <%= render "admin/shared/form_errors", record: event %>
+
+  <% locked_host = event.claimed? %>
+  <% locked_slug = event.published_at.present? %>
+
+  <% if locked_host %>
+    <p class="notice" role="status"><%= claimed_copy(event) %></p>
+  <% end %>
+
+  <h2>Meet</h2>
+  <%= render "admin/shared/field", form: form, name: :title %>
+  <%= render "admin/shared/field", form: form, name: :slug, locked: locked_slug,
+             hint: locked_slug ? "Locked: the slug is part of a shared URL once the meet is published." : nil %>
+  <%= render "admin/shared/field", form: form, name: :description,
+             control: form.text_area(:description, rows: 6) %>
+
+  <h2>Host and place</h2>
+  <%= render "admin/shared/field", form: form, name: :host, label: "Host", locked: locked_host,
+             control: form.select(:host, host_picker_options(selected_type: event.host_type, selected_id: event.host_id),
+                                  { include_blank: "Pick a host" }, disabled: locked_host),
+             hint: "Writes the host type, the host, and the denormalized host name." %>
+  <%= render "admin/shared/field", form: form, name: :external_host_name,
+             hint: "The organizer's name as posted, when the host row is the app account." %>
+  <%= render "admin/shared/field", form: form, name: :venue_id, label: "Venue",
+             control: form.collection_select(:venue_id, Venue.order(:name), :id, ->(venue) { "#{venue.name} (#{venue.city})" },
+                                             include_blank: "Pick a venue") %>
+
+  <h2>Schedule</h2>
+  <%= render "admin/shared/field", form: form, name: :cadence, control: form.select(:cadence, Event::CADENCES) %>
+  <%= render "admin/shared/field", form: form, name: :timezone,
+             hint: "IANA zone name. The two times below are read in this zone." %>
+  <%= render "admin/shared/field", form: form, name: :dtstart_local, label: "Starts (local)",
+             control: form.datetime_field(:dtstart_local, value: local_input_value(event.dtstart, event.timezone)) %>
+  <%= render "admin/shared/field", form: form, name: :duration_minutes,
+             control: form.number_field(:duration_minutes, min: Event::DURATION_RANGE.min, max: Event::DURATION_RANGE.max) %>
+  <%= render "admin/shared/field", form: form, name: :rrule, hint: "iCalendar RRULE, such as FREQ=WEEKLY;BYDAY=SA." %>
+  <%= render "admin/shared/field", form: form, name: :rrule_until_local, label: "Repeats until (local)",
+             control: form.datetime_field(:rrule_until_local, value: local_input_value(event.rrule_until, event.timezone)) %>
+
+  <h2>Listing</h2>
+  <%= render "admin/shared/field", form: form, name: :status, control: form.select(:status, Event::STATUSES) %>
+  <%= render "admin/shared/field", form: form, name: :visibility, control: form.select(:visibility, Event::VISIBILITIES) %>
+  <%= render "admin/shared/field", form: form, name: :rsvp_mode, control: form.select(:rsvp_mode, Event::RSVP_MODES) %>
+  <%= render "admin/shared/field", form: form, name: :capacity, control: form.number_field(:capacity, min: 1) %>
+  <%= render "admin/shared/field", form: form, name: :parking_note %>
+  <div class="field">
+    <span class="label">Tags</span>
+    <div class="checks">
+      <% Event::TAGS.each do |tag| %>
+        <label><%= check_box_tag "event[tags][]", tag, event.tags.include?(tag), id: "event_tags_#{tag}" %> <%= tag %></label>
+      <% end %>
+    </div>
+    <%= hidden_field_tag "event[tags][]", "", id: nil %>
+  </div>
+  <%= render "admin/shared/field", form: form, name: :cover, control: form.file_field(:cover, accept: "image/*") %>
+
+  <h2>Source</h2>
+  <%= render "admin/shared/field", form: form, name: :source_url %>
+  <%= render "admin/shared/field", form: form, name: :source_type, hint: "Adapter name, when the meet came from an importer." %>
+  <%= render "admin/shared/field", form: form, name: :verification_source_url %>
+
+  <h2>Sponsors</h2>
+  <p class="hint">Up to <%= Event::MAX_SPONSORSHIPS %>. Clear the sponsor and tick Remove to detach one.</p>
+  <% sponsor_choices = Sponsor.order(:name).pluck(:name, :id) %>
+  <table class="list nested">
+    <thead><tr><th>Sponsor</th><th>Role</th><th>Note</th><th>Position</th><th>Remove</th></tr></thead>
+    <tbody>
+      <%= form.fields_for :sponsorships, sponsorship_rows(event) do |row| %>
+        <tr>
+          <td><%= row.select :sponsor_id, sponsor_choices, include_blank: "None" %></td>
+          <td><%= row.select :role, EventSponsorship::ROLES %></td>
+          <td><%= row.text_field :note %></td>
+          <td><%= row.number_field :position, min: 0 %></td>
+          <td><%= row.check_box :_destroy if row.object.persisted? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="actions">
+    <%= form.submit event.new_record? ? "Create event" : "Save event" %>
+    <%= link_to "Cancel", admin_events_path %>
+  </div>
+<% end %>

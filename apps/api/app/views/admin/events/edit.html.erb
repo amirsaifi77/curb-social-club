@@ -1,0 +1,26 @@
+<% content_for :title, "Edit #{@event.title}" %>
+<div class="page-head">
+  <h1>Edit <%= @event.title %></h1>
+  <%= link_to "Dates", admin_event_occurrences_path(@event), class: "button" %>
+</div>
+
+<section class="row-actions">
+  <%= button_to "Verify now", verify_admin_event_path(@event),
+                data: { confirm: "Mark this meet verified and confirmed as of now?" } %>
+  <%= button_to "Confirm now", confirm_admin_event_path(@event),
+                data: { confirm: "Confirm this meet as of now?" } %>
+  <%= button_to "Re-materialize", rematerialize_admin_event_path(@event),
+                data: { confirm: "Rebuild occurrences for the next 90 days? Overridden dates are kept." } %>
+</section>
+
+<table class="detail">
+  <tbody>
+    <tr><th scope="row">Verified</th><td><%= admin_time(@event.verified_at).presence || "never" %></td></tr>
+    <tr><th scope="row">Last confirmed</th><td><%= admin_time(@event.last_confirmed_at).presence || "never" %></td></tr>
+    <tr><th scope="row">Dormant</th><td><%= admin_time(@event.dormant_at).presence || "no" %></td></tr>
+    <tr><th scope="row">Claimed</th><td><%= admin_time(@event.claimed_at).presence || "no" %></td></tr>
+    <tr><th scope="row">Scheduled dates</th><td><%= @event.occurrences_count %></td></tr>
+  </tbody>
+</table>
+
+<%= render "form", event: @event %>
