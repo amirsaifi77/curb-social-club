@@ -1,0 +1,48 @@
+<% content_for :title, "Members of #{@club.name}" %>
+<div class="page-head">
+  <h1>Members: <%= @club.name %></h1>
+  <%= link_to "Back to club", admin_club_path(@club), class: "button" %>
+</div>
+
+<% if @membership_error %>
+  <%= render "admin/shared/form_errors", record: @membership_error %>
+<% end %>
+
+<% if @memberships.empty? %>
+  <p class="muted">No members yet.</p>
+<% else %>
+  <table class="list">
+    <thead><tr><th>Handle</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <% @memberships.each do |membership| %>
+        <tr>
+          <td><%= membership.user.profile&.handle %></td>
+          <td><%= membership.role %></td>
+          <td><%= membership.status %></td>
+          <td class="row-actions">
+            <%= form_with url: admin_club_membership_path(@club, membership), method: :patch, class: "inline" do |form| %>
+              <%= select_tag "club_membership[role]", options_for_select(ClubMembership::ROLES, membership.role) %>
+              <%= form.submit "Change role" %>
+            <% end %>
+            <%= button_to "Remove", admin_club_membership_path(@club, membership), method: :delete,
+                          class: "button-danger",
+                          data: { confirm: "Remove #{membership.user.profile&.handle} from #{@club.name}?" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<h2>Add a member</h2>
+<%= form_with url: admin_club_memberships_path(@club), method: :post, class: "record-form" do |form| %>
+  <div class="field">
+    <%= label_tag "club_membership[handle]", "Handle" %>
+    <%= text_field_tag "club_membership[handle]", nil, placeholder: "curb" %>
+  </div>
+  <div class="field">
+    <%= label_tag "club_membership[role]", "Role" %>
+    <%= select_tag "club_membership[role]", options_for_select(ClubMembership::ROLES, "member") %>
+  </div>
+  <div class="actions"><%= form.submit "Add member" %></div>
+<% end %>

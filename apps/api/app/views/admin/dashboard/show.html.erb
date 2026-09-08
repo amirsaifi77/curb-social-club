@@ -3,22 +3,34 @@
 
 <section>
   <h2>Counts</h2>
-  <table>
+  <table class="detail">
     <tbody>
       <% @counts.each do |label, count| %>
         <tr><th scope="row"><%= label %></th><td class="num"><%= count %></td></tr>
       <% end %>
     </tbody>
   </table>
-  <p class="muted">Events, occurrences, venues, clubs, sponsors, reports, and claims join this table as their screens land.</p>
+</section>
+
+<section>
+  <h2>Seed decay</h2>
+  <% if @decay[:stale].zero? && @decay[:dormant].zero? %>
+    <p class="muted">Nothing has gone stale.</p>
+  <% else %>
+    <p>
+      <%= link_to "#{pluralize(@decay[:stale], 'unclaimed meet')} not confirmed in 30 days",
+                  admin_events_path(stale: 1, claimed: "no") %>.
+      <%= pluralize(@decay[:dormant], 'hidden') %> after 90.
+    </p>
+  <% end %>
 </section>
 
 <section>
   <h2>Jobs</h2>
   <% if @jobs.failed.positive? %>
-    <p class="flash flash-alert"><%= pluralize(@jobs.failed, "failed job") %>. <%= link_to "Open Jobs", mission_control_jobs.root_path %></p>
+    <p class="flash flash-alert"><%= pluralize(@jobs.failed, "failed job") %>. <%= link_to "Open Jobs", mission_control_jobs.root_path if current_admin.admin? %></p>
   <% end %>
-  <table>
+  <table class="detail">
     <tbody>
       <tr><th scope="row">Failed</th><td class="num"><%= @jobs.failed %></td></tr>
       <tr><th scope="row">Ready</th><td class="num"><%= @jobs.ready %></td></tr>
@@ -28,25 +40,38 @@
   </table>
 
   <h3>Recurring tasks</h3>
-  <% tasks = @jobs.tasks %>
-  <% if tasks.empty? %>
-    <p class="muted">Nothing here yet. The scheduler loads config/recurring.yml when it starts.</p>
-  <% else %>
-    <table>
-      <thead><tr><th>Task</th><th>Schedule</th><th>Last run</th><th>Status</th></tr></thead>
-      <tbody>
-        <% tasks.each do |task| %>
-          <tr>
-            <td><%= task.key %> <span class="muted"><%= task.class_name %></span></td>
-            <td><%= task.schedule %></td>
-            <td><%= task.last_run_at ? task.last_run_at.in_time_zone("America/Los_Angeles").strftime("%a %b %-d, %-l:%M %p %Z") : "never" %></td>
-            <td><%= task.last_status || "no run yet" %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% end %>
+  <%= render "admin/shared/table",
+             columns: [ "Task", "Schedule", "Last run", "Status" ],
+             empty: "Nothing here yet. The scheduler loads config/recurring.yml when it starts.",
+             rows: @jobs.tasks.map { |task| [
+               "#{task.key} #{tag.span(task.class_name, class: 'muted')}".html_safe,
+               task.schedule,
+               task.last_run_at ? admin_time(task.last_run_at) : "No run yet",
+               task.last_status || "No run yet"
+             ] } %>
   <% if current_admin.admin? %>
     <p><%= link_to "Open Jobs", mission_control_jobs.root_path %></p>
+  <% end %>
+</section>
+
+<section>
+  <h2>Host consistency</h2>
+  <% if @report.nil? %>
+    <p class="muted">No run yet.</p>
+  <% else %>
+    <p class="muted">Last run <%= admin_time(Time.iso8601(@report[:generated_at])) %>.</p>
+    <table class="detail">
+      <tbody>
+        <tr><th scope="row">Missing hosts</th><td class="num"><%= @report[:missing].size %></td></tr>
+        <tr><th scope="row">Hidden hosts</th><td class="num"><%= @report[:hidden].size %></td></tr>
+        <tr><th scope="row">Names rewritten</th><td class="num"><%= @report[:renamed].size %></td></tr>
+      </tbody>
+    </table>
+    <% rows = @report[:missing] + @report[:hidden] %>
+    <% if rows.any? %>
+      <%= render "admin/shared/table",
+                 columns: [ "Event", "Host type", "Host" ],
+                 rows: rows.map { |row| [ row[:slug], row[:host_type], row[:name] || row[:host_id] ] } %>
+    <% end %>
   <% end %>
 </section>

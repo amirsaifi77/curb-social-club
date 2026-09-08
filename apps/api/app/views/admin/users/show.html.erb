@@ -1,0 +1,55 @@
+<% handle = @user.profile&.handle %>
+<% content_for :title, handle || "User" %>
+<h1><%= handle || @user.id %></h1>
+
+<%= render "admin/shared/form_errors", record: @user %>
+
+<table class="detail">
+  <tbody>
+    <tr><th scope="row">Email</th><td><%= @user.email %></td></tr>
+    <tr><th scope="row">Display name</th><td><%= @user.profile&.display_name %></td></tr>
+    <tr><th scope="row">Role</th><td><%= @user.role %></td></tr>
+    <tr><th scope="row">Status</th><td><%= @user.status %></td></tr>
+    <tr><th scope="row">Sessions</th><td class="num"><%= @session_count %></td></tr>
+    <tr><th scope="row">Identities</th><td><%= @identities.map { |identity| identity.provider }.join(", ").presence || "none" %></td></tr>
+    <tr><th scope="row">Joined</th><td><%= admin_time(@user.created_at) %></td></tr>
+    <% if @user.deleted_at %>
+      <tr><th scope="row">Deleted</th><td><%= admin_time(@user.deleted_at) %>, purged after <%= admin_time(@user.purge_after) %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<section class="row-actions">
+  <% if @user.suspended? %>
+    <%= button_to "Unsuspend", unsuspend_admin_user_path(@user),
+                  data: { confirm: "Let #{handle} sign in again?" } %>
+  <% elsif @user.active? %>
+    <%= button_to "Suspend", suspend_admin_user_path(@user), class: "button-danger",
+                  data: { confirm: "Suspend #{handle}? Their sessions end now and they can't sign in." } %>
+  <% end %>
+  <% if current_admin.admin? && !@user.deleted? %>
+    <%= button_to "Delete account", admin_user_path(@user), method: :delete, class: "button-danger",
+                  data: { confirm: "Delete #{handle}? This runs the same path as the app's own delete." } %>
+  <% end %>
+</section>
+
+<% if current_admin.admin? %>
+  <h2>Role</h2>
+  <% if @user.id == current_admin.id %>
+    <p class="muted">You can't change your own role.</p>
+  <% else %>
+    <%= form_with url: role_admin_user_path(@user), method: :patch, class: "record-form" do |form| %>
+      <div class="field">
+        <%= label_tag "user[role]", "Role" %>
+        <%= select_tag "user[role]", options_for_select(User::ROLES, @user.role) %>
+      </div>
+      <div class="actions"><%= form.submit "Change role" %></div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<h2>Events hosted</h2>
+<%= render "admin/shared/table",
+           columns: [ "Title", "Status", "Host name on the event" ],
+           empty: "No events hosted.",
+           rows: @hosted.map { |event| [ link_to(event.title, edit_admin_event_path(event)), event.status, event.host_name ] } %>

@@ -1,0 +1,25 @@
+<% content_for :title, "Clubs" %>
+<div class="page-head">
+  <h1>Clubs</h1>
+  <%= link_to "New club", new_admin_club_path, class: "button" %>
+</div>
+
+<%= form_with url: admin_clubs_path, method: :get, class: "search" do |form| %>
+  <%= form.label :q, "Search name or slug" %>
+  <%= form.search_field :q, value: @query %>
+  <%= form.submit "Search" %>
+<% end %>
+
+<%= render "admin/shared/table",
+           columns: [ "Name", "Slug", "Status", "Verified", "Members", "Events", "" ],
+           rows: @clubs.map { |club| [
+             link_to(club.name, admin_club_path(club)),
+             club.slug,
+             club.status,
+             yes_no(club.verified),
+             club.members_count,
+             club.events_count,
+             link_to("Members", admin_club_memberships_path(club))
+           ] } %>
+
+<%= render "admin/shared/pager", pagy: @pagy, filters: { q: @query.presence }.compact %>

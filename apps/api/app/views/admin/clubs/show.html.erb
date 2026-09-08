@@ -1,0 +1,34 @@
+<% content_for :title, @club.name %>
+<div class="page-head">
+  <h1><%= @club.name %></h1>
+  <%= link_to "Edit", edit_admin_club_path(@club), class: "button" %>
+  <%= link_to "Members", admin_club_memberships_path(@club), class: "button" %>
+</div>
+
+<%= render "admin/shared/visibility_actions", record: @club,
+           hide_path: hide_admin_club_path(@club), unhide_path: unhide_admin_club_path(@club),
+           verify_path: verify_admin_club_path(@club), unverify_path: unverify_admin_club_path(@club) %>
+
+<table class="detail">
+  <tbody>
+    <tr><th scope="row">Slug</th><td><%= @club.slug %></td></tr>
+    <tr><th scope="row">Status</th><td><%= @club.status %></td></tr>
+    <tr><th scope="row">Verified</th><td><%= yes_no(@club.verified) %></td></tr>
+    <tr><th scope="row">Join policy</th><td><%= @club.join_policy %></td></tr>
+    <tr><th scope="row">Home</th><td><%= @club.home_label %> <%= "#{@club.home_location.y.round(4)}, #{@club.home_location.x.round(4)}" if @club.home_location %></td></tr>
+    <tr><th scope="row">Links</th><td><%= @club.links.to_h.map { |key, value| "#{key}: #{value}" }.join(", ") %></td></tr>
+    <tr><th scope="row">Owner</th><td><%= @club.owner&.profile&.handle || "none" %></td></tr>
+  </tbody>
+</table>
+
+<h2>Members</h2>
+<%= render "admin/shared/table",
+           columns: [ "Handle", "Role", "Status" ],
+           empty: "No members yet.",
+           rows: @memberships.map { |row| [ row.user.profile&.handle, row.role, row.status ] } %>
+
+<h2>Events hosted</h2>
+<%= render "admin/shared/table",
+           columns: [ "Title", "Status", "Host name on the event" ],
+           empty: "No events yet.",
+           rows: @events.map { |event| [ link_to(event.title, edit_admin_event_path(event)), event.status, event.host_name ] } %>

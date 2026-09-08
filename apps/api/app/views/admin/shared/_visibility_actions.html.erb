@@ -1,0 +1,14 @@
+<%# The hide, unhide, verify, and unverify buttons A05 and A06 share. %>
+<section class="row-actions">
+  <% if record.hidden? %>
+    <%= button_to "Unhide", unhide_path, data: { confirm: "Show #{record.name} publicly again?" } %>
+  <% else %>
+    <%= button_to "Hide", hide_path, class: "button-danger",
+                  data: { confirm: "Hide #{record.name}? Its events keep their host and stay listed." } %>
+  <% end %>
+  <% if record.verified? %>
+    <%= button_to "Remove verified", unverify_path, data: { confirm: "Remove the verified badge from #{record.name}?" } %>
+  <% else %>
+    <%= button_to "Verify", verify_path, data: { confirm: "Mark #{record.name} verified?" } %>
+  <% end %>
+</section>

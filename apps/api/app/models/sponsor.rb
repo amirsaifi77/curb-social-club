@@ -2,6 +2,8 @@
 # spec R-1 to R-5). Hosts events like a club and can also be attached to
 # any event through event_sponsorships. Admin-managed until self-service.
 class Sponsor < ApplicationRecord
+  include SocialLinks
+
   SLUG_FORMAT = /\A[a-z0-9-]{3,40}\z/
   KINDS = %w[brand vendor venue].freeze
   STATUSES = %w[active hidden].freeze

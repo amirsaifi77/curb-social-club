@@ -1,0 +1,24 @@
+<% content_for :title, "Sponsors" %>
+<div class="page-head">
+  <h1>Sponsors</h1>
+  <%= link_to "New sponsor", new_admin_sponsor_path, class: "button" %>
+</div>
+
+<%= form_with url: admin_sponsors_path, method: :get, class: "search" do |form| %>
+  <%= form.label :q, "Search name or slug" %>
+  <%= form.search_field :q, value: @query %>
+  <%= form.submit "Search" %>
+<% end %>
+
+<%= render "admin/shared/table",
+           columns: [ "Name", "Slug", "Kind", "Status", "Verified", "Events" ],
+           rows: @sponsors.map { |sponsor| [
+             link_to(sponsor.name, admin_sponsor_path(sponsor)),
+             sponsor.slug,
+             sponsor.kind,
+             sponsor.status,
+             yes_no(sponsor.verified),
+             sponsor.events_count
+           ] } %>
+
+<%= render "admin/shared/pager", pagy: @pagy, filters: { q: @query.presence }.compact %>

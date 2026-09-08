@@ -1,0 +1,14 @@
+<%# The six social link fields clubs, sponsors, and profiles share
+    (docs/data-model.md links). Handles without the @, website as a URL. %>
+<div class="field">
+  <span class="label">Links</span>
+  <div class="links">
+    <% SocialLinks::LINK_KEYS.each do |key| %>
+      <label>
+        <%= key %>
+        <%= text_field_tag "#{scope}[links][#{key}]", record.links.to_h[key],
+                           id: "#{scope}_links_#{key}", placeholder: key == "website" ? "https://" : "handle" %>
+      </label>
+    <% end %>
+  </div>
+</div>
