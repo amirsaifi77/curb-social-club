@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { Platform, ScrollView, Share, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { dayAndTime } from '@/components/format';
+import { dayAndTime, shortDate } from '@/components/format';
 import {
   AboutBlock,
   CancelledBanner,
@@ -22,7 +22,8 @@ import {
   WhereBlock,
 } from '@/features/meet-detail/blocks';
 import { addToCalendar } from '@/features/meet-detail/calendar';
-import { DETAIL_COPY } from '@/features/meet-detail/copy';
+import { DETAIL_COPY, dormantLine } from '@/features/meet-detail/copy';
+import { MeetSkeleton } from '@/features/meet-detail/MeetSkeleton';
 import { NoLongerListed } from '@/features/meet-detail/NoLongerListed';
 import { useBrowseLocation } from '@/lib/use-browse-location';
 import { Text } from '@/ui/Text';
@@ -121,15 +122,13 @@ export default function MeetDetailScreen() {
     );
   }
 
+  // R-25: a deep link lands here before the fetch resolves, so it is a
+  // skeleton of the layout rather than a line of text.
   if (!event.data) {
     return (
       <>
         {header}
-        <View style={styles.state}>
-          <Text variant="body" color="secondary" accessibilityRole="progressbar">
-            Loading this meet.
-          </Text>
-        </View>
+        <MeetSkeleton />
       </>
     );
   }
@@ -151,9 +150,10 @@ export default function MeetDetailScreen() {
         <View style={styles.blocks}>
           {/* R-19: a cancelled next occurrence says so above everything. */}
           {cancelled ? <CancelledBanner note={next?.override_note ?? null} /> : null}
-          {meet.dormant ? (
-            <Text variant="caption" color="secondary">
-              This meet has not been confirmed in a while.
+          {/* events-and-occurrences.md Copy, "Detail, dormant". */}
+          {meet.dormant && meet.last_confirmed_at ? (
+            <Text variant="body" color="secondary">
+              {dormantLine(shortDate(meet.last_confirmed_at, meet.venue.timezone))}
             </Text>
           ) : null}
 

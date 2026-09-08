@@ -4,7 +4,16 @@ import { Link } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { DETAIL_COPY, SPONSOR_ROLES, cancelledBanner, externalHost, goingCounts, lastConfirmed, sourceCard } from './copy';
+import {
+  DETAIL_COPY,
+  EVENT_COPY,
+  SPONSOR_ROLES,
+  cancelledBanner,
+  externalHost,
+  goingCounts,
+  lastConfirmed,
+  sourceCard,
+} from './copy';
 
 import { dayAndTime, shortDate, sourceLabel } from '@/components/format';
 import { HostChip } from '@/components/HostChip';
@@ -58,7 +67,8 @@ export function WhenBlock({
       {next ? (
         <Text variant="title">{dayAndTime(next.starts_at, next.timezone)}</Text>
       ) : (
-        <Text variant="title">Dates announced by the host</Text>
+        // events-and-occurrences.md Copy, "Detail, announced, no dates".
+        <Text variant="body">{EVENT_COPY.announcedNoDates}</Text>
       )}
 
       {event.recurring && event.rrule_text ? (
@@ -190,16 +200,17 @@ export function SponsorsBlock({ event }: { event: EventDetail }) {
 export function GoingBlock({ event }: { event: EventDetail }) {
   const next = event.upcoming_occurrences[0];
   const going = next?.going_count ?? 0;
-  const interested = 0;
 
   return (
     <Block>
-      {going + interested === 0 ? (
+      {going === 0 ? (
         <Text variant="body" color="secondary">
           {DETAIL_COPY.goingZero}
         </Text>
       ) : (
-        <Text variant="body">{goingCounts(going, interested)}</Text>
+        // The interested count is not on the detail payload; it arrives with
+        // the RSVP slice, which is also when Interested becomes settable.
+        <Text variant="body">{goingCounts(going, null)}</Text>
       )}
     </Block>
   );

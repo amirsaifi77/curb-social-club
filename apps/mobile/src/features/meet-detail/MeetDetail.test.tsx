@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Share } from 'react-native';
 
-import { DETAIL_COPY, cancelledBanner } from './copy';
+import { DETAIL_COPY, EVENT_COPY, cancelledBanner, dormantLine } from './copy';
 // The screen lives under app/; a test file there would be picked up by
 // expo-router's require.context and shipped as a route.
 import MeetDetailScreen from '../../../app/meets/[slug]';
@@ -243,6 +243,31 @@ describe('S08 meet detail', () => {
     // Same UTC instant, but November is PST rather than PDT, so the row
     // reads an hour earlier: the venue's clock, not a fixed offset.
     expect(screen.getByLabelText('Sat, Nov 7, 6:30 am')).toBeTruthy();
+  });
+
+  it('R-25: a deep link shows the layout as a skeleton before the fetch lands', async () => {
+    wire(undefined, {});
+    await render(<MeetDetailScreen />);
+
+    // Never a spinner, and never an error before the request has answered.
+    expect(screen.getByLabelText('Loading this meet')).toBeTruthy();
+    expect(screen.queryByText(DETAIL_COPY.error)).toBeNull();
+  });
+
+  it('events spec Copy: an announced meet with no dates says so in its words', async () => {
+    wire(detail({ upcoming_occurrences: [], cadence: 'announced' }));
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText(EVENT_COPY.announcedNoDates)).toBeTruthy();
+    // Nothing to add to a calendar, so nothing offers to.
+    expect(screen.queryByText(DETAIL_COPY.addToCalendar)).toBeNull();
+  });
+
+  it('events spec Copy: a dormant meet names the date it was last confirmed', async () => {
+    wire(detail({ dormant: true, last_confirmed_at: '2026-06-01T12:00:00Z' }));
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText(dormantLine('Jun 1'))).toBeTruthy();
   });
 
   it('AC-17: sharing carries the canonical URL and the message from Copy', async () => {

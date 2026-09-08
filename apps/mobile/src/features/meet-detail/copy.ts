@@ -23,6 +23,17 @@ export const DETAIL_COPY = {
   occurrenceEnded: 'Ended',
 } as const;
 
+// docs/specs/events-and-occurrences.md Copy: this spec supplies the dormant
+// and announced lines that S08 renders, so they live beside the rest.
+export const EVENT_COPY = {
+  announcedNoDates: 'No dates listed yet. Follow to hear when the host posts one.',
+} as const;
+
+// The dormant line names the date it was last confirmed.
+export function dormantLine(date: string): string {
+  return `Not confirmed since ${date}. Are you the host? Confirm it and it comes back.`;
+}
+
 // R-15: the role label for each sponsorship.
 export const SPONSOR_ROLES: Record<string, string> = {
   presented_by: 'Presented by',
@@ -54,7 +65,9 @@ export function externalHost(name: string): string {
   return `Listed from a post by ${name}`;
 }
 
-// R-16 is Phase 2, but the counts line is Phase 1.
-export function goingCounts(going: number, interested: number): string {
-  return `${going} going. ${interested} interested.`;
+// R-16 is Phase 2, but the counts line is Phase 1. The Copy line reads
+// "42 going. 8 interested.", and the detail payload carries no interested
+// count, so Phase 1 shows the half it has rather than a hardcoded zero.
+export function goingCounts(going: number, interested: number | null): string {
+  return interested === null ? `${going} going.` : `${going} going. ${interested} interested.`;
 }
