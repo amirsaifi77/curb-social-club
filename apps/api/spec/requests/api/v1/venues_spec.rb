@@ -90,7 +90,7 @@ RSpec.describe "v1/venues" do
       expect(json.dig("data", "suggestions")).to eq([])
     end
 
-    it "does not cache a provider outage, so the next search tries again" do
+    it "holds a provider outage for a minute, not a day, then tries again" do
       allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
       create(:venue, name: "Back Bay Coffee", location: Geo.point(33.6172, -117.9270))
       stub_request(:get, provider_url).to_timeout
@@ -98,9 +98,15 @@ RSpec.describe "v1/venues" do
       get "/v1/venues/search", params: { q: "back bay coffee" }
       expect(json.dig("data", "suggestions")).to eq([])
 
+      # Inside the minute the provider is left alone rather than hammered.
       stub_provider([ nominatim_row("Back Bay Coffee Roasters", 33.62, -117.93, 42) ])
       get "/v1/venues/search", params: { q: "back bay coffee" }
-      expect(json.dig("data", "suggestions").map { |row| row["name"] }).to eq([ "Back Bay Coffee Roasters" ])
+      expect(json.dig("data", "suggestions")).to eq([])
+
+      travel 61.seconds do
+        get "/v1/venues/search", params: { q: "back bay coffee" }
+        expect(json.dig("data", "suggestions").map { |row| row["name"] }).to eq([ "Back Bay Coffee Roasters" ])
+      end
     end
 
     it "caches a genuinely empty result rather than asking again all day" do

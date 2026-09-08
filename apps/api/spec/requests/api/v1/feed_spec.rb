@@ -195,6 +195,28 @@ RSpec.describe "v1/feed" do
       end
     end
 
+    it "R-6: the more links still hold on a Sunday evening, when UTC has moved on a week" do
+      # Sunday 20:00 in Newport is Monday 03:00 UTC. Read off the UTC date,
+      # the coming Sunday is a week later than the venue's, so the link has
+      # to span every candidate local date rather than one day of slack.
+      travel_to zone.parse("2026-10-25 20:00") do
+        meet_at(:corona_del_mar, zone.parse("2026-10-25 22:00"), title: "Later tonight")
+        meet_at(:corona_del_mar, zone.parse("2026-10-28 18:00"), title: "Wednesday")
+        meet_at(:corona_del_mar, zone.parse("2026-11-25 09:00"), title: "Five weeks out")
+
+        get "/v1/feed", params: { near: lido }
+        sections = json.dig("data", "sections").select { |row| row["more"]["path"] == "/events" }
+        expect(sections.map { |row| row["kind"] }).to eq(%w[this_weekend next_week later])
+
+        sections.each do |row|
+          get "/v1/events", params: row["more"]["params"]
+          expect(response).to have_http_status(:ok), "#{row['kind']} link 400ed"
+          listed = json["data"].map { |event| event["title"] }
+          expect(listed).to include(*row["items"].map { |item| item["title"] }), "#{row['kind']} link lost an item"
+        end
+      end
+    end
+
     it "R-6: a Saturday evening reader still sees tonight's meet in this weekend" do
       # Saturday 19:00 in Newport is Sunday 02:00 UTC.
       travel_to zone.parse("2026-10-24 19:00") do

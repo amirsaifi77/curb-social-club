@@ -7,6 +7,10 @@ module Venues
     EXISTING_LIMIT = 5
     SUGGESTION_LIMIT = 5
     CACHE_TTL = 24.hours
+    # Long enough to bound the fan-out at a provider that allows one request
+    # a second, short enough that recovery is a minute away, not a day.
+    FAILURE_TTL = 60.seconds
+    FAILED = "failed".freeze
 
     Suggestion = Data.define(:name, :address, :lat, :lng, :external_place_id, :external_source)
 
@@ -45,14 +49,15 @@ module Venues
       end
     end
 
-    # An empty result is a real answer worth caching; a provider outage is
-    # not, or one bad minute costs a day of suggestions.
+    # An empty result is a real answer worth caching for the day. An outage
+    # is cached only for a minute: long enough that a type-ahead does not
+    # hammer a provider that is down, short enough that recovery is quick.
     def suggestions
       cached = Rails.cache.read(cache_key)
-      return cached unless cached.nil?
+      return cached == FAILED ? [] : cached unless cached.nil?
 
       results = provider_results
-      Rails.cache.write(cache_key, results, expires_in: CACHE_TTL) unless results.nil?
+      Rails.cache.write(cache_key, results || FAILED, expires_in: results ? CACHE_TTL : FAILURE_TTL)
       results || []
     end
 

@@ -17,8 +17,8 @@ module Api
         raise Geo::ParamError, "Send near as lat,lng, or a device with a home area." if origin.nil?
 
         payload = Rails.cache.fetch(cache_key(origin), expires_in: CACHE_TTL) { build(origin) }
-        # A signed-in feed is viewer specific once `following` lands, and
-        # its cache entry already is, so it never goes in a shared cache.
+        # A signed-in feed becomes viewer specific once `following` lands,
+        # so it goes in neither a shared HTTP cache nor a shared entry.
         current_user ? no_store : public_cache
         render json: payload
       end
@@ -54,16 +54,20 @@ module Api
 
       # R-3: 32 km by default, 400 rather than a clamp above 160 (the
       # clamp belongs to GET /events, discovery AC-4).
+      # Normalized, so `?radius_km=32` and the default are one cache entry
+      # and one `more.params.radius_km` type rather than 32 and 32.0.
       def radius_km
-        value = Geo::Coordinates.radius_km(params[:radius_km]) || Geo::NearbyQuery::DEFAULT_RADIUS_KM
-        raise Geo::ParamError, "radius_km can be at most #{Geo::NearbyQuery::MAX_RADIUS_KM}." if value > Geo::NearbyQuery::MAX_RADIUS_KM
-        raise Geo::ParamError, "radius_km must be greater than 0." if value <= 0
+        @radius_km ||= begin
+          value = (Geo::Coordinates.radius_km(params[:radius_km]) || Geo::NearbyQuery::DEFAULT_RADIUS_KM).to_f
+          raise Geo::ParamError, "radius_km can be at most #{Geo::NearbyQuery::MAX_RADIUS_KM}." if value > Geo::NearbyQuery::MAX_RADIUS_KM
+          raise Geo::ParamError, "radius_km must be greater than 0." if value <= 0
 
-        value
+          value == value.round ? value.round : value
+        end
       end
 
       def cache_key(origin)
-        [ "feed", origin.lat, origin.lng, radius_km, current_user ? "viewer" : "anon" ].join(":")
+        [ "feed", origin.lat, origin.lng, radius_km, current_user&.id || "anon" ].join(":")
       end
     end
   end

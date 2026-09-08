@@ -49,7 +49,9 @@ module Geo
 
     def model = EventOccurrence
     # Cursors are namespaced by ordering, so one cannot be replayed against
-    # another.
+    # another. The feed never pages a section, so its cursor branches exist
+    # to keep the ordering, the keyset, and the cursor shape in one place
+    # rather than because anything decodes one today.
     def sort_name = section ? "section:#{section}" : sort
     def columns = %w[event_id occurrence_id starts_at local_day stale distance_m]
 

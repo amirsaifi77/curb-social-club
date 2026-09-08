@@ -13,6 +13,10 @@ module Feed
     # which covers every UTC offset and makes the list a superset of the
     # section rather than the subset a bare date range would give.
     TIMEZONE_SLACK = 1.day
+    # A venue's local date is the UTC date, the day before it, or the day
+    # after. Across the Sunday to Monday boundary those give weekend ends a
+    # week apart, so the link has to span all three.
+    CANDIDATE_OFFSETS = [ -1, 0, 1 ].freeze
     TITLES = {
       this_weekend: "This weekend",
       clubs_nearby: "Clubs near you",
@@ -61,21 +65,32 @@ module Feed
     end
 
     # Timestamps, not bare dates: Geo::Window reads a bare date as UTC
-    # midnight, which cuts the far side of the section off the list.
+    # midnight, which cuts the far side of the section off the list. The
+    # window spans every candidate local date, so it is tight for five days
+    # of the week and deliberately wide across the weekend boundary, where
+    # nothing narrower can hold the whole section.
     def more_window(kind)
+      ranges = CANDIDATE_OFFSETS.map { |offset| section_days(kind, today + offset) }
+      from = day_start(ranges.map(&:first).min) - TIMEZONE_SLACK
+      to = kind == :later ? now + Geo::Window::MAX_SPAN : day_start(ranges.map(&:last).max + 1) + TIMEZONE_SLACK
+      [ [ from, now ].max, to ]
+    end
+
+    # The local days a section covers for a reader whose local date is
+    # `day`. `later` runs to the horizon, so only its first day matters.
+    def section_days(kind, day)
+      weekend_end = day + ((7 - day.wday) % 7)
       case kind
-      when :this_weekend then [ now, day_start(weekend_end + 1) + TIMEZONE_SLACK ]
-      when :next_week then [ later_of(day_start(weekend_end + 1) - TIMEZONE_SLACK), day_start(weekend_end + 8) + TIMEZONE_SLACK ]
-      else [ later_of(day_start(weekend_end + 8) - TIMEZONE_SLACK), now + Geo::Window::MAX_SPAN ]
+      when :this_weekend then [ day, weekend_end ]
+      when :next_week then [ weekend_end + 1, weekend_end + 7 ]
+      else [ weekend_end + 8, weekend_end + 8 ]
       end
     end
 
-    # UTC reference days for the link only. The section itself is decided
+    # The UTC reference day for the link only. The section itself is decided
     # per venue timezone in Geo::OccurrenceQuery::SECTION_SQL.
     def today = now.utc.to_date
-    def weekend_end = today + ((7 - today.wday) % 7)
     def day_start(date) = date.in_time_zone("UTC")
-    def later_of(time) = [ time, now ].max
 
     def clubs_section
       page = Hosts::Directory.call(Club, ActionController::Parameters.new(
