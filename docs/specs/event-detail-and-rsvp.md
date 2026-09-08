@@ -140,6 +140,10 @@ Deltas adopted into docs/api.md on 2026-09-06 (see Risks): `token` on `GET /even
 | S08 error | Couldn't load this meet. Try again. |
 | S08 offline | Showing a saved copy. |
 | S09 past | Ended |
+| S08 loading (VoiceOver) | Loading this meet |
+| S09 loading | Loading this date. |
+| S09 Phase 1 note | RSVPs open in Phase 2. |
+| S09 title | Date |
 | S10 groups | Going, Interested |
 | S10 vehicle line | Bringing a 1987 911 |
 | S10 empty | Nobody yet. You could be first. |

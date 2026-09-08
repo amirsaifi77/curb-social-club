@@ -14,7 +14,11 @@ import { eventSummary, sponsorSummary } from '@/components/fixtures';
 
 const mockEvent = jest.fn<(slug: unknown, query?: unknown, options?: unknown) => unknown>();
 
+// Only the hook is a double. Everything else stays the real module, so the
+// screen's error readers are the ones the app ships rather than stand-ins
+// that could disagree with them.
 jest.mock('@curb/api-client', () => ({
+  ...(jest.requireActual('@curb/api-client') as object),
   useEvent: (slug: unknown, query?: unknown, options?: unknown) => mockEvent(slug, query, options),
 }));
 
@@ -211,6 +215,27 @@ describe('S08 meet detail', () => {
     expect(screen.getByText('Cancelled this week.')).toBeTruthy();
   });
 
+  it('R-19: a host who closes their own sentence does not get two periods', async () => {
+    wire(
+      detail({
+        upcoming_occurrences: [
+          {
+            id: 'occ-1',
+            starts_at: '2026-10-24T14:30:00Z',
+            ends_at: '2026-10-24T17:00:00Z',
+            timezone: 'America/Los_Angeles',
+            going_count: 0,
+            status: 'cancelled',
+            override_note: 'rain.',
+          },
+        ],
+      }),
+    );
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText('Cancelled this week. Host note: rain.')).toBeTruthy();
+  });
+
   it('AC-15: a 410 renders the no-longer-listed page with the nearby cards', async () => {
     const nearby = [eventSummary({ id: 'n1', title: 'Still on' })];
     wire(undefined, {
@@ -357,6 +382,31 @@ describe('S08 meet detail', () => {
     expect(screen.getByText(dormantLine('Jun 1'))).toBeTruthy();
   });
 
+  it('events spec R-26: a dormant meet that was never confirmed still says so', async () => {
+    // The decay clock falls back to published_at, which the payload does not
+    // carry, so a dormant meet can arrive with no confirmation date at all.
+    // Gating the line on that date left the state silent.
+    wire(detail({ dormant: true, last_confirmed_at: null }));
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText(dormantLine(null))).toBeTruthy();
+  });
+
+  it('Copy, S08 when, recurring: the cadence carries the window it keeps', async () => {
+    await render(<MeetDetailScreen />);
+
+    // "Every Saturday, 7:30 to 10 am" from rrule_text plus the next
+    // occurrence's own hours, not rrule_text on its own.
+    expect(screen.getByText('Every Saturday, 7:30 to 10 am')).toBeTruthy();
+  });
+
+  it('Copy, S08 when, recurring: an announced series has no window to name', async () => {
+    wire(detail({ upcoming_occurrences: [], cadence: 'announced' }));
+    await render(<MeetDetailScreen />);
+
+    expect(screen.getByText('Every Saturday')).toBeTruthy();
+  });
+
   it('AC-17: sharing carries the canonical URL and the message from Copy', async () => {
     const share = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' } as never);
     await render(<MeetDetailScreen />);
@@ -374,19 +424,25 @@ describe('S08 meet detail', () => {
   });
 
   it('AC-17: an unlisted meet shares the token that makes the link readable', async () => {
+    // The router mock is shared by every suite in this file, so the params
+    // go back however this test ends: a failed expectation that left them
+    // set would fail the next test for the wrong reason.
     const params = jest.requireMock('expo-router') as { useLocalSearchParams: unknown };
+    const original = params.useLocalSearchParams;
     params.useLocalSearchParams = () => ({ slug: 'secret-meet', token: 'tok_9' });
     const share = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' } as never);
 
-    await render(<MeetDetailScreen />);
-    await act(async () => {
-      fireEvent.press(screen.getByLabelText(DETAIL_COPY.share));
-    });
+    try {
+      await render(<MeetDetailScreen />);
+      await act(async () => {
+        fireEvent.press(screen.getByLabelText(DETAIL_COPY.share));
+      });
 
-    const shared = share.mock.calls[0]?.[0] as { message: string };
-    expect(shared.message).toContain('?token=tok_9');
-
-    share.mockRestore();
-    params.useLocalSearchParams = () => ({});
+      const shared = share.mock.calls[0]?.[0] as { message: string };
+      expect(shared.message).toContain('?token=tok_9');
+    } finally {
+      share.mockRestore();
+      params.useLocalSearchParams = original;
+    }
   });
 });

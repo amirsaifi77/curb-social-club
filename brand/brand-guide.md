@@ -127,6 +127,7 @@ Fog white, overcast grey, wet-asphalt charcoal, muted slate blue, one Lido Blue 
 | pinPast | #7E8588 | #6C7478 | Map pin: ended, photos only |
 | pinCluster | #5C6469 | #EDEFF0 | Map cluster count badge |
 | pinLabel | #FFFFFF | #15181A | Glyph or count on any pin |
+| onScrim | #FFFFFF | #FFFFFF | Text and marks over scrim on a photo |
 | glassTint | #F3F4F4A6 | #15181AA6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
 | scrim | #23272A40 | #00000059 | Overlay under text on photos (hex8, alpha) |
 
@@ -155,6 +156,7 @@ Deep navy, bone white, warm sand, an old-brass accent.
 | pinPast | #867F72 | #6B7382 | Map pin: ended, photos only |
 | pinCluster | #16223A | #F1ECE1 | Map cluster count badge |
 | pinLabel | #FFFFFF | #0F1A2B | Glyph or count on any pin |
+| onScrim | #FFFFFF | #FFFFFF | Text and marks over scrim on a photo |
 | glassTint | #F4F0E7A6 | #0F1A2BA6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
 | scrim | #16223A40 | #00000059 | Overlay under text on photos (hex8, alpha) |
 
@@ -183,6 +185,7 @@ Sage-olive, ivory, stone grey, a burnt-sienna accent.
 | pinPast | #84837A | #6E7268 | Map pin: ended, photos only |
 | pinCluster | #22261E | #EFECE1 | Map cluster count badge |
 | pinLabel | #FFFFFF | #191C15 | Glyph or count on any pin |
+| onScrim | #FFFFFF | #FFFFFF | Text and marks over scrim on a photo |
 | glassTint | #F3F0E5A6 | #191C15A6 | Tint applied to Liquid Glass nav layer (hex8, alpha) |
 | scrim | #22261E40 | #00000059 | Overlay under text on photos (hex8, alpha) |
 
@@ -202,7 +205,7 @@ Pins are a filled circle with a 2px ring in `surfaceRaised` and a small glyph in
 
 ### Glass tint and scrim
 
-`glassTint` is the tint applied to the Liquid Glass navigation layer (hex8, 65% alpha of the scheme's `bg`). `scrim` is an overlay placed under any text that sits on a photo. Text on glass cannot be pre-verified because the backdrop moves, so the rule is: text on glass uses `textPrimary` with the system vibrancy style, and any glass that carries text over a photo sits on `scrim`.
+`glassTint` is the tint applied to the Liquid Glass navigation layer (hex8, 65% alpha of the scheme's `bg`). `scrim` is an overlay placed under any text that sits on a photo. Text on glass cannot be pre-verified because the backdrop moves, so the rule is: text on glass uses `textPrimary` with the system vibrancy style, and any glass that carries text over a photo sits on `scrim`. Text on `scrim` itself uses `onScrim`, which is white in every theme and scheme because the scrim is dark in every theme and scheme: a role that flipped with the scheme would put near-black type on a dark photo.
 
 ## 5. Contrast (WCAG 2.1)
 

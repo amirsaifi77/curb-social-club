@@ -14,7 +14,7 @@ import type {
 } from '@curb/types';
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
-import { ApiError, type ApiClient } from './client';
+import { errorStatus, type ApiClient } from './client';
 import { mutationKeys, queryKeys } from './keys';
 import { api } from './requests';
 
@@ -24,7 +24,8 @@ import { api } from './requests';
 // A 4xx answer is final; a network or 5xx failure retries once (the same
 // as the app-level QueryClient default, so the two never disagree).
 function retryUnlessClientError(failureCount: number, error: unknown): boolean {
-  if (error instanceof ApiError && error.status < 500) return false;
+  const status = errorStatus(error);
+  if (status !== null && status < 500) return false;
   return failureCount < 1;
 }
 

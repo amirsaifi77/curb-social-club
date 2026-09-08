@@ -1,4 +1,4 @@
-export { ApiError, createClient, unwrap } from './client';
+export { ApiError, createClient, errorDetails, errorStatus, unwrap } from './client';
 export type { ApiClient, ClientOptions } from './client';
 export { endpoints } from './endpoints';
 export type { EndpointName } from './endpoints';

@@ -25,13 +25,3 @@ export function shareEventText(input: {
   const url = canonicalEventUrl(input.slug, input.token);
   return input.when ? `${input.title}, ${input.when}. ${url}` : `${input.title}. ${url}`;
 }
-
-// `curb://meets/:slug` and the universal link path both land on the same
-// screen (R-25), so both are built from one place.
-export function eventPath(slug: string): string {
-  return `/meets/${slug}`;
-}
-
-export function occurrencePath(id: string): string {
-  return `/occurrences/${id}`;
-}

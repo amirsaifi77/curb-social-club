@@ -131,9 +131,12 @@ export function EventCard({
 
   if (onPress) return card;
 
+  // R-11 and mobile-liquid-glass section 6: the detail screen is pushed
+  // with the Apple zoom transition from the card. iOS 18 and up honours it;
+  // everywhere else the Link pushes as usual.
   return (
     <Link href={`/meets/${event.slug}`} asChild>
-      {card}
+      <Link.AppleZoom>{card}</Link.AppleZoom>
     </Link>
   );
 }

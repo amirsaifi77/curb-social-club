@@ -1,4 +1,4 @@
-import { useEvent } from '@curb/api-client';
+import { errorDetails, errorStatus, useEvent } from '@curb/api-client';
 import { shareEventText } from '@curb/ui';
 import * as Linking from 'expo-linking';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -167,9 +167,13 @@ export default function MeetDetailScreen() {
           {/* R-19: a cancelled next occurrence says so above everything. */}
           {cancelled ? <CancelledBanner note={next?.override_note ?? null} /> : null}
           {/* events-and-occurrences.md Copy, "Detail, dormant". */}
-          {meet.dormant && meet.last_confirmed_at ? (
+          {meet.dormant ? (
             <Text variant="body" color="secondary">
-              {dormantLine(shortDate(meet.last_confirmed_at, meet.venue.timezone))}
+              {dormantLine(
+                meet.last_confirmed_at
+                  ? shortDate(meet.last_confirmed_at, meet.venue.timezone)
+                  : null,
+              )}
             </Text>
           ) : null}
 
@@ -205,20 +209,6 @@ function hasPassed(meet: { cadence: string; upcoming_occurrences: unknown[] }): 
 
 // Read structurally rather than with instanceof: an error crossing a module
 // boundary keeps its status and details but not always its prototype.
-function errorStatus(error: unknown): number | null {
-  if (typeof error !== 'object' || error === null || !('status' in error)) return null;
-  const status = Number((error as { status: unknown }).status);
-  return Number.isFinite(status) ? status : null;
-}
-
-function errorDetails(error: unknown): Record<string, unknown> | null {
-  if (typeof error !== 'object' || error === null || !('details' in error)) return null;
-  const details = (error as { details: unknown }).details;
-  return typeof details === 'object' && details !== null
-    ? (details as Record<string, unknown>)
-    : null;
-}
-
 const styles = StyleSheet.create((theme, rt) => ({
   screen: {
     flex: 1,

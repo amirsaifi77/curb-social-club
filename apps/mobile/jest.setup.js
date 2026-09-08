@@ -71,6 +71,11 @@ jest.mock('expo-router', () => {
     Screen: (props) => props?.options?.headerRight?.() ?? null,
   };
    
+  // The zoom wrappers are presentation only; they render their children so
+  // a card is still a card in a test.
+  Link.AppleZoom = ({ children }) => children;
+  Link.AppleZoomTarget = ({ children }) => children;
+
   return {
     Link,
     Stack,

@@ -80,6 +80,35 @@ describe('query options', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('does not retry a 4xx that reached the client without its prototype', async () => {
+    // An error read back out of the query persister, or thrown by a second
+    // copy of this package under pnpm, is not an instanceof ApiError. The
+    // retry reads the status structurally so a 410 is still final.
+    const queryFn = vi.fn(async () => {
+      throw Object.assign(new Error('Gone'), { status: 410, code: 'gone', details: null });
+    });
+    const queryClient = new QueryClient();
+    const options = healthQuery(clientWith(vi.fn(async () => jsonResponse(200, { data: {} }))));
+
+    await expect(queryClient.fetchQuery({ ...options, queryFn })).rejects.toMatchObject({
+      status: 410,
+    });
+    expect(queryFn).toHaveBeenCalledTimes(1);
+  });
+
+  it('still retries a 5xx once', async () => {
+    const queryFn = vi.fn(async () => {
+      throw Object.assign(new Error('Boom'), { status: 503, code: 'unavailable', details: null });
+    });
+    const queryClient = new QueryClient();
+    const options = healthQuery(clientWith(vi.fn(async () => jsonResponse(200, { data: {} }))));
+
+    await expect(queryClient.fetchQuery({ ...options, queryFn })).rejects.toMatchObject({
+      status: 503,
+    });
+    expect(queryFn).toHaveBeenCalledTimes(2);
+  });
+
   it('sends near and radius_km to the feed and caches under the shared key', async () => {
     const sections = [{ kind: 'this_weekend', title: 'This weekend', items: [], more: null }];
     const fetchMock = vi.fn(async (_request: Request) =>

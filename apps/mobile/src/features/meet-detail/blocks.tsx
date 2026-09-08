@@ -13,10 +13,11 @@ import {
   externalHost,
   goingCounts,
   lastConfirmed,
+  recurringLine,
   sourceCard,
 } from './copy';
 
-import { dayAndTime, shortDate, sourceLabel } from '@/components/format';
+import { dayAndTime, shortDate, sourceLabel, timeRange } from '@/components/format';
 import { HostChip } from '@/components/HostChip';
 import { Text } from '@/ui/Text';
 import { TextButton } from '@/ui/TextButton';
@@ -74,7 +75,10 @@ export function WhenBlock({
 
       {event.recurring && event.rrule_text ? (
         <Text variant="body" color="secondary">
-          {event.rrule_text}
+          {recurringLine(
+            event.rrule_text,
+            next ? timeRange(next.starts_at, next.ends_at, next.timezone) : null,
+          )}
         </Text>
       ) : null}
 
@@ -291,6 +295,8 @@ export function PlaceholdersBlock({ past }: { past: boolean }) {
 export function Hero({ event }: { event: EventDetail }) {
   return (
     <View style={styles.hero}>
+      {/* The cover is what the card zooms into. */}
+      <Link.AppleZoomTarget>
       {event.cover_url ? (
         <Image
           source={{ uri: event.cover_url }}
@@ -302,6 +308,7 @@ export function Hero({ event }: { event: EventDetail }) {
       ) : (
         <View style={[styles.cover, styles.coverPlaceholder]} />
       )}
+      </Link.AppleZoomTarget>
       {/* R-11: the title sits on a scrim, the one place a translucent fill
           is allowed in the content layer. */}
       <View style={styles.scrim}>
@@ -400,6 +407,8 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.spacing.gutter,
   },
   heroTitle: {
-    color: theme.colors.pinLabel,
+    // onScrim, not pinLabel: pinLabel flips to near-black in every dark
+    // scheme, which is dark type on a dark scrim over a photo.
+    color: theme.colors.onScrim,
   },
 }));
