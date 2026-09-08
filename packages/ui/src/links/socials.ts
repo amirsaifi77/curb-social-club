@@ -61,6 +61,12 @@ export function socialLinks(links: Record<string, string> | null | undefined): S
 // R-2 allows only http and https, at most 200 chars, with a host. A stored
 // value that fails that is not opened: an in-app browser handed a
 // javascript: or file: URL is a way into the app, not a website.
+//
+// React Native ships its own `URL`, which parses by regex and never throws,
+// so this runs against a different implementation on device than in these
+// tests. Both reject `javascript:`, `file:`, `curb:` and a bare host, which
+// is what the guard is for; they disagree on edges (`HTTPS://x.com` passes
+// here and not on device). Worth re-checking when web reuses this in 1.17.
 export function websiteUrl(value: string | null | undefined): string | null {
   if (!value) return null;
   const trimmed = value.trim();

@@ -17,9 +17,10 @@ export interface UpcomingMeetsProps {
   title: string;
   events: readonly (EventSummary & { relation?: string })[];
   emptyCopy: string;
-  /** "See all meets": the filtered list this page's meets live in. */
-  seeAllHref?: string;
-  seeAllLabel?: string;
+  /** "See all meets": the filtered list this page's meets live in. The
+   * label travels with it, so no caller falls back to a string this file
+   * invented rather than one its spec's Copy table wrote. */
+  seeAll?: { href: string; label: string };
   /** Sponsor pages only (sponsors R-15). */
   relationLabelFor?: (relation: string) => string;
 }
@@ -28,8 +29,7 @@ export function UpcomingMeets({
   title,
   events,
   emptyCopy,
-  seeAllHref,
-  seeAllLabel,
+  seeAll,
   relationLabelFor,
 }: UpcomingMeetsProps) {
   const shown = events.slice(0, UPCOMING_LIMIT);
@@ -57,12 +57,12 @@ export function UpcomingMeets({
         ))
       )}
 
-      {seeAllHref && shown.length > 0 ? (
+      {seeAll && shown.length > 0 ? (
         // Link asChild clones its child with onPress, which a View drops.
-        <Link href={seeAllHref} asChild>
-          <Pressable accessibilityRole="link" accessibilityLabel={seeAllLabel ?? 'See all meets'}>
+        <Link href={seeAll.href} asChild>
+          <Pressable accessibilityRole="link" accessibilityLabel={seeAll.label}>
             <Text variant="body" color="secondary">
-              {seeAllLabel ?? 'See all meets'}
+              {seeAll.label}
             </Text>
           </Pressable>
         </Link>

@@ -107,7 +107,7 @@ Write (Phase 7, behind `sponsors_self_service`): `PATCH /sponsors/:id` (`name`, 
 | S14 see all | See all meets |
 | S14 hidden | This sponsor is no longer listed. |
 | S14 footer line | Run this business? Email hello@curbsocial.club to update the page. |
-| S14 error | Couldn't load this page. Try again. |
+| S14 error | Couldn't load this page. Try again. ("Try again" is the retry control, as on discovery.md S02.) |
 | Feed section title | Sponsors near you |
 | Feed card line | Coffee at Back Bay Coffee, Sat 7:30 am |
 | Search group title | Sponsors |

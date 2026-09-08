@@ -10,8 +10,9 @@ export const CLUB_COPY = {
   membersHeader: 'Members',
   membersEmpty: 'No members listed yet.',
   hidden: 'This club is no longer listed.',
-  joinOpen: 'Open to join',
-  joinInvite: 'By invitation',
+  // The join policy labels are Phase 7 rows in clubs.md, and R-15 does not
+  // list them among what S12 shows. Nothing in Phase 1 can act on a join
+  // policy, so the page does not announce one.
 } as const;
 
 export const SPONSOR_COPY = {
@@ -37,6 +38,13 @@ export const PROFILE_COPY = {
   upcomingHeader: 'Upcoming',
   notFound: "This profile isn't here.",
   blocked: 'Nothing to show here.',
+} as const;
+
+// S04b, the list behind "See all meets" (docs/screens.md). Its empty line is
+// the host pages' sentence without the half that points at a Follow control
+// Phase 1 does not have.
+export const FILTERED_LIST_COPY = {
+  empty: 'No meets listed yet.',
 } as const;
 
 // The states every host page shares (docs/screens.md standard states).
@@ -89,7 +97,7 @@ export function hostCounts(followers: number, meets: number): string {
 // leadership sentence is counted off the members page the row already
 // fetched. When that page is not the whole club the count would be a guess,
 // so the row is the member count alone rather than a wrong sentence.
-const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+const NUMBER_WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
 
 export function membersRow(
   count: number,
@@ -102,11 +110,18 @@ export function membersRow(
   if (leadership.admins === 1) parts.push('one admin');
   else if (leadership.admins > 1) parts.push(`${numberWord(leadership.admins)} admins`);
   if (parts.length === 0) return members;
-  return `${members} ${parts.join(' and ')}.`;
+  // Every seeded club is owned by the app account, which carries no label,
+  // so the sentence usually starts at the admins: "Two admins." rather than
+  // the lowercase fragment the Copy row's own example never has to be.
+  return `${members} ${sentenceCase(parts.join(' and '))}.`;
 }
 
 function numberWord(n: number): string {
   return NUMBER_WORDS[n] ?? String(n);
+}
+
+function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 // The leadership half of the row, counted off the member rows the page

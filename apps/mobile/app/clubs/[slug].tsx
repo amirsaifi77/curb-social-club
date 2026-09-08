@@ -79,10 +79,7 @@ export default function ClubScreen() {
           name={data.name}
           bannerUrl={data.banner_url}
           avatarUrl={data.avatar_url}
-          labels={[
-            data.verified ? CLUB_COPY.verified : null,
-            data.join_policy === 'open' ? CLUB_COPY.joinOpen : CLUB_COPY.joinInvite,
-          ]}
+          labels={[data.verified ? CLUB_COPY.verified : null]}
           homeLabel={data.home_label}
           blurb={data.description}
           counts={followersLine(data.followers_count)}
@@ -94,25 +91,32 @@ export default function ClubScreen() {
           <Text variant="headline" accessibilityRole="header">
             {CLUB_COPY.membersHeader}
           </Text>
-          <Text variant="body" color="secondary">
-            {membersRow(data.members_count, leadership)}
-          </Text>
-          {rows.length > 0 ? <MemberAvatars members={rows.slice(0, MEMBERS_PREVIEW)} /> : null}
+          {/* The count row is the way into S13, so the block does not print
+              the word "Members" twice with a link under a header of the
+              same name. */}
           <Link href={`/clubs/${data.slug}/members`} asChild>
-            <Pressable accessibilityRole="link" accessibilityLabel={CLUB_COPY.membersHeader}>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={membersRow(data.members_count, leadership)}
+            >
               <Text variant="body" color="secondary">
-                {CLUB_COPY.membersHeader}
+                {membersRow(data.members_count, leadership)}
               </Text>
             </Pressable>
           </Link>
+          {/* Outside the row above: each avatar is its own link, and a link
+              inside a link is a fight over the touch. */}
+          {rows.length > 0 ? <MemberAvatars members={rows.slice(0, MEMBERS_PREVIEW)} /> : null}
         </View>
 
         <UpcomingMeets
           title={CLUB_COPY.upcomingHeader}
           events={data.upcoming_events}
           emptyCopy={CLUB_COPY.upcomingEmpty}
-          seeAllHref={`/meets?host=club:${data.id}&title=${encodeURIComponent(data.name)}`}
-          seeAllLabel={CLUB_COPY.seeAll}
+          seeAll={{
+            href: `/meets?host=club:${data.id}&title=${encodeURIComponent(data.name)}`,
+            label: CLUB_COPY.seeAll,
+          }}
         />
       </ScrollView>
     </>

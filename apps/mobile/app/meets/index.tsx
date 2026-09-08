@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { EventCard } from '@/components/EventCard';
-import { HOST_PAGE_COPY, SPONSOR_COPY } from '@/features/host-page/copy';
+import { FILTERED_LIST_COPY, HOST_PAGE_COPY } from '@/features/host-page/copy';
 import { HostPageError } from '@/features/host-page/states';
 import { Text } from '@/ui/Text';
 
@@ -28,7 +28,9 @@ export default function FilteredMeetsScreen() {
   const meets = useEventsPages(query);
   const rows = pageItems(meets.data?.pages);
 
-  const header = <Stack.Screen options={{ title: title ?? SPONSOR_COPY.seeAll }} />;
+  // Every caller passes the host's name; a hand-typed URL gets no title
+  // rather than one this screen made up.
+  const header = <Stack.Screen options={{ title: title ?? '' }} />;
 
   if (meets.isError && !meets.data) {
     return (
@@ -64,7 +66,7 @@ export default function FilteredMeetsScreen() {
           ListEmptyComponent={
             meets.data ? (
               <Text variant="body" color="secondary">
-                {SPONSOR_COPY.upcomingEmpty}
+                {FILTERED_LIST_COPY.empty}
               </Text>
             ) : null
           }

@@ -25,8 +25,10 @@ export default function ProfileScreen() {
   const profile = useProfile(handle);
   // The Profile shape carries `clubs`, but only this endpoint sets `role`,
   // which is what the Owner and Admin labels read (R-17).
-  const clubs = useProfileClubs(handle, { enabled: Boolean(profile.data) });
-  const events = useProfileEvents(handle, {}, { enabled: Boolean(profile.data) });
+  // Not gated on the profile: three requests in parallel is one round trip,
+  // and a 404 on either of these two is nothing to show rather than an error.
+  const clubs = useProfileClubs(handle);
+  const events = useProfileEvents(handle);
 
   const header = <Stack.Screen options={{ title: profile.data?.display_name ?? '' }} />;
 
@@ -114,28 +116,33 @@ export default function ProfileScreen() {
           <SocialsRow links={data.links} />
         </HostHeader>
 
-        <View style={styles.block}>
-          <Text variant="headline" accessibilityRole="header">
-            {PROFILE_COPY.clubsHeader}
-          </Text>
-          {clubRows.length === 0 ? (
-            <Text variant="body" color="secondary">
-              {PROFILE_COPY.clubsEmpty}
+        {/* "Not in a club yet." is a claim about this person. A request
+            that failed knows nothing about their clubs, so the section is
+            absent until one answers. */}
+        {clubs.data ? (
+          <View style={styles.block}>
+            <Text variant="headline" accessibilityRole="header">
+              {PROFILE_COPY.clubsHeader}
             </Text>
-          ) : (
-            clubRows.map((club) => (
-              <HostRowCard
-                key={club.id}
-                name={club.name}
-                slug={club.slug}
-                imageUrl={club.avatar_url}
-                label={roleLabel(club.role, data.handle)}
-                kind="club"
-                layout="list"
-              />
-            ))
-          )}
-        </View>
+            {clubRows.length === 0 ? (
+              <Text variant="body" color="secondary">
+                {PROFILE_COPY.clubsEmpty}
+              </Text>
+            ) : (
+              clubRows.map((club) => (
+                <HostRowCard
+                  key={club.id}
+                  name={club.name}
+                  slug={club.slug}
+                  imageUrl={club.avatar_url}
+                  label={roleLabel(club.role, data.handle)}
+                  kind="club"
+                  layout="list"
+                />
+              ))
+            )}
+          </View>
+        ) : null}
 
         {/* profiles-and-follow.md gives S11 no line for a host with no
             upcoming meets, so the block is absent rather than carrying a
@@ -145,7 +152,6 @@ export default function ProfileScreen() {
             title={PROFILE_COPY.upcomingHeader}
             events={hosted}
             emptyCopy=""
-            seeAllHref={`/meets?host=user:${data.id}&title=${encodeURIComponent(data.display_name)}`}
           />
         ) : null}
       </ScrollView>

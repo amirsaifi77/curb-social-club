@@ -35,6 +35,23 @@ export function HostPageError({
   );
 }
 
+// S13's own loading state (docs/screens.md lists it). Rows of the shape the
+// members list ends up with, not a blank screen while the first page flies.
+export function MemberListSkeleton({ rows = 6 }: { rows?: number }) {
+  return (
+    <View accessibilityLabel={HOST_PAGE_COPY.loading} style={styles.memberList}>
+      {Array.from({ length: rows }, (_, index) => (
+        <View key={index} style={styles.memberRow}>
+          <View style={[styles.memberAvatar, styles.block]} />
+          <View style={styles.memberNames}>
+            <View style={[styles.lineShort, styles.block]} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 // A skeleton of the layout, not a spinner: banner, avatar, name, two rows.
 export function HostPageSkeleton() {
   return (
@@ -81,4 +98,22 @@ const styles = StyleSheet.create((theme) => ({
   line: { height: 28, width: '70%' },
   lineShort: { height: 16, width: '40%' },
   card: { height: 120, borderRadius: theme.radius.card },
+  memberList: {
+    paddingHorizontal: theme.spacing.gutter,
+    paddingVertical: theme.spacing['3'],
+  },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing['3'],
+    paddingVertical: theme.spacing['2'],
+  },
+  memberAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.pill,
+  },
+  memberNames: {
+    flex: 1,
+  },
 }));

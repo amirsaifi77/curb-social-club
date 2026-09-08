@@ -2,7 +2,7 @@ import { socialLinks, websiteUrl, type SocialPlatform } from '@curb/ui';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import * as WebBrowser from 'expo-web-browser';
 import { Linking, Pressable, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Text } from '@/ui/Text';
 
@@ -38,7 +38,13 @@ export interface SocialsRowProps {
   websiteLabel?: string;
 }
 
+// Sized and tinted from tokens, like the only other SymbolView in the app
+// (features/map/PinMarker): expo-symbols otherwise paints the system tint,
+// which does not follow Marine Layer, Harbor or Olive and Ivory in dark.
+export const SOCIAL_ICON_SIZE = 22;
+
 export function SocialsRow({ links, website, websiteLabel }: SocialsRowProps) {
+  const { theme } = useUnistyles();
   const socials = socialLinks(links);
   const site = websiteUrl(website ?? links?.website ?? null);
   if (socials.length === 0 && !site) return null;
@@ -53,7 +59,11 @@ export function SocialsRow({ links, website, websiteLabel }: SocialsRowProps) {
           onPress={() => void Linking.openURL(link.url)}
           style={styles.icon}
         >
-          <SymbolView name={SYMBOLS[link.platform]} />
+          <SymbolView
+            name={SYMBOLS[link.platform]}
+            size={SOCIAL_ICON_SIZE}
+            tintColor={theme.colors.textSecondary}
+          />
         </Pressable>
       ))}
 
@@ -69,7 +79,11 @@ export function SocialsRow({ links, website, websiteLabel }: SocialsRowProps) {
               {websiteLabel}
             </Text>
           ) : (
-            <SymbolView name="link" />
+            <SymbolView
+              name="link"
+              size={SOCIAL_ICON_SIZE}
+              tintColor={theme.colors.textSecondary}
+            />
           )}
         </Pressable>
       ) : null}

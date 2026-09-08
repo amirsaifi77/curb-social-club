@@ -91,8 +91,10 @@ export default function SponsorScreen() {
           title={SPONSOR_COPY.upcomingHeader}
           events={data.upcoming_events}
           emptyCopy={SPONSOR_COPY.upcomingEmpty}
-          seeAllHref={`/meets?sponsor=${data.id}&title=${encodeURIComponent(data.name)}`}
-          seeAllLabel={SPONSOR_COPY.seeAll}
+          seeAll={{
+            href: `/meets?sponsor=${data.id}&title=${encodeURIComponent(data.name)}`,
+            label: SPONSOR_COPY.seeAll,
+          }}
           relationLabelFor={relationLabel}
         />
 

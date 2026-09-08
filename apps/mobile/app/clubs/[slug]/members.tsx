@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 import { CLUB_COPY, HOST_PAGE_COPY } from '@/features/host-page/copy';
 import { MemberRow } from '@/features/host-page/MemberRow';
-import { HostPageError, NotListed } from '@/features/host-page/states';
+import { HostPageError, MemberListSkeleton, NotListed } from '@/features/host-page/states';
 import { Text } from '@/ui/Text';
 
 // S13 (clubs.md R-16). Active members with the Owner and Admin labels, one
@@ -39,7 +39,18 @@ export default function ClubMembersScreen() {
     );
   }
 
-  const rows = pageItems(members.data?.pages);
+  // docs/screens.md lists loading among S13's states: rows of the right
+  // shape, never a blank list waiting for the first page.
+  if (!members.data) {
+    return (
+      <>
+        {header}
+        <MemberListSkeleton />
+      </>
+    );
+  }
+
+  const rows = pageItems(members.data.pages);
 
   return (
     <>
@@ -69,11 +80,9 @@ export default function ClubMembersScreen() {
             if (members.hasNextPage && !members.isFetchingNextPage) void members.fetchNextPage();
           }}
           ListEmptyComponent={
-            members.data ? (
-              <Text variant="body" color="secondary">
-                {CLUB_COPY.membersEmpty}
-              </Text>
-            ) : null
+            <Text variant="body" color="secondary">
+              {CLUB_COPY.membersEmpty}
+            </Text>
           }
         />
       </View>

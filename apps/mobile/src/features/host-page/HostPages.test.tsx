@@ -2,10 +2,11 @@
 import '@/lib/unistyles';
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 import { Linking } from 'react-native';
 
-import { CLUB_COPY, PROFILE_COPY, SPONSOR_COPY } from './copy';
+import { CLUB_COPY, FILTERED_LIST_COPY, PROFILE_COPY, SPONSOR_COPY } from './copy';
+import { SOCIAL_ICON_SIZE } from './SocialsRow';
 // The screens live under app/; a test file there would be picked up by
 // expo-router's require.context and shipped as a route.
 import ClubScreen from '../../../app/clubs/[slug]';
@@ -16,28 +17,42 @@ import ProfileScreen from '../../../app/u/[handle]';
 
 import { clubDetail, clubMember, profile, sponsorDetail } from '@/components/fixtures';
 
-const mockClub = jest.fn<() => unknown>();
-const mockClubMembers = jest.fn<() => unknown>();
-const mockClubMemberPages = jest.fn<() => unknown>();
-const mockSponsor = jest.fn<() => unknown>();
-const mockProfile = jest.fn<() => unknown>();
-const mockProfileClubs = jest.fn<() => unknown>();
-const mockProfileEvents = jest.fn<() => unknown>();
-const mockEventsPages = jest.fn<() => unknown>();
+const mockClub = jest.fn<(...args: unknown[]) => unknown>();
+const mockClubMembers = jest.fn<(...args: unknown[]) => unknown>();
+const mockClubMemberPages = jest.fn<(...args: unknown[]) => unknown>();
+const mockSponsor = jest.fn<(...args: unknown[]) => unknown>();
+const mockProfile = jest.fn<(...args: unknown[]) => unknown>();
+const mockProfileClubs = jest.fn<(...args: unknown[]) => unknown>();
+const mockProfileEvents = jest.fn<(...args: unknown[]) => unknown>();
+const mockEventsPages = jest.fn<(...args: unknown[]) => unknown>();
 
 // Only the hooks are doubles; the rest of the module stays real, so the
 // pages read errors with the readers the app ships.
+// The doubles pass their arguments through. A hook double that drops them
+// cannot tell a filtered request from an unfiltered one, so the filter
+// behind "See all meets" could be deleted with the suite still green.
 jest.mock('@curb/api-client', () => ({
   ...(jest.requireActual('@curb/api-client') as object),
-  useClub: () => mockClub(),
-  useClubMembers: () => mockClubMembers(),
-  useClubMembersPages: () => mockClubMemberPages(),
-  useSponsor: () => mockSponsor(),
-  useProfile: () => mockProfile(),
-  useProfileClubs: () => mockProfileClubs(),
-  useProfileEvents: () => mockProfileEvents(),
-  useEventsPages: () => mockEventsPages(),
+  useClub: (...args: unknown[]) => mockClub(...args),
+  useClubMembers: (...args: unknown[]) => mockClubMembers(...args),
+  useClubMembersPages: (...args: unknown[]) => mockClubMemberPages(...args),
+  useSponsor: (...args: unknown[]) => mockSponsor(...args),
+  useProfile: (...args: unknown[]) => mockProfile(...args),
+  useProfileClubs: (...args: unknown[]) => mockProfileClubs(...args),
+  useProfileEvents: (...args: unknown[]) => mockProfileEvents(...args),
+  useEventsPages: (...args: unknown[]) => mockEventsPages(...args),
 }));
+
+// jest.setup.js returns {} from useLocalSearchParams for the whole app, so
+// a screen that reads a route param sees nothing unless a test says so.
+function withParams<T>(params: Record<string, string>, body: () => Promise<T>): Promise<T> {
+  const router = jest.requireMock('expo-router') as { useLocalSearchParams: unknown };
+  const original = router.useLocalSearchParams;
+  router.useLocalSearchParams = () => params;
+  return body().finally(() => {
+    router.useLocalSearchParams = original;
+  });
+}
 
 jest.mock('@/lib/auth', () => ({ auth: { client: {} } }));
 
@@ -106,6 +121,31 @@ describe('S12 club page', () => {
     expect(screen.getByText('12 members. Owner and two admins.')).toBeTruthy();
   });
 
+  it('R-15: a seeded club with admins still reads as a sentence', async () => {
+    // Every club at launch is owned by the app account, which carries no
+    // label, so the sentence starts at the admins rather than at a
+    // lowercase fragment the Copy row's own example never has to be.
+    mockClubMembers.mockReturnValue(
+      page([
+        clubMember({ role: 'owner', handle: 'curb', display_name: 'curb' }),
+        clubMember({ id: 'm2', role: 'admin', handle: 'dana', display_name: 'Dana' }),
+        clubMember({ id: 'm3', role: 'admin', handle: 'sam', display_name: 'Sam' }),
+      ]),
+    );
+    await render(<ClubScreen />);
+
+    expect(screen.getByText('12 members. Two admins.')).toBeTruthy();
+  });
+
+  it('R-15: one admin is one admin, not "1 admins"', async () => {
+    mockClubMembers.mockReturnValue(
+      page([clubMember({ id: 'm2', role: 'admin', handle: 'dana', display_name: 'Dana' })]),
+    );
+    await render(<ClubScreen />);
+
+    expect(screen.getByText('12 members. One admin.')).toBeTruthy();
+  });
+
   it('clubs Risks: a seeded club owned by the app account names no owner', async () => {
     mockClubMembers.mockReturnValue(page([clubMember({ role: 'owner', handle: 'curb' })]));
     await render(<ClubScreen />);
@@ -121,6 +161,38 @@ describe('S12 club page', () => {
     await render(<ClubScreen />);
 
     expect(screen.getByText('12 members.')).toBeTruthy();
+  });
+
+  it('clubs R-15: See all meets opens the list filtered to this club', async () => {
+    await render(<ClubScreen />);
+
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText(CLUB_COPY.seeAll));
+    });
+
+    const navigations = (globalThis as { __linkNavigations?: jest.Mock }).__linkNavigations;
+    expect(navigations?.mock.calls[0]?.[0]).toContain(
+      '/meets?host=club:77777777-7777-4777-8777-777777777777',
+    );
+  });
+
+  it('R-16: the members row is the way into S13', async () => {
+    await render(<ClubScreen />);
+
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('12 members. Owner.'));
+    });
+
+    const navigations = (globalThis as { __linkNavigations?: jest.Mock }).__linkNavigations;
+    expect(navigations?.mock.calls[0]?.[0]).toBe('/clubs/back-bay-air-cooled/members');
+  });
+
+  it('clubs R-15: the Phase 7 join policy label does not ship in Phase 1', async () => {
+    await render(<ClubScreen />);
+
+    // Both Copy rows are marked (7) and nothing in Phase 1 can act on one.
+    expect(screen.queryByText('Open to join')).toBeNull();
+    expect(screen.queryByText('By invitation')).toBeNull();
   });
 
   it('R-5: a hidden club is its own page, not an error with a retry', async () => {
@@ -155,6 +227,32 @@ describe('S13 club members', () => {
     expect(screen.getByText('Owner')).toBeTruthy();
     expect(screen.getByText('Admin')).toBeTruthy();
     expect(screen.getByText('Sam')).toBeTruthy();
+  });
+
+  it('clubs Risks: the app account carries no Owner label in the list either', async () => {
+    // The count sentence already skips it; the per-member label is a second
+    // place a seeded club would otherwise name an organizer nobody is.
+    mockClubMemberPages.mockReturnValue(
+      pages([
+        clubMember({ role: 'owner', handle: 'curb', display_name: 'curb' }),
+        clubMember({ id: 'm2', role: 'admin', handle: 'dana', display_name: 'Dana' }),
+      ]),
+    );
+    await render(<ClubMembersScreen />);
+
+    expect(screen.queryByText('Owner')).toBeNull();
+    expect(screen.getByText('Admin')).toBeTruthy();
+  });
+
+  it('docs/screens.md: S13 loads as rows, not as a blank list', async () => {
+    mockClubMemberPages.mockReturnValue({
+      ...pages([]),
+      data: undefined,
+    });
+    await render(<ClubMembersScreen />);
+
+    expect(screen.getByLabelText('Loading this page')).toBeTruthy();
+    expect(screen.queryByText(CLUB_COPY.membersEmpty)).toBeNull();
   });
 
   it('clubs Copy: an empty club says so', async () => {
@@ -260,6 +358,26 @@ describe('S11 profile', () => {
     openURL.mockRestore();
   });
 
+  it('R-17: the social icons take their colour from the theme', async () => {
+    await render(<ProfileScreen />);
+
+    // Without a tintColor expo-symbols paints the system default, which
+    // does not follow Marine Layer, Harbor or Olive and Ivory in dark.
+    const icon = within(screen.getByLabelText('Instagram')).getByTestId('symbol');
+    expect(icon.props.tintColor).toBeTruthy();
+    expect(icon.props.size).toBe(SOCIAL_ICON_SIZE);
+  });
+
+  it('R-17: a clubs request that failed makes no claim about their clubs', async () => {
+    // "Not in a club yet." is a fact about this person. A request that
+    // errored knows nothing about their clubs.
+    mockProfileClubs.mockReturnValue(ok(undefined, { isError: true, error: apiError(500) }));
+    await render(<ProfileScreen />);
+
+    expect(screen.queryByText(PROFILE_COPY.clubsEmpty)).toBeNull();
+    expect(screen.queryByText(PROFILE_COPY.clubsHeader)).toBeNull();
+  });
+
   it('AC-13: the website is the one link that stays inside the app', async () => {
     await render(<ProfileScreen />);
 
@@ -296,7 +414,28 @@ describe('S11 profile', () => {
   });
 });
 
-describe('S04 filtered by host', () => {
+describe('S04b filtered by host', () => {
+  it('AC-14: the list asks for this sponsor rather than for every meet', async () => {
+    await withParams({ sponsor: '88888888-8888-4888-8888-888888888888' }, async () => {
+      await render(<FilteredMeetsScreen />);
+    });
+
+    // Without this the route would render, and read, everyone's meets.
+    expect(mockEventsPages).toHaveBeenCalledWith({
+      sponsor: '88888888-8888-4888-8888-888888888888',
+    });
+  });
+
+  it('clubs R-15: a club list asks by host, not by sponsor', async () => {
+    await withParams({ host: 'club:77777777-7777-4777-8777-777777777777' }, async () => {
+      await render(<FilteredMeetsScreen />);
+    });
+
+    expect(mockEventsPages).toHaveBeenCalledWith({
+      host: 'club:77777777-7777-4777-8777-777777777777',
+    });
+  });
+
   it('AC-14: the list renders the meets the filter returned', async () => {
     mockEventsPages.mockReturnValue(pages([{ ...clubDetail().upcoming_events[0] }]));
     await render(<FilteredMeetsScreen />);
@@ -304,9 +443,9 @@ describe('S04 filtered by host', () => {
     expect(screen.getByText('Lido Saturday')).toBeTruthy();
   });
 
-  it('a host with nothing upcoming says so rather than showing a blank list', async () => {
+  it('a host with nothing upcoming says so, without pointing at a Follow control', async () => {
     await render(<FilteredMeetsScreen />);
 
-    expect(screen.getByText(SPONSOR_COPY.upcomingEmpty)).toBeTruthy();
+    expect(screen.getByText(FILTERED_LIST_COPY.empty)).toBeTruthy();
   });
 });
