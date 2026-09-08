@@ -162,6 +162,17 @@ describe('occurrenceJsonLd', () => {
 
     expect(json.eventStatus).toBe('https://schema.org/EventCancelled');
   });
+
+  it('AC-4: the date carries its own times, not the series next date', () => {
+    const json = occurrenceJsonLd(
+      eventDetail(),
+      occurrence({ starts_at: '2026-10-31T14:30:00Z', ends_at: '2026-10-31T17:00:00Z' }),
+      BASE,
+    );
+
+    expect(json.startDate).toBe('2026-10-31T14:30:00Z');
+    expect(json.endDate).toBe('2026-10-31T17:00:00Z');
+  });
 });
 
 describe('pageMeta', () => {

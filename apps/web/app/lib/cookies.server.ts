@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
+import { DEFAULT_THEME, isTheme, type Theme } from './theme';
+
 // web.md Data: two cookies and no session. `curb_device` is the anonymous
 // device id the API takes as X-Device-Id; `curb_theme` is which of the
 // three themes to paint. Neither identifies a person and neither is read
@@ -7,10 +9,6 @@ import { randomUUID } from 'node:crypto';
 
 export const DEVICE_COOKIE = 'curb_device';
 export const THEME_COOKIE = 'curb_theme';
-
-export const THEMES = ['marine-layer', 'harbor', 'olive-ivory'] as const;
-export type Theme = (typeof THEMES)[number];
-export const DEFAULT_THEME: Theme = 'marine-layer';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const YEAR = 60 * 60 * 24 * 365;
@@ -30,7 +28,7 @@ export function parseCookies(header: string | null): Record<string, string> {
 
 export function readTheme(header: string | null): Theme {
   const value = parseCookies(header)[THEME_COOKIE];
-  return (THEMES as readonly string[]).includes(value ?? '') ? (value as Theme) : DEFAULT_THEME;
+  return isTheme(value) ? value : DEFAULT_THEME;
 }
 
 // A device id the client sent, or a fresh one. The caller sets the cookie

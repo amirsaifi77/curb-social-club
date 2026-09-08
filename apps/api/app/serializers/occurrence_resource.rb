@@ -9,6 +9,10 @@ class OccurrenceResource
   attribute(:starts_at) { |occurrence| occurrence.starts_at.utc.iso8601 }
   attribute(:ends_at) { |occurrence| occurrence.ends_at.utc.iso8601 }
   attribute(:timezone) { |occurrence| occurrence.event.timezone }
+  # web.md R-8: W04 is self-canonical only when a host has edited this
+  # date, so the client has to be able to tell an edited date from one
+  # the materializer wrote.
+  attribute(:overridden_at) { |occurrence| occurrence.overridden_at&.utc&.iso8601 }
   # The caller passes one hit for the event so a page of dates does not
   # rebuild (and re-query) the same summary per row.
   attribute :event do |occurrence|

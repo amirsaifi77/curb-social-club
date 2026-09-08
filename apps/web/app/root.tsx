@@ -18,8 +18,9 @@ import {
 import type { Route } from './+types/root';
 import './app.css';
 
-import { deviceCookie, readDeviceId, readTheme, DEFAULT_THEME } from '~/lib/cookies.server';
+import { deviceCookie, readDeviceId, readTheme } from '~/lib/cookies.server';
 import { publicEnv } from '~/lib/env.server';
+import { DEFAULT_THEME } from '~/lib/theme';
 
 // The subset families from packages/design-tokens/fonts; Instrument Serif
 // Italic deliberately never ships (design-system-and-theming.md R-11).

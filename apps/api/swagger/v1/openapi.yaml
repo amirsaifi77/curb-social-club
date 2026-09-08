@@ -1340,7 +1340,8 @@ paths:
         required: true
       responses:
         '200':
-          description: 'AC-23: a cancelled occurrence carries its timezone and note'
+          description: 'web.md AC-4: an overridden date says so, and one the materializer
+            wrote does not'
           content:
             application/json:
               schema:
@@ -2642,6 +2643,12 @@ components:
           type: integer
         check_in_count:
           type: integer
+        overridden_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Set when a host edits this date; W04 is self-canonical when
+            present
         going_preview:
           type: array
           items:
@@ -2671,6 +2678,7 @@ components:
       - going_count
       - interested_count
       - check_in_count
+      - overridden_at
       - going_preview
       - viewer
     MapPin:

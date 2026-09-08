@@ -82,6 +82,24 @@ RSpec.describe "v1/occurrences" do
         end
       end
 
+      response "200", "web.md AC-4: an overridden date says so, and one the materializer wrote does not" do
+        schema occurrence_schema
+        let!(:occurrence) do
+          meet = create_meet(:corona_del_mar)
+          create(:event_occurrence, :overridden, event: meet, starts_at: meet.dtstart + 7.days)
+        end
+        let(:id) { occurrence.id }
+
+        run_test! do
+          # W04 is self-canonical only for a date a host edited, so the
+          # client has to be able to tell the two apart.
+          expect(json.dig("data", "overridden_at")).to be_present
+          plain = create(:event_occurrence, event: occurrence.event, starts_at: occurrence.starts_at + 7.days)
+          get "/v1/occurrences/#{plain.id}"
+          expect(JSON.parse(response.body).dig("data", "overridden_at")).to be_nil
+        end
+      end
+
       response "404", "unknown occurrence" do
         schema "$ref" => "#/components/schemas/Error"
         let(:id) { SecureRandom.uuid }

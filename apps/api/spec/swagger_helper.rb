@@ -300,6 +300,8 @@ RSpec.configure do |config|
               timezone: { type: :string }, status: { type: :string, enum: EventOccurrence::STATUSES },
               override_note: { type: :string, nullable: true }, going_count: { type: :integer },
               interested_count: { type: :integer }, check_in_count: { type: :integer },
+              overridden_at: { type: :string, format: "date-time", nullable: true,
+                               description: "Set when a host edits this date; W04 is self-canonical when present" },
               going_preview: { type: :array, items: { type: :object, additionalProperties: true } },
               viewer: {
                 type: :object,
@@ -308,7 +310,7 @@ RSpec.configure do |config|
               }
             },
             required: %w[id event starts_at ends_at timezone status override_note going_count interested_count
-                         check_in_count going_preview viewer]
+                         check_in_count overridden_at going_preview viewer]
           },
           MapPin: {
             type: :object,

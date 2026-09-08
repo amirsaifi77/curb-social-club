@@ -1451,7 +1451,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description AC-23: a cancelled occurrence carries its timezone and note */
+                /** @description web.md AC-4: an overridden date says so, and one the materializer wrote does not */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -2239,6 +2239,11 @@ export interface components {
             going_count: number;
             interested_count: number;
             check_in_count: number;
+            /**
+             * Format: date-time
+             * @description Set when a host edits this date; W04 is self-canonical when present
+             */
+            overridden_at: string | null;
             going_preview: {
                 [key: string]: unknown;
             }[];

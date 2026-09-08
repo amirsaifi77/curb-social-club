@@ -109,6 +109,7 @@ export function occurrence(overrides: Partial<Occurrence> = {}): Occurrence {
     timezone: 'America/Los_Angeles',
     status: 'scheduled',
     override_note: null,
+    overridden_at: null,
     going_count: 12,
     interested_count: 3,
     check_in_count: 0,
