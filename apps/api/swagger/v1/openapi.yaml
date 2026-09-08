@@ -196,6 +196,407 @@ paths:
           description: signed out
         '401':
           description: not signed in
+  "/v1/clubs/{slug}":
+    get:
+      summary: Club detail
+      description: The Club shape. Anonymous by default; a hidden club is 404 unless
+        the viewer can manage it (R-5, R-6, R-9).
+      tags:
+      - Clubs
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: 'AC-1: an active club with three upcoming meets'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Club"
+                required:
+                - data
+        '404':
+          description: 'AC-2: a hidden club'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs":
+    get:
+      summary: Club directory
+      description: Active clubs, nearest first with distance_m when near is present,
+        most followed first otherwise. q matches the name by trigram, within 80 km
+        when near is present (R-7, R-18).
+      tags:
+      - Clubs
+      parameters:
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng
+      - name: radius_km
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'AC-3: clubs at 2 and 10 km, ordered, with distance_m'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ClubSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+    post:
+      summary: Create a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{slug}/events":
+    get:
+      summary: Meets a club hosts
+      description: EventSummary rows, upcoming first, or the most recent past meets
+        with past=true.
+      tags:
+      - Clubs
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: past
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: upcoming meets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/EventSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/clubs/{slug}/members":
+    get:
+      summary: Club members
+      description: Active memberships only, oldest first, each with the member's role,
+        cursor paginated. Blocked members are omitted for a signed-in viewer (R-8).
+      tags:
+      - Clubs
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: active members with roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                      - "$ref": "#/components/schemas/MiniProfile"
+                      - type: object
+                        properties:
+                          role:
+                            type: string
+                            enum:
+                            - owner
+                            - admin
+                            - member
+                        required:
+                        - role
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/clubs/{id}/membership":
+    put:
+      summary: Join a club
+      description: Post-launch (R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: 'AC-7: clubs_self_service is off'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Leave a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}":
+    patch:
+      summary: Update a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/invites":
+    post:
+      summary: Invite a member
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/invite_code":
+    post:
+      summary: Rotate the invite code
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/members/{user_id}":
+    patch:
+      summary: Change a member's role
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: user_id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Remove a member
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: user_id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/v1/devices":
     post:
       summary: Register or update a device
@@ -604,6 +1005,13 @@ paths:
           - date
           - distance
         description: distance needs near
+      - name: past
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: 'Host, sponsor, and search lists only: the most recent past meets
+          instead of upcoming ones. Ignored with near or bbox.'
       - name: limit
         in: query
         required: false
@@ -891,6 +1299,326 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+  "/v1/sponsors/{slug}":
+    get:
+      summary: Sponsor detail
+      description: The Sponsor shape with up to three upcoming meets, each labelled
+        host or sponsor (R-6, R-8). A hidden sponsor is 404.
+      tags:
+      - Sponsors
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: 'AC-1: a venue sponsor hosting one meet and attached to two'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Sponsor"
+                required:
+                - data
+        '404':
+          description: 'AC-3: a hidden sponsor'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/sponsors":
+    get:
+      summary: Sponsor directory
+      description: Active sponsors, nearest first with distance_m when near is present,
+        most followed first otherwise; kind and q filter (R-7, R-17).
+      tags:
+      - Sponsors
+      parameters:
+      - name: near
+        in: query
+        required: false
+        schema:
+          type: string
+        description: lat,lng
+      - name: radius_km
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: kind
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - brand
+          - vendor
+          - venue
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'AC-4: sponsors at 3 and 12 km, ordered, with distance_m'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/SponsorSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/sponsors/{slug}/events":
+    get:
+      summary: Meets a sponsor hosts or backs
+      description: EventSummary rows with relation host or sponsor, deduplicated with
+        host winning (R-8). Equivalent to GET /events?sponsor=<id>.
+      tags:
+      - Sponsors
+      parameters:
+      - name: slug
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: past
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: hosted and attached meets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                      - "$ref": "#/components/schemas/EventSummary"
+                      - type: object
+                        properties:
+                          relation:
+                            type: string
+                            enum:
+                            - host
+                            - sponsor
+                        required:
+                        - relation
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/sponsors/{id}":
+    patch:
+      summary: Update a sponsor
+      description: Post-launch (R-11). Returns 403 not_enabled while sponsors_self_service
+        is off.
+      tags:
+      - Sponsors
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: 'AC-10: sponsors_self_service is off'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/users/{handle}":
+    get:
+      summary: Public profile
+      description: The Profile shape (R-7, R-8). Anonymous by default; a suspended
+        or deleted account is 404.
+      tags:
+      - Users
+      parameters:
+      - name: handle
+        in: path
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: 'AC-1: a host with a club membership and three published meets'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/Profile"
+                required:
+                - data
+        '404':
+          description: 'AC-2: a suspended account'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/users/{handle}/events":
+    get:
+      summary: Meets a user hosts
+      description: Published events with host_type User, upcoming first.
+      tags:
+      - Users
+      parameters:
+      - name: handle
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: past
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: hosted meets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/EventSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
+  "/v1/users/{handle}/clubs":
+    get:
+      summary: Clubs a user belongs to
+      description: ClubSummary rows for active memberships, each with the member's
+        role. Hidden clubs are omitted.
+      tags:
+      - Users
+      parameters:
+      - name: handle
+        in: path
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: active memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ClubSummary"
+                  meta:
+                    type: object
+                    properties:
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      total:
+                        type: integer
+                        nullable: true
+                    required:
+                    - next_cursor
+                    - total
+                required:
+                - data
+                - meta
 servers:
 - url: http://localhost:3000
   description: Development
@@ -960,8 +1688,8 @@ components:
         clubs:
           type: array
           items:
-            type: object
-            additionalProperties: true
+            "$ref": "#/components/schemas/ClubSummary"
+          description: Active memberships, each with the member's role
         counts:
           type: object
           additionalProperties:
@@ -1264,6 +1992,192 @@ components:
       - stale
       - last_confirmed_at
       - sponsors_preview
+    MiniProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        handle:
+          type: string
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true
+      required:
+      - id
+      - handle
+      - display_name
+      - avatar_url
+    ClubSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true
+        verified:
+          type: boolean
+        home_label:
+          type: string
+          nullable: true
+        members_count:
+          type: integer
+        followers_count:
+          type: integer
+        join_policy:
+          type: string
+          enum:
+          - open
+          - invite_only
+        distance_m:
+          type: integer
+          nullable: true
+          description: Meters from near, computed in PostGIS; null without near
+        role:
+          type: string
+          enum:
+          - owner
+          - admin
+          - member
+          nullable: true
+          description: The viewed member's role, set only on GET /users/:handle/clubs
+      required:
+      - id
+      - slug
+      - name
+      - avatar_url
+      - verified
+      - home_label
+      - members_count
+      - followers_count
+      - join_policy
+      - distance_m
+      - role
+    Club:
+      description: 'Club detail: ClubSummary plus the page''s own fields.'
+      allOf:
+      - "$ref": "#/components/schemas/ClubSummary"
+      - type: object
+        properties:
+          description:
+            type: string
+            nullable: true
+          banner_url:
+            type: string
+            nullable: true
+          links:
+            type: object
+            additionalProperties:
+              type: string
+          events_count:
+            type: integer
+          upcoming_events:
+            type: array
+            maxItems: 3
+            items:
+              "$ref": "#/components/schemas/EventSummary"
+          members_preview:
+            type: array
+            maxItems: 8
+            items:
+              "$ref": "#/components/schemas/MiniProfile"
+          viewer:
+            type: object
+            properties:
+              following:
+                type: boolean
+              membership:
+                type: object
+                nullable: true
+                properties:
+                  role:
+                    type: string
+                    enum:
+                    - owner
+                    - admin
+                    - member
+                  status:
+                    type: string
+                    enum:
+                    - active
+                    - invited
+                    - requested
+                required:
+                - role
+                - status
+              can_manage:
+                type: boolean
+            required:
+            - following
+            - membership
+            - can_manage
+        required:
+        - description
+        - banner_url
+        - links
+        - events_count
+        - upcoming_events
+        - members_preview
+        - viewer
+    Sponsor:
+      description: 'Sponsor detail: SponsorSummary plus the page''s own fields.'
+      allOf:
+      - "$ref": "#/components/schemas/SponsorSummary"
+      - type: object
+        properties:
+          description:
+            type: string
+            nullable: true
+          banner_url:
+            type: string
+            nullable: true
+          website:
+            type: string
+            nullable: true
+          links:
+            type: object
+            additionalProperties:
+              type: string
+          events_count:
+            type: integer
+          upcoming_events:
+            type: array
+            maxItems: 3
+            items:
+              allOf:
+              - "$ref": "#/components/schemas/EventSummary"
+              - type: object
+                properties:
+                  relation:
+                    type: string
+                    enum:
+                    - host
+                    - sponsor
+                required:
+                - relation
+          viewer:
+            type: object
+            properties:
+              following:
+                type: boolean
+            required:
+            - following
+        required:
+        - description
+        - banner_url
+        - website
+        - links
+        - events_count
+        - upcoming_events
+        - viewer
     SponsorSummary:
       type: object
       properties:
@@ -1293,6 +2207,10 @@ components:
         home_label:
           type: string
           nullable: true
+        distance_m:
+          type: integer
+          nullable: true
+          description: Meters from near, computed in PostGIS; null without near
       required:
       - id
       - slug
@@ -1303,6 +2221,7 @@ components:
       - tagline
       - followers_count
       - home_label
+      - distance_m
     Event:
       description: 'Event detail: EventSummary plus the fields only the detail screen
         needs.'

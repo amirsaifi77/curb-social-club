@@ -50,7 +50,8 @@ RSpec.configure do |config|
               bio: { type: :string, nullable: true }, avatar_url: { type: :string, nullable: true },
               home_label: { type: :string, nullable: true }, is_host: { type: :boolean },
               links: { type: :object, additionalProperties: { type: :string } },
-              clubs: { type: :array, items: { type: :object, additionalProperties: true } },
+              clubs: { type: :array, items: { "$ref" => "#/components/schemas/ClubSummary" },
+                       description: "Active memberships, each with the member's role" },
               counts: { type: :object, additionalProperties: { type: :integer } },
               viewer: {
                 type: :object,
@@ -137,15 +138,91 @@ RSpec.configure do |config|
             },
             required: %w[id slug title cover_url cover_blurhash tags recurring rrule_text host venue next_occurrence distance_m source claimed cadence stale last_confirmed_at sponsors_preview]
           },
+          MiniProfile: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, handle: { type: :string }, display_name: { type: :string },
+              avatar_url: { type: :string, nullable: true }
+            },
+            required: %w[id handle display_name avatar_url]
+          },
+          ClubSummary: {
+            type: :object,
+            properties: {
+              id: { type: :string, format: :uuid }, slug: { type: :string }, name: { type: :string },
+              avatar_url: { type: :string, nullable: true }, verified: { type: :boolean },
+              home_label: { type: :string, nullable: true }, members_count: { type: :integer },
+              followers_count: { type: :integer }, join_policy: { type: :string, enum: Club::JOIN_POLICIES },
+              distance_m: { type: :integer, nullable: true, description: "Meters from near, computed in PostGIS; null without near" },
+              role: { type: :string, enum: ClubMembership::ROLES, nullable: true,
+                      description: "The viewed member's role, set only on GET /users/:handle/clubs" }
+            },
+            required: %w[id slug name avatar_url verified home_label members_count followers_count join_policy distance_m role]
+          },
+          Club: {
+            description: "Club detail: ClubSummary plus the page's own fields.",
+            allOf: [
+              { "$ref" => "#/components/schemas/ClubSummary" },
+              {
+                type: :object,
+                properties: {
+                  description: { type: :string, nullable: true }, banner_url: { type: :string, nullable: true },
+                  links: { type: :object, additionalProperties: { type: :string } }, events_count: { type: :integer },
+                  upcoming_events: { type: :array, maxItems: 3, items: { "$ref" => "#/components/schemas/EventSummary" } },
+                  members_preview: { type: :array, maxItems: 8, items: { "$ref" => "#/components/schemas/MiniProfile" } },
+                  viewer: {
+                    type: :object,
+                    properties: {
+                      following: { type: :boolean },
+                      membership: {
+                        type: :object, nullable: true,
+                        properties: { role: { type: :string, enum: ClubMembership::ROLES }, status: { type: :string, enum: ClubMembership::STATUSES } },
+                        required: %w[role status]
+                      },
+                      can_manage: { type: :boolean }
+                    },
+                    required: %w[following membership can_manage]
+                  }
+                },
+                required: %w[description banner_url links events_count upcoming_events members_preview viewer]
+              }
+            ]
+          },
+          Sponsor: {
+            description: "Sponsor detail: SponsorSummary plus the page's own fields.",
+            allOf: [
+              { "$ref" => "#/components/schemas/SponsorSummary" },
+              {
+                type: :object,
+                properties: {
+                  description: { type: :string, nullable: true }, banner_url: { type: :string, nullable: true },
+                  website: { type: :string, nullable: true }, links: { type: :object, additionalProperties: { type: :string } },
+                  events_count: { type: :integer },
+                  upcoming_events: {
+                    type: :array, maxItems: 3,
+                    items: {
+                      allOf: [
+                        { "$ref" => "#/components/schemas/EventSummary" },
+                        { type: :object, properties: { relation: { type: :string, enum: %w[host sponsor] } }, required: %w[relation] }
+                      ]
+                    }
+                  },
+                  viewer: { type: :object, properties: { following: { type: :boolean } }, required: %w[following] }
+                },
+                required: %w[description banner_url website links events_count upcoming_events viewer]
+              }
+            ]
+          },
           SponsorSummary: {
             type: :object,
             properties: {
               id: { type: :string, format: :uuid }, slug: { type: :string }, name: { type: :string },
               kind: { type: :string, enum: Sponsor::KINDS }, logo_url: { type: :string, nullable: true },
               verified: { type: :boolean }, tagline: { type: :string, nullable: true },
-              followers_count: { type: :integer }, home_label: { type: :string, nullable: true }
+              followers_count: { type: :integer }, home_label: { type: :string, nullable: true },
+              distance_m: { type: :integer, nullable: true, description: "Meters from near, computed in PostGIS; null without near" }
             },
-            required: %w[id slug name kind logo_url verified tagline followers_count home_label]
+            required: %w[id slug name kind logo_url verified tagline followers_count home_label distance_m]
           },
           Event: {
             description: "Event detail: EventSummary plus the fields only the detail screen needs.",

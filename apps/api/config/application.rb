@@ -73,6 +73,9 @@ module CurbSocialClub
     # Feature flags (config/features.yml), read once here; see lib/features.rb.
     config.x.features = config_for(:features)
 
+    # Handles the app owns (docs/specs/profiles-and-follow.md R-1).
+    config.x.reserved_handles = config_for(:reserved_handles).freeze
+
     # UUID primary keys everywhere (docs/data-model.md).
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid

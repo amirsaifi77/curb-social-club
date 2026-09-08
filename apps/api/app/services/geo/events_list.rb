@@ -27,13 +27,18 @@ module Geo
       else
         raise ParamError, "Send near to sort by distance." if sort == "distance"
 
-        DirectQuery.new(**common).call
+        DirectQuery.new(past: past?, **common).call
       end
     end
 
     private
 
     attr_reader :params, :now
+
+    # docs/api.md Clubs: a host page lists upcoming meets, then past ones.
+    def past?
+      params[:past].to_s == "true"
+    end
 
     def sort
       value = params[:sort].to_s

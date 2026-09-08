@@ -36,7 +36,7 @@ Not in this spec: paid placement of any kind (business plan section 12, deferred
 - R-2 An event MUST be able to name a sponsor as its host (`host_type: Sponsor`), and `events.host_name` MUST be rewritten when the sponsor is renamed. (US-2)
 - R-3 An `event_sponsorships` row MUST have a `role` in `presented_by`, `coffee`, `vendor`, `partner`, MUST be unique per `(event_id, sponsor_id)`, MUST carry a `position`, and an event MUST have at most six sponsorships. (US-1, US-5)
 - R-4 `sponsors.followers_count` MUST be a counter cache of `follows` with `followable_type: Sponsor`; `sponsors.events_count` MUST count published events the sponsor hosts plus published events it is attached to, maintained by callbacks on `events` and `event_sponsorships`. (US-2, US-4)
-- R-5 A hidden sponsor MUST return 404 on every public endpoint, MUST be absent from feed, search, and `sponsors_preview`, and its sponsorships MUST be omitted from `sponsorships`; events it hosts remain visible with the sponsor as host. (US-1)
+- R-5 A hidden sponsor MUST return 404 on every public endpoint (a platform admin still gets 200, mirroring the club rule in clubs.md R-5 so the admin UI can review it), MUST be absent from feed, search, and `sponsors_preview`, and its sponsorships MUST be omitted from `sponsorships`; events it hosts remain visible with the sponsor as host. (US-1)
 
 **API**
 

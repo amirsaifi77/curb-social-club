@@ -39,7 +39,8 @@ class EventSummaryResource
   attribute(:last_confirmed_at) { |hit| hit.event.last_confirmed_at&.utc&.iso8601 }
 
   attribute :sponsors_preview do |hit|
-    hit.event.sponsorships.sort_by { |s| [ s.position, s.created_at ] }.first(PREVIEW_SIZE).map do |sponsorship|
+    hit.event.sponsorships.reject { |s| s.sponsor.hidden? }
+       .sort_by { |s| [ s.position, s.created_at ] }.first(PREVIEW_SIZE).map do |sponsorship|
       sponsor = sponsorship.sponsor
       { id: sponsor.id, slug: sponsor.slug, name: sponsor.name, logo_url: MediaUrls.attachment(sponsor.logo), role: sponsorship.role }
     end

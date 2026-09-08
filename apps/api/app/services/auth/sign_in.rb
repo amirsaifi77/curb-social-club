@@ -76,7 +76,9 @@ module Auth
     def create_user
       user = User.create!(email: linkable_email, terms_accepted_at: Time.current)
       handle = HandleGenerator.call(@display_name, @claims["email"].to_s.split("@").first)
-      Profile.create!(user: user, handle: handle, display_name: @display_name.presence || handle)
+      # R-3 caps display_name at 40; a provider name can be longer.
+      name = @display_name.to_s.strip.first(Profile::DISPLAY_NAME_MAX).presence || handle
+      Profile.create!(user: user, handle: handle, display_name: name)
       user
     end
 

@@ -31,7 +31,7 @@ Not in this phase: Posts tab and `counts.posts` (Phase 4, photos-and-posts.md); 
 
 **Data**
 
-- R-1 `profiles.handle` MUST be 3 to 24 chars matching `^[a-z0-9_]+$`, stored lowercase (citext), unique, and MUST NOT be one of the reserved words `admin`, `curb`, `curbsocial`, `support`, `hello`, `help`, `me`, `settings`, `new`, `meets`, `clubs`, `sponsors`, `spots`. (US-2)
+- R-1 `profiles.handle` MUST be 3 to 24 chars matching `^[a-z0-9_]+$`, stored lowercase (citext), unique, and MUST NOT be one of the reserved words `admin`, `curb`, `curbsocial`, `support`, `hello`, `help`, `me`, `settings`, `new`, `meets`, `clubs`, `sponsors`, `spots`, read from `config/reserved_handles.yml`. The one exception is the seeded app account, which takes `curb` through an explicit `system_account` flag set by `db/seeds.rb`. (US-2)
 - R-2 `profiles.links` MUST accept only the keys `instagram`, `youtube`, `tiktok`, `x`, `threads`, `website`; MUST store handles without a leading `@`; and MUST validate on write with `instagram` and `threads` `^[A-Za-z0-9._]{1,30}$`, `tiktok` `^[A-Za-z0-9._]{1,24}$`, `x` `^[A-Za-z0-9_]{1,15}$`, `youtube` `^[A-Za-z0-9._-]{3,30}$`, and `website` an `http` or `https` URL of at most 200 chars with a host. (US-2)
 - R-3 `profiles.display_name` MUST be 1 to 40 chars, `bio` at most 280, `home_label` at most 60, and `home_location` MUST be stored with at most 2 decimal places of precision. (US-2)
 - R-4 `vehicles` MUST require `make` and `model`, MUST bound `year` to 1900 through next year, MUST keep at most one `is_primary` per user, MUST cap `photos` at 4, and MUST hold `position` unique per user. (US-3)

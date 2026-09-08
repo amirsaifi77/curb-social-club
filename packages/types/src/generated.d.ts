@@ -218,6 +218,494 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/clubs/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Club detail
+         * @description The Club shape. Anonymous by default; a hidden club is 404 unless the viewer can manage it (R-5, R-6, R-9).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: an active club with three upcoming meets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Club"];
+                        };
+                    };
+                };
+                /** @description AC-2: a hidden club */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Club directory
+         * @description Active clubs, nearest first with distance_m when near is present, most followed first otherwise. q matches the name by trigram, within 80 km when near is present (R-7, R-18).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description lat,lng */
+                    near?: string;
+                    radius_km?: number;
+                    q?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-3: clubs at 2 and 10 km, ordered, with distance_m */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ClubSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{slug}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meets a club hosts
+         * @description EventSummary rows, upcoming first, or the most recent past meets with past=true.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    past?: boolean;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description upcoming meets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["EventSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{slug}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Club members
+         * @description Active memberships only, oldest first, each with the member's role, cursor paginated. Blocked members are omitted for a signed-in viewer (R-8).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description active members with roles */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: (components["schemas"]["MiniProfile"] & {
+                                /** @enum {string} */
+                                role: "owner" | "admin" | "member";
+                            })[];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Join a club
+         * @description Post-launch (R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-7: clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Leave a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/clubs/{id}/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite a member
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}/invite_code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate the invite code
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Change a member's role
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v1/devices": {
         parameters: {
             query?: never;
@@ -588,6 +1076,8 @@ export interface paths {
                     sponsor?: string;
                     /** @description distance needs near */
                     sort?: "date" | "distance";
+                    /** @description Host, sponsor, and search lists only: the most recent past meets instead of upcoming ones. Ignored with near or bbox. */
+                    past?: boolean;
                     limit?: number;
                     cursor?: string;
                 };
@@ -930,6 +1420,356 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sponsors/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sponsor detail
+         * @description The Sponsor shape with up to three upcoming meets, each labelled host or sponsor (R-6, R-8). A hidden sponsor is 404.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: a venue sponsor hosting one meet and attached to two */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Sponsor"];
+                        };
+                    };
+                };
+                /** @description AC-3: a hidden sponsor */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sponsors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sponsor directory
+         * @description Active sponsors, nearest first with distance_m when near is present, most followed first otherwise; kind and q filter (R-7, R-17).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description lat,lng */
+                    near?: string;
+                    radius_km?: number;
+                    kind?: "brand" | "vendor" | "venue";
+                    q?: string;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-4: sponsors at 3 and 12 km, ordered, with distance_m */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["SponsorSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sponsors/{slug}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meets a sponsor hosts or backs
+         * @description EventSummary rows with relation host or sponsor, deduplicated with host winning (R-8). Equivalent to GET /events?sponsor=<id>.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    past?: boolean;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description hosted and attached meets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: (components["schemas"]["EventSummary"] & {
+                                /** @enum {string} */
+                                relation: "host" | "sponsor";
+                            })[];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sponsors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a sponsor
+         * @description Post-launch (R-11). Returns 403 not_enabled while sponsors_self_service is off.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-10: sponsors_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/users/{handle}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public profile
+         * @description The Profile shape (R-7, R-8). Anonymous by default; a suspended or deleted account is 404.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    handle: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description AC-1: a host with a club membership and three published meets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Profile"];
+                        };
+                    };
+                };
+                /** @description AC-2: a suspended account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{handle}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meets a user hosts
+         * @description Published events with host_type User, upcoming first.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    past?: boolean;
+                    limit?: number;
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    handle: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description hosted meets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["EventSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{handle}/clubs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Clubs a user belongs to
+         * @description ClubSummary rows for active memberships, each with the member's role. Hidden clubs are omitted.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    handle: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description active memberships */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ClubSummary"][];
+                            meta: {
+                                next_cursor: string | null;
+                                total: number | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -955,9 +1795,8 @@ export interface components {
             links: {
                 [key: string]: string;
             };
-            clubs: {
-                [key: string]: unknown;
-            }[];
+            /** @description Active memberships, each with the member's role */
+            clubs: components["schemas"]["ClubSummary"][];
             counts: {
                 [key: string]: number;
             };
@@ -1059,6 +1898,71 @@ export interface components {
                 role: "presented_by" | "coffee" | "vendor" | "partner";
             }[];
         };
+        MiniProfile: {
+            /** Format: uuid */
+            id: string;
+            handle: string;
+            display_name: string;
+            avatar_url: string | null;
+        };
+        ClubSummary: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            avatar_url: string | null;
+            verified: boolean;
+            home_label: string | null;
+            members_count: number;
+            followers_count: number;
+            /** @enum {string} */
+            join_policy: "open" | "invite_only";
+            /** @description Meters from near, computed in PostGIS; null without near */
+            distance_m: number | null;
+            /**
+             * @description The viewed member's role, set only on GET /users/:handle/clubs
+             * @enum {string|null}
+             */
+            role: "owner" | "admin" | "member" | null;
+        };
+        /** @description Club detail: ClubSummary plus the page's own fields. */
+        Club: components["schemas"]["ClubSummary"] & {
+            description: string | null;
+            banner_url: string | null;
+            links: {
+                [key: string]: string;
+            };
+            events_count: number;
+            upcoming_events: components["schemas"]["EventSummary"][];
+            members_preview: components["schemas"]["MiniProfile"][];
+            viewer: {
+                following: boolean;
+                membership: {
+                    /** @enum {string} */
+                    role: "owner" | "admin" | "member";
+                    /** @enum {string} */
+                    status: "active" | "invited" | "requested";
+                } | null;
+                can_manage: boolean;
+            };
+        };
+        /** @description Sponsor detail: SponsorSummary plus the page's own fields. */
+        Sponsor: components["schemas"]["SponsorSummary"] & {
+            description: string | null;
+            banner_url: string | null;
+            website: string | null;
+            links: {
+                [key: string]: string;
+            };
+            events_count: number;
+            upcoming_events: (components["schemas"]["EventSummary"] & {
+                /** @enum {string} */
+                relation: "host" | "sponsor";
+            })[];
+            viewer: {
+                following: boolean;
+            };
+        };
         SponsorSummary: {
             /** Format: uuid */
             id: string;
@@ -1071,6 +1975,8 @@ export interface components {
             tagline: string | null;
             followers_count: number;
             home_label: string | null;
+            /** @description Meters from near, computed in PostGIS; null without near */
+            distance_m: number | null;
         };
         /** @description Event detail: EventSummary plus the fields only the detail screen needs. */
         Event: components["schemas"]["EventSummary"] & {

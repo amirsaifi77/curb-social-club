@@ -1,0 +1,17 @@
+# Handles the app owns (profiles-and-follow.md R-1). Read at boot into
+# Rails.configuration.x.reserved_handles; PATCH /me rejects them with
+# details.handle ["reserved"].
+shared:
+  - admin
+  - curb
+  - curbsocial
+  - support
+  - hello
+  - help
+  - me
+  - settings
+  - new
+  - meets
+  - clubs
+  - sponsors
+  - spots
