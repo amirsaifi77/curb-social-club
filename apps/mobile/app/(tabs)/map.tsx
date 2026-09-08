@@ -54,11 +54,22 @@ export default function MapScreen() {
   const map = useRef<MapView>(null);
   const sheet = useRef<MeetSheetHandle>(null);
 
+  // Both queries are memoized because their shape is their cache key: a
+  // fresh object per render whose window moved would be a fresh query, and
+  // the map would refetch itself for as long as it was on screen.
   const enabled = viewport.bbox !== null;
-  const pins = useEventsMap(mapQueryFor(viewport.bbox ?? '', filters), { enabled });
-  const list = useEvents(listQueryFor(viewport.bbox ?? '', filters, sort, near), { enabled });
+  const pinQuery = useMemo(() => mapQueryFor(viewport.bbox ?? '', filters), [viewport.bbox, filters]);
+  const listQuery = useMemo(
+    () => listQueryFor(viewport.bbox ?? '', filters, sort, near),
+    [viewport.bbox, filters, sort, near],
+  );
+  const pins = useEventsMap(pinQuery, { enabled });
+  const list = useEvents(listQuery, { enabled });
 
   const index = useMemo(() => createPinIndex(pins.data?.data ?? []), [pins.data]);
+  // One clock per set of pins: a new Date each render would redraw every
+  // marker for nothing, and the styles only move as the pins do.
+  const now = useMemo(() => new Date(), [pins.data]);
   const features = useMemo(() => {
     if (!viewport.committed) return [];
     return index.featuresIn(
@@ -134,7 +145,7 @@ export default function MapScreen() {
               key={feature.id}
               feature={feature}
               selected={selected?.pinId === feature.id}
-              now={new Date()}
+              now={now}
               onPress={onPin}
             />
           ),

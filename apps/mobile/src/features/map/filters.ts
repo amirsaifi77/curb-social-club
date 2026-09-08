@@ -42,11 +42,19 @@ export const DEFAULT_FILTERS: MapFilters = {
 
 // R-6's weekend: from now through the coming Sunday, in the reader's own
 // day. The API decides sections; this is the chip's own window.
+//
+// `from` is the top of the current hour, not the instant. The window ends up
+// in a query key, and an instant would make every render a different key: a
+// new query, a new request, and the old one left in the cache. An hour of
+// slack also keeps a meet that started recently in view, which is the same
+// span the `now` pin style uses.
 export function weekendWindow(now: Date = new Date()): { from: string; to: string } {
+  const from = new Date(now);
+  from.setMinutes(0, 0, 0);
   const end = new Date(now);
   end.setDate(end.getDate() + ((7 - end.getDay()) % 7));
   end.setHours(23, 59, 59, 999);
-  return { from: now.toISOString(), to: end.toISOString() };
+  return { from: from.toISOString(), to: end.toISOString() };
 }
 
 // The one place chip state becomes query parameters, so the pins and the

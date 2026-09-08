@@ -47,6 +47,17 @@ describe('map filters', () => {
     expect(new Date(to).getTime()).toBeGreaterThan(WEDNESDAY.getTime());
   });
 
+  it('R-15: the window holds still within the hour, so it can be a cache key', () => {
+    // A window read off the instant would make every render a new query,
+    // and a map left on screen would refetch itself.
+    expect(weekendWindow(new Date('2026-10-21T17:00:00.123Z'))).toEqual(
+      weekendWindow(new Date('2026-10-21T17:44:59.999Z')),
+    );
+    expect(weekendWindow(new Date('2026-10-21T17:00:00.123Z')).from).toBe(
+      '2026-10-21T17:00:00.000Z',
+    );
+  });
+
   it('R-18: Nearest is offered, and sent, only when there is a near', () => {
     expect(availableSorts(null)).toEqual(['date']);
     expect(availableSorts('33.62,-117.93')).toEqual(['date', 'distance']);

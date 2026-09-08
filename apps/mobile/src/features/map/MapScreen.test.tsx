@@ -140,6 +140,39 @@ describe('S03 Map', () => {
     }
   });
 
+  it('R-15: a render on its own never changes the query, so nothing refetches', async () => {
+    jest.useFakeTimers();
+    try {
+      await render(<MapScreen />);
+      await act(async () => {
+        jest.advanceTimersByTime(SETTLE_MS);
+      });
+
+      // The weekend chip is the one filter with a time window in it, which
+      // is the shape a per-render clock would smear across the cache key.
+      await act(async () => {
+        fireEvent.press(screen.getByLabelText(MAP_COPY.chipWeekend));
+      });
+      const settled = JSON.stringify(lastMapQuery());
+
+      // Time passes, and then two renders that leave the filters where they
+      // were. A window read off the instant would move under both.
+      await act(async () => {
+        jest.advanceTimersByTime(90_000);
+      });
+      await act(async () => {
+        fireEvent.press(screen.getByLabelText(MAP_COPY.chipRecurring));
+      });
+      await act(async () => {
+        fireEvent.press(screen.getByLabelText(MAP_COPY.chipRecurring));
+      });
+
+      expect(JSON.stringify(lastMapQuery())).toBe(settled);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('AC-18: a truncated response draws its pins and says the rest are there', async () => {
     mockEventsMap.mockReturnValue(
       mapState({
