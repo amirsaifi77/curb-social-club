@@ -60,6 +60,18 @@ export function nearFromRequest(request: Request): string {
   return roundNear(point.lat, point.lng);
 }
 
+// A `near` a page put in its own URL ("Near me" on W01). Re-rounded here
+// rather than trusted: the query string is the reader's to edit, and a
+// six-decimal value in a server log is the thing R-2 exists to prevent.
+export function parseNear(value: string | null): string | null {
+  if (!value) return null;
+  const [lat, lng] = value.split(',').map(Number);
+  if (lat === undefined || lng === undefined) return null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return roundNear(lat, lng);
+}
+
 // Two decimals is about a kilometre, which is all the API needs to sort by
 // distance and all a log should ever hold (location privacy, CLAUDE.md).
 export function roundNear(lat: number, lng: number): string {

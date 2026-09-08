@@ -8,5 +8,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['app/**/*.test.ts'],
+    // The OG cards render real PNGs through Satori and resvg, which is far
+    // slower than the rest; `test:og` runs them on their own config.
+    exclude: ['app/**/*.og.test.ts', 'node_modules/**'],
   },
 });
