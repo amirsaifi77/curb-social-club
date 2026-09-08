@@ -8,7 +8,7 @@ import { MAP_COPY, peekLabel } from './copy';
 import { SETTLE_MS } from './use-viewport';
 // The screen lives under app/; a test file there would be picked up by
 // expo-router's require.context and shipped as a route.
-import MapScreen from '../../../app/(tabs)/map';
+import MapScreen from '../../../app/(tabs)/(map)';
 
 import { eventSummary } from '@/components/fixtures';
 import { clearBrowseArea, toBrowseArea } from '@/lib/browse-location';

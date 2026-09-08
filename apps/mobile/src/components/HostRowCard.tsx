@@ -17,6 +17,11 @@ export interface HostRowCardProps {
   kind: 'club' | 'sponsor';
 }
 
+// The feed shows these in a horizontal row of fixed-width cards; search
+// shows them stacked. One component either way, so clubs and sponsors stay
+// identical in weight wherever they appear (clubs R-17, sponsors R-16).
+export type HostRowLayout = 'card' | 'list';
+
 export function toHostRowCard(
   item: ClubSummary | SponsorSummary,
   kind: 'club' | 'sponsor',
@@ -31,10 +36,21 @@ export function toHostRowCard(
   };
 }
 
-export function HostRowCard({ name, slug, imageUrl, label, kind }: HostRowCardProps) {
+export function HostRowCard({
+  name,
+  slug,
+  imageUrl,
+  label,
+  kind,
+  layout = 'card',
+}: HostRowCardProps & { layout?: HostRowLayout }) {
   return (
     <Link href={kind === 'club' ? `/clubs/${slug}` : `/sponsors/${slug}`} asChild>
-      <View style={styles.card} accessibilityRole="link" accessibilityLabel={name}>
+      <View
+        style={[styles.card, layout === 'list' && styles.list]}
+        accessibilityRole="link"
+        accessibilityLabel={name}
+      >
         {imageUrl ? (
           <Image source={{ uri: imageUrl }} style={styles.image} contentFit="cover" />
         ) : (
@@ -62,6 +78,12 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.radius.card,
     borderWidth: theme.radius.hairline,
     borderColor: theme.colors.border,
+  },
+  list: {
+    width: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing['3'],
   },
   image: {
     width: 44,

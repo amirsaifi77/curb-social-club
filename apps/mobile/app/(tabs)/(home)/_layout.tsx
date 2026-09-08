@@ -1,5 +1,7 @@
 import { Stack } from 'expo-router';
 
+import { SearchHeader } from '@/features/search/SearchHeader';
+
 // The Home tab owns a stack so S02 gets a native header rather than one
 // title shared by all four tabs. Large title in the serif, and no
 // `headerStyle` background: on iOS 26 the system draws the glass
@@ -18,6 +20,7 @@ export default function HomeLayout() {
         options={{
           title: 'curb',
           headerLargeTitleStyle: { fontFamily: 'InstrumentSerif-Regular' },
+          ...SearchHeader,
         }}
       />
     </Stack>

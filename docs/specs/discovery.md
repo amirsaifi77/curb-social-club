@@ -57,7 +57,7 @@ Not in this spec: event cards' tap target and the detail screen (event-detail-an
 - R-17 S03 MUST float four filter chips (This weekend, Distance, Theme, Recurring only) in one `GlassContainer` and a locate-me control in another, capability-gated with a blur or solid fallback, and MUST apply the same filters to the pins and the sheet list. This weekend and Recurring only toggle in place; Distance and Theme open their option lists, which are opaque content and carry no glass. `GET /events/map` takes a box and no radius, so the Distance chip is applied to the pins on the client; without that a 10 mile filter would shrink the list while every pin in the viewport stayed drawn, and the sheet's count would disagree with the rows under it. Locate-me asks for the same reduced accuracy S01 does and rounds through the same boundary (R-1); refused, it says so in the sheet rather than doing nothing. (US-4)
 - R-18 The sheet MUST have three detents (peek with a count, half list, full list); the full detent is S04 with a Soonest or Nearest sort backed by `sort=date|distance`. Nearest needs a `near`, which on mobile R-11 always supplies, so both sorts are reachable on S03; a client without a browse area offers Soonest alone rather than sending a distance sort the API would refuse. (US-3, US-4)
 - R-19 When `meta.truncated` is true S03 MUST render the pins it received and show the zoom-in notice in the sheet. (US-3)
-- R-20 S05 MUST open from the glass search field on Home and Map, MUST debounce input 250 ms with a two-character minimum, MUST show up to ten recents when empty, MUST group results as Events, Clubs, Sponsors, Places (Spots after Places in Phase 4), and MUST move the map to a picked place and close. (US-5)
+- R-20 S05 MUST open from the glass search field on Home and Map, MUST debounce input 250 ms with a two-character minimum, MUST show up to ten recents when empty, MUST group results as Events, Clubs, Sponsors, Places (Spots after Places in Phase 4), and MUST move the map to a picked place and close. Clearing the field is not debounced: the recents come back at once. Recents are stored on the device only, most recent first, matched without regard to case, and never sent to the API. A group with nothing in it renders no title. Each API group is its own query, so a group that fails or is slow does not hold up the others; a group failing while another has rows is the offline state, and only every group failing is an error. Picking a place commits its coordinates through the R-1 rounding boundary, since the map is about to move there. (US-5)
 - R-21 S05 no-results MUST offer "Search everywhere" (repeats the query without `near`) and "Add a meet" (opens S06). (US-5)
 - R-22 In Phase 4, S03 MUST show a Spots layer toggle beside the filter chips that fetches `GET /spots/map` for the same bbox and renders SpotPin rows in the spot pin style, clustered separately from event pins, with the same 500 cap handling. (US-7)
 
@@ -135,6 +135,8 @@ Deltas adopted into docs/api.md on 2026-09-06 (see Risks): the section time boun
 | S05 no results | Nothing for "{query}" within 50 miles. Try a city, a host, or a day. |
 | S05 no results, actions | Search everywhere, Add a meet |
 | S05 offline | Searching saved results only. |
+| S05 error | Couldn't run that search. Try again. ("Try again" is the retry control, as on S02 and S03.) |
+| S05 loading | Searching. |
 
 ## Acceptance criteria
 

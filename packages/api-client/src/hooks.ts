@@ -1,4 +1,10 @@
-import type { EventsListQuery, EventsMapQuery, FeedQuery } from '@curb/types';
+import type {
+  ClubsQuery,
+  EventsListQuery,
+  EventsMapQuery,
+  FeedQuery,
+  SponsorsQuery,
+} from '@curb/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from './keys';
@@ -11,6 +17,9 @@ import {
   healthQuery,
   meQuery,
   registerDeviceMutation,
+  searchClubsQuery,
+  searchEventsQuery,
+  searchSponsorsQuery,
   signInWithAppleMutation,
   signInWithGoogleMutation,
   signOutMutation,
@@ -47,6 +56,20 @@ export function useEventsMap(query: EventsMapQuery, options: { enabled?: boolean
 // R-18: the sheet's list, filtered and sorted the same way as the pins.
 export function useEvents(query: EventsListQuery = {}, options: { enabled?: boolean } = {}) {
   return useQuery({ ...eventsQuery(useApiClient(), query), ...options });
+}
+
+// R-20: one request per group, each switched off until the debounce says
+// the query is worth making.
+export function useSearchEvents(query: EventsListQuery, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...searchEventsQuery(useApiClient(), query), ...options });
+}
+
+export function useSearchClubs(query: ClubsQuery, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...searchClubsQuery(useApiClient(), query), ...options });
+}
+
+export function useSearchSponsors(query: SponsorsQuery, options: { enabled?: boolean } = {}) {
+  return useQuery({ ...searchSponsorsQuery(useApiClient(), query), ...options });
 }
 
 export function useSignInWithApple() {

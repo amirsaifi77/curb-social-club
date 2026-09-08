@@ -15,7 +15,7 @@ describe('the tab route tree', () => {
       (match) => match[1],
     );
 
-    expect(names).toEqual(['(home)', 'map', 'new', 'me']);
+    expect(names).toEqual(['(home)', '(map)', 'new', 'me']);
 
     for (const name of names) {
       const asFile = join(APP, '(tabs)', `${name}.tsx`);
@@ -35,9 +35,13 @@ describe('the tab route tree', () => {
     expect(root).toMatch(/<GestureHandlerRootView/);
   });
 
-  it('the Home group holds the screen its stack titles', () => {
-    expect(existsSync(join(APP, '(tabs)', '(home)', 'index.tsx'))).toBe(true);
+  it('each tab group holds the screen its stack wraps', () => {
+    for (const group of ['(home)', '(map)']) {
+      expect(existsSync(join(APP, '(tabs)', group, 'index.tsx'))).toBe(true);
+      expect(existsSync(join(APP, '(tabs)', group, '_layout.tsx'))).toBe(true);
+    }
     // A leftover file here would win over the group and drop the header.
     expect(existsSync(join(APP, '(tabs)', 'index.tsx'))).toBe(false);
+    expect(existsSync(join(APP, '(tabs)', 'map.tsx'))).toBe(false);
   });
 });
