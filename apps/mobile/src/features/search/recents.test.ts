@@ -1,6 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
+import { QueryClient } from '@tanstack/react-query';
 
-import { MAX_RECENTS, RECENTS_STORAGE_KEY, readRecents, rememberSearch } from './recents';
+import {
+  MAX_RECENTS,
+  RECENTS_STORAGE_KEY,
+  clearSearchHistory,
+  readRecents,
+  rememberSearch,
+} from './recents';
 
 import type { KeyValueStore } from '@/lib/storage';
 
@@ -56,6 +63,25 @@ describe('search recents', () => {
     rememberSearch('   ', store);
 
     expect(readRecents(store)).toEqual(['corona']);
+  });
+
+  it('clearing the history clears the cached searches too, not just the list', () => {
+    const store = memoryStore();
+    // gcTime Infinity schedules no collection timer, so the run does not
+    // sit waiting on one after the assertions.
+    const client = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+    rememberSearch('corona', store);
+    client.setQueryData(['curb', 'events', { q: 'corona', near: '33.62,-117.93' }], { data: [] });
+    client.setQueryData(['curb', 'clubs', { q: 'corona' }], []);
+    // A browse response is not a search and stays put.
+    client.setQueryData(['curb', 'feed', { near: '33.62,-117.93' }], { sections: [] });
+
+    clearSearchHistory(client, store);
+
+    expect(readRecents(store)).toEqual([]);
+    expect(client.getQueryData(['curb', 'events', { q: 'corona', near: '33.62,-117.93' }])).toBeUndefined();
+    expect(client.getQueryData(['curb', 'clubs', { q: 'corona' }])).toBeUndefined();
+    expect(client.getQueryData(['curb', 'feed', { near: '33.62,-117.93' }])).toBeDefined();
   });
 
   it('reads nothing rather than throwing on a corrupt entry', () => {

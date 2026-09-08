@@ -1,3 +1,5 @@
+import type { QueryClient } from '@tanstack/react-query';
+
 import { storage, type KeyValueStore } from '@/lib/storage';
 
 // R-20: up to ten recents, shown when the field is empty. On the device
@@ -36,4 +38,19 @@ export function rememberSearch(query: string, store: KeyValueStore = storage): s
 
 export function clearRecents(store: KeyValueStore = storage): void {
   store.remove(RECENTS_STORAGE_KEY);
+}
+
+// The recents list is not the only copy of what someone searched for: the
+// persisted query cache keys its rows by the query, which is what makes
+// S05's offline state work (Screens S05, "cached only"). Clearing the
+// history has to clear both, or the visible list empties while the same
+// strings stay on disk for another day.
+export function clearSearchHistory(client: QueryClient, store: KeyValueStore = storage): void {
+  clearRecents(store);
+  client.removeQueries({
+    predicate: (query) => {
+      const params = query.queryKey.at(-1);
+      return typeof params === 'object' && params !== null && 'q' in params;
+    },
+  });
 }

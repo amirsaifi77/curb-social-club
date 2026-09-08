@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { SEARCH_COPY, noResults } from '@/features/search/copy';
 import { searchPlaces, type Place } from '@/features/search/places';
 import { readRecents, rememberSearch } from '@/features/search/recents';
+import { markSearchClosed } from '@/features/search/SearchHeader';
 import { Recents, SearchResults } from '@/features/search/SearchResults';
 import { useDebouncedQuery } from '@/hooks/use-debounced-query';
 import { WIDE_RADIUS_KM } from '@/lib/browse-location';
@@ -55,6 +56,9 @@ export default function SearchScreen() {
 
   // Widening is about this query; the next one starts near again.
   useEffect(() => setEverywhere(false), [query]);
+
+  // Lets the header field open S05 again once this one has gone.
+  useEffect(() => markSearchClosed, []);
 
   const groups = {
     events: events.data?.data ?? [],
