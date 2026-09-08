@@ -12,6 +12,12 @@ RSpec.describe "v1/users" do
 
   let(:user) { create(:user) }
 
+  describe "anonymous access" do
+    before { create(:app_account) }
+
+    it_behaves_like "anonymous-allowed", "/v1/users/curb"
+  end
+
   path "/v1/users/{handle}" do
     get "Public profile" do
       description "The Profile shape (R-7, R-8). Anonymous by default; a suspended or deleted account is 404."

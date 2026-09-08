@@ -17,7 +17,7 @@ module Api
       # GET /v1/sponsors/:slug
       def show
         sponsor = find_sponsor or return
-        public_cache
+        cache_for(sponsor, SponsorPolicy)
         render_data SponsorResource.new(sponsor).to_h
       end
 
@@ -25,7 +25,7 @@ module Api
       # with its relation, host winning when both apply (R-8).
       def events
         sponsor = find_sponsor or return
-        public_cache
+        cache_for(sponsor, SponsorPolicy)
         render_events(host_events_page(sponsor: sponsor.id)) do |hit|
           EventSummaryResource.new(hit).to_h.merge(relation: Hosts::UpcomingEvents.relation(hit.event, sponsor))
         end

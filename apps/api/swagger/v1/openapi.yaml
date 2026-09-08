@@ -291,6 +291,21 @@ paths:
                 required:
                 - data
                 - meta
+    post:
+      summary: Create a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/v1/clubs/{slug}/events":
     get:
       summary: Meets a club hosts
@@ -430,6 +445,154 @@ paths:
       responses:
         '403':
           description: 'AC-7: clubs_self_service is off'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Leave a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}":
+    patch:
+      summary: Update a club
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/invites":
+    post:
+      summary: Invite a member
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/invite_code":
+    post:
+      summary: Rotate the invite code
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/v1/clubs/{id}/members/{user_id}":
+    patch:
+      summary: Change a member's role
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: user_id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Remove a member
+      description: Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service
+        is off.
+      tags:
+      - Clubs
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: user_id
+        in: path
+        schema:
+          type: string
+          format: uuid
+        required: true
+      responses:
+        '403':
+          description: clubs_self_service is off
           content:
             application/json:
               schema:
@@ -842,6 +1005,13 @@ paths:
           - date
           - distance
         description: distance needs near
+      - name: past
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: 'Host, sponsor, and search lists only: the most recent past meets
+          instead of upcoming ones. Ignored with near or bbox.'
       - name: limit
         in: query
         required: false

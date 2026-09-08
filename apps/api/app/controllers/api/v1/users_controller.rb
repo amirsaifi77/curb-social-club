@@ -22,11 +22,10 @@ module Api
       # GET /v1/users/:handle/clubs: ClubSummary with the member's role.
       def clubs
         profile = find_profile or return
-        memberships = ClubMembership.active.where(user_id: profile.user_id).includes(:club)
-                                    .reject { |membership| membership.club.hidden? }
+        memberships = Clubs::Memberships.visible_for(profile.user_id)
         public_cache
         render json: { data: ClubSummaryResource.new(memberships.map(&:club),
-                                                     params: { roles: memberships.to_h { |m| [ m.club_id, m.role ] } }).to_h,
+                                                     params: { roles: Clubs::Memberships.roles(memberships) }).to_h,
                        meta: { next_cursor: nil, total: nil } }
       end
 

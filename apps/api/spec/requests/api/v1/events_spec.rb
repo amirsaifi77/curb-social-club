@@ -43,6 +43,8 @@ RSpec.describe "v1/events" do
       parameter name: :host, getter: :host_filter, in: :query, required: false, schema: { type: :string }, description: "user:<id>, club:<id>, or sponsor:<id>"
       parameter name: :sponsor, in: :query, required: false, schema: { type: :string, format: :uuid }, description: "Events the sponsor hosts or is attached to"
       parameter name: :sort, in: :query, required: false, schema: { type: :string, enum: %w[date distance] }, description: "distance needs near"
+      parameter name: :past, in: :query, required: false, schema: { type: :boolean },
+                description: "Host, sponsor, and search lists only: the most recent past meets instead of upcoming ones. Ignored with near or bbox."
       parameter name: :limit, in: :query, required: false, schema: { type: :integer, minimum: 1, maximum: 50 }
       parameter name: :cursor, in: :query, required: false, schema: { type: :string }
 

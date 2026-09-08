@@ -215,6 +215,22 @@ RSpec.describe "v1/sponsors" do
       expect(json["data"]).to eq([])
     end
 
+    it "keeps a hidden sponsor's pages out of any shared cache and away from a suspended admin" do
+      admin = create(:user, role: "admin")
+      sponsor = create(:sponsor, :hidden)
+      create_meet(:lido, host: sponsor)
+
+      [ "/v1/sponsors/#{sponsor.slug}", "/v1/sponsors/#{sponsor.slug}/events" ].each do |path|
+        get path, headers: auth(admin)
+        expect(response).to have_http_status(:ok), "expected #{path} to be readable by an admin"
+        expect(response.headers["Cache-Control"]).to include("no-store"), "expected #{path} to be no-store"
+      end
+
+      admin.update!(status: "suspended")
+      get "/v1/sponsors/#{sponsor.slug}", headers: auth(admin)
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "orders by followers without near and 404s an unknown slug" do
       create(:sponsor, name: "Few", followers_count: 2)
       create(:sponsor, name: "Most", followers_count: 40)

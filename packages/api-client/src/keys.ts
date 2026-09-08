@@ -14,7 +14,8 @@ export const queryKeys = {
   club: (slug: string) => ['curb', 'clubs', slug] as const,
   clubEvents: (slug: string, query: Record<string, unknown> = {}) =>
     ['curb', 'clubs', slug, 'events', query] as const,
-  clubMembers: (slug: string) => ['curb', 'clubs', slug, 'members'] as const,
+  clubMembers: (slug: string, query: Record<string, unknown> = {}) =>
+    ['curb', 'clubs', slug, 'members', query] as const,
   sponsors: (query: Record<string, unknown> = {}) => ['curb', 'sponsors', query] as const,
   sponsor: (slug: string) => ['curb', 'sponsors', slug] as const,
   sponsorEvents: (slug: string, query: Record<string, unknown> = {}) =>

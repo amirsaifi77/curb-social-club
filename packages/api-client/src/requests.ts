@@ -106,8 +106,39 @@ export const api = {
       query: ClubMembersQuery = {},
     ): Promise<ClubMembersResponse> =>
       unwrap(await client.GET('/v1/clubs/{slug}/members', { params: { path: { slug }, query } })),
+    // Every club write is a Phase 7 endpoint: declared so the client
+    // contract is stable, answering 403 not_enabled until the flag is on.
     join: async (client: ApiClient, id: string): Promise<void> => {
       unwrap(await client.PUT('/v1/clubs/{id}/membership', { params: { path: { id } } }));
+    },
+    leave: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.DELETE('/v1/clubs/{id}/membership', { params: { path: { id } } }));
+    },
+    create: async (client: ApiClient): Promise<void> => {
+      unwrap(await client.POST('/v1/clubs'));
+    },
+    update: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.PATCH('/v1/clubs/{id}', { params: { path: { id } } }));
+    },
+    invite: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.POST('/v1/clubs/{id}/invites', { params: { path: { id } } }));
+    },
+    rotateInviteCode: async (client: ApiClient, id: string): Promise<void> => {
+      unwrap(await client.POST('/v1/clubs/{id}/invite_code', { params: { path: { id } } }));
+    },
+    updateMember: async (client: ApiClient, id: string, userId: string): Promise<void> => {
+      unwrap(
+        await client.PATCH('/v1/clubs/{id}/members/{user_id}', {
+          params: { path: { id, user_id: userId } },
+        }),
+      );
+    },
+    removeMember: async (client: ApiClient, id: string, userId: string): Promise<void> => {
+      unwrap(
+        await client.DELETE('/v1/clubs/{id}/members/{user_id}', {
+          params: { path: { id, user_id: userId } },
+        }),
+      );
     },
   },
   sponsors: {

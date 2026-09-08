@@ -8,5 +8,5 @@ class SponsorPolicy < ApplicationPolicy
     manage?
   end
 
-  def manage? = admin?
+  def manage? = member? && admin?
 end

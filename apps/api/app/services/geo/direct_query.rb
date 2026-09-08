@@ -50,7 +50,7 @@ module Geo
       Event.sanitize_sql_array([ <<~SQL.squish, from: window.from ])
         JOIN LATERAL (
           SELECT o.id, o.starts_at FROM event_occurrences o
-          WHERE o.event_id = events.id AND o.starts_at < :from
+          WHERE o.event_id = events.id AND o.starts_at < :from AND o.status <> 'cancelled'
           ORDER BY o.starts_at DESC LIMIT 1
         ) next_occurrence ON TRUE
       SQL
@@ -66,7 +66,8 @@ module Geo
     end
 
     def order_sql
-      return "hits.starts_at DESC, hits.event_id ASC" if past
+      # Both columns descend so the keyset below can page dates that tie.
+      return "hits.starts_at DESC, hits.event_id DESC" if past
 
       "COALESCE(hits.starts_at, 'infinity'::timestamptz) ASC, hits.event_id ASC"
     end
@@ -83,7 +84,6 @@ module Geo
     def cursor_values(row)
       [ row[2] ? row[2].utc.iso8601(6) : INFINITY, row[0] ]
     end
-
 
     def cast_cursor(values)
       starts_at, id = values

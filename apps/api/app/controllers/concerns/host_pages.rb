@@ -26,6 +26,12 @@ module HostPages
     false
   end
 
+  # Only a page the public may read is publicly cacheable; anything a
+  # manager or admin can see at a URL that 404s for everyone else is not.
+  def cache_for(record, policy)
+    policy.new(nil, record).show? && current_user.nil? ? public_cache : no_store
+  end
+
   def render_not_found(what)
     no_store
     render_error :not_found, "#{what} not found", status: :not_found

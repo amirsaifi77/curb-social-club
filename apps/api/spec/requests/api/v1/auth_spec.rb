@@ -250,4 +250,21 @@ RSpec.describe "v1/auth" do
       expect(json.dig("error", "details", "reason")).to eq("suspended")
     end
   end
+  describe "sign-up handles and names (R-1, R-3, R-4)" do
+    it "signs up a person whose name is a reserved handle, and truncates a long display name" do
+      post "/v1/auth/google", params: { id_token: google_token(email: "support@example.com", name: "Support") },
+                              as: :json
+      expect(response).to have_http_status(:created)
+      handle = json.dig("data", "user", "profile", "handle")
+      expect(handle).to start_with("support")
+      expect(handle).not_to eq("support")
+
+      long = "Bartholomew Archibald Fitzgerald the Third of Newport"
+      post "/v1/auth/google", params: { id_token: google_token(email: "long@example.com", name: long) },
+                              as: :json
+      expect(response).to have_http_status(:created)
+      expect(json.dig("data", "user", "profile", "display_name")).to eq(long.first(40))
+    end
+  end
+
 end

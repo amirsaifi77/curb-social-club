@@ -315,7 +315,30 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Create a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -461,10 +484,226 @@ export interface paths {
             };
         };
         post?: never;
+        /**
+         * Leave a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a club
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/clubs/{id}/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite a member
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}/invite_code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate the invite code
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/clubs/{id}/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Change a member's role
+         * @description Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description clubs_self_service is off */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/v1/devices": {
@@ -837,6 +1076,8 @@ export interface paths {
                     sponsor?: string;
                     /** @description distance needs near */
                     sort?: "date" | "distance";
+                    /** @description Host, sponsor, and search lists only: the most recent past meets instead of upcoming ones. Ignored with near or bbox. */
+                    past?: boolean;
                     limit?: number;
                     cursor?: string;
                 };

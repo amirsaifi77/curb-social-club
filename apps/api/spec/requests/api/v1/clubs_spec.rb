@@ -170,6 +170,136 @@ RSpec.describe "v1/clubs" do
     end
   end
 
+  path "/v1/clubs" do
+    post "Create a club" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}" do
+    patch "Update a club" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}/invites" do
+    post "Invite a member" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}/invite_code" do
+    post "Rotate the invite code" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}/members/{user_id}" do
+    patch "Change a member's role" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+      parameter name: :user_id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+        let(:user_id) { create(:user).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}/membership" do
+    delete "Leave a club" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
+  path "/v1/clubs/{id}/members/{user_id}" do
+    delete "Remove a member" do
+      description "Post-launch (clubs R-10). Returns 403 not_enabled while clubs_self_service is off."
+      tags "Clubs"
+      produces "application/json"
+      security [ { bearer: [] } ]
+      parameter name: :id, in: :path, schema: { type: :string, format: :uuid }
+      parameter name: :user_id, in: :path, schema: { type: :string, format: :uuid }
+
+      response "403", "clubs_self_service is off" do
+        schema "$ref" => "#/components/schemas/Error"
+        let(:Authorization) { "Bearer #{Auth::SessionIssuer.issue(create(:user)).token}" }
+        let(:id) { create(:club).id }
+        let(:user_id) { create(:user).id }
+
+        run_test! { expect(json.dig("error", "code")).to eq("not_enabled") }
+      end
+    end
+  end
+
   describe "club reads" do
     it "AC-2: a hidden club vanishes from the directory but keeps hosting its event (R-5)" do
       hidden = create(:club, :hidden, name: "Hidden Club")
@@ -198,6 +328,44 @@ RSpec.describe "v1/clubs" do
       get "/v1/clubs/#{club.slug}", headers: auth(admin)
       expect(response).to have_http_status(:ok)
       expect(json.dig("data", "viewer", "can_manage")).to be(true)
+    end
+
+    it "ignores kind, which only sponsors have, rather than 500ing on a missing column" do
+      create(:club, name: "Only Club")
+
+      get "/v1/clubs", params: { kind: "brand" }
+      expect(response).to have_http_status(:ok)
+      expect(json["data"].map { |row| row["name"] }).to eq([ "Only Club" ])
+      get "/v1/clubs", params: { kind: "nonsense" }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "pages a tie in followers_count without repeating or dropping a club (the launch case, every count 0)" do
+      names = (1..5).map { |i| create(:club, name: "Tie #{i}", followers_count: 0).name }
+
+      seen = []
+      cursor = nil
+      3.times do
+        get "/v1/clubs", params: { limit: 2, cursor: cursor }.compact
+        seen.concat(json["data"].map { |row| row["name"] })
+        cursor = json.dig("meta", "next_cursor")
+      end
+
+      expect(seen.uniq.size).to eq(5)
+      expect(seen).to match_array(names)
+      expect(cursor).to be_nil
+    end
+
+    it "keeps a hidden club's pages out of any shared cache" do
+      owner = create(:user)
+      club = create(:club, :hidden, owner: owner)
+      create_meet(:corona_del_mar, host: club)
+
+      [ "/v1/clubs/#{club.slug}", "/v1/clubs/#{club.slug}/events", "/v1/clubs/#{club.slug}/members" ].each do |path|
+        get path, headers: auth(owner)
+        expect(response).to have_http_status(:ok), "expected #{path} to be readable by the owner"
+        expect(response.headers["Cache-Control"]).to include("no-store"), "expected #{path} to be no-store"
+      end
     end
 
     it "orders by followers without near and pages with a cursor" do
@@ -242,6 +410,37 @@ RSpec.describe "v1/clubs" do
 
       get "/v1/clubs/no-such-club/events"
       expect(response).to have_http_status(:not_found)
+    end
+
+    it "pages past meets that share a start time without repeating or dropping one" do
+      club = create(:club)
+      when_it_happened = 30.days.ago.change(usec: 0)
+      names = (1..5).map do |i|
+        event = create_meet(:corona_del_mar, title: "Past #{i}", host: club)
+        event.occurrences.update_all(starts_at: when_it_happened, ends_at: when_it_happened + 2.hours)
+        event.title
+      end
+
+      seen = []
+      cursor = nil
+      3.times do
+        get "/v1/clubs/#{club.slug}/events", params: { past: "true", limit: 2, cursor: cursor }.compact
+        seen.concat(data_titles)
+        cursor = json.dig("meta", "next_cursor")
+      end
+
+      expect(seen.uniq.size).to eq(5)
+      expect(seen).to match_array(names)
+      expect(cursor).to be_nil
+    end
+
+    it "leaves a cancelled past date out of the past list" do
+      club = create(:club)
+      event = create_meet(:corona_del_mar, title: "Cancelled only", host: club)
+      event.occurrences.update_all(starts_at: 30.days.ago, ends_at: 30.days.ago + 2.hours, status: "cancelled")
+
+      get "/v1/clubs/#{club.slug}/events", params: { past: "true" }
+      expect(data_titles).to eq([])
     end
 
     it "lists active members only with their roles, paginated" do

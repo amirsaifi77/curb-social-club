@@ -49,7 +49,7 @@ class EventPolicy < ApplicationPolicy
   def sponsor_host_enabled? = Features.enabled?(:sponsors_self_service)
 
   # sponsors R-10: attaching sponsorships is admin-only at launch.
-  def sponsorships_allowed? = admin?
+  def sponsorships_allowed? = member? && admin?
 
   def claim_status
     return nil unless member?

@@ -19,14 +19,14 @@ module Api
       # GET /v1/clubs/:slug
       def show
         club = find_club or return
-        viewer_cache
+        viewer_cache(club)
         render_data ClubResource.new(club, params: { viewer: current_user }).to_h
       end
 
       # GET /v1/clubs/:slug/events
       def events
         club = find_club or return
-        public_cache
+        cache_for(club, ClubPolicy)
         render_events(host_events_page(host: "club:#{club.id}"))
       end
 
@@ -34,7 +34,7 @@ module Api
       def members
         club = find_club or return
         page = paginate_members(club)
-        viewer_cache
+        viewer_cache(club)
         render json: { data: page.items.map { |membership| member_row(membership) },
                        meta: { next_cursor: page.next_cursor, total: nil } }
       end
@@ -89,9 +89,10 @@ module Api
         raise Geo::ParamError, Geo::Cursor::INVALID
       end
 
-      # The viewer block and the member list depend on who is asking.
-      def viewer_cache
-        current_user ? no_store : public_cache
+      # The viewer block and the member list depend on who is asking, and a
+      # hidden club is never publicly cacheable.
+      def viewer_cache(club)
+        cache_for(club, ClubPolicy)
       end
     end
   end

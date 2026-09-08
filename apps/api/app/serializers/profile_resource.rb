@@ -10,10 +10,9 @@ class ProfileResource
   attribute(:avatar_url) { nil }
 
   attribute :clubs do |profile|
-    memberships = ClubMembership.active.where(user_id: profile.user_id).includes(:club)
-                                .reject { |membership| membership.club.hidden? }
-    roles = memberships.to_h { |membership| [ membership.club_id, membership.role ] }
-    ClubSummaryResource.new(memberships.map(&:club), params: { roles: roles }).to_h
+    memberships = Clubs::Memberships.visible_for(profile.user_id)
+    ClubSummaryResource.new(memberships.map(&:club),
+                            params: { roles: Clubs::Memberships.roles(memberships) }).to_h
   end
 
   attribute :counts do |profile|

@@ -14,6 +14,7 @@ class Profile < ApplicationRecord
   }.freeze
   LINK_KEYS = LINK_FORMATS.keys.freeze
   WEBSITE_MAX = 200
+  DISPLAY_NAME_MAX = 40
   # R-3: browse coordinates are coarse on purpose (location privacy).
   HOME_LOCATION_PRECISION = 2
 
@@ -27,11 +28,11 @@ class Profile < ApplicationRecord
   validates :handle, presence: true,
                      format: { with: HANDLE_FORMAT, message: "must be 3 to 24 lowercase letters, digits, or underscores" },
                      uniqueness: { case_sensitive: false }
-  validates :display_name, presence: true, length: { in: 1..40 }
+  validates :display_name, presence: true, length: { in: 1..DISPLAY_NAME_MAX }
   validates :bio, length: { maximum: 280 }, allow_nil: true
   validates :home_label, length: { maximum: 60 }, allow_nil: true
   validates :visibility, inclusion: { in: VISIBILITIES }
-  validate :handle_not_reserved, unless: :system_account
+  validate :handle_not_reserved, unless: :system_account?
   validate :links_allowed
 
   before_validation :normalize_handle
@@ -65,6 +66,12 @@ class Profile < ApplicationRecord
 
     self.home_location = Geo.point(home_location.y.round(HOME_LOCATION_PRECISION),
                                    home_location.x.round(HOME_LOCATION_PRECISION))
+  end
+
+  # The seeded app account holds a reserved handle for good, so a later
+  # save of that row (admin user editing in 1.9) must not trip the rule.
+  def system_account?
+    system_account || (persisted? && self.class.reserved_handles.include?(handle_was))
   end
 
   def handle_not_reserved

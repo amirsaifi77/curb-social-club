@@ -15,7 +15,9 @@ class ClubResource < ClubSummaryResource
   end
 
   attribute :members_preview do |club|
-    club.memberships.active.includes(user: :profile).order(:created_at).limit(MEMBERS_PREVIEW)
+    club.memberships.active.includes(user: :profile)
+        .where.not(user_id: Blocks.excluded_ids(params[:viewer]))
+        .order(:created_at, :id).limit(MEMBERS_PREVIEW)
         .filter_map { |membership| membership.user.profile }
         .map { |profile| MiniProfileResource.new(profile).to_h }
   end
