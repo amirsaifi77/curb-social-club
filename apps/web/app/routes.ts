@@ -12,6 +12,8 @@ export default [
   // W14: the link preview card, in its own namespace so it is easy to
   // disallow in robots.txt (R-17).
   route('og/meets/:slug.png', 'routes/og.meets.$slug[.png].tsx'),
+  // The flat brand card, for a host page with no banner (clubs.md R-21).
+  route('og/placeholder.png', 'routes/og.placeholder[.png].tsx'),
   // W06 to W09: the host pages, and the directory W07.
   route('u/:handle', 'routes/u.$handle.tsx'),
   route('clubs', 'routes/clubs._index.tsx'),

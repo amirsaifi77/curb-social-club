@@ -296,6 +296,20 @@ export function occurrenceJsonLd(
   return json;
 }
 
+// clubs.md R-21 and web.md R-5: every indexable page carries an og:image,
+// so a host with no banner gets the flat brand card rather than a link that
+// unfurls as a bare title.
+export function ogPlaceholderUrl(
+  baseUrl: string | null,
+  title: string,
+  subtitle?: string | null,
+): string | null {
+  if (!baseUrl) return null;
+  const query = new URLSearchParams({ title });
+  if (subtitle) query.set('subtitle', subtitle);
+  return `${baseUrl}/og/placeholder.png?${query.toString()}`;
+}
+
 // R-9: W08 and W09 emit an Organization. W06 emits none, because a person
 // is not one and schema.org's Person adds nothing a crawler does not
 // already have from the page.

@@ -46,7 +46,7 @@ describe('robots.txt', () => {
     expect(robots).toContain('User-agent: *');
     expect(robots).toContain('Allow: /');
     // R-17's list, plus the calendar downloads 1.16 added.
-    for (const path of ['/map', '/posts/', '/og/', '/new', '/imports/', '/sign-in']) {
+    for (const path of ['/map', '/posts/', '/og/', '/new', '/imports/', '/sign-in', '/calendar/']) {
       expect(robots).toContain(`Disallow: ${path}`);
       expect(DISALLOWED).toContain(path);
     }
@@ -65,6 +65,32 @@ describe('the apple-app-site-association', () => {
 
     expect(aasa.applinks.details[0]?.appID).toBe(`ABCDE12345.${APP_BUNDLE_ID}`);
     expect(aasa.webcredentials.apps).toEqual([`ABCDE12345.${APP_BUNDLE_ID}`]);
+  });
+
+  it('R-18: the served body carries every screen path, not just the first', () => {
+    // Asserting the exported constant would pass even if buildAasa dropped
+    // the list: what iOS reads is the body.
+    const served = JSON.parse(JSON.stringify(buildAasa('ABCDE12345'))) as {
+      applinks: { details: { components: { '/': string; exclude?: boolean }[] }[] };
+    };
+    const components = served.applinks.details[0]?.components ?? [];
+    const paths = components.map((row) => row['/']);
+
+    for (const path of [
+      '/meets/*',
+      '/occurrences/*',
+      '/u/*',
+      '/clubs/*',
+      '/sponsors/*',
+      '/spots/*',
+      '/posts/*',
+    ]) {
+      expect(paths).toContain(path);
+    }
+    for (const path of ['/og/*', '/calendar/*', '/sign-in', '/new']) {
+      const row = components.find((entry) => entry['/'] === path);
+      expect(row?.exclude).toBe(true);
+    }
   });
 
   it('R-18: every screen path is allowed and every machinery path excluded', () => {
@@ -86,7 +112,12 @@ describe('the apple-app-site-association', () => {
     expect(allowed.filter((path) => excluded.includes(path))).toEqual([]);
   });
 
-  it('is JSON with no extension, which is what Apple fetches', () => {
-    expect(() => JSON.parse(JSON.stringify(buildAasa('ABCDE12345')))).not.toThrow();
+  it('carries appIDs, which is the key iOS 13 and later reads', () => {
+    const served = buildAasa('ABCDE12345');
+
+    // The modern format pairs `appIDs` with `components`; `appID` is the
+    // legacy key that pairs with `paths`. web.md R-18 names `appID`, so
+    // both ship until that is updated.
+    expect(served.applinks.details[0]?.appIDs).toEqual(['ABCDE12345.club.curbsocial.app']);
   });
 });

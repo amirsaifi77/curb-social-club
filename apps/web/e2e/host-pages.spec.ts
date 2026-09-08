@@ -24,11 +24,29 @@ test.describe('W08 club page', () => {
     expect(json.sameAs).toContain('https://instagram.com/backbayaircooled');
     expect(json.sameAs).toContain('https://backbayaircooled.com/');
 
-    // AC-12 also wants og:title equal to the name and og:image set.
+    // AC-12 also wants og:title equal to the name and og:image set. This
+    // club has no banner and no avatar, so R-21's flat brand placeholder is
+    // what has to be there.
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       'content',
       'Back Bay Air-Cooled | curb',
     );
+    const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+    expect(image).toContain('/og/placeholder.png');
+  });
+
+  test('R-21: the placeholder card is a real 1200x630 PNG, not a dead link', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/clubs/back-bay-air-cooled');
+    const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+
+    const response = await request.get(new URL(image ?? '').pathname + new URL(image ?? '').search);
+    expect(response.status()).toBe(200);
+    const body = await response.body();
+    expect(body.readUInt32BE(16)).toBe(1200);
+    expect(body.readUInt32BE(20)).toBe(630);
   });
 
   test('R-5: a hidden club is a 404 page, not an error', async ({ page }) => {
@@ -85,6 +103,45 @@ test.describe('W06 profile', () => {
     await expect(page.getByText('128 followers. 3 meets.')).toBeVisible();
   });
 
+  test('profiles AC-18: og:title is the display name and og:image the avatar', async ({ page }) => {
+    await page.goto('/u/amir');
+
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Amir | curb',
+    );
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://media.example/avatars/amir.jpg',
+    );
+  });
+
+  test('R-28: a profile social link is nofollow, not an endorsement', async ({ page }) => {
+    await page.goto('/u/amir');
+
+    await expect(page.getByRole('link', { name: 'Instagram' })).toHaveAttribute(
+      'rel',
+      'nofollow noopener',
+    );
+  });
+
+  test('R-11: the in-app bar reaches the pages a host links from a bio', async ({ browser }) => {
+    // US-5: the club, sponsor and profile pages exist so a host can link
+    // them from an Instagram bio, which makes the in-app browser their
+    // main entry point rather than an edge case.
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 320.0.0.19.108',
+    });
+    const page = await context.newPage();
+
+    for (const path of ['/u/amir', '/clubs/back-bay-air-cooled', '/sponsors/bear-coast']) {
+      await page.goto(path);
+      await expect(page.getByTestId('open-in-app')).toBeVisible();
+    }
+    await context.close();
+  });
+
   test('R-7: a handle nobody has is the 404 page', async ({ page }) => {
     const response = await page.goto('/u/nobody');
 
@@ -118,6 +175,17 @@ test.describe('W12 city pages', () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       `${BASE}/socal/newport-beach`,
+    );
+  });
+
+  test('R-11: the city page carries the smart banner, since it is the page that ranks', async ({
+    page,
+  }) => {
+    await page.goto('/socal/newport-beach');
+
+    await expect(page.locator('meta[name="apple-itunes-app"]')).toHaveAttribute(
+      'content',
+      'app-id=6740000000, app-argument=https://curbsocial.club/socal/newport-beach',
     );
   });
 

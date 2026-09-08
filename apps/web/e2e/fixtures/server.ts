@@ -79,7 +79,12 @@ function route(url: URL): { status: number; body: string } {
 
   if (path === '/v1/sitemap') {
     return json({
-      events: [{ slug: 'lido-saturday', updated_at: '2026-09-01T00:00:00Z' }],
+      // AC-3: the API returns only public rows, so the unlisted meet is
+      // absent here and the sitemap has to stay that way.
+      events: [
+        { slug: 'lido-saturday', updated_at: '2026-09-01T00:00:00Z' },
+        { slug: 'fontana-sunday', updated_at: '2026-09-02T00:00:00Z' },
+      ],
       clubs: [{ slug: 'back-bay-air-cooled', updated_at: '2026-09-01T00:00:00Z' }],
       sponsors: [{ slug: 'bear-coast', updated_at: '2026-09-01T00:00:00Z' }],
       spots: [],

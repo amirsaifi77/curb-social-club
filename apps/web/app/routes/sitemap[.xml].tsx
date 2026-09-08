@@ -29,8 +29,15 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+// sitemaps.org caps one file at 50,000 URLs and 50 MB uncompressed, and
+// rejects the whole file past either. An index of several files is the
+// answer when the schedule outgrows this; until then, truncating keeps a
+// valid sitemap instead of none.
+export const SITEMAP_MAX_URLS = 50_000;
+
 export function buildSitemap(baseUrl: string, entries: readonly Entry[]): string {
   const urls = entries
+    .slice(0, SITEMAP_MAX_URLS)
     .map((entry) => {
       const loc = `<loc>${escapeXml(`${baseUrl}${entry.path}`)}</loc>`;
       const lastmod = entry.lastmod ? `<lastmod>${escapeXml(entry.lastmod)}</lastmod>` : '';

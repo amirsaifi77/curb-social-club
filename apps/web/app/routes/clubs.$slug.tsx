@@ -5,12 +5,13 @@ import type { Route } from './+types/clubs.$slug';
 
 import { AppLink } from '~/components/AppLink';
 import { HostMeets, HostPage } from '~/components/HostPage';
+import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { nearbyMeets, serverClient } from '~/lib/api.server';
 import { deviceIdForRequest } from '~/lib/cookies.server';
-import { HOST_COPY, followersLine } from '~/lib/copy';
-import { isIos } from '~/lib/deep-link';
+import { HOST_COPY, followersLine, membersLine } from '~/lib/copy';
+import { isInAppBrowser, isIos } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
-import { canonicalUrl, jsonLdScript, organizationJsonLd, pageMeta } from '~/lib/seo';
+import { canonicalUrl, jsonLdScript, ogPlaceholderUrl, organizationJsonLd, pageMeta } from '~/lib/seo';
 
 // W08 (web.md R-9, clubs.md R-21). The same content as S12, server
 // rendered, with an Organization a crawler can read.
@@ -28,6 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       baseUrl: shareBaseUrl(),
       appStoreId: appStoreId(),
       isIos: isIos(request.headers.get('user-agent')),
+      inAppBrowser: isInAppBrowser(request.headers.get('user-agent')),
     };
   } catch (error) {
     // clubs.md R-5: a hidden club is a 404 everywhere public.
@@ -47,13 +49,16 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
       club.description ??
       `${club.name}, a car club${club.home_label ? ` in ${club.home_label}` : ''}.`,
     canonical: canonicalUrl(baseUrl, `/clubs/${club.slug}`),
-    image: club.banner_url ?? club.avatar_url,
+    image:
+      club.banner_url ??
+      club.avatar_url ??
+      ogPlaceholderUrl(baseUrl, club.name, club.home_label),
     appStoreId: loaderData.appStoreId,
   });
 }
 
 export default function ClubPage({ loaderData }: Route.ComponentProps) {
-  const { club, members, baseUrl, appStoreId: storeId, isIos: onIos } = loaderData;
+  const { club, members, baseUrl, appStoreId: storeId, isIos: onIos, inAppBrowser } = loaderData;
   const jsonLd = organizationJsonLd(
     {
       name: club.name,
@@ -67,6 +72,9 @@ export default function ClubPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
+      {/* R-11: the club page is what a host links from an Instagram bio,
+          so the in-app browser is its main entry point. */}
+      <OpenInAppBar show={inAppBrowser} path={`clubs/${club.slug}`} appStoreId={storeId} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
@@ -90,9 +98,7 @@ export default function ClubPage({ loaderData }: Route.ComponentProps) {
 
         <section className="mt-10">
           <h2 className="font-display text-3xl">{HOST_COPY.members}</h2>
-          <p className="mt-2 text-textSecondary">
-            {club.members_count} {club.members_count === 1 ? 'member' : 'members'}.
-          </p>
+          <p className="mt-2 text-textSecondary">{membersLine(club.members_count)}</p>
           {members.length === 0 ? (
             <p className="mt-2 text-textSecondary">{HOST_COPY.membersEmpty}</p>
           ) : (

@@ -14,7 +14,15 @@ import { pageMeta } from '~/lib/seo';
 export async function loader({ request }: Route.LoaderArgs) {
   const client = serverClient(deviceIdForRequest(request.headers.get('cookie')));
   // A page, with the status a crawler needs to see.
-  return data({ nearby: await nearbyMeets(client, request) }, { status: 404 });
+  return data(
+    { nearby: await nearbyMeets(client, request) },
+    {
+      status: 404,
+      // A crawl of stale links is otherwise one feed request per dead URL,
+      // from a single egress IP, which is the worst shape for rack-attack.
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' },
+    },
+  );
 }
 
 export function meta() {

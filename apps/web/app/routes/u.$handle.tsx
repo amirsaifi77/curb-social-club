@@ -5,12 +5,13 @@ import type { Route } from './+types/u.$handle';
 
 import { AppLink } from '~/components/AppLink';
 import { HostMeets, HostPage } from '~/components/HostPage';
+import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { nearbyMeets, serverClient } from '~/lib/api.server';
 import { deviceIdForRequest } from '~/lib/cookies.server';
 import { HOST_COPY, hostCounts } from '~/lib/copy';
-import { isIos } from '~/lib/deep-link';
+import { isInAppBrowser, isIos } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
-import { canonicalUrl, pageMeta } from '~/lib/seo';
+import { canonicalUrl, ogPlaceholderUrl, pageMeta } from '~/lib/seo';
 
 // W06 (web.md R-28, profiles-and-follow.md Scope Phase 1). The read-only
 // user host page. R-9: no JSON-LD here, because a person is not an
@@ -33,6 +34,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       baseUrl: shareBaseUrl(),
       appStoreId: appStoreId(),
       isIos: isIos(request.headers.get('user-agent')),
+      inAppBrowser: isInAppBrowser(request.headers.get('user-agent')),
     };
   } catch (error) {
     // R-7: a suspended or deleted user is a 404, like a handle nobody took.
@@ -54,17 +56,21 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
       profile.bio ??
       (profile.home_label ? `Hosts meets in ${profile.home_label}` : `@${profile.handle} on curb`),
     canonical: canonicalUrl(baseUrl, `/u/${profile.handle}`),
-    image: profile.avatar_url,
+    image:
+      profile.avatar_url ??
+      ogPlaceholderUrl(baseUrl, profile.display_name, profile.home_label),
     appStoreId: loaderData.appStoreId,
   });
 }
 
 export default function ProfilePage({ loaderData }: Route.ComponentProps) {
-  const { profile, events, clubs, appStoreId: storeId, isIos: onIos } = loaderData;
+  const { profile, events, clubs, appStoreId: storeId, isIos: onIos, inAppBrowser } = loaderData;
   const hosted = events ?? [];
 
   return (
-    <HostPage
+    <>
+      <OpenInAppBar show={inAppBrowser} path={`u/${profile.handle}`} appStoreId={storeId} />
+      <HostPage
       name={profile.display_name}
       handle={profile.handle}
       avatarUrl={profile.avatar_url}
@@ -119,6 +125,7 @@ export default function ProfilePage({ loaderData }: Route.ComponentProps) {
           seeAll={{ href: `/meets?host=user:${profile.id}`, label: HOST_COPY.seeAll }}
         />
       ) : null}
-    </HostPage>
+      </HostPage>
+    </>
   );
 }

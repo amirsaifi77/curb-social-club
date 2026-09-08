@@ -4,12 +4,14 @@ import { data } from 'react-router';
 import type { Route } from './+types/socal.$city';
 
 import { MeetCard, isEventSummary } from '~/components/MeetCard';
+import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { nearbyMeets, serverClient } from '~/lib/api.server';
 import { CITIES, cityNear, findCity } from '~/lib/cities';
 import { deviceIdForRequest } from '~/lib/cookies.server';
 import { cityDescription, cityEmpty, cityTitle } from '~/lib/copy';
-import { shareBaseUrl } from '~/lib/env.server';
-import { canonicalUrl, pageMeta } from '~/lib/seo';
+import { isInAppBrowser } from '~/lib/deep-link';
+import { appStoreId, shareBaseUrl } from '~/lib/env.server';
+import { canonicalUrl, ogPlaceholderUrl, pageMeta } from '~/lib/seo';
 
 // W12 (web.md R-12). One page per launch city, the three time sections
 // only, within 10 miles. A known city with no meets stays live with its
@@ -32,7 +34,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     (TIME_SECTIONS as readonly string[]).includes(section.kind),
   );
 
-  return { city, sections, baseUrl: shareBaseUrl() };
+  return {
+    city,
+    sections,
+    baseUrl: shareBaseUrl(),
+    appStoreId: appStoreId(),
+    inAppBrowser: isInAppBrowser(request.headers.get('user-agent')),
+  };
 }
 
 export function meta({ data: loaderData }: Route.MetaArgs) {
@@ -42,15 +50,19 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
     title: cityTitle(city.name),
     description: cityDescription(city.name),
     canonical: canonicalUrl(baseUrl, `/socal/${city.slug}`),
+    image: ogPlaceholderUrl(baseUrl, cityTitle(city.name)),
+    appStoreId: loaderData.appStoreId,
   });
 }
 
 export default function CityPage({ loaderData }: Route.ComponentProps) {
-  const { city, sections } = loaderData;
+  const { city, sections, appStoreId: storeId, inAppBrowser } = loaderData;
   const empty = sections.every((section) => section.items.length === 0);
 
   return (
-    <main className="mx-auto max-w-pageMax px-gutter py-10">
+    <>
+      <OpenInAppBar show={inAppBrowser} path="" appStoreId={storeId} />
+      <main className="mx-auto max-w-pageMax px-gutter py-10">
       <h1 className="font-display text-4xl">{cityTitle(city.name)}</h1>
 
       {empty ? (
@@ -76,7 +88,8 @@ export default function CityPage({ loaderData }: Route.ComponentProps) {
             {other.name}
           </a>
         ))}
-      </nav>
-    </main>
+        </nav>
+      </main>
+    </>
   );
 }

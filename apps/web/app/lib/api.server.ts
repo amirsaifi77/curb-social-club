@@ -59,16 +59,21 @@ export function serverClient(deviceId: string | null, timeoutMs = API_TIMEOUT_MS
 // are absent (R-13).
 export const FALLBACK_NEAR = { lat: 33.62, lng: -117.93 };
 
-export function nearFromRequest(request: Request): string {
+// The reader's coarse location, or nothing. A caller that must have one
+// uses nearFromRequest; a caller whose query means something different
+// without one (the club directory, R-22) needs to tell them apart.
+export function vercelNear(request: Request): string | null {
   const rawLat = request.headers.get('x-vercel-ip-latitude');
   const rawLng = request.headers.get('x-vercel-ip-longitude');
+  if (rawLat === null || rawLng === null) return null;
   const lat = Number(rawLat);
   const lng = Number(rawLng);
-  // Both or neither: a missing header parses as 0, and one header alone put
-  // the reader in the Gulf of Guinea.
-  const usable = rawLat !== null && rawLng !== null && Number.isFinite(lat) && Number.isFinite(lng);
-  const point = usable ? { lat, lng } : FALLBACK_NEAR;
-  return roundNear(point.lat, point.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return roundNear(lat, lng);
+}
+
+export function nearFromRequest(request: Request): string {
+  return vercelNear(request) ?? roundNear(FALLBACK_NEAR.lat, FALLBACK_NEAR.lng);
 }
 
 // R-21: the three meets a 404 offers instead of a dead end. A 410 comes

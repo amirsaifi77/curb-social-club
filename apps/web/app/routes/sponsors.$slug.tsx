@@ -5,12 +5,13 @@ import type { Route } from './+types/sponsors.$slug';
 
 import { AppLink } from '~/components/AppLink';
 import { HostMeets, HostPage } from '~/components/HostPage';
+import { OpenInAppBar } from '~/components/OpenInAppBar';
 import { nearbyMeets, serverClient } from '~/lib/api.server';
 import { deviceIdForRequest } from '~/lib/cookies.server';
 import { HOST_COPY, followersLine, relationLabel, sponsorKindLabel } from '~/lib/copy';
-import { isIos } from '~/lib/deep-link';
+import { isInAppBrowser, isIos } from '~/lib/deep-link';
 import { appStoreId, shareBaseUrl } from '~/lib/env.server';
-import { canonicalUrl, jsonLdScript, organizationJsonLd, pageMeta } from '~/lib/seo';
+import { canonicalUrl, jsonLdScript, ogPlaceholderUrl, organizationJsonLd, pageMeta } from '~/lib/seo';
 
 // W09 (web.md R-9, sponsors.md R-19). Matches W08 frame for frame; `kind`
 // changes the label and nothing else. No create or edit surface anywhere,
@@ -25,6 +26,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       baseUrl: shareBaseUrl(),
       appStoreId: appStoreId(),
       isIos: isIos(request.headers.get('user-agent')),
+      inAppBrowser: isInAppBrowser(request.headers.get('user-agent')),
     };
   } catch (error) {
     if (errorStatus(error) === 404) {
@@ -44,13 +46,16 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
       sponsor.description ??
       `${sponsor.name}, ${sponsorKindLabel(sponsor.kind).toLowerCase()} at local car meets.`,
     canonical: canonicalUrl(baseUrl, `/sponsors/${sponsor.slug}`),
-    image: sponsor.banner_url ?? sponsor.logo_url,
+    image:
+      sponsor.banner_url ??
+      sponsor.logo_url ??
+      ogPlaceholderUrl(baseUrl, sponsor.name, sponsor.tagline),
     appStoreId: loaderData.appStoreId,
   });
 }
 
 export default function SponsorPage({ loaderData }: Route.ComponentProps) {
-  const { sponsor, baseUrl, appStoreId: storeId, isIos: onIos } = loaderData;
+  const { sponsor, baseUrl, appStoreId: storeId, isIos: onIos, inAppBrowser } = loaderData;
   const jsonLd = organizationJsonLd(
     {
       name: sponsor.name,
@@ -65,6 +70,7 @@ export default function SponsorPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
+      <OpenInAppBar show={inAppBrowser} path={`sponsors/${sponsor.slug}`} appStoreId={storeId} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}

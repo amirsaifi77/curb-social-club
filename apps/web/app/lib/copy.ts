@@ -29,9 +29,7 @@ export const WEB_COPY = {
   sourceAction: 'Open the original',
   goingZero: "Nobody has said they're going yet.",
   getTheApp: 'Get the app',
-  // web.md Copy, the W05 rows. The loading line is this route's own: the
-  // map is client-only, so there is a moment with nothing on screen and the
-  // Copy table names no string for it.
+  // web.md Copy, the W05 rows.
   mapLoading: 'Loading the map.',
   mapTruncated: 'Zoom in to see all meets here.',
   mapEmpty: 'No meets here. Zoom out, or add the one you know about in the app.',
@@ -63,6 +61,7 @@ export const HOST_COPY = {
   // web says where to do it rather than offering a control that cannot.
   follow: 'Follow in the app',
   clubsTitle: 'Clubs in Southern California',
+  clubsEmpty: 'No clubs listed yet.',
   profileHostBadge: 'Host',
   profileClubs: 'Clubs',
   profileClubsEmpty: 'Not in a club yet.',
@@ -84,6 +83,12 @@ export const RELATIONS: Record<string, string> = { host: 'Hosts', sponsor: 'Spon
 
 export function relationLabel(relation: string): string {
   return RELATIONS[relation] ?? RELATIONS.sponsor;
+}
+
+// web.md Copy, "W08 members count". The web has no roles to name: the
+// member list is a second request this page does not make.
+export function membersLine(count: number): string {
+  return `${count} ${count === 1 ? 'member' : 'members'}.`;
 }
 
 export function followersLine(count: number): string {

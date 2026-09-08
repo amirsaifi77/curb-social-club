@@ -168,18 +168,33 @@ export function occurrence(overrides: Record<string, unknown> = {}) {
   };
 }
 
+// Every section kind the API can send, so a page that is supposed to show
+// only the three time sections has something to leave out.
 export const FEED = {
   sections: [
+    { kind: 'this_weekend', title: 'This weekend', items: [eventSummary()], more: null },
     {
-      kind: 'this_weekend',
-      title: 'This weekend',
-      items: [eventSummary()],
+      kind: 'clubs_nearby',
+      title: 'Clubs near you',
+      items: [{ id: 'c1', slug: 'back-bay-air-cooled', name: 'Back Bay Air-Cooled' }],
       more: null,
     },
     {
       kind: 'next_week',
       title: 'Next week',
       items: [eventSummary({ id: 'e2', slug: 'fontana-sunday', title: 'Fontana Sunday' })],
+      more: null,
+    },
+    {
+      kind: 'sponsors_nearby',
+      title: 'Sponsors near you',
+      items: [{ id: 's1', slug: 'bear-coast', name: 'Bear Coast Coffee' }],
+      more: null,
+    },
+    {
+      kind: 'later',
+      title: 'Later',
+      items: [eventSummary({ id: 'e3', slug: 'lido-november', title: 'Lido November' })],
       more: null,
     },
   ],
@@ -244,7 +259,7 @@ export const PROFILE = {
   handle: 'amir',
   display_name: 'Amir',
   bio: 'Runs the Saturday meet at Lido.',
-  avatar_url: null,
+  avatar_url: 'https://media.example/avatars/amir.jpg',
   home_label: 'Newport Beach, CA',
   is_host: true,
   links: { instagram: 'amir', website: 'https://example.com' },
