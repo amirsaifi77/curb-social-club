@@ -67,6 +67,45 @@ RSpec.describe Seeds::DevFixtures, type: :service do
     expect(ClubMembership.count).to eq(4)
   end
 
+  it "attaches a placeholder picture to every cover, avatar, logo, and banner" do
+    run
+
+    described_class::IMAGES.each do |model, names|
+      model.find_each do |record|
+        names.each do |name|
+          attachment = record.public_send(name)
+          expect(attachment).to be_attached, "#{record.slug} has no #{name}"
+          expect(attachment.content_type).to eq("image/jpeg")
+          expect(attachment.filename.to_s).to eq("#{record.slug}-#{name}.jpg")
+        end
+      end
+    end
+    expect(ActiveStorage::Attachment.count).to eq(15)
+    expect(io.string).to include("15 images attached")
+  end
+
+  it "leaves the pictures alone on a second run" do
+    run
+    second = StringIO.new
+
+    expect { described_class.call(io: second) }.not_to change(ActiveStorage::Blob, :count)
+    expect(second.string).to include("0 images attached")
+  end
+
+  # A new fixture row should not wait on somebody drawing its picture.
+  it "reports a row with no picture and leaves it bare" do
+    Dir.mktmpdir do |tmp|
+      described_class::TEMPLATES.each { |kind| FileUtils.cp(Rails.root.join("db/seeds/dev/#{kind}.csv.erb"), tmp) }
+
+      reports = described_class.call(io: io, directory: tmp)
+
+      expect(reports.sum { |report| report.counts[:error] }).to eq(0)
+      expect(ActiveStorage::Attachment.count).to eq(0)
+      expect(io.string).to include("no cover for dev-harbor-coffee-run at images/events/dev-harbor-coffee-run-cover.jpg, skipping")
+      expect(io.string).to include("0 images attached")
+    end
+  end
+
   it "marks every row as fabricated rather than verified" do
     run
 
@@ -110,6 +149,10 @@ RSpec.describe Seeds::DevFixtures, type: :service do
       expect(EventSponsorship.count).to eq(0)
       # The app account is not a fixture.
       expect(Profile.pluck(:handle)).to eq([ "curb" ])
+      # Purged inline, not left to a purge job no worker may be running.
+      expect(ActiveStorage::Attachment.count).to eq(0)
+      expect(ActiveStorage::Blob.count).to eq(0)
+      expect(io.string).to include("15 images removed")
     end
 
     # Venues::Deduper shares a lot between rows (events spec R-6), so one a

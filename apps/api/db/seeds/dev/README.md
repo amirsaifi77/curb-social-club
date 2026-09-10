@@ -54,3 +54,21 @@ slug.
 | `sponsors.csv.erb` | Two sponsors, one verified, covering `vendor` and `brand` |
 | `clubs.csv.erb` | Two clubs, one open and verified, one invite-only |
 | `events.csv.erb` | Seven meets, one per launch city, covering every cadence except `announced`, all three host types plus the app account, and two sponsorships |
+| `images/` | Fifteen placeholder pictures: a cover per event, an avatar and banner per club, a logo and banner per sponsor |
+
+## Images
+
+The rows carry pictures so the cards and host pages render their photo-first
+layout instead of the empty one. Every file under `images/` is a flat
+composition in the brand palette (a serif title, the place and the time, a
+hairline lot) that says on its face that it is a placeholder, because the
+lots do not exist and nothing photographed should stand in for them.
+
+| Rule | Detail |
+|---|---|
+| One file per attachment | `images/<table>/<slug>-<attachment>.jpg`: `events/*-cover.jpg`, `clubs/*-avatar.jpg` and `*-banner.jpg`, `sponsors/*-logo.jpg` and `*-banner.jpg` |
+| Sizes | Covers and banners 1200 by 675 (16:9, the card and detail ratio). Avatars and logos 512 by 512 |
+| Attached by `seeds:dev` | After the rows import, each attachment that is empty gets its file. A re-run attaches nothing, so the blobs are not duplicated |
+| A row without a picture | Reported (`no cover for dev-x at images/events/dev-x-cover.jpg, skipping`) and left bare. Adding a fixture row never waits on drawing one |
+| Removed by `seeds:dev:clear` | Purged inline before the rows go, so the files leave `storage/` even when no Solid Queue worker is running |
+| Drawn by | `node tooling/render-fixture-images.mjs`, which screenshots a small HTML page per image with the Chromium `apps/web` already depends on. Re-run it when a fixture row is added or renamed and commit the output |

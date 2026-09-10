@@ -36,6 +36,15 @@ module Seeds
       "dev_ava" => "Ava (fixture)",
       "dev_mateo" => "Mateo (fixture)"
     }.freeze
+    # The placeholder pictures under db/seeds/dev/images, one per attachment
+    # a fixture row can carry, named <slug>-<attachment>.jpg under the
+    # table's directory. tooling/render-fixture-images.mjs draws them; each
+    # one says on its face that it is a placeholder.
+    IMAGES = {
+      Event => %i[cover],
+      Club => %i[avatar banner],
+      Sponsor => %i[logo banner]
+    }.freeze
 
     def self.call(...) = new(...).call
 
@@ -54,6 +63,7 @@ module Seeds
         render_into(Pathname(tmp))
         reports = Seeds::Runner.import_all(directory: Pathname(tmp), io: io)
         memberships
+        images
         reports
       end
     end
@@ -65,15 +75,20 @@ module Seeds
     def clear
       guard
 
-      events = Event.where("slug LIKE ?", "dev-%")
+      # Purged before the rows go rather than left to destroy's purge_later:
+      # without a Solid Queue worker running, that job would sit in the queue
+      # and the files in storage/ until one did.
+      images = purge_images
+      events = fixtures(Event)
       venue_ids = events.distinct.pluck(:venue_id)
       counts = { events: events.count }
       events.destroy_all
 
       counts[:venues] = Venue.where(id: venue_ids).where.missing(:events).destroy_all.size
-      counts[:clubs] = Club.where("slug LIKE ?", "dev-%").destroy_all.size
-      counts[:sponsors] = Sponsor.where("slug LIKE ?", "dev-%").destroy_all.size
+      counts[:clubs] = fixtures(Club).destroy_all.size
+      counts[:sponsors] = fixtures(Sponsor).destroy_all.size
       counts[:people] = User.where(id: Profile.where(handle: PEOPLE.keys).select(:user_id)).destroy_all.size
+      counts[:images] = images
 
       io.puts counts.map { |kind, count| "#{count} #{kind}" }.join(", ") + " removed"
       counts
@@ -109,13 +124,60 @@ module Seeds
     # The club importer gives a club its owner and nobody else, so S13 would
     # be a one-row list. Everybody joins everything.
     def memberships
-      clubs = Club.where("slug LIKE ?", "dev-%")
+      clubs = fixtures(Club)
       Profile.where(handle: PEOPLE.keys).includes(:user).each do |profile|
         clubs.each do |club|
           membership = club.memberships.find_or_initialize_by(user: profile.user)
           next if membership.persisted?
 
           membership.update!(role: "member", status: "active")
+        end
+      end
+    end
+
+    # Every fixture row of one model. The prefix is safe here because a
+    # slug cannot contain `_` (the models' SLUG_FORMAT), so the LIKE
+    # wildcard the README warns about never comes up.
+    def fixtures(model) = model.where("slug LIKE ?", "dev-%")
+
+    # A picture on every cover, avatar, logo, and banner, so the cards and
+    # host pages render the photo-first layout instead of the empty one.
+    # Attaching only what is missing keeps a re-run from uploading fifteen
+    # files again; a fixture row with no picture in the directory is
+    # reported and left bare rather than treated as an error, so adding a
+    # row never waits on drawing one.
+    def images
+      attached = 0
+      IMAGES.each do |model, names|
+        fixtures(model).find_each do |record|
+          names.each do |name|
+            attachment = record.public_send(name)
+            next if attachment.attached?
+
+            path = image_path(model, record.slug, name)
+            next io.puts("no #{name} for #{record.slug} at #{path.relative_path_from(directory)}, skipping") unless path.exist?
+
+            path.open("rb") { |file| attachment.attach(io: file, filename: path.basename.to_s, content_type: "image/jpeg") }
+            attached += 1
+          end
+        end
+      end
+      io.puts "#{attached} images attached"
+      attached
+    end
+
+    def image_path(model, slug, name) = directory.join("images", model.table_name, "#{slug}-#{name}.jpg")
+
+    def purge_images
+      IMAGES.sum do |model, names|
+        fixtures(model).find_each.sum do |record|
+          names.count do |name|
+            attachment = record.public_send(name)
+            next false unless attachment.attached?
+
+            attachment.purge
+            true
+          end
         end
       end
     end

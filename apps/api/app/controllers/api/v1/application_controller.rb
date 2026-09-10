@@ -7,6 +7,8 @@ module Api
     class ApplicationController < ActionController::API
       include Authenticate
       include Pundit::Authorization
+      # Gives MediaUrls the request host, so attachment URLs come back absolute.
+      include ActiveStorage::SetCurrent
 
       rescue_from ActiveRecord::RecordNotFound do |e|
         render_error :not_found, e.message, status: :not_found
