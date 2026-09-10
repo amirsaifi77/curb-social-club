@@ -1,6 +1,6 @@
 # ADR 0002: Rails 8 API-only backend with Solid Queue and Solid Cache
 
-Date: 2026-09-05. Status: Accepted.
+Date: 2026-09-05. Status: Accepted. Updated 2026-09-10: the Ruby pin moved from 3.3.6 to 4.0.6 (gaps item 25); nothing else in this decision changed.
 
 ## Context
 

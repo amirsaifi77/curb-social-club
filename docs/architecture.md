@@ -96,7 +96,7 @@ curb-social-club/
       ci.yml
   .gitignore
   .nvmrc                      # 24
-  .ruby-version               # 3.3.x
+  .ruby-version               # 4.0.x
   CLAUDE.md                   # conventions for Claude Code sessions
   CONTRIBUTING.md
   LICENSE                     # all rights reserved (private repo)
@@ -733,7 +733,7 @@ GitHub Actions, one workflow with per-app jobs gated by `paths` filters so a mob
 
 | Job | Trigger | Steps |
 |---|---|---|
-| `api` | changes under `apps/api/**` | Ruby 3.3 setup with bundler cache, Postgres service `postgis/postgis:16-3.4`, `db:prepare`, `rubocop`, `rspec`, upload `openapi.yaml` artifact, fail if committed spec is stale |
+| `api` | changes under `apps/api/**` | Ruby 4.0 setup with bundler cache, Postgres service `postgis/postgis:16-3.4`, `db:prepare`, `rubocop`, `rspec`, upload `openapi.yaml` artifact, fail if committed spec is stale |
 | `web` | `apps/web/**`, `packages/**` | pnpm install with cache, `turbo lint typecheck test build --filter=@curb/web...` |
 | `mobile` | `apps/mobile/**`, `packages/**` | pnpm install, `turbo lint typecheck test --filter=@curb/mobile...`; no native build on PRs |
 | `packages` | `packages/**` | `turbo lint typecheck test build --filter='./packages/*'` |

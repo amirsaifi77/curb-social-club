@@ -45,7 +45,7 @@ Consolidated from the market research, architecture, product, mobile, and brand 
 | 22 | Analytics and privacy stance | The plan assumes a self-built event stream. Third-party SDKs change the App Privacy label. | Self-hosted events into Postgres for beta; consider PostHog self-hosted later. No ad SDKs. |
 | 23 | Push notification policy. **Adopted 2026-09-06.** | "New meet near you" can become noise quickly, and the beachhead persona is notification-averse. | Weekly digest by default, immediate for followed hosts, clubs, and sponsors, one host announcement per occurrence enforced by `notifications.dedupe_key`, quiet hours 22:00 to 07:00 local except cancellations (`docs/specs/notifications.md`). |
 | 24 | Android timing | Everything is iOS-first, but Expo makes Android cheap and a large share of car enthusiasts use Android. | Android build in Phase 6 with Material fallbacks already designed; no Android-specific features before then. |
-| 25 | Ruby and Rails versions | Skeleton pins Ruby 3.3.6 and targets Rails 8.1. | Consider Ruby 3.4 before running `rails new api --name=curb_social_club`. |
+| 25 | Ruby and Rails versions. **Resolved 2026-09-10: Ruby 4.0.6 on Rails 8.1.** The API was generated on Ruby 3.3.6 and moved to 4.0.6 once the maintainer's machine had it; every locked gem accepts 4.0, the suite passes on it, and `.ruby-version`, the Dockerfile, and CI pin it. | The pin has to match what the maintainer runs, or `bin/rails` does not start. | Bump the patch version in `.ruby-version` and the Dockerfile together. |
 
 ## Brand and design
 

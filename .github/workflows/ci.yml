@@ -16,7 +16,7 @@ concurrency:
 # pnpm/action-setup fails if both that field and a workflow version are set.
 env:
   NODE_VERSION: 24
-  RUBY_VERSION: "3.3"
+  RUBY_VERSION: "4.0"
 
 jobs:
   changes:

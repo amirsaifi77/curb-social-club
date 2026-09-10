@@ -9,7 +9,7 @@ Status: live. Phase 1 is code complete, so every app runs locally against a data
 | mise | latest | `brew install mise`. One tool manager for Node and Ruby. asdf works too; nvm plus rbenv is fine if already installed. |
 | Node | 24 LTS (`.nvmrc`) | `mise use node@24`, or `nvm use` if nvm is already installed |
 | pnpm | 9 (pinned in root `package.json` `packageManager`) | `corepack enable && corepack prepare pnpm@latest --activate` |
-| Ruby | 3.3 (`.ruby-version`) | `mise use ruby@3.3` |
+| Ruby | 4.0 (`.ruby-version`) | `mise use ruby@4.0` |
 | Docker Desktop or OrbStack | latest | For Postgres + PostGIS only |
 | libvips | latest | `brew install vips` (image processing) |
 | Xcode | 26 | App Store. Needed for iOS simulators and dev builds. |
