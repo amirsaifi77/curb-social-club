@@ -83,9 +83,12 @@ export function createClient(options: ClientOptions): ApiClient {
       if (deviceId) request.headers.set('X-Device-Id', deviceId);
       return request;
     },
+    // Returns nothing on purpose. openapi-fetch treats any returned value as
+    // a replacement and rejects it unless it is a new Response, and on React
+    // Native the Response this middleware was handed fails that instanceof
+    // check, so returning it turned every successful request into an error.
     async onResponse({ response }) {
       if (response.status === 401) await options.onUnauthorized?.();
-      return response;
     },
   };
   client.use(auth);

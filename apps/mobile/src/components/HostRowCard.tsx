@@ -51,7 +51,10 @@ export function HostRowCard({
     // prop: every club and sponsor row was a dead tap.
     <Link href={kind === 'club' ? `/clubs/${slug}` : `/sponsors/${slug}`} asChild>
       <Pressable
-        style={[styles.card, layout === 'list' && styles.list]}
+        // One style object, never an array: expo-router's Slot clones this
+        // child and throws on an array style, which took down every screen
+        // carrying a clubs or sponsors row.
+        style={layout === 'list' ? styles.listRow : styles.card}
         accessibilityRole="link"
         accessibilityLabel={name}
       >
@@ -83,11 +86,18 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: theme.radius.hairline,
     borderColor: theme.colors.border,
   },
-  list: {
+  // The stacked search variant. A complete style rather than an override
+  // merged onto `card`, because the two cannot be passed as an array here.
+  listRow: {
     width: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing['3'],
+    padding: theme.spacing['3'],
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.card,
+    borderWidth: theme.radius.hairline,
+    borderColor: theme.colors.border,
   },
   image: {
     width: 44,
